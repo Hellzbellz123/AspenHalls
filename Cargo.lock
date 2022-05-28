@@ -259,6 +259,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_asset_loader"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5200da755326dce03c414e53d0ac3cd3242a6ddc9a89ac3e43cf5f776587d429"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader_derive",
+]
+
+[[package]]
+name = "bevy_asset_loader_derive"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5560b79168910c1264911388ee10cca7315f0cf3b04615eebbac515bdc54af3"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bevy_core"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -343,6 +364,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_ecs_ldtk"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d0661cd867975b3c56f05a6d910c5b1178b056be5111e11c18711b07906d290"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "bevy_ecs_ldtk_macros",
+ "bevy_ecs_tilemap",
+ "hex",
+ "regex",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "bevy_ecs_ldtk_macros"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05db2cd10653acc3788745719550c87f1f156f1ce610e84b1b8e89a3ede96aea"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bevy_ecs_macros"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -352,6 +401,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "bevy_ecs_tilemap"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c68fefad7aa09f9833d198c0fd1d9ebe58bf9ab3abf91cf912e4f5585227fb82"
+dependencies = [
+ "bevy",
+ "bytemuck",
+ "log",
+ "regex",
 ]
 
 [[package]]
@@ -2478,6 +2539,8 @@ name = "projectkira"
 version = "0.0.1"
 dependencies = [
  "bevy",
+ "bevy_asset_loader",
+ "bevy_ecs_ldtk",
  "bevy_kira_audio",
  "embed-resource",
 ]

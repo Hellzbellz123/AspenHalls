@@ -1,16 +1,21 @@
-//#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]  no terminal on windows in release?
-use bevy::prelude::*;
+// disable console on windows for release builds
+//#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
+use bevy::DefaultPlugins;
+use projectkira::GamePlugin;
 
 fn main() {
-    let mut app = App::new();
-    // Window setup
-    app.insert_resource(WindowDescriptor {
-        title: "Mine Sweeper!".to_string(),
-        width: 700.,
-        height: 800.,
-        ..Default::default()
-    });
-    // Bevy default plugins
-    app.add_plugins(DefaultPlugins);
-    app.run();
+    App::new()
+        .insert_resource(Msaa { samples: 1 })
+        .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
+        .insert_resource(WindowDescriptor {
+            width: 800.,
+            height: 600.,
+            title: "Bevy game".to_string(), // ToDo
+            ..Default::default()
+        })
+        .add_plugins(DefaultPlugins)
+        .add_plugin(GamePlugin)
+        .run();
 }
