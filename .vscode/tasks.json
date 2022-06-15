@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cargo",
+			"command": "build",
+			"args": [
+				"--target",
+				"x86_64-pc-windows-msvc",
+				"--release"
+			],
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "rust: cargo build Windows"
+		},
+		{
+			"type": "cargo",
+			"command": "build",
+			"args": [
+				"--target",
+				"x86_64-unknown-linux-gnu",
+				"--release"
+			],
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "rust: cargo build Linux"
+		},
+		
+	]
+}

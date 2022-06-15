@@ -3,6 +3,7 @@ mod audio;
 mod loading;
 mod menu;
 mod player;
+mod gameworld;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -14,6 +15,8 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
+use gameworld::setupworld::{self, MyBundle};
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -37,7 +40,11 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            .add_plugin(PlayerPlugin);
+            .add_plugin(PlayerPlugin)
+            .add_startup_system(setupworld::setup)
+            .add_plugin(LdtkPlugin)
+            .insert_resource(LevelSelection::Index(0))
+            .register_ldtk_entity::<MyBundle>("MyEntityIdentifier");
 
         #[cfg(debug_assertions)]
         {

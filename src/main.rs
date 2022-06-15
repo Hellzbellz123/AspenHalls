@@ -10,9 +10,9 @@ fn main() {
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
         .insert_resource(WindowDescriptor {
-            width: 800.,
-            height: 600.,
-            title: "Bevy game".to_string(), // ToDo
+            width: 1200.,
+            height: 800.,
+            title: "Project Kira".to_string(), // ToDo
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)

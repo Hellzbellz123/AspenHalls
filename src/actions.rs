@@ -107,16 +107,16 @@ impl GameControl {
     fn pressed(&self, keyboard_input: &Res<Input<KeyCode>>) -> bool {
         match self {
             GameControl::Up => {
-                keyboard_input.pressed(KeyCode::W) || keyboard_input.pressed(KeyCode::Up)
+                keyboard_input.pressed(KeyCode::W)
             }
             GameControl::Down => {
-                keyboard_input.pressed(KeyCode::S) || keyboard_input.pressed(KeyCode::Down)
+                keyboard_input.pressed(KeyCode::S)
             }
             GameControl::Left => {
-                keyboard_input.pressed(KeyCode::A) || keyboard_input.pressed(KeyCode::Left)
+                keyboard_input.pressed(KeyCode::A)
             }
             GameControl::Right => {
-                keyboard_input.pressed(KeyCode::D) || keyboard_input.pressed(KeyCode::Right)
+                keyboard_input.pressed(KeyCode::D)
             }
         }
     }
@@ -124,7 +124,7 @@ impl GameControl {
     fn just_pressed(&self, keyboard_input: &Res<Input<KeyCode>>) -> bool {
         match self {
             GameControl::Up => {
-                keyboard_input.just_pressed(KeyCode::W) || keyboard_input.just_pressed(KeyCode::Up)
+                keyboard_input.just_pressed(KeyCode::W)
             }
             GameControl::Down => {
                 keyboard_input.just_pressed(KeyCode::S)
