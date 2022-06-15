@@ -3,7 +3,7 @@
 
 use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
 use bevy::DefaultPlugins;
-use projectkira::GamePlugin;
+use vanillacoffee::GamePlugin;
 
 fn main() {
     App::new()

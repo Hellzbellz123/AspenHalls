@@ -2,9 +2,11 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "cargo",
-			"command": "build",
+			"label": "rust: cargo build Windows",
+			"type": "shell",
+			"command": "cargo",
 			"args": [
+				"build",
 				"--target",
 				"x86_64-pc-windows-msvc",
 				"--release"
@@ -13,12 +15,13 @@
 				"$rustc"
 			],
 			"group": "build",
-			"label": "rust: cargo build Windows"
+
 		},
 		{
-			"type": "cargo",
-			"command": "build",
+			"type": "shell",
+			"command": "cargo",
 			"args": [
+				"build",
 				"--target",
 				"x86_64-unknown-linux-gnu",
 				"--release"
