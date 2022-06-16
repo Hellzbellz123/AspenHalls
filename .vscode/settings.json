@@ -1,3 +1,13 @@
 {
-    "editor.fontFamily": "Fira Code"
+    "editor.fontFamily": "Fira Code",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/vanillacoffee.exe": true
+    },
+    "explorerExclude.backup": null
 }
