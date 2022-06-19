@@ -6,8 +6,9 @@ rustflags = ["-Clink-arg=-fuse-ld=lld", "-Zshare-generics=y"]
 # linker = "/usr/bin/x86_64-w64-mingw32-gcc"
 # ar = "/usr/bin/x86_64-w64-mingw32-ar"
 
-# [target.x86_64-pc-windows-msvc]
-# linker = "lld"
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld"
+rustflags = ["-Ctarget-cpu=znver3", "-Zshare-generics=n"]
 # rustflags = [
 #   "-Lnative=/opt/xwin/crt/lib/x86_64",
 #   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
@@ -28,6 +29,6 @@ lto = "thin"
 
 [build]
 rustc-wrapper = "sccache"
-rustflags = ["-Ctarget-cpu=znver3", "-Zshare-generics=y"]
+rustflags = ["-Ctarget-cpu=znver3", "-Zshare-generics=n"]
 
 

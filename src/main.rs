@@ -1,9 +1,10 @@
 // disable console on windows for release builds
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
+use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor, *};
 use bevy::DefaultPlugins;
 use vanillacoffee::GamePlugin;
+use bevy_inspector_egui::WorldInspectorPlugin;
 
 fn main() {
     App::new()
@@ -17,5 +18,6 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
+        .add_plugin(WorldInspectorPlugin::new())
         .run();
 }

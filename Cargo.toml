@@ -11,6 +11,10 @@ embed-resource = "1.7.2"
 [dependencies]
 bevy_ecs_ldtk = "0.3.0"
 bevy_asset_loader = "0.11.0"
+bevy-inspector-egui = "0.11.0"
+iyes_loopless = "0.6.0"
+bevy_config_cam = "0.3.0"
+bevy_tweening = "0.4.0"
 
 [dependencies.bevy]
 version = "0.7"
@@ -24,7 +28,7 @@ features = [
   "animation",          # Animation support
   "bevy_gilrs",         # Gamepad input support
   "bevy_winit",         # Window management
-  "x11",                # Linux: Support X11 windowing system
+  #"x11",                # Linux: Support X11 windowing system
   "filesystem_watcher", # Asset hot-reloading
   "render",             # Graphics Rendering
 
@@ -51,19 +55,19 @@ features = [
   "serialize",            # Support for `serde` Serialize/Deserialize
 
   # File formats:
-  "ktx2", # preferred format for GPU textures
-  "dds",
-  "jpeg",
-  "bmp",
-  "tga",
+  #"ktx2", # preferred format for GPU textures
+  #"dds",
+  #"jpeg",
+  #"bmp",
+  #"tga",
   #"basis-universal",
-  "zstd", # needed if using zstd in KTX2 files
+  #"zstd", # needed if using zstd in KTX2 files
 
 
   # Development/Debug features:
-#  "dynamic"      # Dynamic linking for faster compile-times
+#  "dynamic",      # Dynamic linking for faster compile-times
 #  "trace",        # Enable tracing for performance measurement
-#  "trace_tracy",  # Tracing using `tracy`
+# "trace_tracy",  # Tracing using `tracy`
 #  "trace_chrome", # Tracing using the Chrome format
 #  "wgpu_trace",   # WGPU/rendering tracing
 ]
