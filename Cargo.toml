@@ -4,11 +4,12 @@ version = "0.0.1"
 edition = "2021"
 
 [build-dependencies]
-embed-resource = {path ="/home/hellzbellz/Source/VanillaCoffee/crates/rust-embed-resource"}
+# embed-resource = {path ="/home/hellzbellz/Source/VanillaCoffee/crates/rust-embed-resource"}
 copy_to_output = "1.0"
+embed-resource = "1.7.3"
 
 [dependencies]
-winit = "0.26"
+winit = "0.26.1"
 bevy_ecs_ldtk = "0.3.0"
 bevy_asset_loader = "0.11.0"
 copy_to_output = "1.0"

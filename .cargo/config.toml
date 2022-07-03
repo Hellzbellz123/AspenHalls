@@ -1,15 +1,15 @@
 [target.x86_64-unknown-linux-gnu]
 linker = "clang"
-rustflags = ["-Clink-arg=-fuse-ld=mold", "-Zshare-generics=y"]
+rustflags = ["-Zshare-generics=y", "-C", "link-arg=--ld-path=/usr/sbin/mold"]
 
 [target.x86_64-pc-windows-msvc]
 linker = "clang"
 rustflags = [
+  "-Zshare-generics=n",
   "-Lnative=/opt/xwin/crt/lib/x86_64",
   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
   "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
-  "-Zshare-generics=n",
-  "-Clink-arg=-fuse-ld=mold",
+
 ]
 
 [profile.dev]  
@@ -18,11 +18,10 @@ opt-level = 1
 [profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 opt-level = 3
 
+
 [profile.release]
-lto = "thin"
-
+lto = "fat"
+opt-level = 3
 [build]
-# rustc-wrapper = "sccache"
-# rustflags = ["-Ctarget-cpu=znver3"]
-
-
+rustc-wrapper = "sccache"
+rustflags = ["-Ctarget-cpu=znver3"]
