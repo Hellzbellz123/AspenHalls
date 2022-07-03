@@ -1,5 +1,8 @@
 {
-    "editor.fontFamily": "Fira Code",
+    "editor.fontFamily": "Consolas, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "terminal.integrated.fontFamily": "Source Code Pro for Powerline",
+    
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
@@ -11,3 +14,7 @@
     },
     "explorerExclude.backup": null
 }
+
+//Comic Code Ligatures
+//ComicMono NF
+//Fantasque Sans Mono

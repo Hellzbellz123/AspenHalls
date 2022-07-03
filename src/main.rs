@@ -5,6 +5,8 @@ use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
 use bevy::DefaultPlugins;
 use vanillacoffee::GamePlugin;
 
+pub mod window_icon;
+
 fn main() {
     App::new()
         .insert_resource(Msaa { samples: 1 })
@@ -16,6 +18,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_startup_system(window_icon::set_window_icon)
         .add_plugin(GamePlugin)
         .run();
 }
