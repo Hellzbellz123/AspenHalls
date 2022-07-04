@@ -30,12 +30,12 @@ pub struct FontAssets {
 
 #[derive(AssetCollection)]
 pub struct AudioAssets {
-    #[asset(path = "audio/flying.ogg")]
-    pub flying: Handle<AudioSource>,
+    #[asset(path = "audio/ost/expansion.ogg")]
+    pub gamesoundtrack: Handle<AudioSource>,
 }
 
 #[derive(AssetCollection)]
 pub struct TextureAssets {
-    #[asset(path = "textures/bevy.png")]
-    pub texture_bevy: Handle<Image>,
+    #[asset(path = "textures/Player/player.png")]
+    pub texture_player: Handle<Image>,
 }

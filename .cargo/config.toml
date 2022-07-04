@@ -3,13 +3,13 @@ linker = "clang"
 rustflags = ["-Zshare-generics=y", "-C", "link-arg=--ld-path=/usr/sbin/mold"]
 
 [target.x86_64-pc-windows-msvc]
-linker = "clang"
+linker = "lld-link"
 rustflags = [
-  "-Zshare-generics=n",
+  "-C", "target-feature=+crt-static",
+  "-Zshare-generics=off",
   "-Lnative=/opt/xwin/crt/lib/x86_64",
   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
   "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
-
 ]
 
 [profile.dev]  

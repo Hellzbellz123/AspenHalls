@@ -2,6 +2,7 @@
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
+use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy::DefaultPlugins;
 use vanillacoffee::GamePlugin;
 
@@ -19,6 +20,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_startup_system(window_icon::set_window_icon)
+        .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(GamePlugin)
         .run();
 }
