@@ -11,76 +11,45 @@ embed-resource = "1.7.3"
 embed-resource = "1.7.3"
 winit = "0.26.1"
 bevy_ecs_ldtk = "0.3.0"
-bevy_asset_loader = "0.11.0"
+bevy_asset_loader_derive = "0.11.0"
 copy_to_output = "1.0"
 glob = "0.3"
 image = "0.24.2"
 fern = "0.6.1"
-autodefault = "2.0.0"
 serde = "1.0.138"
 rand = "0.8.5"
 bevy-inspector-egui = "0.11.0"
+chrono = "0.4.19"
 
 [dependencies.bevy]
 version = "0.7"
-# Disable the default features if there are any that you do not want
 default-features = false
 features = [
-  # These are the default features:
-  # (re-enable whichever you like)
-
-  # Bevy functionality:
   "animation",          # Animation support
   "bevy_gilrs",         # Gamepad input support
   "bevy_winit",         # Window management
   "x11",                # Linux: Support X11 windowing system
   "filesystem_watcher", # Asset hot-reloading
-
-  # "render",             # Graphics Rendering
-  ## "render" actually just includes:
-  ## (feel free to use just a subset of these, instead of "render")
   "bevy_render",        # Rendering framework core
   "bevy_core_pipeline", # Higher-level rendering abstractions
   "bevy_sprite",        # 2D (sprites) rendering
-  #"bevy_pbr",           # 3D (physically-based) rendering
-  #"bevy_gltf",          # GLTF 3D assets format support
   "bevy_text",          # Text/font rendering
   "bevy_ui",            # UI toolkit
-
-  # File formats:
   "png",
-  #"hdr",
-
-  # These are other features that may be of interest:
-  # (add any of these that you need)
-
-  # Bevy functionality:
   #"wayland",              # Linux: Support Wayland windowing system
   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
   "serialize",            # Support for `serde` Serialize/Deserialize
-
-  # File formats:
-  # "dds",
   "jpeg",
-  # "bmp",
-  # "tga",
-
-  # Development/Debug features:
-#  "dynamic"      # Dynamic linking for faster compile-times
-#  "trace",        # Enable tracing for performance measurement
-#  "trace_tracy",  # Tracing using `tracy`
-#  "trace_chrome", # Tracing using the Chrome format
-#  "wgpu_trace",   # WGPU/rendering tracing
 ]
+
+[dependencies.bevy_asset_loader]
+version = "0.11.0"
+features = []
 
 [dependencies.bevy_kira_audio]
 version = "0.10.0"
-# `ogg` format support is enabled by default, disable if you don't want it
 default-features = false
-# enable the features you care about
 features = [
-  # "wav",
-  # "flac",
   "mp3",
   "ogg",
 ]

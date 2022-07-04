@@ -1,7 +1,7 @@
+use ::winit::window::Icon;
 use bevy::ecs::system::NonSend;
 use bevy::window::WindowId;
 use bevy::winit::WinitWindows;
-use ::winit::window::Icon;
 
 pub(crate) fn set_window_icon(
     // we have to use `NonSend` here

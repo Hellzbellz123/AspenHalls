@@ -1,4 +1,5 @@
 /target
 /publish
 /assets
-Cargo.lock
+*.pdb
+**/*.rs.bk

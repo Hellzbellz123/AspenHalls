@@ -2,8 +2,8 @@
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use bevy::prelude::{App, ClearColor, Color, Msaa, WindowDescriptor};
-use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy::DefaultPlugins;
+use bevy_inspector_egui::WorldInspectorPlugin;
 use vanillacoffee::GamePlugin;
 
 pub mod window_icon;

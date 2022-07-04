@@ -6,6 +6,7 @@ mod player;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
+use crate::loading::splash::SplashPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
@@ -13,8 +14,8 @@ use crate::player::PlayerPlugin;
 use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use log::{debug, info, trace, warn};
 use std::time::Duration;
-
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
@@ -26,21 +27,21 @@ enum GameState {
     Playing,
 }
 
-    
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
+        writeln("game plugin init'd, adding loading state and transitioning");
         app.add_state(GameState::Loading)
             .add_plugin(LoadingPlugin)
+            .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(FrameTimeDiagnosticsPlugin::default())        
-            .add_plugin(LogDiagnosticsPlugin{
+            .add_plugin(FrameTimeDiagnosticsPlugin::default())
+            .add_plugin(LogDiagnosticsPlugin {
                 wait_duration: Duration::from_secs(5),
                 ..Default::default()
             });
     }
 }
-
