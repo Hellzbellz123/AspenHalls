@@ -20,7 +20,7 @@ fn main() {
         })
         .add_plugins(DefaultPlugins)
         .add_startup_system(window_icon::set_window_icon)
-        .add_plugin(WorldInspectorPlugin::new())
         .add_plugin(GamePlugin)
+        .add_plugin(WorldInspectorPlugin::new())
         .run();
 }

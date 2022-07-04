@@ -7,6 +7,9 @@
 			"command": "cargo",
 			"args": [
 				"build",
+				"--outdir=publish",
+				"-Z",
+				"unstable-options",
 				"--target",
 				"x86_64-pc-windows-msvc",
 				"--release"
