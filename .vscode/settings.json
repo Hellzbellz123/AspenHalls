@@ -1,18 +1,14 @@
 {
-    "editor.fontFamily": "Consolas, 'Courier New', monospace",
-    "editor.fontLigatures": true,
-    "terminal.integrated.fontFamily": "Source Code Pro for Powerline",
-    
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/vanillacoffee.exe": true
-    },
-    "explorerExclude.backup": null
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/vanillacoffee.exe": true
+  },
+  "explorerExclude.backup": null
 }
 
 //Comic Code Ligatures

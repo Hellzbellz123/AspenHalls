@@ -1,0 +1,12 @@
+version: 0.1
+cli:
+  version: 0.14.1-beta
+lint:
+  enabled:
+    - clippy@1.64.0
+    - gitleaks@8.3.0
+    - markdownlint@0.31.1
+    - prettier@2.5.1
+    - rustfmt@1.64.0
+    - taplo-fmt@release-cli-0.6.8
+    - taplo@release-cli-0.6.0
