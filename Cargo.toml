@@ -33,7 +33,7 @@ features = [
   "animation",          # Animation support
   "bevy_gilrs",         # Gamepad input support
   "bevy_winit",         # Window management
-  #"x11",                # Linux: Support X11 windowing system
+  "x11",                # Linux: Support X11 windowing system
   "filesystem_watcher", # Asset hot-reloading
 
   # "render",             # Graphics Rendering
@@ -66,9 +66,9 @@ features = [
   # "tga",
 
   # Development/Debug features:
-#  "dynamic",      # Dynamic linking for faster compile-times
+#  "dynamic"      # Dynamic linking for faster compile-times
 #  "trace",        # Enable tracing for performance measurement
-# "trace_tracy",  # Tracing using `tracy`
+#  "trace_tracy",  # Tracing using `tracy`
 #  "trace_chrome", # Tracing using the Chrome format
 #  "wgpu_trace",   # WGPU/rendering tracing
 ]

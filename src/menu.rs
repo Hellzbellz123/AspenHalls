@@ -1,5 +1,4 @@
 use crate::loading::FontAssets;
-use crate::actions::Actions;
 use crate::GameState;
 use bevy::prelude::*;
 
@@ -11,9 +10,7 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ButtonColors>()
             .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(setup_menu))
-            .add_system_set(SystemSet::on_update(GameState::Menu).with_system(click_play_button))
-            .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(pause_menu))
-            .add_system_set(SystemSet::on_update(GameState::Menu).with_system(click_settings_button));
+            .add_system_set(SystemSet::on_update(GameState::Menu).with_system(click_play_button));
     }
 }
 
@@ -21,20 +18,6 @@ struct ButtonColors {
     normal: UiColor,
     hovered: UiColor,
 }
-
-fn pause_menu(
-    actions: Res<Actions>,
-) {
-    if actions.pause_game == true {
-        info!("we pressed pause menu");
-    }
-    if actions.pause_game == false {
-        return;
-    }
-
-}
-
-
 
 impl Default for ButtonColors {
     fn default() -> Self {
@@ -67,21 +50,6 @@ fn setup_menu(
             parent.spawn_bundle(TextBundle {
                 text: Text {
                     sections: vec![TextSection {
-                        value: "Settings".to_string(),
-                        style: TextStyle {
-                            font: font_assets.fira_sans.clone(),
-                            font_size: 40.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
-                        },
-                    }],
-                    alignment: Default::default(),
-                },
-                ..Default::default()
-            })
-        .with_children(|parent| {
-            parent.spawn_bundle(TextBundle {
-                text: Text {
-                    sections: vec![TextSection {
                         value: "Play".to_string(),
                         style: TextStyle {
                             font: font_assets.fira_sans.clone(),
@@ -93,7 +61,6 @@ fn setup_menu(
                 },
                 ..Default::default()
             });
-        });
         });
 }
 
@@ -111,31 +78,6 @@ fn click_play_button(
             Interaction::Clicked => {
                 commands.entity(button).despawn_recursive();
                 state.set(GameState::Playing).unwrap();
-            }
-            Interaction::Hovered => {
-                *color = button_colors.hovered;
-            }
-            Interaction::None => {
-                *color = button_colors.normal;
-            }
-        }
-    }
-}
-
-fn click_settings_button(
-    mut commands: Commands,
-    button_colors: Res<ButtonColors>,
-    mut state: ResMut<State<GameState>>,
-    mut interaction_query: Query<
-        (Entity, &Interaction, &mut UiColor),
-        (Changed<Interaction>, With<Button>),
-    >,
-) {
-    for (button, interaction, mut color) in interaction_query.iter_mut() {
-        match *interaction {
-            Interaction::Clicked => {
-                commands.entity(button).despawn_recursive();
-                state.set(GameState::Menu).unwrap();
             }
             Interaction::Hovered => {
                 *color = button_colors.hovered;

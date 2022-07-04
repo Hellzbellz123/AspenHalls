@@ -5,7 +5,7 @@ use bevy::prelude::*;
 
 pub struct PlayerPlugin;
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct Player;
 
 /// This plugin handles player related stuff like movement

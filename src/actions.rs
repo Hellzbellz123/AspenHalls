@@ -8,7 +8,7 @@ pub struct ActionsPlugin;
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Actions>().add_system_set(
-            SystemSet::on_update(GameState::Playing).with_system(set_movement_actions).with_system(set_ui_actions),
+            SystemSet::on_update(GameState::Playing).with_system(set_movement_actions),
         );
     }
 }
@@ -16,17 +16,6 @@ impl Plugin for ActionsPlugin {
 #[derive(Default)]
 pub struct Actions {
     pub player_movement: Option<Vec2>,
-    pub pause_game: bool,
-}
-
-fn set_ui_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<KeyCode>>) {
-    if GameControl::Escape.just_pressed(&keyboard_input) && actions.pause_game == false {
-        actions.pause_game = true;
-        
-    }
-    else {
-        actions.pause_game = false;
-    }
 }
 
 fn set_movement_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<KeyCode>>) {
@@ -91,7 +80,6 @@ enum GameControl {
     Down,
     Left,
     Right,
-    Escape,
 }
 
 impl GameControl {
@@ -99,20 +87,20 @@ impl GameControl {
         match self {
             GameControl::Up => {
                 keyboard_input.just_released(KeyCode::W)
+                    || keyboard_input.just_released(KeyCode::Up)
             }
             GameControl::Down => {
                 keyboard_input.just_released(KeyCode::S)
+                    || keyboard_input.just_released(KeyCode::Down)
             }
             GameControl::Left => {
                 keyboard_input.just_released(KeyCode::A)
+                    || keyboard_input.just_released(KeyCode::Left)
             }
             GameControl::Right => {
                 keyboard_input.just_released(KeyCode::D)
+                    || keyboard_input.just_released(KeyCode::Right)
             }
-            GameControl::Escape => {
-                keyboard_input.just_released(KeyCode::Escape)
-            } 
-            
         }
     }
 
@@ -130,9 +118,6 @@ impl GameControl {
             GameControl::Right => {
                 keyboard_input.pressed(KeyCode::D)
             }
-            GameControl::Escape => {
-                keyboard_input.pressed(KeyCode::Escape)
-            }
         }
     }
 
@@ -143,16 +128,15 @@ impl GameControl {
             }
             GameControl::Down => {
                 keyboard_input.just_pressed(KeyCode::S)
-
+                    || keyboard_input.just_pressed(KeyCode::Down)
             }
             GameControl::Left => {
                 keyboard_input.just_pressed(KeyCode::A)
+                    || keyboard_input.just_pressed(KeyCode::Left)
             }
             GameControl::Right => {
                 keyboard_input.just_pressed(KeyCode::D)
-            }
-            GameControl::Escape => {
-                    keyboard_input.just_pressed(KeyCode::Escape)
+                    || keyboard_input.just_pressed(KeyCode::Right)
             }
         }
     }
