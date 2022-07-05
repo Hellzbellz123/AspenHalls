@@ -7,15 +7,16 @@ mod splashscreen;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
-use crate::splashscreen::splash::SplashPlugin;
 use crate::loading::LoadingPlugin;
-use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
+use crate::splashscreen::splash::SplashPlugin;
 
 use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use std::time::Duration;
+// use kayak_ui::bevy::BevyKayakUIPlugin;
+use menu::MenuPlugin;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 enum GameState {
@@ -32,8 +33,7 @@ enum GameState {
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugin(LoadingPlugin)
+        app.add_plugin(LoadingPlugin)
             .add_plugin(SplashPlugin)
             .add_state(GameState::Loading)
             .add_plugin(MenuPlugin)
@@ -42,7 +42,7 @@ impl Plugin for GamePlugin {
             .add_plugin(PlayerPlugin)
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
             .add_plugin(LogDiagnosticsPlugin {
-                wait_duration: Duration::from_secs(5),
+                wait_duration: Duration::from_secs(20),
                 ..Default::default()
             });
     }

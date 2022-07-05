@@ -1,5 +1,5 @@
 use crate::actions::Actions;
-use crate::loading::TextureAssets;
+use crate::loading::GameTextureAssets;
 use crate::GameState;
 use bevy::prelude::*;
 
@@ -25,7 +25,7 @@ fn spawn_camera(mut commands: Commands) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 }
 
-fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
+fn spawn_player(mut commands: Commands, textures: Res<GameTextureAssets>) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: textures.texture_player.clone(),

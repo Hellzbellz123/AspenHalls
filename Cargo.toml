@@ -42,6 +42,10 @@ features = [
   "jpeg",
 ]
 
+[dependencies.kayak_ui]
+git="https://github.com/StarArawn/kayak_ui"
+features = ["bevy_renderer"]
+
 [dependencies.bevy_asset_loader]
 version = "0.11.0"
 features = []

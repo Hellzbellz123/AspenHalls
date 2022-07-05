@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
 pub mod splash {
+    use crate::loading::UiTextureAssets;
     use crate::splashscreen::despawn_screen;
     use crate::GameState;
-    use crate::loading::TextureAssets;
     use bevy::prelude::*;
 
     // This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
@@ -32,7 +32,7 @@ pub mod splash {
     #[derive(Deref, DerefMut)]
     struct SplashTimer(Timer);
 
-    fn splash_setup(mut commands: Commands, textures: Res<TextureAssets>) {
+    fn splash_setup(mut commands: Commands, textures: Res<UiTextureAssets>) {
         info!("loading splash");
         commands.spawn_bundle(UiCameraBundle::default());
         // Display the logo
@@ -47,8 +47,8 @@ pub mod splash {
                 ..default()
             })
             .insert(OnSplashScreen);
-            commands.insert_resource(SplashTimer(Timer::from_seconds(5.0, false)));
-            info!("spawning splash ImageBundle");
+        commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, false)));
+        info!("spawning splash ImageBundle");
     }
 
     // Tick the timer, and change state when finished
