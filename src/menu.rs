@@ -1,5 +1,5 @@
 use bevy::prelude::{
-    info, AssetServer, Commands, EventWriter, Handle, Plugin, Query, Res, ResMut, State, SystemSet,
+    AssetServer, Commands, Handle, Plugin, Res, ResMut, SystemSet,
     World,
 };
 use kayak_ui::bevy::{BevyContext, BevyKayakUIPlugin, FontMapping, ImageManager, UICameraBundle};
@@ -8,7 +8,7 @@ use kayak_ui::core::{
     styles::{Edge, LayoutType, Style, StyleProp, Units},
     widget, Bound, Children, EventType, MutableBound, OnEvent, WidgetProps,
 };
-use kayak_ui::core::{Event, KayakContextRef, KeyCode};
+use kayak_ui::core::{Event, KayakContextRef};
 use kayak_ui::widgets::{App, NinePatch, Text};
 
 use crate::{
@@ -29,7 +29,7 @@ pub struct MenuPlugin;
 #[derive(Debug)]
 pub struct UIEvent(pub UIEventType);
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UIEventType {
     None,
     PlayEvent,
@@ -140,8 +140,8 @@ fn startup(
             ..Style::default()
         };
 
-        let button_event =
-            kayak_ui::core::OnEvent::new(|context: &mut KayakContextRef, event: &mut Event| {
+        let _button_event =
+            kayak_ui::core::OnEvent::new(|_context: &mut KayakContextRef, event: &mut Event| {
                 if let kayak_ui::core::EventType::Click(..) = event.event_type {}
             });
 
