@@ -171,13 +171,13 @@ fn startup(
                         font={main_font_id}
                     />
                     <BlueButton>
-                        <Text line_height={Some(75.0)} size={28.0} content={"Play".to_string()} font={main_font_id} />
+                        <Text line_height={Some(40.0)} size={28.0} content={"Play".to_string()} font={main_font_id} />
                     </BlueButton>
                     <BlueButton styles={Some(options_button_styles)}>
-                        <Text line_height={Some(50.0)} size={20.0} content={"Options".to_string()} font={main_font_id} />
+                        <Text line_height={Some(40.0)} size={20.0} content={"Options".to_string()} font={main_font_id} />
                     </BlueButton>
                     <BlueButton styles={Some(options_button_styles)}>
-                        <Text line_height={Some(50.0)} size={20.0} content={"Quit".to_string()} font={main_font_id} />
+                        <Text line_height={Some(40.0)} size={20.0} content={"Quit".to_string()} font={main_font_id} />
                     </BlueButton>
                 </NinePatch>
             </App>
