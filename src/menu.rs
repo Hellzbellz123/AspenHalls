@@ -1,10 +1,14 @@
-use bevy::prelude::{AssetServer, Commands, Handle, Plugin, Res, ResMut, SystemSet, World};
+use bevy::prelude::{
+    info, AssetServer, Commands, EventWriter, Handle, Plugin, Query, Res, ResMut, State, SystemSet,
+    World,
+};
 use kayak_ui::bevy::{BevyContext, BevyKayakUIPlugin, FontMapping, ImageManager, UICameraBundle};
 use kayak_ui::core::{
     render, rsx,
     styles::{Edge, LayoutType, Style, StyleProp, Units},
     widget, Bound, Children, EventType, MutableBound, OnEvent, WidgetProps,
 };
+use kayak_ui::core::{Event, KayakContextRef, KeyCode};
 use kayak_ui::widgets::{App, NinePatch, Text};
 
 use crate::{
@@ -22,10 +26,25 @@ struct BlueButtonProps {
 
 pub struct MenuPlugin;
 
+#[derive(Debug)]
+pub struct UIEvent(pub UIEventType);
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum UIEventType {
+    None,
+    PlayEvent,
+    SettingsEvent,
+    ExitEvent,
+}
+
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_plugin(BevyKayakUIPlugin)
             .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(startup));
+        // .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(create_main_menu))
+        // .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(destroy))
+        // .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(create_play_menu))
+        // .add_system_set(SystemSet::on_exit(GameState::Playing).with_system(destroy));
     }
 }
 
@@ -67,12 +86,16 @@ fn BlueButton(props: BlueButtonProps) {
 
     let cloned_current_button_handle = current_button_handle.clone();
     let on_event = OnEvent::new(move |_, event| match event.event_type {
-        EventType::MouseIn(..) => {
-            cloned_current_button_handle.set(blue_button_hover_handle);
-        }
         EventType::MouseOut(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
+        EventType::MouseUp(..) => {
+            cloned_current_button_handle.set(blue_button_handle);
+        }
+        EventType::MouseDown(..) => {
+            cloned_current_button_handle.set(blue_button_hover_handle);
+        }
+
         _ => (),
     });
 
@@ -117,6 +140,11 @@ fn startup(
             ..Style::default()
         };
 
+        let button_event =
+            kayak_ui::core::OnEvent::new(|context: &mut KayakContextRef, event: &mut Event| {
+                if let kayak_ui::core::EventType::Click(..) = event.event_type {}
+            });
+
         let header_styles = Style {
             bottom: StyleProp::Value(Units::Stretch(1.0)),
             ..Style::default()
@@ -143,7 +171,7 @@ fn startup(
                         font={main_font_id}
                     />
                     <BlueButton>
-                        <Text line_height={Some(50.0)} size={20.0} content={"Play".to_string()} font={main_font_id} />
+                        <Text line_height={Some(75.0)} size={28.0} content={"Play".to_string()} font={main_font_id} />
                     </BlueButton>
                     <BlueButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(50.0)} size={20.0} content={"Options".to_string()} font={main_font_id} />
@@ -158,123 +186,3 @@ fn startup(
 
     commands.insert_resource(context);
 }
-
-// use crate::loading::FontAssets;
-// use crate::GameState;
-// use bevy::prelude::*;
-
-// pub struct MenuPlugin;
-
-// /// This plugin is responsible for the game menu (containing only one button...)
-// /// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
-// impl Plugin for MenuPlugin {
-//     fn build(&self, app: &mut App) {
-//         app.init_resource::<ButtonColors>()
-//             .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(setup_menu))
-//             .add_system_set(SystemSet::on_update(GameState::Menu).with_system(click_play_button));
-//     }
-// }
-
-// struct ButtonColors {
-//     normal: UiColor,
-//     hovered: UiColor,
-// }
-
-// impl Default for ButtonColors {
-//     fn default() -> Self {
-//         ButtonColors {
-//             normal: Color::rgb(0.15, 0.15, 0.15).into(),
-//             hovered: Color::rgb(0.25, 0.25, 0.25).into(),
-//         }
-//     }
-// }
-
-// fn setup_menu(
-//     mut commands: Commands,
-//     font_assets: Res<FontAssets>,
-//     button_colors: Res<ButtonColors>,
-// ) {
-//     commands
-//         .spawn_bundle(ButtonBundle {
-//             style: Style {
-//                 size: Size::new(Val::Px(120.0), Val::Px(50.0)),
-//                 margin: Rect::all(Val::Auto),
-//                 justify_content: JustifyContent::Center,
-//                 align_items: AlignItems::Center,
-//                 ..Default::default()
-//             },
-//             color: button_colors.normal,
-//             ..Default::default()
-//         })
-//         .with_children(|parent| {
-//             parent.spawn_bundle(TextBundle {
-//                 text: Text {
-//                     sections: vec![TextSection {
-//                         value: "Play".to_string(),
-//                         style: TextStyle {
-//                             font: font_assets.fira_sans.clone(),
-//                             font_size: 40.0,
-//                             color: Color::rgb(0.9, 0.9, 0.9),
-//                         },
-//                     }],
-//                     alignment: Default::default(),
-//                 },
-//                 ..Default::default()
-//             });
-//         });
-
-//         commands
-//         .spawn_bundle(ButtonBundle {
-//             style: Style {
-//                 size: Size::new(Val::Px(120.0), Val::Px(50.0)),
-//                 margin: Rect::all(Val::Auto),
-//                 justify_content: JustifyContent::Center,
-//                 align_items: AlignItems::Center,
-//                 ..Default::default()
-//             },
-//             color: button_colors.normal,
-//             ..Default::default()
-//         })
-//         .with_children(|parent| {
-//             parent.spawn_bundle(TextBundle {
-//                 text: Text {
-//                     sections: vec![TextSection {
-//                         value: "Settings".to_string(),
-//                         style: TextStyle {
-//                             font: font_assets.fira_sans.clone(),
-//                             font_size: 40.0,
-//                             color: Color::rgb(0.9, 0.9, 0.9),
-//                         },
-//                     }],
-//                     alignment: Default::default(),
-//                 },
-//                 ..Default::default()
-//             });
-//         });
-
-// }
-
-// fn click_play_button(
-//     mut commands: Commands,
-//     button_colors: Res<ButtonColors>,
-//     mut state: ResMut<State<GameState>>,
-//     mut interaction_query: Query<
-//         (Entity, &Interaction, &mut UiColor),
-//         (Changed<Interaction>, With<Button>),
-//     >,
-// ) {
-//     for (button, interaction, mut color) in interaction_query.iter_mut() {
-//         match *interaction {
-//             Interaction::Clicked => {
-//                 commands.entity(button).despawn_recursive();
-//                 state.set(GameState::Playing).unwrap();
-//             }
-//             Interaction::Hovered => {
-//                 *color = button_colors.hovered;
-//             }
-//             Interaction::None => {
-//                 *color = button_colors.normal;
-//             }
-//         }
-//     }
-// }
