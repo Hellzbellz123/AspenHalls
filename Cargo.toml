@@ -42,8 +42,12 @@ features = [
   "jpeg",
 ]
 
+# [dependencies.bevy-kdl-ui]
+# path = "crates/bevy-kdl-ui"
+
 [dependencies.kayak_ui]
-git="https://github.com/StarArawn/kayak_ui"
+path="crates/kayak_ui"
+# git="https://github.com/StarArawn/kayak_ui"
 features = ["bevy_renderer"]
 
 [dependencies.bevy_asset_loader]

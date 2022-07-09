@@ -1,14 +1,14 @@
 mod actions;
 mod audio;
 mod loading;
+mod splashscreen;
 mod menu;
 mod player;
-mod splashscreen;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
-use crate::loading::LoadingPlugin;
 use crate::player::PlayerPlugin;
+use crate::loading::LoadingPlugin;
 use crate::splashscreen::splash::SplashPlugin;
 
 use bevy::app::App;
@@ -18,8 +18,8 @@ use std::time::Duration;
 // use kayak_ui::bevy::BevyKayakUIPlugin;
 use menu::MenuPlugin;
 
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
-enum GameState {
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
+pub enum GameState {
     //splash
     Splash,
     // During the loading State the LoadingPlugin will load our assets and display splash?!
@@ -30,12 +30,22 @@ enum GameState {
     Playing,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
+pub enum MenuState {
+    MainMenu,
+    Options,
+    Play,
+}
+
+
+
+
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(LoadingPlugin)
+        app
+            .add_plugin(LoadingPlugin)
             .add_plugin(SplashPlugin)
-            .add_state(GameState::Loading)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)

@@ -45,7 +45,7 @@ pub struct GameTextureAssets {
     pub texture_player: Handle<Image>,
 }
 
-#[derive(AssetCollection)]
+#[derive(AssetCollection, Clone)]
 pub struct UiTextureAssets {
     #[asset(path = "textures/splashscreen.png")]
     pub splash_image: Handle<Image>,

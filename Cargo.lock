@@ -610,7 +610,6 @@ dependencies = [
 [[package]]
 name = "bevy_kayak_renderer"
 version = "0.0.1"
-source = "git+https://github.com/StarArawn/kayak_ui#e7fc09a00ac7e7e39100e0084b528b117545cbfa"
 dependencies = [
  "bevy",
  "bytemuck",
@@ -623,7 +622,6 @@ dependencies = [
 [[package]]
 name = "bevy_kayak_ui"
 version = "0.0.1"
-source = "git+https://github.com/StarArawn/kayak_ui#e7fc09a00ac7e7e39100e0084b528b117545cbfa"
 dependencies = [
  "bevy",
  "bevy_kayak_renderer",
@@ -2322,7 +2320,6 @@ dependencies = [
 [[package]]
 name = "kayak_core"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui#e7fc09a00ac7e7e39100e0084b528b117545cbfa"
 dependencies = [
  "as-any",
  "bevy",
@@ -2340,7 +2337,6 @@ dependencies = [
 [[package]]
 name = "kayak_font"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui#e7fc09a00ac7e7e39100e0084b528b117545cbfa"
 dependencies = [
  "anyhow",
  "bevy",
@@ -2355,7 +2351,6 @@ dependencies = [
 [[package]]
 name = "kayak_render_macros"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui#e7fc09a00ac7e7e39100e0084b528b117545cbfa"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
@@ -2367,7 +2362,6 @@ dependencies = [
 [[package]]
 name = "kayak_ui"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui#e7fc09a00ac7e7e39100e0084b528b117545cbfa"
 dependencies = [
  "bevy",
  "bevy_kayak_ui",

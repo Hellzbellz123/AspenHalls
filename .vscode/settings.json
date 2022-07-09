@@ -6,7 +6,8 @@
     "**/CVS": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
-    "**/vanillacoffee.exe": true
+    "**/vanillacoffee.exe": false,
+    "**/.trunk/*out": true
   },
   "explorerExclude.backup": null
 }
