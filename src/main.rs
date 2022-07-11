@@ -7,7 +7,6 @@ use bevy::prelude::*;
 use bevy::DefaultPlugins;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
-
 pub mod window_icon;
 
 fn main() {
@@ -27,10 +26,9 @@ fn main() {
         //     ..Default::default()
         // })
         .add_startup_system(window_icon::set_window_icon)
-        .add_plugin(WorldInspectorPlugin::new())
         .add_state(GameState::Loading)
-
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
+        .add_plugin(WorldInspectorPlugin::new())
         .run();
 }

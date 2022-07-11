@@ -1,14 +1,14 @@
 mod actions;
 mod audio;
 mod loading;
-mod splashscreen;
 mod menu;
 mod player;
+mod splashscreen;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
-use crate::player::PlayerPlugin;
 use crate::loading::LoadingPlugin;
+use crate::player::PlayerPlugin;
 use crate::splashscreen::splash::SplashPlugin;
 
 use bevy::app::App;
@@ -37,14 +37,10 @@ pub enum MenuState {
     Play,
 }
 
-
-
-
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugin(LoadingPlugin)
+        app.add_plugin(LoadingPlugin)
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)

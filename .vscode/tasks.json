@@ -1,37 +1,21 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "rust: cargo build Windows",
-			"type": "shell",
-			"command": "cargo",
-			"args": [
-				"build",
-				"--target",
-				"x86_64-pc-windows-msvc",
-				"--release"
-			],
-			"problemMatcher": [
-				"$rustc"
-			],
-			"group": "build",
-
-		},
-		{
-			"type": "shell",
-			"command": "cargo",
-			"args": [
-				"build",
-				"--target",
-				"x86_64-unknown-linux-gnu",
-				"--release"
-			],
-			"problemMatcher": [
-				"$rustc"
-			],
-			"group": "build",
-			"label": "rust: cargo build Linux"
-		},
-		
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "rust: cargo build Windows",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["build", "--target", "x86_64-pc-windows-msvc", "--release"],
+      "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "type": "shell",
+      "command": "cargo",
+      "args": ["build", "--target", "x86_64-unknown-linux-gnu", "--release"],
+      "problemMatcher": ["$rustc"],
+      "group": "build",
+      "label": "rust: cargo build Linux"
+    }
+  ]
 }

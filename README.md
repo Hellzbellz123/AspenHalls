@@ -1,7 +1,6 @@
 # Project Vanilla Coffee
 
-
-this is __NOT__ stable, comes as is and im probably gonna change it alot or it might even just vanish one day.
+this is **NOT** stable, comes as is and im probably gonna change it alot or it might even just vanish one day.
 
 Took me like 3 years to get around to updating this, time to finally start i guess
 

@@ -46,8 +46,8 @@ features = [
 # path = "crates/bevy-kdl-ui"
 
 [dependencies.kayak_ui]
-path="crates/kayak_ui"
-# git="https://github.com/StarArawn/kayak_ui"
+path = "crates/kayak_ui"
+# git = "https://github.com/StarArawn/kayak_ui"
 features = ["bevy_renderer"]
 
 [dependencies.bevy_asset_loader]
@@ -57,7 +57,4 @@ features = []
 [dependencies.bevy_kira_audio]
 version = "0.10.0"
 default-features = false
-features = [
-  "mp3",
-  "ogg",
-]
+features = ["mp3", "ogg"]

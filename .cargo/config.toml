@@ -5,14 +5,15 @@ rustflags = ["-Zshare-generics=y", "-C", "link-arg=--ld-path=/usr/sbin/mold"]
 [target.x86_64-pc-windows-msvc]
 linker = "lld-link"
 rustflags = [
-  "-C", "target-feature=+crt-static",
+  "-C",
+  "target-feature=+crt-static",
   "-Zshare-generics=off",
   "-Lnative=/opt/xwin/crt/lib/x86_64",
   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
   "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
 ]
 
-[profile.dev]  
+[profile.dev]
 opt-level = 1
 
 [profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
