@@ -37,6 +37,7 @@ features = [
   "bevy_ui",            # UI toolkit
   "png",
   #"wayland",              # Linux: Support Wayland windowing system
+  # "dynamic",
   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
