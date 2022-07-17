@@ -4,51 +4,50 @@ version = "0.0.1"
 edition = "2021"
 
 [build-dependencies]
-copy_to_output = "1.0"
 embed-resource = "1.7.3"
+# copy_to_output = { path = "crates/copy_to_output" }
 
 [dependencies]
 embed-resource = "1.7.3"
 winit = "0.26.1"
-bevy_ecs_ldtk = "0.3.0"
 bevy_asset_loader_derive = "0.11.0"
-copy_to_output = "1.0"
-glob = "0.3"
 image = "0.24.2"
-fern = "0.6.1"
 serde = "1.0.138"
 rand = "0.8.5"
 bevy-inspector-egui = "0.11.0"
-chrono = "0.4.19"
+# chrono = "0.4.19"
+glob = "0.3"
+# fern = "0.6.1"
+# bevy_ecs_ldtk = "0.3.0"
+
 
 [dependencies.bevy]
-version = "0.7"
+version = "0.7.0"
 default-features = false
 features = [
-  "animation",          # Animation support
-  "bevy_gilrs",         # Gamepad input support
-  "bevy_winit",         # Window management
-  "x11",                # Linux: Support X11 windowing system
-  "filesystem_watcher", # Asset hot-reloading
-  "bevy_render",        # Rendering framework core
-  "bevy_core_pipeline", # Higher-level rendering abstractions
-  "bevy_sprite",        # 2D (sprites) rendering
-  "bevy_text",          # Text/font rendering
-  "bevy_ui",            # UI toolkit
+  "animation",            # Animation support
+  "bevy_gilrs",           # Gamepad input support
+  "bevy_winit",           # Window management
+  "x11",                  # Linux: Support X11 windowing system
+  "filesystem_watcher",   # Asset hot-reloading
+  "bevy_render",          # Rendering framework core
+  "bevy_core_pipeline",   # Higher-level rendering abstractions
+  "bevy_sprite",          # 2D (sprites) rendering
+  "bevy_text",            # Text/font rendering
+  "bevy_ui",              # UI toolkit
   "png",
-  #"wayland",              # Linux: Support Wayland windowing system
-  # "dynamic",
   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
+  #"wayland",              # Linux: Support Wayland windowing system
+  # "dynamic",
 ]
 
 # [dependencies.bevy-kdl-ui]
 # path = "crates/bevy-kdl-ui"
 
 [dependencies.kayak_ui]
-path = "crates/kayak_ui"
-# git = "https://github.com/StarArawn/kayak_ui"
+path = "crates/kayak_ui"     # git = "https://github.com/StarArawn/kayak_ui" 
 features = ["bevy_renderer"]
 
 [dependencies.bevy_asset_loader]

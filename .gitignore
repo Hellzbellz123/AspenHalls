@@ -1,5 +1,7 @@
 /target
 /publish
+/crates/*
 /assets
 *.pdb
 **/*.rs.bk
+crates/kayak_ui

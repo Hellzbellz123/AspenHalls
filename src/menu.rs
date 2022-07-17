@@ -83,7 +83,6 @@ fn BlueButton(props: BlueButtonProps) {
         }
         EventType::MouseDown(..) => {
             cloned_current_button_handle.set(blue_button_hover_handle);
-            bevy::prelude::info!("button saw it clicked");
         }
 
         _ => (),
