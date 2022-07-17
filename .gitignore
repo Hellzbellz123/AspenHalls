@@ -3,6 +3,5 @@
 /crates/kayak_ui
 /crates/*
 /crates
-/assets
 *.pdb
 **/*.rs.bk
