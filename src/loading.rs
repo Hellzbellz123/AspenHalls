@@ -1,6 +1,6 @@
 use crate::GameState;
 use bevy::prelude::*;
-use bevy_asset_loader::{AssetCollection, AssetLoader};
+use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
 
 pub struct LoadingPlugin;
@@ -10,7 +10,7 @@ pub struct LoadingPlugin;
 /// If interested, take a look at https://bevy-cheatbook.github.io/features/assets.html
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        AssetLoader::new(GameState::Loading)
+        LoadingState::new(GameState::Loading)
             .with_collection::<FontAssets>()
             .with_collection::<AudioAssets>()
             .with_collection::<GameTextureAssets>()
@@ -31,6 +31,9 @@ pub struct FontAssets {
 
     #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
     pub fira_sans_msdf: Handle<kayak_ui::font::KayakFont>,
+
+    #[asset(path = "fonts/FantasqueSansMonoNF.kayak_font")]
+    pub fantasque_sans_msdf: Handle<kayak_ui::font::KayakFont>,
 }
 
 #[derive(AssetCollection)]

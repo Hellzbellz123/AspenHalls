@@ -36,9 +36,11 @@ fn startup(
     commands.spawn_bundle(UICameraBundle::new());
 
     let main_font = font_assets.fira_sans_msdf.clone();
-    font_mapping.add("FiraSans-Bold", main_font.clone());
+    let title_font = font_assets.fantasque_sans_msdf.clone();
 
-    // let handle: Handle<bevy::render::texture::Image> = asset_server.load("kenny/panel_brown.png");
+    font_mapping.add("FiraSans-Bold", main_font.clone());
+    font_mapping.add("FantasqueSansNF", title_font.clone());
+
     let panel_brown_handle = image_manager.get(&ui_assets.panel_brown_png);
 
     let context = BevyContext::new(|context| {
@@ -65,6 +67,7 @@ fn startup(
         };
 
         let main_font_id = font_mapping.get(&main_font);
+        let title_font_id = font_mapping.get(&title_font);
 
         render! {
             <App>
@@ -75,9 +78,9 @@ fn startup(
                     >
                     <Text
                         styles={Some(header_styles)}
-                        size={48.0}
+                        size={78.0}
                         content={"Vanilla Coffee".to_string()}
-                        font={main_font_id}
+                        font={title_font_id}
                     />
                     <BluePlayButton>
                         <Text line_height={Some(40.0)} size={32.0} content={"Play".to_string()} font={main_font_id} />

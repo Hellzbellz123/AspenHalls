@@ -7,7 +7,7 @@ use bevy::prelude::*;
 use bevy::DefaultPlugins;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
-pub mod window_icon;
+pub mod utilities;
 
 fn main() {
     App::new()
@@ -25,7 +25,7 @@ fn main() {
         //     // filter: "off".to_string()
         //     ..Default::default()
         // })
-        .add_startup_system(window_icon::set_window_icon)
+        .add_startup_system(utilities::set_window_icon)
         .add_state(GameState::Loading)
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
