@@ -43,7 +43,7 @@ fn get_output_path() -> PathBuf {
         .join("target")
         .join(target)
         .join(build_type);
-    return PathBuf::from(path);
+    path
 }
 
 fn compilewindowicons() {

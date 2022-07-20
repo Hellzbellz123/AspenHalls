@@ -8,15 +8,14 @@ mod splashscreen;
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
+use crate::menu::main_menu::*;
 use crate::player::PlayerPlugin;
 use crate::splashscreen::splash::SplashPlugin;
-
 use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use std::time::Duration;
 // use kayak_ui::bevy::BevyKayakUIPlugin;
-use menu::MenuPlugin;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
 pub enum GameState {
