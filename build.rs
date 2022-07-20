@@ -27,6 +27,13 @@ fn copyassets() {
         output_path.to_str().unwrap()
     );
 
+    let out_dir = env::var("OUT_DIR").unwrap();
+
+    println!(
+        "cargo:warning=Cargo out dir: {}",
+        out_dir
+    );
+
     let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/");
     let output_path = Path::new(&output_path).join("assets/");
     copy(input_path, output_path).expect("couldnt copy files, maybe the source doesnt exist? {}");
