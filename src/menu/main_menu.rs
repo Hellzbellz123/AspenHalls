@@ -1,9 +1,9 @@
-use bevy::prelude::{Commands, Handle, Plugin, Res, ResMut, SystemSet, World, *};
+use bevy::prelude::{Commands, Plugin, Res, ResMut, SystemSet, *};
 use kayak_ui::bevy::{BevyContext, BevyKayakUIPlugin, FontMapping, ImageManager, UICameraBundle};
 use kayak_ui::core::{
-    render, rsx,
+    render,
     styles::{Edge, LayoutType, Style, StyleProp, Units},
-    widget, Bound, Children, EventType, MutableBound, OnEvent, WidgetProps,
+    Bound,
 };
 
 use kayak_ui::widgets::{App, NinePatch, Text};
