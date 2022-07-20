@@ -99,8 +99,14 @@ fn destroy(mut commands: Commands) {
     commands.remove_resource::<BevyContext>();
 }
 
-fn play_button_event(mut reader: EventReader<PlayButtonEvent>) {
+fn play_button_event(
+    mut reader: EventReader<PlayButtonEvent>,
+    mut state: ResMut<bevy::prelude::State<crate::GameState>>,
+) {
     for _ in reader.iter() {
         println!("play button was pressed");
+        if *state.current() == crate::GameState::Menu {
+            let _ = state.set(crate::GameState::Playing);
+        }
     }
 }
