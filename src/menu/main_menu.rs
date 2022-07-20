@@ -3,7 +3,6 @@ use kayak_ui::bevy::{BevyContext, BevyKayakUIPlugin, FontMapping, ImageManager, 
 use kayak_ui::core::{
     render,
     styles::{Edge, LayoutType, Style, StyleProp, Units},
-    Bound,
 };
 
 use kayak_ui::widgets::{App, NinePatch, Text};
