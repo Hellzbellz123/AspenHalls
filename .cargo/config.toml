@@ -1,6 +1,8 @@
-[target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-Zshare-generics=y", "-C", "link-arg=--ld-path=/usr/sbin/mold"]
+# [target.x86_64-unknown-linux-gnu]
+# linker = "clang"
+# rustflags = ["-Zshare-generics=y", "-C", "link-arg=--ld-path=/usr/sbin/mold"]
+
+# this breaks trunk check for some reason?
 
 [target.x86_64-pc-windows-msvc]
 linker = "lld-link"

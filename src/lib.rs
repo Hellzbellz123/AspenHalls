@@ -5,12 +5,12 @@ mod menu;
 mod player;
 mod splashscreen;
 
-use crate::action_manager::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::main_menu::*;
 use crate::player::PlayerPlugin;
 use crate::splashscreen::splash::SplashPlugin;
+use action_manager::bindings::ActionsPlugin;
 use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;

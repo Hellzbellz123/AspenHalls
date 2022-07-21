@@ -1,37 +1,48 @@
-use leafwing_input_manager::{orientation::Direction, Actionlike};
+use bevy::prelude::*;
+use leafwing_input_manager::prelude::*;
 
-#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
-pub enum GameActions {
-    Right,
-    Left,
-    Down,
-    Up,
+use super::actions::GameActions;
 
-    Horizontal,
+pub struct ActionsPlugin;
 
-    Jump,
-    Heal,
-    Dash,
-    Pause,
-    Menus,
+// holds default bindings for game
+
+impl Plugin for ActionsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(InputManagerPlugin::<GameActions>::default());
+    }
 }
 
-impl GameActions {
-    // Lists like this can be very useful for quickly matching subsets of actions
-    const DIRECTIONS: [Self; 4] = [
-        GameActions::Up,
-        GameActions::Down,
-        GameActions::Left,
-        GameActions::Right,
-    ];
+#[derive(Bundle)]
+pub struct PlayerInput {
+    #[bundle]
+    input: InputManagerBundle<GameActions>,
+}
 
-    fn direction(self) -> Option<Direction> {
-        match self {
-            GameActions::Up => Some(Direction::NORTH),
-            GameActions::Down => Some(Direction::SOUTH),
-            GameActions::Left => Some(Direction::EAST),
-            GameActions::Right => Some(Direction::WEST),
-            _ => None,
+impl Default for PlayerInput {
+    fn default() -> Self {
+        use GameActions::*;
+
+        let mut input_map = InputMap::default();
+
+        // basic movement
+        input_map.insert(KeyCode::W, Up);
+        input_map.insert(KeyCode::S, Down);
+        input_map.insert(KeyCode::A, Left);
+        input_map.insert(KeyCode::D, Right);
+
+        input_map.insert(KeyCode::E, GameActions::Dash);
+        input_map.insert(GamepadButtonType::RightTrigger2, GameActions::Dash);
+
+        input_map.insert(KeyCode::Return, GameActions::Pause);
+        input_map.insert(GamepadButtonType::Start, GameActions::Pause);
+
+        input_map.set_gamepad(Gamepad(0));
+        Self {
+            input: InputManagerBundle::<GameActions> {
+                input_map,
+                ..Default::default()
+            },
         }
     }
 }

@@ -17,7 +17,7 @@ impl Plugin for InternalAudioPlugin {
 }
 
 fn start_audio(audio_assets: Res<AudioAssets>, audio: Res<Audio>) {
-    audio.set_volume(0.3);
+    audio.set_volume(0.1);
     audio.play_looped(audio_assets.gamesoundtrack.clone());
 }
 

@@ -1,30 +1,43 @@
 use bevy::prelude::*;
+use bevy::prelude::{Bundle, GamepadAxisType, GamepadButtonType, KeyCode};
 use leafwing_input_manager::prelude::*;
+use leafwing_input_manager::{
+    orientation::Direction, prelude::InputMap, Actionlike, InputManagerBundle,
+};
 
-use super::bindings::GameActions;
+#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
+pub enum GameActions {
+    Right,
+    Left,
+    Down,
+    Up,
 
-pub struct ActionsPlugin;
+    Horizontal,
+    Vertical,
 
-// This plugin listens for keyboard input and converts the input into Actions
-// Actions can then be used as a resource in other systems to act on the player input.
-impl Plugin for ActionsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugin(InputManagerPlugin::<GameActions>::default());
-    }
+    Climb,
+    Dash,
+    Pause,
+    // Heal,
+    // Menus,
 }
 
-pub struct GameActionSettings {
-    input: InputMap<GameActions>,
-}
+impl GameActions {
+    // Lists like this can be very useful for quickly matching subsets of actions
+    pub const DIRECTIONS: [Self; 4] = [
+        GameActions::Up,
+        GameActions::Down,
+        GameActions::Left,
+        GameActions::Right,
+    ];
 
-impl Default for GameActionSettings {
-    fn default() -> Self {
-        let mut input = InputMap::default();
-        input
-            .insert(KeyCode::W, GameActions::Up)
-            .insert(KeyCode::S, GameActions::Down)
-            .insert(KeyCode::A, GameActions::Left)
-            .insert(KeyCode::D, GameActions::Right);
-        Self { input }
+    pub fn direction(self) -> Option<Direction> {
+        match self {
+            GameActions::Up => Some(Direction::NORTH),
+            GameActions::Down => Some(Direction::SOUTH),
+            GameActions::Left => Some(Direction::EAST),
+            GameActions::Right => Some(Direction::WEST),
+            _ => None,
+        }
     }
 }

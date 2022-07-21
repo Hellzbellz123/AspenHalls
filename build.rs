@@ -29,10 +29,7 @@ fn copyassets() {
 
     let out_dir = env::var("OUT_DIR").unwrap();
 
-    println!(
-        "cargo:warning=Cargo out dir: {}",
-        out_dir
-    );
+    println!("cargo:warning=Cargo out dir: {}", out_dir);
 
     let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/");
     let output_path = Path::new(&output_path).join("assets/");
