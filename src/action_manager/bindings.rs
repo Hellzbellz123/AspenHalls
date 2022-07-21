@@ -1,8 +1,6 @@
-use leafwing_input_manager::{Actionlike, orientation::Direction};
+use leafwing_input_manager::{orientation::Direction, Actionlike};
 
-#[derive(
-    Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug,
-)]
+#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub enum GameActions {
     Right,
     Left,

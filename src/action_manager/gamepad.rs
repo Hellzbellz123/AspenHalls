@@ -28,33 +28,23 @@ fn gamepad_connections(
     for GamepadEvent(id, kind) in gamepad_evr.iter() {
         match kind {
             GamepadEventType::Connected => {
-                println!(
-                    "New gamepad connected with ID: {:?}",
-                    id
-                );
+                println!("New gamepad connected with ID: {:?}", id);
 
                 // if we don't have any gamepad yet, use
                 // this one
                 if my_gamepad.is_none() {
-                    commands
-                        .insert_resource(MyGamepad(*id));
+                    commands.insert_resource(MyGamepad(*id));
                 }
             }
             GamepadEventType::Disconnected => {
-                println!(
-                    "Lost gamepad connection with ID: {:?}",
-                    id
-                );
+                println!("Lost gamepad connection with ID: {:?}", id);
 
                 // if it's the one we previously associated
                 // with the player,
                 // disassociate it:
-                if let Some(MyGamepad(old_id)) =
-                    my_gamepad.as_deref()
-                {
+                if let Some(MyGamepad(old_id)) = my_gamepad.as_deref() {
                     if old_id == id {
-                        commands
-                            .remove_resource::<MyGamepad>();
+                        commands.remove_resource::<MyGamepad>();
                     }
                 }
             }
@@ -102,30 +92,15 @@ fn gamepad_input(
     };
     // dbg!(&gamepad);
 
-    for (
-        entity,
-        mut velocity,
-        mut climber,
-        mut sprite,
-        timer,
-        ground_detection,
-    ) in query.iter_mut()
+    for (entity, mut velocity, mut climber, mut sprite, timer, ground_detection) in query.iter_mut()
     {
         // The joysticks are represented using a separate
         // axis for X and Y
 
-        let axis_lx = GamepadAxis(
-            gamepad,
-            GamepadAxisType::LeftStickX,
-        );
-        let axis_ly = GamepadAxis(
-            gamepad,
-            GamepadAxisType::LeftStickY,
-        );
+        let axis_lx = GamepadAxis(gamepad, GamepadAxisType::LeftStickX);
+        let axis_ly = GamepadAxis(gamepad, GamepadAxisType::LeftStickY);
 
-        if let (Some(x), Some(y)) =
-            (axes.get(axis_lx), axes.get(axis_ly))
-        {
+        if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
             // combine X and Y into one vector
             let left_stick_pos = Vec2::new(x, y);
             if left_stick_pos.x != 0.0 {
@@ -144,20 +119,13 @@ fn gamepad_input(
             // + left_stick_pos.x.signum() * 100.0;
             // dbg!(velocity.linvel.x, left_stick_pos.x);
 
-            if (velocity.linvel.x.abs() > 0.0)
-                && timer.is_none()
-                && ground_detection.on_ground
-            {
-                commands.entity(entity).insert(
-                    AnimationTimer(Timer::from_seconds(
-                        0.1, true,
-                    )),
-                );
+            if (velocity.linvel.x.abs() > 0.0) && timer.is_none() && ground_detection.on_ground {
+                commands
+                    .entity(entity)
+                    .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
             } else if !(velocity.linvel.x.abs() > 0.0) {
                 if let Some(_) = timer {
-                    commands
-                        .entity(entity)
-                        .remove::<AnimationTimer>();
+                    commands.entity(entity).remove::<AnimationTimer>();
                 }
             }
             // // Example: check if the stick is
@@ -172,22 +140,14 @@ fn gamepad_input(
 
         // In a real game, the buttons would be
         // configurable, but here we hardcode them
-        let jump_button = GamepadButton(
-            gamepad,
-            GamepadButtonType::South,
-        );
-        let heal_button =
-            GamepadButton(gamepad, GamepadButtonType::East);
+        let jump_button = GamepadButton(gamepad, GamepadButtonType::South);
+        let heal_button = GamepadButton(gamepad, GamepadButtonType::East);
 
-        if buttons.just_pressed(jump_button)
-            && ground_detection.on_ground
-        {
+        if buttons.just_pressed(jump_button) && ground_detection.on_ground {
             velocity.linvel.y = 900.;
             sprite.index = 1;
             if let Some(_) = timer {
-                commands
-                    .entity(entity)
-                    .remove::<AnimationTimer>();
+                commands.entity(entity).remove::<AnimationTimer>();
             }
         } else if ground_detection.on_ground {
             sprite.index = 0;
@@ -205,10 +165,7 @@ pub struct AnimationTimer(pub Timer);
 
 fn animate_sprite(
     time: Res<Time>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-    )>,
+    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite)>,
 ) {
     for (mut timer, mut sprite) in query.iter_mut() {
         timer.tick(time.delta());

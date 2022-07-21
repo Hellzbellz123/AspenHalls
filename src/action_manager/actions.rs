@@ -1,7 +1,5 @@
-use crate::GameState;
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
-use leafwing_input_manager::{errors::NearlySingularConversion, orientation::Direction};
 
 use super::bindings::GameActions;
 
@@ -11,8 +9,7 @@ pub struct ActionsPlugin;
 // Actions can then be used as a resource in other systems to act on the player input.
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_plugin(InputManagerPlugin::<GameActions>::default());
+        app.add_plugin(InputManagerPlugin::<GameActions>::default());
     }
 }
 
@@ -31,4 +28,3 @@ impl Default for GameActionSettings {
         Self { input }
     }
 }
-

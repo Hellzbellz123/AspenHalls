@@ -2,9 +2,8 @@ use crate::action_manager::bindings::GameActions;
 use crate::loading::GameTextureAssets;
 use crate::GameState;
 use bevy::prelude::*;
-use leafwing_input_manager::{InputManagerBundle, action_state};
 use leafwing_input_manager::prelude::ActionState;
-
+use leafwing_input_manager::InputManagerBundle;
 
 pub struct PlayerPlugin;
 
@@ -19,7 +18,6 @@ struct PlayerBundle {
     #[bundle]
     input_manager: InputManagerBundle<GameActions>,
 }
-
 
 /// This plugin handles player related stuff like movement
 /// Player logic is only active during the State `GameState::Playing`
@@ -49,11 +47,10 @@ fn spawn_player(mut commands: Commands, textures: Res<GameTextureAssets>) {
 }
 
 fn move_player(
-    time: Res<Time>,
+    _time: Res<Time>,
     // actions: Res<Actions>,
-    mut player_query: Query<&mut Transform, With<Player>>,
-    query_action_state: Query<&ActionState<GameActions>,
->,
+    _player_query: Query<&mut Transform, With<Player>>,
+    _query_action_state: Query<&ActionState<GameActions>>,
 ) {
 
     // if actions.player_movement.is_none() {
@@ -71,18 +68,8 @@ fn move_player(
 }
 
 fn horizontal(
-    query_action_state: Query<
-        &ActionState<GameActions>,
-    >,
-    mut commands: Commands,
-    // axes: Res<Axis<GamepadAxis>>,
-    mut query_player: Query<
-        (
-            Entity,
-            &mut TextureAtlasSprite,
-            // Option<&AnimationTi
-        ),
-        With<Player>,
-    >,){
-
-    }
+    query_action_state: Query<&ActionState<GameActions>>,
+    commands: Commands,
+    query_player: Query<(Entity, &mut TextureAtlasSprite), With<Player>>,
+) {
+}

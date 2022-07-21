@@ -47,7 +47,7 @@ features = [
 # path = "crates/bevy-kdl-ui"
 
 [dependencies.kayak_ui]
-path = "crates/kayak_ui" #git = "https://github.com/StarArawn/kayak_ui" #    # 
+path = "crates/kayak_ui"     #git = "https://github.com/StarArawn/kayak_ui"
 features = ["bevy_renderer"]
 
 [dependencies.leafwing-input-manager]

@@ -1,9 +1,9 @@
+mod action_manager;
 mod audio;
 mod loading;
 mod menu;
 mod player;
 mod splashscreen;
-mod action_manager;
 
 use crate::action_manager::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
