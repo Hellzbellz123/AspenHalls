@@ -27,4 +27,4 @@ lto = "fat"
 opt-level = 3
 [build]
 rustc-wrapper = "sccache"
-# rustflags = ["-Ctarget-cpu=znver3"]
+rustflags = ["-Ctarget-cpu=znver3"]

@@ -72,9 +72,11 @@ fn player_movement_system(
     query_action_state: Query<&ActionState<GameActions>>,
     time: Res<Time>,
     mut player_query: Query<(&mut Transform, &mut Player)>,
+    mut sprite_query: Query<(&mut Sprite, With<Player>)>,
 ) {
     let _movement_dir = Vec3::ZERO;
     let (mut player_transform, mut player) = player_query.single_mut();
+    let mut sprite = sprite_query.single_mut();
 
     if player.sprint_available {
         player.speed = 255.0
@@ -93,10 +95,12 @@ fn player_movement_system(
     for action_state in query_action_state.iter() {
         if action_state.pressed(GameActions::Right) {
             player_transform.translation.x += 1.0 * player.speed * time.delta_seconds();
+            sprite.0.flip_x = true;
         }
 
         if action_state.pressed(GameActions::Left) {
             player_transform.translation.x += -1.0 * player.speed * time.delta_seconds();
+            sprite.0.flip_x = false;
         }
 
         if action_state.pressed(GameActions::Up) {
@@ -110,11 +114,11 @@ fn player_movement_system(
 }
 
 fn player_sprint(
-    query: Query<&ActionState<GameActions>, With<Player>>,
-    mut player_query: Query<(&mut Transform, &mut Player)>,
+    input_query: Query<&ActionState<GameActions>, With<Player>>,
+    mut player_query: Query<(&mut Sprite, &mut Player)>,
 ) {
-    let action_state = query.single();
-    let (mut _player_transform, mut player) = player_query.single_mut();
+    let action_state = input_query.single();
+    let (mut _player_sprite, mut player) = player_query.single_mut();
 
     if action_state.pressed(GameActions::Dash) {
         player.sprint_available = true;

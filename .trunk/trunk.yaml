@@ -2,6 +2,10 @@ version: 0.1
 cli:
   version: 0.15.0-beta
 lint:
+  ignore:
+    - paths:
+        - assets/*
+        - assets/fonts/*
   enabled:
     # - clippy@1.58.1
     - git-diff-check@SYSTEM

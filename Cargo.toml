@@ -50,8 +50,8 @@ features = [
 path = "crates/kayak_ui"     #git = "https://github.com/StarArawn/kayak_ui"
 features = ["bevy_renderer"]
 
-[dependencies.leafwing_input_manager]
-path = "crates/leafwing_input_manager"
+[dependencies.leafwing-input-manager]
+path = "crates/leafwing-input-manager"
 
 [dependencies.bevy_asset_loader]
 git = "https://github.com/NiklasEi/bevy_asset_loader.git"
