@@ -1,18 +1,21 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::InputMap;
 
-use crate::action_manager::actions::*;
-use crate::components::{Climber, GroundDetection, Player};
+use crate::{
+    action_manager::actions::*,
+    player::{self, Player}, GameState,
+};
 
 pub struct GamepadPlugin;
 
 impl Plugin for GamepadPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(gamepad_connections)
-            // .add_system(gamepad_input)
-            .add_system(on_change_gamepad)
-            .add_system(animate_sprite);
-    }
+        app
+        .add_system(gamepad_connections)
+        .add_system(gamepad_input)
+        .add_system(on_change_gamepad)
+        .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(gamepad_input));
+        }
 }
 /// Simple resource to store the ID of the
 /// connected gamepad. We need to know which
@@ -56,7 +59,7 @@ fn gamepad_connections(
 
 fn on_change_gamepad(
     gamepad: Option<Res<MyGamepad>>,
-    mut input_map: Query<&mut InputMap<PlatformerAction>>,
+    mut input_map: Query<&mut InputMap<GameActions>>,
 ) {
     if let Some(gamepad) = gamepad {
         if gamepad.is_changed() {
@@ -67,114 +70,58 @@ fn on_change_gamepad(
     }
 }
 fn gamepad_input(
+    mut player_query: Query<(&mut Sprite, With<Player>)>,
     mut commands: Commands,
     axes: Res<Axis<GamepadAxis>>,
     buttons: Res<Input<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
-    mut query: Query<
-        (
-            Entity,
-            &mut Velocity,
-            &mut Climber,
-            &mut TextureAtlasSprite,
-            Option<&AnimationTimer>,
-            &GroundDetection,
-        ),
-        With<Player>,
-    >,
 ) {
     let gamepad = if let Some(gp) = my_gamepad {
-        // a gamepad is connected, we have the id
+        info!("a gamepad is connected, we have the id");
         gp.0
     } else {
-        // no gamepad is connected
+        info!("no gamepad connected"); // no gamepad is connected
         return;
     };
-    // dbg!(&gamepad);
 
-    for (entity, mut velocity, mut climber, mut sprite, timer, ground_detection) in query.iter_mut()
-    {
-        // The joysticks are represented using a separate
-        // axis for X and Y
+    // The joysticks are represented using a separate
+    // axis for X and Y
+    let axis_lx = GamepadAxis(gamepad, GamepadAxisType::LeftStickX);
+    let axis_ly = GamepadAxis(gamepad, GamepadAxisType::LeftStickY);
 
-        let axis_lx = GamepadAxis(gamepad, GamepadAxisType::LeftStickX);
-        let axis_ly = GamepadAxis(gamepad, GamepadAxisType::LeftStickY);
+    let mut sprite = player_query.single_mut();
 
-        if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
-            // combine X and Y into one vector
-            let left_stick_pos = Vec2::new(x, y);
-            if left_stick_pos.x != 0.0 {
-                match left_stick_pos.x.signum() {
-                    -1.0 => {
-                        sprite.flip_x = true;
-                    }
-                    1.0 => {
-                        sprite.flip_x = false;
-                    }
-                    _ => {}
-                };
-            };
-            velocity.linvel.x = left_stick_pos.x * 300.;
-
-            // + left_stick_pos.x.signum() * 100.0;
-            // dbg!(velocity.linvel.x, left_stick_pos.x);
-
-            if (velocity.linvel.x.abs() > 0.0) && timer.is_none() && ground_detection.on_ground {
-                commands
-                    .entity(entity)
-                    .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
-            } else if !(velocity.linvel.x.abs() > 0.0) {
-                if let Some(_) = timer {
-                    commands.entity(entity).remove::<AnimationTimer>();
+    if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
+        // combine X and Y into one vector
+        let left_stick_pos = Vec2::new(x, y);
+        if left_stick_pos.x != 0.0 {
+            match left_stick_pos.x.signum() {
+                -1.0 => {
+                    sprite.0.flip_x = true;
                 }
-            }
-            // // Example: check if the stick is
-            // pushed up
-            // if left_stick_pos.length() > 0.9
-            //     && left_stick_pos.y > 0.5
-            // {
-            //     // do something
-            //     dbg!("here");
-            // }
+                1.0 => {
+                    sprite.0.flip_x = false;
+                }
+                _ => {}
+            };
+        };
+
+        if left_stick_pos.length() > 0.9 && left_stick_pos.y > 0.5 {
+            info!("left stick pushed up")
         }
 
-        // In a real game, the buttons would be
-        // configurable, but here we hardcode them
-        let jump_button = GamepadButton(gamepad, GamepadButtonType::South);
-        let heal_button = GamepadButton(gamepad, GamepadButtonType::East);
-
-        if buttons.just_pressed(jump_button) && ground_detection.on_ground {
-            velocity.linvel.y = 900.;
-            sprite.index = 1;
-            if let Some(_) = timer {
-                commands.entity(entity).remove::<AnimationTimer>();
-            }
-        } else if ground_detection.on_ground {
-            sprite.index = 0;
-        }
-
-        if buttons.pressed(heal_button) {
-            // button being held down: heal the player
-            dbg!("circle");
+        if left_stick_pos.length() > 0.9 && left_stick_pos.y > -0.5 {
+            info!("left stick pushed down?")
         }
     }
-}
 
-#[derive(Component, Deref, DerefMut)]
-pub struct AnimationTimer(pub Timer);
+    // In a real game, the buttons would be
+    // configurable, but here we hardcode them
+    let jump_button = GamepadButton(gamepad, GamepadButtonType::South);
+    let heal_button = GamepadButton(gamepad, GamepadButtonType::East);
 
-fn animate_sprite(
-    time: Res<Time>,
-    mut query: Query<(&mut AnimationTimer, &mut TextureAtlasSprite)>,
-) {
-    for (mut timer, mut sprite) in query.iter_mut() {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            sprite.index = match sprite.index {
-                9 => 10,
-                10 => 9,
-                _ => 9,
-            }
-        }
+    if buttons.pressed(heal_button) {
+        // button being held down: heal the player
+        dbg!("circle");
     }
 }

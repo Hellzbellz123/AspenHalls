@@ -1,6 +1,8 @@
 // disable console on windows for release builds
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use bevy_inspector_egui::Inspectable;
+
 use vanillacoffee::*;
 
 use bevy::prelude::*;
@@ -8,6 +10,13 @@ use bevy::DefaultPlugins;
 use bevy_inspector_egui::WorldInspectorPlugin;
 
 pub mod utilities;
+
+#[derive(Inspectable, Component)]
+struct InspectableType;
+
+#[derive(Reflect, Component, Default)]
+#[reflect(Component)]
+struct ReflectedType;
 
 fn main() {
     App::new()
@@ -30,5 +39,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
         .add_plugin(WorldInspectorPlugin::new())
+        .register_type::<ReflectedType>()
         .run();
 }

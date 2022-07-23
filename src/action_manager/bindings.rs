@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
+use leafwing_input_manager::axislike::AxisPair;
 
 use super::actions::GameActions;
 
@@ -24,17 +25,17 @@ impl Default for PlayerInput {
         use GameActions::*;
 
         let mut input_map = InputMap::default();
-
-        // basic movement
+        
+        // basic keyboard movement
         input_map.insert(KeyCode::W, Up);
         input_map.insert(KeyCode::S, Down);
         input_map.insert(KeyCode::A, Left);
         input_map.insert(KeyCode::D, Right);
 
-        input_map.insert(KeyCode::E, GameActions::Dash);
+        input_map.insert(KeyCode::LShift, GameActions::Dash);
         input_map.insert(GamepadButtonType::RightTrigger2, GameActions::Dash);
 
-        input_map.insert(KeyCode::Return, GameActions::Pause);
+        input_map.insert(KeyCode::Escape, GameActions::Pause);
         input_map.insert(GamepadButtonType::Start, GameActions::Pause);
 
         input_map.set_gamepad(Gamepad(0));
