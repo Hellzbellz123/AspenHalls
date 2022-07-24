@@ -1,7 +1,8 @@
 [package]
 name = "vanillacoffee"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
+description = "Vanilla Coffee game: in progress"
 
 [build-dependencies]
 embed-resource = "1.7.3"
@@ -16,6 +17,7 @@ serde = "1.0.138"
 rand = "0.8.5"
 bevy-inspector-egui = "0.11.0"
 glob = "0.3"
+aquamarine = "0.1.11"
 # chrono = "0.4.19"
 # fern = "0.6.1"
 # bevy_ecs_ldtk = "0.3.0"

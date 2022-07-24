@@ -31,6 +31,12 @@ pub enum GameState {
     Playing,
 }
 
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+enum GamePaused {
+    Paused,
+    Unpaused,
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
 pub enum MenuState {
     MainMenu,
@@ -45,7 +51,9 @@ impl Plugin for GamePlugin {
             .world
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
-        app.add_plugin(LoadingPlugin)
+        app
+            .add_plugin(LoadingPlugin)
+            .insert_resource(GamePaused::Paused)
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
@@ -57,6 +65,14 @@ impl Plugin for GamePlugin {
             .add_plugin(LogDiagnosticsPlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()
-            });
+            })
+            .add_system_set(
+                SystemSet::on_enter(GameState::Playing)
+                    .with_system(unpause_game),
+            );
     }
+}
+
+fn unpause_game(mut paused: ResMut<GamePaused>) {
+    *paused = GamePaused::Unpaused;
 }

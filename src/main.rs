@@ -18,6 +18,16 @@ struct InspectableType;
 #[reflect(Component)]
 struct ReflectedType;
 
+
+#[cfg_attr(doc, aquamarine::aquamarine)]
+/// ```mermaid
+/// graph LR
+///     s([Source]) --> a[[aquamarine]]
+///     r[[rustdoc]] --> f([Docs w/ Mermaid!])
+///     subgraph rustc[Rust Compiler]
+///     a -. inject mermaid.js .-> r
+///     end
+/// ```
 fn main() {
     App::new()
         .insert_resource(Msaa { samples: 1 })

@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::InputMap;
 
-use crate::{
-    action_manager::actions::*,
-};
+use crate::action_manager::actions::*;
 
 pub struct GamepadPlugin;
 

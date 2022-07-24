@@ -7,12 +7,12 @@ lint:
         - assets/*
         - assets/fonts/*
   enabled:
-    # - clippy@1.58.1
+    - clippy@1.62.0
     - git-diff-check@SYSTEM
     - gitleaks@8.8.12
     - markdownlint@0.32.0
     - prettier@2.7.1
-    # - rustfmt@1.58.1
+    - rustfmt@1.62.0
     - shellcheck@0.8.0
     - shfmt@3.5.0
     - taplo@release-taplo-cli-0.6.8
