@@ -15,3 +15,23 @@ users compiling on windows should comment out the rustflags for the msvc target 
 // macos sucks and i cant test it so no
 
 make sure to move /assets to the correct place inside the build folder or move the exe into the same folder as this readme
+
+## For Linux users wanting to build for window
+
+cargo install c cargo-xwin
+
+im just keeping this old snippet here for others too see how to use xwin on its own
+
+xwin
+
+```# [target.x86_64-pc-windows-msvc]
+# linker = "lld-link"
+# rustflags = [
+#   "-C",
+#   "target-feature=+crt-static",
+#   "-Zshare-generics=off",
+#   "-Lnative=/opt/xwin/crt/lib/x86_64",
+#   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
+#   "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
+# ]
+```

@@ -18,7 +18,6 @@ struct InspectableType;
 #[reflect(Component)]
 struct ReflectedType;
 
-
 #[cfg_attr(doc, aquamarine::aquamarine)]
 /// ```mermaid
 /// graph LR

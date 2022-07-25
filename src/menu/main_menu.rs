@@ -14,19 +14,7 @@ use crate::{
 };
 pub struct PlayButtonEvent;
 
-pub struct MenuPlugin;
-
-impl Plugin for MenuPlugin {
-    fn build(&self, app: &mut bevy::app::App) {
-        app.add_plugin(BevyKayakUIPlugin)
-            .add_event::<PlayButtonEvent>()
-            .add_system(play_button_event)
-            .add_system_set(SystemSet::on_enter(GameState::Menu).with_system(startup))
-            .add_system_set(SystemSet::on_exit(GameState::Menu).with_system(destroy));
-    }
-}
-
-fn startup(
+pub(crate) fn startup(
     mut commands: Commands,
     font_assets: Res<FontAssets>,
     ui_assets: Res<UiTextureAssets>,
@@ -98,11 +86,11 @@ fn startup(
     commands.insert_resource(context);
 }
 
-fn destroy(mut commands: Commands) {
+pub(crate) fn destroy(mut commands: Commands) {
     commands.remove_resource::<BevyContext>();
 }
 
-fn play_button_event(
+pub(crate) fn play_button_event(
     mut reader: EventReader<PlayButtonEvent>,
     mut state: ResMut<bevy::prelude::State<crate::GameState>>,
 ) {

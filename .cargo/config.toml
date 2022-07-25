@@ -1,19 +1,9 @@
-# [target.x86_64-unknown-linux-gnu]
-# linker = "clang"
-# rustflags = ["-Zshare-generics=y", "-C", "link-arg=--ld-path=/usr/sbin/mold"]
+[alias]
+b = "xwin build"
 
-# this breaks trunk check for some reason?
-
-[target.x86_64-pc-windows-msvc]
-linker = "lld-link"
-rustflags = [
-  "-C",
-  "target-feature=+crt-static",
-  "-Zshare-generics=off",
-  "-Lnative=/opt/xwin/crt/lib/x86_64",
-  "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
-  "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
-]
+[build]
+rustc-wrapper = "sccache"
+rustflags = ["-Ctarget-cpu=znver3"]
 
 [profile.dev]
 opt-level = 1
@@ -25,6 +15,3 @@ opt-level = 3
 [profile.release]
 lto = "fat"
 opt-level = 3
-[build]
-rustc-wrapper = "sccache"
-# rustflags = ["-Ctarget-cpu=znver3"]

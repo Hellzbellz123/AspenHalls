@@ -16,6 +16,7 @@ use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
+use menu::MenuPlugin;
 use std::time::Duration;
 // use kayak_ui::bevy::BevyKayakUIPlugin;
 
@@ -51,8 +52,7 @@ impl Plugin for GamePlugin {
             .world
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
-        app
-            .add_plugin(LoadingPlugin)
+        app.add_plugin(LoadingPlugin)
             .insert_resource(GamePaused::Paused)
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
@@ -66,10 +66,7 @@ impl Plugin for GamePlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()
             })
-            .add_system_set(
-                SystemSet::on_enter(GameState::Playing)
-                    .with_system(unpause_game),
-            );
+            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(unpause_game));
     }
 }
 

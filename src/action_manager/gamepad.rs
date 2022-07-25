@@ -5,11 +5,6 @@ use crate::action_manager::actions::*;
 
 pub struct GamepadPlugin;
 
-pub struct gamepad_axis_values {
-    leftstick: Vec2,
-    rightstick: Vec2,
-}
-
 impl Plugin for GamepadPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(gamepad_connections)
@@ -120,7 +115,6 @@ fn gamepad_input(
 
     // In a real game, the buttons would be
     // configurable, but here we hardcode them
-    let _jump_button = GamepadButton(gamepad, GamepadButtonType::South);
     let heal_button = GamepadButton(gamepad, GamepadButtonType::East);
 
     if buttons.pressed(heal_button) {

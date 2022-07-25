@@ -45,9 +45,6 @@ features = [
   # "dynamic",
 ]
 
-# [dependencies.bevy-kdl-ui]
-# path = "crates/bevy-kdl-ui"
-
 [dependencies.kayak_ui]
 path = "crates/kayak_ui"     #git = "https://github.com/StarArawn/kayak_ui"
 features = ["bevy_renderer"]
@@ -63,3 +60,17 @@ features = []
 version = "0.10.0"
 default-features = false
 features = ["mp3", "ogg"]
+
+
+[package.metadata.bundle]
+name = "Vanilla Coffee"
+identifier = "io.github.hellzbellz123.vanillacoffee"
+icon = ["assets/textures/stonercaticon.png"]
+copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
+description = "Vanilla Coffee game: in progress"
+long_description = """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+eiusmod tempor incididunt ut labore et dolore magna aliqua.  Ut
+enim ad minim veniam, quis nostrud exercitation ullamco laboris
+nisi ut aliquip ex ea commodo consequat.
+"""
