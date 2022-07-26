@@ -21,7 +21,7 @@ use std::time::Duration;
 // use kayak_ui::bevy::BevyKayakUIPlugin;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
-pub enum GameState {
+pub enum GameStage {
     //splash
     Splash,
     // During the loading State the LoadingPlugin will load our assets and display splash?!
@@ -66,7 +66,7 @@ impl Plugin for GamePlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()
             })
-            .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(unpause_game));
+            .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(unpause_game));
     }
 }
 

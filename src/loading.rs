@@ -1,4 +1,4 @@
-use crate::GameState;
+use crate::GameStage;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
@@ -10,12 +10,12 @@ pub struct LoadingPlugin;
 /// If interested, take a look at https://bevy-cheatbook.github.io/features/assets.html
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
-        LoadingState::new(GameState::Loading)
+        LoadingState::new(GameStage::Loading)
             .with_collection::<FontAssets>()
             .with_collection::<AudioAssets>()
             .with_collection::<GameTextureAssets>()
             .with_collection::<UiTextureAssets>()
-            .continue_to_state(GameState::Splash)
+            .continue_to_state(GameStage::Splash)
             .build(app);
         info!("asset loader init")
     }

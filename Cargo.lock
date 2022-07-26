@@ -582,6 +582,7 @@ dependencies = [
 [[package]]
 name = "bevy_kayak_renderer"
 version = "0.0.1"
+source = "git+https://github.com/StarArawn/kayak_ui#54c67ecd252ee441eb2bb2fdd56b2e5a9ee7f391"
 dependencies = [
  "bevy",
  "bytemuck",
@@ -594,6 +595,7 @@ dependencies = [
 [[package]]
 name = "bevy_kayak_ui"
 version = "0.0.1"
+source = "git+https://github.com/StarArawn/kayak_ui#54c67ecd252ee441eb2bb2fdd56b2e5a9ee7f391"
 dependencies = [
  "bevy",
  "bevy_kayak_renderer",
@@ -2283,6 +2285,7 @@ dependencies = [
 [[package]]
 name = "kayak_core"
 version = "0.1.0"
+source = "git+https://github.com/StarArawn/kayak_ui#54c67ecd252ee441eb2bb2fdd56b2e5a9ee7f391"
 dependencies = [
  "as-any",
  "bevy",
@@ -2300,6 +2303,7 @@ dependencies = [
 [[package]]
 name = "kayak_font"
 version = "0.1.0"
+source = "git+https://github.com/StarArawn/kayak_ui#54c67ecd252ee441eb2bb2fdd56b2e5a9ee7f391"
 dependencies = [
  "anyhow",
  "bevy",
@@ -2314,6 +2318,7 @@ dependencies = [
 [[package]]
 name = "kayak_render_macros"
 version = "0.1.0"
+source = "git+https://github.com/StarArawn/kayak_ui#54c67ecd252ee441eb2bb2fdd56b2e5a9ee7f391"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
@@ -2325,6 +2330,7 @@ dependencies = [
 [[package]]
 name = "kayak_ui"
 version = "0.1.0"
+source = "git+https://github.com/StarArawn/kayak_ui#54c67ecd252ee441eb2bb2fdd56b2e5a9ee7f391"
 dependencies = [
  "bevy",
  "bevy_kayak_ui",
@@ -2390,6 +2396,7 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 [[package]]
 name = "leafwing-input-manager"
 version = "0.4.1"
+source = "git+https://github.com/Leafwing-Studios/leafwing-input-manager#c6a1e9736fd7aec3a62e9abc3edfc6a25c1d75d8"
 dependencies = [
  "bevy_app",
  "bevy_core",
@@ -2410,6 +2417,7 @@ dependencies = [
 [[package]]
 name = "leafwing_input_manager_macros"
 version = "0.4.1"
+source = "git+https://github.com/Leafwing-Studios/leafwing-input-manager#c6a1e9736fd7aec3a62e9abc3edfc6a25c1d75d8"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",

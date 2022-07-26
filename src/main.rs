@@ -44,7 +44,7 @@ fn main() {
         //     ..Default::default()
         // })
         .add_startup_system(utilities::set_window_icon)
-        .add_state(GameState::Loading)
+        .add_state(GameStage::Loading)
         .add_plugins(DefaultPlugins)
         .add_plugin(GamePlugin)
         .add_plugin(WorldInspectorPlugin::new())

@@ -1,17 +1,23 @@
 use bevy::prelude::{Commands, Res, ResMut, *};
-use kayak_ui::bevy::{BevyContext, FontMapping, ImageManager, UICameraBundle};
-use kayak_ui::core::{
-    render,
-    styles::{Edge, LayoutType, Style, StyleProp, Units},
-};
 
-use kayak_ui::widgets::{App, NinePatch, Text};
+use kayak_ui::{
+    bevy::{BevyContext, FontMapping, ImageManager, UICameraBundle},
+    core::{
+        render,
+        styles::{Edge, LayoutType, Style, StyleProp, Units},
+    },
+    widgets::{App, NinePatch, Text},
+};
 
 use crate::{
     loading::{FontAssets, UiTextureAssets},
-    menu::menu_widgets::{BlueButton, BluePlayButton},
+    menu::menu_widgets::{ExitButton, OptionsButton, PlayButton},
 };
+
 pub struct PlayButtonEvent;
+pub struct AppExitEvent;
+
+pub struct OptionsButtonEvent;
 
 pub(crate) fn startup(
     mut commands: Commands,
@@ -69,15 +75,15 @@ pub(crate) fn startup(
                         content={"Vanilla Coffee".to_string()}
                         font={title_font_id}
                     />
-                    <BluePlayButton>
+                    <PlayButton>
                         <Text line_height={Some(40.0)} size={32.0} content={"Play".to_string()} font={main_font_id} />
-                    </BluePlayButton>
-                    <BlueButton styles={Some(options_button_styles)}>
+                    </PlayButton>
+                    <SettingsButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={26.0} content={"Options".to_string()} font={main_font_id} />
-                    </BlueButton>
-                    <BlueButton styles={Some(options_button_styles)}>
+                    </SettingsButton>
+                    <ExitButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={24.0} content={"Exit Game".to_string()} font={main_font_id} />
-                    </BlueButton>
+                    </ExitButton>
                 </NinePatch>
             </App>
         }
@@ -89,14 +95,20 @@ pub(crate) fn destroy(mut commands: Commands) {
     commands.remove_resource::<BevyContext>();
 }
 
+//if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate file.
 pub(crate) fn play_button_event(
     mut reader: EventReader<PlayButtonEvent>,
-    mut state: ResMut<bevy::prelude::State<crate::GameState>>,
+    mut state: ResMut<bevy::prelude::State<crate::GameStage>>,
 ) {
     for _ in reader.iter() {
         println!("play button was pressed");
-        if *state.current() == crate::GameState::Menu {
-            let _ = state.set(crate::GameState::Playing);
+        if *state.current() == crate::GameStage::Menu {
+            let _ = state.set(crate::GameStage::Playing);
         }
     }
+}
+
+//if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate ui systems file or in mod.rs.
+fn exit_system(mut reader: EventReader<AppExitEvent>, mut exit: EventWriter<bevy::app::AppExit>) {
+    exit.send(bevy::app::AppExit);
 }
