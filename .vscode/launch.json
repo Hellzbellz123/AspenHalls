@@ -29,6 +29,6 @@
       },
       "program": "${cargo:program}",
       "args": []
-    }
+    },
   ]
 }

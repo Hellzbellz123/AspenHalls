@@ -1,5 +1,5 @@
-use bevy::prelude::{Commands, Plugin, Res, ResMut, SystemSet, *};
-use kayak_ui::bevy::{BevyContext, BevyKayakUIPlugin, FontMapping, ImageManager, UICameraBundle};
+use bevy::prelude::{Commands, Res, ResMut, *};
+use kayak_ui::bevy::{BevyContext, FontMapping, ImageManager, UICameraBundle};
 use kayak_ui::core::{
     render,
     styles::{Edge, LayoutType, Style, StyleProp, Units},
@@ -10,7 +10,6 @@ use kayak_ui::widgets::{App, NinePatch, Text};
 use crate::{
     loading::{FontAssets, UiTextureAssets},
     menu::menu_widgets::{BlueButton, BluePlayButton},
-    GameState,
 };
 pub struct PlayButtonEvent;
 

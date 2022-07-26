@@ -66,7 +66,7 @@ fn on_change_gamepad(
     }
 }
 fn gamepad_input(
-    // mut player_query: Query<(&mut Sprite, With<Player>)>,
+    mut player_query: Query<(&mut Sprite, With<crate::player::Player>)>,
     _commands: Commands,
     axes: Res<Axis<GamepadAxis>>,
     buttons: Res<Input<GamepadButton>>,
@@ -84,21 +84,28 @@ fn gamepad_input(
     // axis for X and Y
     let axis_lx = GamepadAxis(gamepad, GamepadAxisType::LeftStickX);
     let axis_ly = GamepadAxis(gamepad, GamepadAxisType::LeftStickY);
+    let _trigger_x = GamepadAxis(gamepad, GamepadAxisType::LeftZ);
 
-    // let mut sprite = player_query.single_mut();
+    let _axis_rx = GamepadAxis(gamepad, GamepadAxisType::RightStickX);
+    let _axis_ry = GamepadAxis(gamepad, GamepadAxisType::RightStickY);
+    let _trigger_x = GamepadAxis(gamepad, GamepadAxisType::RightZ);
+
+    let mut sprite = player_query.single_mut();
 
     if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
         // combine X and Y into one vector
         let left_stick_pos = Vec2::new(x, y);
+        let _right_stick_pos = Vec2::new(x, y);
         if left_stick_pos.x != 0.0 {
-            match left_stick_pos.x.signum() {
+            let x = left_stick_pos.x;
+            match x.signum() {
                 -1.0 => {
                     // info!("flipped");
-                    // sprite.0.flip_x = true;
+                    sprite.0.flip_x = true;
                 }
                 1.0 => {
                     // info!("not flipped");
-                    // sprite.0.flip_x = false;
+                    sprite.0.flip_x = false;
                 }
                 _ => {}
             };

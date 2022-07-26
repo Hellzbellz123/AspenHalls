@@ -58,8 +58,8 @@ fn get_output_path() -> PathBuf {
 }
 
 pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::io::Error> {
-    let mut stack = Vec::new();
-    stack.push(PathBuf::from(from.as_ref()));
+    let mut stack = vec![PathBuf::from(from.as_ref())];
+    // stack.push();
 
     let output_root = PathBuf::from(to.as_ref());
     let input_root = PathBuf::from(from.as_ref()).components().count();
