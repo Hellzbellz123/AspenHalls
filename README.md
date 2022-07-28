@@ -14,7 +14,7 @@ users compiling on windows should comment out the rustflags for the msvc target 
 
 // macos sucks and i cant test it so no
 
-make sure to move /assets to the correct place inside the build folder or move the exe into the same folder as this readme
+make sure to move /assets next to the application exe, same folder.
 
 ## For Linux users wanting to build for window
 
