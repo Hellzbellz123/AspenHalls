@@ -9,7 +9,7 @@
     "**/vanillacoffee.exe": false,
     "**/.trunk/*out": true
   },
-  "explorerExclude.backup": null
+  // "explorerExclude.backup": null
 }
 
 //Comic Code Ligatures

@@ -7,11 +7,10 @@ mod splashscreen;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
-use crate::menu::main_menu::*;
 use crate::player::PlayerPlugin;
 use crate::splashscreen::splash::SplashPlugin;
 use action_manager::bindings::ActionsPlugin;
-use action_manager::gamepad::GamepadPlugin;
+// use action_manager::gamepad::GamepadPlugin;
 use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
@@ -57,7 +56,7 @@ impl Plugin for GamePlugin {
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
-            .add_plugin(GamepadPlugin)
+            // .add_plugin(GamepadPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
             .register_inspectable::<player::Player>() // tells bevy-inspector-egui how to display the struct in the world inspector

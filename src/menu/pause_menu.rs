@@ -1,6 +1,6 @@
 use bevy::prelude::{Commands, Res, ResMut, *};
 use bevy_inspector_egui::Inspectable;
-use kayak_ui::bevy::{BevyContext, FontMapping, ImageManager, UICameraBundle};
+use kayak_ui::bevy::{BevyContext, FontMapping, ImageManager};
 use kayak_ui::core::{
     render,
     styles::{Edge, LayoutType, Style, StyleProp, Units},
@@ -12,7 +12,7 @@ use crate::action_manager::actions::GameActions;
 use crate::player::Player;
 use crate::{
     loading::{FontAssets, UiTextureAssets},
-    menu::menu_widgets::{ExitButton, IngameOptionsButton, PlayButton, SaveButton},
+    menu::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
 };
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
@@ -99,17 +99,15 @@ fn spawn_menu(
                         content={"Vanilla Coffee".to_string()}
                         font={title_font_id}
                     />
-                    <kayak_ui::widgets::>
-                    <kayak_ui::widgets::/>
-                    <PlayButton>
+                    <ResumeButton>
                         <Text line_height={Some(40.0)} size={32.0} content={"Resume".to_string()} font={main_font_id} />
-                    </PlayButton>
+                    </ResumeButton>
                     <SaveButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={26.0} content={"Save Game".to_string()} font={main_font_id} />
                     </SaveButton>
-                    <IngameOptionsButton styles={Some(options_button_styles)}>
+                    <OptionsButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={26.0} content={"Options".to_string()} font={main_font_id} />
-                    </IngameOptionsButton>
+                    </OptionsButton>
                     <ExitButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={24.0} content={"Exit Game".to_string()} font={main_font_id} />
                     </ExitButton>

@@ -11,13 +11,11 @@ use kayak_ui::{
 
 use crate::{
     loading::{FontAssets, UiTextureAssets},
-    menu::menu_widgets::{ExitButton, OptionsButton, PlayButton},
+    menu::menu_widgets::{ExitButton, PlayButton, SettingsButton},
 };
 
 pub struct PlayButtonEvent;
 pub struct AppExitEvent;
-
-pub struct OptionsButtonEvent;
 
 pub(crate) fn startup(
     mut commands: Commands,
@@ -91,24 +89,36 @@ pub(crate) fn startup(
     commands.insert_resource(context);
 }
 
-pub(crate) fn destroy(mut commands: Commands) {
+pub fn destroy_menu(mut commands: Commands) {
     commands.remove_resource::<BevyContext>();
 }
 
 //if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate file.
-pub(crate) fn play_button_event(
+pub fn play_button_event(
     mut reader: EventReader<PlayButtonEvent>,
     mut state: ResMut<bevy::prelude::State<crate::GameStage>>,
+    mut commands: Commands,
 ) {
     for _ in reader.iter() {
-        println!("play button was pressed");
         if *state.current() == crate::GameStage::Menu {
+            println!("play button was pressed");
             let _ = state.set(crate::GameStage::Playing);
+        }
+
+        if *state.current() == crate::GameStage::Playing {
+            print!("resume button pressed");
+            commands.remove_resource::<BevyContext>();
         }
     }
 }
 
 //if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate ui systems file or in mod.rs.
-fn exit_system(mut reader: EventReader<AppExitEvent>, mut exit: EventWriter<bevy::app::AppExit>) {
-    exit.send(bevy::app::AppExit);
+pub fn exit_system(
+    mut reader: EventReader<AppExitEvent>,
+    mut exit: EventWriter<bevy::app::AppExit>,
+) {
+    for _ in reader.iter() {
+        exit.send(bevy::app::AppExit);
+        info!("Exiting Game, AppExit Detected");
+    }
 }
