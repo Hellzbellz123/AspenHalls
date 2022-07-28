@@ -8,7 +8,7 @@
     "**/Thumbs.db": true,
     "**/vanillacoffee.exe": false,
     "**/.trunk/*out": true
-  },
+  }
   // "explorerExclude.backup": null
 }
 

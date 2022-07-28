@@ -101,12 +101,12 @@ pub fn play_button_event(
 ) {
     for _ in reader.iter() {
         if *state.current() == crate::GameStage::Menu {
-            println!("play button was pressed");
+            info!("play button was pressed");
             let _ = state.set(crate::GameStage::Playing);
         }
 
         if *state.current() == crate::GameStage::Playing {
-            print!("resume button pressed");
+            info!("resume button pressed");
             commands.remove_resource::<BevyContext>();
         }
     }

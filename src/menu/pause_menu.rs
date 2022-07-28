@@ -32,16 +32,17 @@ pub fn listen_for_pause_event(
     font_mapping: ResMut<FontMapping>,
 ) {
     let action_state = input_query.single();
+    let mut _firstopen = true;
 
-    if action_state.just_pressed(GameActions::Pause) {
-        info!("pause button pressed");
+    if action_state.just_pressed(GameActions::Pause) & _firstopen {
+        _firstopen = false;
         spawn_menu(
             commands,
             font_assets,
             ui_assets,
             image_manager,
             font_mapping,
-        )
+        );
     }
 }
 

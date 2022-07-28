@@ -353,7 +353,7 @@ pub fn SettingsButton(props: BlueButtonProps) {
         ..props.styles.clone().unwrap_or_default()
     };
 
-    let on_event = OnEvent::new(move |ctx, event| match event.event_type {
+    let on_event = OnEvent::new(move |_, event| match event.event_type {
         EventType::MouseOut(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
@@ -364,9 +364,7 @@ pub fn SettingsButton(props: BlueButtonProps) {
             cloned_current_button_handle.set(blue_button_hover_handle);
         }
         EventType::Click(..) => {
-            ctx.query_world::<EventWriter<PlayButtonEvent>, _, ()>(|mut writer| {
-                writer.send(PlayButtonEvent)
-            });
+            info!("should probably make a game before i get a settings menu built.")
         }
         _ => (),
     });

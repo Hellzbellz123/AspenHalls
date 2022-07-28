@@ -27,7 +27,7 @@ fn gamepad_connections(
     for GamepadEvent(id, kind) in gamepad_evr.iter() {
         match kind {
             GamepadEventType::Connected => {
-                println!("New gamepad connected with ID: {:?}", id);
+                info!("New gamepad connected with ID: {:?}", id);
 
                 // if we don't have any gamepad yet, use
                 // this one
@@ -36,7 +36,7 @@ fn gamepad_connections(
                 }
             }
             GamepadEventType::Disconnected => {
-                println!("Lost gamepad connection with ID: {:?}", id);
+                info!("Lost gamepad connection with ID: {:?}", id);
 
                 // if it's the one we previously associated
                 // with the player,
