@@ -65,7 +65,8 @@ fn on_change_gamepad(
         }
     }
 }
-fn gamepad_input(
+
+fn _gamepad_input(
     mut player_query: Query<(&mut Sprite, With<crate::player::Player>)>,
     _commands: Commands,
     axes: Res<Axis<GamepadAxis>>,
