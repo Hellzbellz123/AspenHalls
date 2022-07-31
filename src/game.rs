@@ -16,12 +16,6 @@ use crate::{
     ui::MenuPlugin,
 };
 
-// #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-// pub enum GamePaused {
-//     Paused,
-//     Unpaused,
-// }
-
 #[derive(Debug, Clone, PartialEq, Component, Inspectable)]
 pub struct TimeInfo {
     pub time_step: f32,

@@ -10,6 +10,7 @@ use std::path::PathBuf;
 //     let url = format!(
 //         "vscode://vadimcn.vscode-lldb/launch/config?{{'request':'attach','pid':{}}}",
 //         std::process::id()
+
 //     );
 //     std::process::Command::new("/mnt/c/Program Files/Microsoft VS Code Insiders/bin/code-insiders")
 //         .arg("--open-url")
@@ -21,6 +22,7 @@ use std::path::PathBuf;
 
 fn main() {
     // maybedebug();
+
     println!("cargo:warning=Hello from build.rs");
 
     println!(
