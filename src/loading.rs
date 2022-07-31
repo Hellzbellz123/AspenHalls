@@ -1,11 +1,12 @@
-use crate::GameStage;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
 
+use crate::game::GameStage;
+
 pub struct LoadingPlugin;
 
-/// This plugin loads all assets using [AssetLoader] from a third party bevy plugin
+/// This plugin loads all assets using \[AssetLoader\] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at https://bevy-cheatbook.github.io/features/assets.html
 impl Plugin for LoadingPlugin {

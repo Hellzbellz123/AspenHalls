@@ -1,31 +1,60 @@
 use bevy::prelude::{Commands, Res, ResMut, *};
-
+// use bevy_inspector_egui::Inspectable;
 use kayak_ui::{
-    bevy::{BevyContext, FontMapping, ImageManager, UICameraBundle},
+    bevy::{BevyContext, FontMapping, ImageManager},
     core::{
         render,
         styles::{Edge, LayoutType, Style, StyleProp, Units},
     },
     widgets::{App, NinePatch, Text},
 };
+use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
+    action_manager::actions::GameActions,
     loading::{FontAssets, UiTextureAssets},
-    menu::menu_widgets::{ExitButton, PlayButton, SettingsButton},
+    player::Player,
+    ui::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
 };
 
-pub struct PlayButtonEvent;
-pub struct AppExitEvent;
+// #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
+// pub enum PauseMenuState {
+//     Paused,
+//     Options,
+//     Closing,
+//     Closed,
+// }
 
-pub(crate) fn startup(
+pub fn listen_for_pause_event(
+    input_query: Query<&ActionState<GameActions>, With<Player>>,
+    commands: Commands,
+    font_assets: Res<FontAssets>,
+    ui_assets: Res<UiTextureAssets>,
+    image_manager: ResMut<ImageManager>,
+    font_mapping: ResMut<FontMapping>,
+) {
+    let action_state = input_query.single();
+    let mut _firstopen = true;
+
+    if action_state.just_pressed(GameActions::Pause) & _firstopen {
+        _firstopen = false;
+        spawn_menu(
+            commands,
+            font_assets,
+            ui_assets,
+            image_manager,
+            font_mapping,
+        );
+    }
+}
+
+fn spawn_menu(
     mut commands: Commands,
     font_assets: Res<FontAssets>,
     ui_assets: Res<UiTextureAssets>,
     mut image_manager: ResMut<ImageManager>,
     mut font_mapping: ResMut<FontMapping>,
 ) {
-    commands.spawn_bundle(UICameraBundle::new());
-
     let main_font = font_assets.fira_sans_msdf.clone();
     let title_font = font_assets.fantasque_sans_msdf.clone();
 
@@ -37,10 +66,10 @@ pub(crate) fn startup(
     let context = BevyContext::new(|context| {
         let nine_patch_styles = Style {
             layout_type: StyleProp::Value(LayoutType::Column),
-            width: StyleProp::Value(Units::Pixels(512.0)),
+            width: StyleProp::Value(Units::Pixels(250.0)),
             height: StyleProp::Value(Units::Pixels(512.0)),
-            left: StyleProp::Value(Units::Stretch(1.0)),
-            right: StyleProp::Value(Units::Stretch(1.0)),
+            left: StyleProp::Value(Units::Stretch(0.2)),
+            right: StyleProp::Value(Units::Stretch(2.8)),
             top: StyleProp::Value(Units::Stretch(1.0)),
             bottom: StyleProp::Value(Units::Stretch(1.0)),
             padding: StyleProp::Value(Edge::all(Units::Stretch(1.0))),
@@ -69,16 +98,19 @@ pub(crate) fn startup(
                     >
                     <Text
                         styles={Some(header_styles)}
-                        size={78.0}
+                        size={58.0}
                         content={"Vanilla Coffee".to_string()}
                         font={title_font_id}
                     />
-                    <PlayButton>
-                        <Text line_height={Some(40.0)} size={32.0} content={"Play".to_string()} font={main_font_id} />
-                    </PlayButton>
-                    <SettingsButton styles={Some(options_button_styles)}>
+                    <ResumeButton>
+                        <Text line_height={Some(40.0)} size={32.0} content={"Resume".to_string()} font={main_font_id} />
+                    </ResumeButton>
+                    <SaveButton styles={Some(options_button_styles)}>
+                        <Text line_height={Some(40.0)} size={26.0} content={"Save Game".to_string()} font={main_font_id} />
+                    </SaveButton>
+                    <OptionsButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={26.0} content={"Options".to_string()} font={main_font_id} />
-                    </SettingsButton>
+                    </OptionsButton>
                     <ExitButton styles={Some(options_button_styles)}>
                         <Text line_height={Some(40.0)} size={24.0} content={"Exit Game".to_string()} font={main_font_id} />
                     </ExitButton>
@@ -87,38 +119,4 @@ pub(crate) fn startup(
         }
     });
     commands.insert_resource(context);
-}
-
-pub fn destroy_menu(mut commands: Commands) {
-    commands.remove_resource::<BevyContext>();
-}
-
-//if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate file.
-pub fn play_button_event(
-    mut reader: EventReader<PlayButtonEvent>,
-    mut state: ResMut<bevy::prelude::State<crate::GameStage>>,
-    mut commands: Commands,
-) {
-    for _ in reader.iter() {
-        if *state.current() == crate::GameStage::Menu {
-            info!("play button was pressed");
-            let _ = state.set(crate::GameStage::Playing);
-        }
-
-        if *state.current() == crate::GameStage::Playing {
-            info!("resume button pressed");
-            commands.remove_resource::<BevyContext>();
-        }
-    }
-}
-
-//if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate ui systems file or in mod.rs.
-pub fn exit_system(
-    mut reader: EventReader<AppExitEvent>,
-    mut exit: EventWriter<bevy::app::AppExit>,
-) {
-    for _ in reader.iter() {
-        exit.send(bevy::app::AppExit);
-        info!("Exiting Game, AppExit Detected");
-    }
 }

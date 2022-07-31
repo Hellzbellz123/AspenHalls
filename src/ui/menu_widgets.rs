@@ -12,7 +12,7 @@ use kayak_ui::{
 
 use crate::{
     loading::UiTextureAssets,
-    menu::main_menu::{AppExitEvent, PlayButtonEvent}, //OptionsButtonEvent
+    ui::menus::main_menu::{AppExitEvent, PlayButtonEvent}, //OptionsButtonEvent
 };
 
 #[derive(WidgetProps, Clone, Debug, Default, PartialEq)]

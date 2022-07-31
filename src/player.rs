@@ -1,7 +1,7 @@
 use crate::action_manager::actions::GameActions;
 use crate::action_manager::bindings::PlayerInput;
+use crate::game::{GameStage, TimeInfo};
 use crate::loading::GameTextureAssets;
-use crate::GameStage;
 
 use bevy::prelude::*;
 
@@ -44,7 +44,16 @@ struct PlayerBundle {
     sprite: SpriteBundle,
 }
 
-fn spawn_player(mut commands: Commands, textures: Res<GameTextureAssets>) {
+#[cfg_attr(doc, aquamarine::aquamarine)]
+/// ```mermaid
+/// graph LR
+///     s([Source]) --> a[[aquamarine]]
+///     r[[rustdoc]] --> f([Docs w/ Mermaid!])
+///     subgraph rustc[Rust Compiler]
+///     a -. inject mermaid.js .-> r
+///     end
+/// ```
+pub fn spawn_player(mut commands: Commands, textures: Res<GameTextureAssets>) {
     commands
         .spawn_bundle(PlayerBundle {
             player: Player {
@@ -69,6 +78,7 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn player_movement_system(
+    timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<GameActions>>,
     time: Res<Time>,
     mut player_query: Query<(&mut Transform, &mut Player)>,
@@ -77,6 +87,7 @@ fn player_movement_system(
     let _movement_dir = Vec3::ZERO;
     let (mut player_transform, mut player) = player_query.single_mut();
     let mut sprite = sprite_query.single_mut();
+    let timeinfo = timeinfo.as_ref();
 
     if player.sprint_available {
         player.speed = 255.0
@@ -94,21 +105,25 @@ fn player_movement_system(
 
     for action_state in query_action_state.iter() {
         if action_state.pressed(GameActions::Right) {
-            player_transform.translation.x += 1.0 * player.speed * time.delta_seconds();
+            player_transform.translation.x +=
+                1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
             sprite.0.flip_x = true;
         }
 
         if action_state.pressed(GameActions::Left) {
-            player_transform.translation.x += -1.0 * player.speed * time.delta_seconds();
+            player_transform.translation.x +=
+                -1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
             sprite.0.flip_x = false;
         }
 
         if action_state.pressed(GameActions::Up) {
-            player_transform.translation.y += 1.0 * player.speed * time.delta_seconds();
+            player_transform.translation.y +=
+                1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
 
         if action_state.pressed(GameActions::Down) {
-            player_transform.translation.y += -1.0 * player.speed * time.delta_seconds();
+            player_transform.translation.y +=
+                -1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
     }
 }

@@ -1,17 +1,18 @@
 use bevy::prelude::*;
 use kayak_ui::bevy::BevyKayakUIPlugin;
 
+mod menu_widgets;
+mod menus;
+
 use crate::{
-    menu::main_menu::{destroy_menu, play_button_event, startup},
-    GameStage,
+    game::GameStage,
+    ui::menus::{
+        main_menu::{
+            destroy_menu, exit_system, play_button_event, startup, AppExitEvent, PlayButtonEvent,
+        },
+        pause_menu::listen_for_pause_event,
+    },
 };
-
-use self::main_menu::{exit_system, AppExitEvent, PlayButtonEvent};
-use self::pause_menu::listen_for_pause_event;
-
-pub(crate) mod main_menu;
-pub(crate) mod menu_widgets;
-pub(crate) mod pause_menu;
 
 //builds menus for vanillacoffee, both ingame and main menu
 pub struct MenuPlugin;

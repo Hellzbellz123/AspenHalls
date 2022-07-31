@@ -1,23 +1,31 @@
-mod action_manager;
-mod audio;
-mod loading;
-mod menu;
-mod player;
-mod splashscreen;
+use bevy::{
+    app::App,
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+};
 
-use crate::audio::InternalAudioPlugin;
-use crate::loading::LoadingPlugin;
-use crate::player::PlayerPlugin;
-use crate::splashscreen::splash::SplashPlugin;
-use action_manager::bindings::ActionsPlugin;
-// use action_manager::gamepad::GamepadPlugin;
-use bevy::app::App;
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
-use bevy::prelude::*;
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
-use menu::MenuPlugin;
-use std::time::Duration;
-// use kayak_ui::bevy::BevyKayakUIPlugin;
+use std::{default, time::Duration};
+
+use crate::{
+    action_manager::bindings::ActionsPlugin,
+    audio::InternalAudioPlugin,
+    loading::LoadingPlugin,
+    player::{Player, PlayerPlugin},
+    splashscreen::SplashPlugin,
+    ui::MenuPlugin,
+};
+
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub enum GamePaused {
+    Paused,
+    Unpaused,
+}
+
+pub struct TimeInfo {
+    pub time_step: f32,
+    pub pause_state: GamePaused,
+}
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
 pub enum GameStage {
@@ -31,19 +39,6 @@ pub enum GameStage {
     Playing,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
-enum GamePaused {
-    Paused,
-    Unpaused,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
-pub enum MenuState {
-    MainMenu,
-    Options,
-    Play,
-}
-
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
@@ -53,22 +48,28 @@ impl Plugin for GamePlugin {
 
         app.add_plugin(LoadingPlugin)
             .insert_resource(GamePaused::Paused)
+            .insert_resource(TimeInfo {
+                time_step: 0.0,
+                pause_state: GamePaused::Paused,
+            })
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
-            // .add_plugin(GamepadPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
-            .register_inspectable::<player::Player>() // tells bevy-inspector-egui how to display the struct in the world inspector
+            .register_inspectable::<Player>() // tells bevy-inspector-egui how to display the struct in the world inspector
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
             .add_plugin(LogDiagnosticsPlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()
             })
-            .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(unpause_game));
+            .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
     }
 }
 
-fn unpause_game(mut paused: ResMut<GamePaused>) {
-    *paused = GamePaused::Unpaused;
+pub fn setup_time_state(mut time_step: ResMut<TimeInfo>) {
+    *time_step = TimeInfo {
+        time_step: 1.0,
+        pause_state: GamePaused::Unpaused,
+    }
 }

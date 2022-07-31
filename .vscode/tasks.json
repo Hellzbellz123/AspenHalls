@@ -2,11 +2,27 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "rust: cargo build Windows",
+      "label": "rust: cargo build Windows: Release",
       "type": "shell",
       "command": "cargo",
       "args": ["build", "--target", "x86_64-pc-windows-msvc", "--release"],
       "problemMatcher": ["$rustc"],
+      "group": "build"
+    },
+    {
+      "label": "Rust: dev build to publish",
+      "type": "shell",
+      "command": "cargo",
+      "args": [
+        "xwin",
+        "build",
+        "--target=x86_64-pc-windows-msvc",
+        "-Z",
+        "unstable-options",
+        "--out-dir",
+        "publish"
+      ],
+      "problemMatcher": "$rustc",
       "group": "build"
     },
     {
