@@ -1,22 +1,14 @@
 {
+  "rust-analyzer.runnables.extraArgs": ["--target=x86_64-pc-windows-msvc"],
   "files.exclude": {
-    "**/.git": false,
-    "**/.svn": false,
-    "**/.hg": false,
-    "**/CVS": false,
-    "**/.DS_Store": false,
-    "**/Thumbs.db": false,
-    "**/vanillacoffee.exe": false,
-    "**/.trunk/*out": false
-  },
-  "explorerExclude.backup": {
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
-    "**/vanillacoffee.exe": true,
-    "**/.trunk/*out": true
-  }
+    "**/.trunk/*out": true,
+    "**/vanillacoffee.exe": true
+  },
+  "explorerExclude.backup": null
 }

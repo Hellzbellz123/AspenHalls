@@ -15,20 +15,11 @@ use crate::{
     characters::player::PlayerComponent,
     game::TimeInfo,
     loading::{FontAssets, UiTextureAssets},
-    ui::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
+    ui::{
+        menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
+        menus::main_menu::destroy_menu,
+    },
 };
-
-use super::main_menu::destroy_menu;
-
-// #[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
-// pub enum PauseMenuStates {
-//     Opened,
-//     Closed,
-// }
-
-// pub struct PauseMenuState{
-//     ONoff: PauseMenuStates
-// }
 
 pub fn listen_for_pause_event(
     mut timeinfo: ResMut<TimeInfo>,
