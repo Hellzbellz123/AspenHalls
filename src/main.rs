@@ -21,29 +21,21 @@ struct InspectableType;
 #[derive(Reflect, Component, Default)]
 #[reflect(Component)]
 struct ReflectedType;
+
+
+
+#[cfg_attr(doc, aquamarine::aquamarine)]
+// / ```mermaid
+// / graph LR
+// /     s([Source]) --> a[[aquamarine]]
+// /     r[[rustdoc]] --> f([Docs w/ Mermaid!])
+// /     subgraph rustc[Rust Compiler]
+// /     a -. inject mermaid.js .-> r
+// /     end
+// / ```
 fn main() {
-    App::new()
-        .insert_resource(Msaa { samples: 1 })
-        .insert_resource(ClearColor(Color::BLACK)) //rgb(100.0, 100.0, 100.0)
-        .insert_resource(WindowDescriptor {
-            width: 1200.,
-            height: 800.,
-            title: "Project Kira".to_string(), // ToDo
-            ..Default::default()
-        })
-        // .insert_resource(bevy::log::LogSettings {
-        //     level: bevy::log::Level::DEBUG,
-        //     filter: "naga=off".to_string(),
-        //     // filter: "off".to_string()
-        //     ..Default::default()
-        // })
-        .add_startup_system(utilities::set_window_icon)
-        .add_state(game::GameStage::Loading)
-        .add_plugins(DefaultPlugins)
-        .add_plugin(game::GamePlugin)
-        .add_plugin(WorldInspectorPlugin::new())
-        .register_type::<ReflectedType>()
-        .run();
+    println!("main thread spawned");
+    mainprocess();
 }
 
 #[cfg_attr(doc, aquamarine::aquamarine)]
@@ -55,7 +47,7 @@ fn main() {
 ///     a -. inject mermaid.js .-> r
 ///     end
 /// ```
-pub fn maincopy() {
+pub fn mainprocess() {
     App::new()
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::BLACK)) //rgb(100.0, 100.0, 100.0)
@@ -65,12 +57,6 @@ pub fn maincopy() {
             title: "Project Kira".to_string(), // ToDo
             ..Default::default()
         })
-        // .insert_resource(bevy::log::LogSettings {
-        //     level: bevy::log::Level::DEBUG,
-        //     filter: "naga=off".to_string(),
-        //     // filter: "off".to_string()
-        //     ..Default::default()
-        // })
         .add_startup_system(utilities::set_window_icon)
         .add_state(game::GameStage::Loading)
         .add_plugins(DefaultPlugins)
