@@ -12,10 +12,10 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::GameActions,
+    game::TimeInfo,
     loading::{FontAssets, UiTextureAssets},
     player::Player,
     ui::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
-    game::TimeInfo,
 };
 
 use super::main_menu::destroy_menu;
@@ -29,7 +29,6 @@ use super::main_menu::destroy_menu;
 // pub struct PauseMenuState{
 //     ONoff: PauseMenuStates
 // }
-
 
 pub fn listen_for_pause_event(
     mut timeinfo: ResMut<TimeInfo>,
@@ -51,8 +50,7 @@ pub fn listen_for_pause_event(
             timeinfo.pause_menu = false;
             timeinfo.game_paused = false;
             timeinfo.time_step = 1.0;
-        }
-        else {
+        } else {
             spawn_menu(
                 commands,
                 font_assets,
@@ -64,7 +62,6 @@ pub fn listen_for_pause_event(
             timeinfo.game_paused = true;
             timeinfo.time_step = 0.;
         }
-
     }
 }
 

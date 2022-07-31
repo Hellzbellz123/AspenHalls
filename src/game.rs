@@ -53,7 +53,7 @@ impl Plugin for GamePlugin {
             .insert_resource(TimeInfo {
                 time_step: 0.0,
                 game_paused: true,
-                pause_menu: false
+                pause_menu: false,
             })
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
