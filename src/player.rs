@@ -33,6 +33,7 @@ pub struct Player {
     sprint_available: bool,
 }
 
+// trunk-ignore(clippy/forget_non_drop)
 #[derive(Bundle)]
 struct PlayerBundle {
     player: Player,
@@ -104,24 +105,24 @@ fn player_movement_system(
     );
 
     for action_state in query_action_state.iter() {
-        if action_state.pressed(GameActions::Right) {
+        if action_state.pressed(GameActions::Right) && !timeinfo.game_paused {
             player_transform.translation.x +=
                 1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
             sprite.0.flip_x = true;
         }
 
-        if action_state.pressed(GameActions::Left) {
+        if action_state.pressed(GameActions::Left) && !timeinfo.game_paused {
             player_transform.translation.x +=
                 -1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
             sprite.0.flip_x = false;
         }
 
-        if action_state.pressed(GameActions::Up) {
+        if action_state.pressed(GameActions::Up) && !timeinfo.game_paused {
             player_transform.translation.y +=
                 1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
 
-        if action_state.pressed(GameActions::Down) {
+        if action_state.pressed(GameActions::Down) && !timeinfo.game_paused {
             player_transform.translation.y +=
                 -1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
         }

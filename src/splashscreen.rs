@@ -2,7 +2,6 @@ use bevy::prelude::*;
 
 use crate::game::*;
 use crate::loading::UiTextureAssets;
-use bevy::prelude::*;
 
 // This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
 pub struct SplashPlugin;

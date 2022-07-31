@@ -15,17 +15,24 @@ use crate::{
     loading::{FontAssets, UiTextureAssets},
     player::Player,
     ui::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
+    game::TimeInfo,
 };
 
-// #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
-// pub enum PauseMenuState {
-//     Paused,
-//     Options,
-//     Closing,
+use super::main_menu::destroy_menu;
+
+// #[derive(Debug, Clone, Eq, PartialEq, Hash, Component)]
+// pub enum PauseMenuStates {
+//     Opened,
 //     Closed,
 // }
 
+// pub struct PauseMenuState{
+//     ONoff: PauseMenuStates
+// }
+
+
 pub fn listen_for_pause_event(
+    mut timeinfo: ResMut<TimeInfo>,
     input_query: Query<&ActionState<GameActions>, With<Player>>,
     commands: Commands,
     font_assets: Res<FontAssets>,
@@ -34,17 +41,30 @@ pub fn listen_for_pause_event(
     font_mapping: ResMut<FontMapping>,
 ) {
     let action_state = input_query.single();
-    let mut _firstopen = true;
+    let mut timeinfo = timeinfo.as_mut();
 
-    if action_state.just_pressed(GameActions::Pause) & _firstopen {
-        _firstopen = false;
-        spawn_menu(
-            commands,
-            font_assets,
-            ui_assets,
-            image_manager,
-            font_mapping,
-        );
+    if action_state.just_pressed(GameActions::Pause) {
+        info!("pause action pressed, state: {:?}", timeinfo);
+
+        if timeinfo.pause_menu {
+            destroy_menu(commands);
+            timeinfo.pause_menu = false;
+            timeinfo.game_paused = false;
+            timeinfo.time_step = 1.0;
+        }
+        else {
+            spawn_menu(
+                commands,
+                font_assets,
+                ui_assets,
+                image_manager,
+                font_mapping,
+            );
+            timeinfo.pause_menu = true;
+            timeinfo.game_paused = true;
+            timeinfo.time_step = 0.;
+        }
+
     }
 }
 

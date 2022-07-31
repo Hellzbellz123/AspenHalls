@@ -9,7 +9,7 @@ use kayak_ui::{
 };
 
 use crate::{
-    game,
+    game::{self, TimeInfo},
     loading::{FontAssets, UiTextureAssets},
     ui::menu_widgets::{ExitButton, PlayButton, SettingsButton},
 };
@@ -98,6 +98,7 @@ pub fn play_button_event(
     mut reader: EventReader<PlayButtonEvent>,
     mut state: ResMut<bevy::prelude::State<game::GameStage>>,
     mut commands: Commands,
+    mut timeinfo: ResMut<TimeInfo>,
 ) {
     for _ in reader.iter() {
         if *state.current() == game::GameStage::Menu {
@@ -108,6 +109,9 @@ pub fn play_button_event(
         if *state.current() == game::GameStage::Playing {
             info!("resume button pressed");
             commands.remove_resource::<BevyContext>();
+            timeinfo.pause_menu = false;
+            timeinfo.game_paused = false;
+            timeinfo.time_step = 1.0;
         }
     }
 }

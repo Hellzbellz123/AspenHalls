@@ -5,7 +5,7 @@ use bevy::{
 };
 
 use bevy_inspector_egui::{Inspectable, RegisterInspectable};
-use std::{default, time::Duration};
+use std::time::Duration;
 
 use crate::{
     action_manager::bindings::ActionsPlugin,
@@ -16,15 +16,17 @@ use crate::{
     ui::MenuPlugin,
 };
 
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub enum GamePaused {
-    Paused,
-    Unpaused,
-}
+// #[derive(Clone, PartialEq, Eq, Hash, Debug)]
+// pub enum GamePaused {
+//     Paused,
+//     Unpaused,
+// }
 
+#[derive(Debug, Clone, PartialEq, Component, Inspectable)]
 pub struct TimeInfo {
     pub time_step: f32,
-    pub pause_state: GamePaused,
+    pub game_paused: bool,
+    pub pause_menu: bool,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
@@ -47,17 +49,19 @@ impl Plugin for GamePlugin {
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
         app.add_plugin(LoadingPlugin)
-            .insert_resource(GamePaused::Paused)
+            // .insert_resource(GamePaused::Paused)
             .insert_resource(TimeInfo {
                 time_step: 0.0,
-                pause_state: GamePaused::Paused,
+                game_paused: true,
+                pause_menu: false
             })
             .add_plugin(SplashPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
-            .register_inspectable::<Player>() // tells bevy-inspector-egui how to display the struct in the world inspector
+            .register_inspectable::<Player>()
+            .register_inspectable::<TimeInfo>() // tells bevy-inspector-egui how to display the struct in the world inspector
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
             .add_plugin(LogDiagnosticsPlugin {
                 wait_duration: Duration::from_secs(20),
@@ -67,9 +71,10 @@ impl Plugin for GamePlugin {
     }
 }
 
-pub fn setup_time_state(mut time_step: ResMut<TimeInfo>) {
-    *time_step = TimeInfo {
+pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
+    *timeinfo = TimeInfo {
         time_step: 1.0,
-        pause_state: GamePaused::Unpaused,
+        game_paused: false,
+        pause_menu: false,
     }
 }
