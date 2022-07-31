@@ -1,17 +1,22 @@
 {
   "files.exclude": {
+    "**/.git": false,
+    "**/.svn": false,
+    "**/.hg": false,
+    "**/CVS": false,
+    "**/.DS_Store": false,
+    "**/Thumbs.db": false,
+    "**/vanillacoffee.exe": false,
+    "**/.trunk/*out": false
+  },
+  "explorerExclude.backup": {
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
     "**/CVS": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
-    "**/vanillacoffee.exe": false,
+    "**/vanillacoffee.exe": true,
     "**/.trunk/*out": true
   }
-  // "explorerExclude.backup": null
 }
-
-//Comic Code Ligatures
-//ComicMono NF
-//Fantasque Sans Mono
