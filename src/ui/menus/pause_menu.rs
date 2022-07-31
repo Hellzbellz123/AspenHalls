@@ -12,9 +12,9 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::GameActions,
+    characters::player::PlayerComponent,
     game::TimeInfo,
     loading::{FontAssets, UiTextureAssets},
-    player::Player,
     ui::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
 };
 
@@ -32,7 +32,7 @@ use super::main_menu::destroy_menu;
 
 pub fn listen_for_pause_event(
     mut timeinfo: ResMut<TimeInfo>,
-    input_query: Query<&ActionState<GameActions>, With<Player>>,
+    input_query: Query<&ActionState<GameActions>, With<PlayerComponent>>,
     commands: Commands,
     font_assets: Res<FontAssets>,
     ui_assets: Res<UiTextureAssets>,

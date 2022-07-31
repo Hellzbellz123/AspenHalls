@@ -8,9 +8,9 @@ use bevy_inspector_egui::WorldInspectorPlugin;
 
 pub mod action_manager;
 pub mod audio;
+pub mod characters;
 pub mod game;
 pub mod loading;
-pub mod player;
 pub mod splashscreen;
 pub mod ui;
 pub mod utilities;
@@ -21,8 +21,6 @@ struct InspectableType;
 #[derive(Reflect, Component, Default)]
 #[reflect(Component)]
 struct ReflectedType;
-
-
 
 #[cfg_attr(doc, aquamarine::aquamarine)]
 // / ```mermaid

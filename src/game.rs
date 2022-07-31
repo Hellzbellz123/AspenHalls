@@ -10,8 +10,8 @@ use std::time::Duration;
 use crate::{
     action_manager::bindings::ActionsPlugin,
     audio::InternalAudioPlugin,
+    characters::player::{PlayerComponent, PlayerPlugin},
     loading::LoadingPlugin,
-    player::{Player, PlayerPlugin},
     splashscreen::SplashPlugin,
     ui::MenuPlugin,
 };
@@ -60,7 +60,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
-            .register_inspectable::<Player>()
+            .register_inspectable::<PlayerComponent>()
             .register_inspectable::<TimeInfo>() // tells bevy-inspector-egui how to display the struct in the world inspector
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
             .add_plugin(LogDiagnosticsPlugin {
