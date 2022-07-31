@@ -2,27 +2,25 @@ use std::env;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
-use std::time::Duration;
 
-#[cfg(debug_assertions)]
-// trunk-ignore(clippy/dead_code)
-fn maybedebug() {
-    println!("cargo:warning=maybedebug() should only be included if im debugging app");
-    let url = format!(
-        "vscode://vadimcn.vscode-lldb/launch/config?{{'request':'attach','pid':{}}}",
-        std::process::id()
-    );
-    std::process::Command::new("/mnt/c/Program Files/Microsoft VS Code Insiders/bin/code-insiders")
-        .arg("--open-url")
-        .arg(url)
-        .output()
-        .expect("couldnt spawn code");
-    std::thread::sleep(Duration::from_secs(10));
-}
+// #[cfg(debug_assertions)]
+// fn maybedebug() {
+//     use std::time::Duration;
+//     println!("cargo:warning=maybedebug() should only be included if im debugging app");
+//     let url = format!(
+//         "vscode://vadimcn.vscode-lldb/launch/config?{{'request':'attach','pid':{}}}",
+//         std::process::id()
+//     );
+//     std::process::Command::new("/mnt/c/Program Files/Microsoft VS Code Insiders/bin/code-insiders")
+//         .arg("--open-url")
+//         .arg(url)
+//         .output()
+//         .expect("couldnt spawn code");
+//     std::thread::sleep(Duration::from_secs(10));
+// }
 
 fn main() {
     // maybedebug();
-
     println!("cargo:warning=Hello from build.rs");
 
     println!(
