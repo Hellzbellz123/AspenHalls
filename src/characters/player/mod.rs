@@ -17,7 +17,6 @@ pub struct PlayerComponent {
     pub sprint_available: bool,
 }
 
-// trunk-ignore(clippy/forget_non_drop)
 #[derive(Bundle)]
 pub struct PlayerBundle {
     pub player: PlayerComponent,
@@ -36,8 +35,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_enter(GameStage::Playing)
-                .with_system(spawn_player)
-                .with_system(spawn_camera),
+                .with_system(spawn_player),
         )
         .add_system_set(
             SystemSet::on_update(GameStage::Playing)
@@ -45,8 +43,4 @@ impl Plugin for PlayerPlugin {
                 .with_system(player_sprint),
         );
     }
-}
-
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 }

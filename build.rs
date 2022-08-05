@@ -34,7 +34,6 @@ fn main() {
         "cargo:warning=PROFILE is {:?}",
         env::var("PROFILE").unwrap()
     );
-
     compilewindowicons();
     copyassets();
 }

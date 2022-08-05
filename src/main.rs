@@ -12,7 +12,7 @@ pub mod characters;
 pub mod game;
 pub mod loading;
 pub mod splashscreen;
-pub mod ui;
+// pub mod ui;
 pub mod utilities;
 
 #[derive(Inspectable, Component)]

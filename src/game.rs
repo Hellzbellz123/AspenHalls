@@ -13,7 +13,7 @@ use crate::{
     characters::player::{PlayerComponent, PlayerPlugin},
     loading::LoadingPlugin,
     splashscreen::SplashPlugin,
-    ui::MenuPlugin,
+    // ui::MenuPlugin,
 };
 
 #[derive(Debug, Clone, PartialEq, Component, Inspectable)]
@@ -50,7 +50,7 @@ impl Plugin for GamePlugin {
                 pause_menu: false,
             })
             .add_plugin(SplashPlugin)
-            .add_plugin(MenuPlugin)
+            // .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)

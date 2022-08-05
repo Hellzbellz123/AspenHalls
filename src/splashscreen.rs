@@ -30,12 +30,11 @@ struct SplashTimer(Timer);
 
 fn splash_setup(mut commands: Commands, textures: Res<UiTextureAssets>) {
     info!("loading splash");
-    commands.spawn_bundle(UiCameraBundle::default());
     // Display the logo
     commands
         .spawn_bundle(ImageBundle {
             style: Style {
-                margin: Rect::all(Val::Auto),
+                margin: UiRect::all(Val::Auto),
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 ..default()
             },

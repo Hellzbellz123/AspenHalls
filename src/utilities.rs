@@ -1,11 +1,13 @@
 use bevy::ecs::system::NonSend;
 use bevy::window::WindowId;
-use bevy::winit::WinitWindows;
 use winit::window::Icon;
+// use bevy::winit::WinitWindows;
+
+
 
 pub(crate) fn set_window_icon(
     // we have to use `NonSend` here
-    windows: NonSend<WinitWindows>,
+    windows: NonSend<bevy::winit::WinitWindows>,
 ) {
     let primary = windows.get_window(WindowId::primary()).unwrap();
 
@@ -22,5 +24,5 @@ pub(crate) fn set_window_icon(
 
     let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height).unwrap();
 
-    primary.set_window_icon(Some(icon));
+    primary.set_window_icon(std::option::Option::Some(icon));
 }

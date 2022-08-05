@@ -37,7 +37,7 @@ impl Default for PlayerInput {
         input_map.insert(KeyCode::Escape, GameActions::Pause);
         input_map.insert(GamepadButtonType::Start, GameActions::Pause);
 
-        input_map.set_gamepad(Gamepad(0));
+        // input_map.set_gamepad(Gamepad(0));
         Self {
             input: InputManagerBundle::<GameActions> {
                 input_map,
