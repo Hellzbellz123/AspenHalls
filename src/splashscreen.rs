@@ -30,6 +30,9 @@ struct SplashTimer(Timer);
 
 fn splash_setup(mut commands: Commands, textures: Res<UiTextureAssets>) {
     info!("loading splash");
+
+    commands.spawn_bundle(Camera2dBundle::default());
+
     // Display the logo
     commands
         .spawn_bundle(ImageBundle {
@@ -53,7 +56,7 @@ fn countdown(
     mut timer: ResMut<SplashTimer>,
 ) {
     if timer.tick(time.delta()).finished() {
-        game_state.set(GameStage::Menu).unwrap();
+        game_state.set(GameStage::Playing).unwrap();
     }
 }
 

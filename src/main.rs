@@ -22,12 +22,7 @@ struct InspectableType;
 #[reflect(Component)]
 struct ReflectedType;
 
-fn main() {
-    println!("main thread spawned");
-    mainprocess();
-}
-
-pub fn mainprocess() {
+pub fn main() {
     App::new()
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::BLACK)) //rgb(100.0, 100.0, 100.0)

@@ -1,6 +1,7 @@
 [alias]
 b = "xwin build"
 
+
 [build]
 rustc-wrapper = "sccache"
 rustflags = ["-Ctarget-cpu=znver3"]
