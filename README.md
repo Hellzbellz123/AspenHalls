@@ -1,4 +1,5 @@
-# Project Vanilla Coffee
+# Project Vanilla Coffee [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/) [![made-with-rust](https://img.shields.io/badge/Made%20with-Rust-1f425f.svg)](https://www.rust-lang.org/)
+
 
 this is **NOT** stable, comes as is and im probably gonna change it alot or it might even just vanish one day.
 
