@@ -23,6 +23,8 @@ struct InspectableType;
 struct ReflectedType;
 
 pub fn main() {
+    #[cfg(target_os = "windows")]
+    utilities::debugdirwindows();
     App::new()
         .insert_resource(Msaa { samples: 1 })
         .insert_resource(ClearColor(Color::BLACK)) //rgb(100.0, 100.0, 100.0)
