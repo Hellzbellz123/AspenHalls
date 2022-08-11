@@ -57,16 +57,16 @@ pub enum ANSIColor {
 
 impl ANSIColor {
     pub fn as_string(&self) -> &str {
-        match self {
-            &ANSIColor::BLACK => "\u{001B}[0;30m",
-            &ANSIColor::RED => "\u{001B}[0;31m",
-            &ANSIColor::GREEN => "\u{001B}[0;32m",
-            &ANSIColor::YELLOW => "\u{001B}[0;33m",
-            &ANSIColor::BLUE => "\u{001B}[0;34m",
-            &ANSIColor::MAGENTA => "\u{001B}[0;35m",
-            &ANSIColor::CYAN => "\u{001B}[0;36m",
-            &ANSIColor::WHITE => "\u{001B}[0;37m",
-            &ANSIColor::RESET => "\u{001B}[0;0m",
+        match &self {
+            ANSIColor::RED => "\u{001B}[0;31m",
+            ANSIColor::GREEN => "\u{001B}[0;32m",
+            ANSIColor::BLACK => "\u{001B}[0;30m",
+            ANSIColor::YELLOW => "\u{001B}[0;33m",
+            ANSIColor::BLUE => "\u{001B}[0;34m",
+            ANSIColor::MAGENTA => "\u{001B}[0;35m",
+            ANSIColor::CYAN => "\u{001B}[0;36m",
+            ANSIColor::WHITE => "\u{001B}[0;37m",
+            ANSIColor::RESET => "\u{001B}[0;0m",
         }
     }
 }
