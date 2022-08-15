@@ -24,7 +24,7 @@ winapi = "0.3.0"
 
 [dependencies.bevy_asset_loader]
 version = "0.12.0"
-git = "https://github.com/NiklasEi/bevy_asset_loader.git"
+# git = "https://github.com/NiklasEi/bevy_asset_loader.git"
 features = []
 
 [dependencies.bevy_kira_audio]
