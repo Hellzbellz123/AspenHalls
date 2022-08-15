@@ -3,8 +3,6 @@ use bevy::window::WindowId;
 use winit::window::Icon;
 // use bevy::winit::WinitWindows;
 
-
-
 pub(crate) fn set_window_icon(
     // we have to use `NonSend` here
     windows: NonSend<bevy::winit::WinitWindows>,

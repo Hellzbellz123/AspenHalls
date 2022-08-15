@@ -13,14 +13,8 @@ pub mod game;
 pub mod loading;
 pub mod splashscreen;
 // pub mod ui;
+mod dev_tools;
 pub mod utilities;
-
-#[derive(Inspectable, Component)]
-struct InspectableType;
-
-#[derive(Reflect, Component, Default)]
-#[reflect(Component)]
-struct ReflectedType;
 
 pub fn main() {
     #[cfg(target_os = "windows")]
@@ -38,7 +32,5 @@ pub fn main() {
         .add_plugins(DefaultPlugins)
         .add_state(game::GameStage::Loading)
         .add_plugin(game::GamePlugin)
-        .add_plugin(WorldInspectorPlugin::new())
-        .register_type::<ReflectedType>()
         .run();
 }

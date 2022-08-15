@@ -4,7 +4,12 @@ b = "xwin build"
 
 [build]
 rustc-wrapper = "sccache"
-rustflags = ["-Ctarget-cpu=znver3"]
+rustflags = [
+  "-Ctarget-cpu=znver3",
+  "-Ctarget-feature=+crt-static",
+  #"-Zshare-generics=off",
+
+]
 
 [profile.dev]
 opt-level = 1

@@ -43,7 +43,7 @@ features = [
   "filesystem_watcher",   # Asset hot-reloading
   "bevy_render",          # Rendering framework core
   "bevy_core_pipeline",   # Higher-level rendering abstractions
-  "bevy_sprite", # 2D (sprites) rendering
+  "bevy_sprite",          # 2D (sprites) rendering
   "bevy_text",            # Text/font rendering
   "bevy_ui",              # UI toolkit
   "png",

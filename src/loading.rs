@@ -29,7 +29,6 @@ impl Plugin for LoadingPlugin {
 pub struct FontAssets {
     #[asset(path = "fonts/FiraSans-Bold.ttf")]
     pub fira_sans_ttf: Handle<Font>,
-
     // #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
     // pub fira_sans_msdf: Handle<kayak_ui::font::KayakFont>,
 

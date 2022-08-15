@@ -18,11 +18,10 @@ use std::path::PathBuf;
 //         .output()
 //         .expect("couldnt spawn code");
 //     std::thread::sleep(Duration::from_secs(10));
+// maybedebug();
 // }
 
 fn main() {
-    // maybedebug();
-
     println!("cargo:warning=Hello from build.rs");
 
     println!(

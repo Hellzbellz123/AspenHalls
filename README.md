@@ -1,6 +1,5 @@
 # Project Vanilla Coffee [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/) [![made-with-rust](https://img.shields.io/badge/Made%20with-Rust-1f425f.svg)](https://www.rust-lang.org/) ![Repo Size](https://img.shields.io/github/repo-size/hellzbellz123/vanillacoffee?color=2948ff&label=Repo%20Size&style=flat-square)
 
-
 this is **NOT** stable, comes as is and im probably gonna change it alot or it might even just vanish one day.
 
 Took me like 3 years to get around to updating this, time to finally start i guess
