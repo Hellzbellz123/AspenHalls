@@ -1,22 +1,15 @@
 [alias]
 b = "xwin build"
-
+r = "xwin run"
 
 [build]
 rustc-wrapper = "sccache"
-rustflags = [
-  "-Ctarget-cpu=znver3",
-  "-Ctarget-feature=+crt-static",
-  #"-Zshare-generics=off",
-
-]
 
 [profile.dev]
 opt-level = 1
 
 [profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 opt-level = 3
-
 
 [profile.release]
 lto = "fat"

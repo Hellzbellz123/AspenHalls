@@ -4,6 +4,11 @@ version = "0.0.2"
 edition = "2021"
 description = "Vanilla Coffee game: in progress"
 
+[features]
+dynamic = ["bevy/dynamic"]
+
+
+
 [build-dependencies]
 embed-resource = "1.7.3"
 
@@ -21,14 +26,13 @@ glob = "0.3"
 #[cfg(target_os = "windows")]
 winapi = "0.3.0"
 
-
 [dependencies.bevy_asset_loader]
 version = "0.12.0"
 # git = "https://github.com/NiklasEi/bevy_asset_loader.git"
 features = []
 
 [dependencies.bevy_kira_audio]
-version = "0.11.0"
+version = "0.12.0"
 default-features = false
 features = ["mp3", "ogg"]
 
@@ -51,7 +55,7 @@ features = [
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
   #"wayland",              # Linux: Support Wayland windowing system
-  # "dynamic" 
+  "dynamic"
 ]
 
 [dependencies.bevy-inspector-egui]
