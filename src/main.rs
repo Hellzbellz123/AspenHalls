@@ -3,8 +3,6 @@
 
 use bevy::prelude::*;
 use bevy::DefaultPlugins;
-use bevy_inspector_egui::Inspectable;
-use bevy_inspector_egui::WorldInspectorPlugin;
 
 pub mod action_manager;
 pub mod audio;
