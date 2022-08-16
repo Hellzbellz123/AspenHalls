@@ -87,13 +87,11 @@ fn visit_dirs(
             .filter_map(|v| match v.ok() {
                 Some(v) => {
                     if show_all {
-                        return Some(v);
+                        Some(v)
+                    } else if v.file_name().to_str()?.starts_with('.') {
+                        None
                     } else {
-                        if v.file_name().to_str()?.starts_with(".") {
-                            return None;
-                        } else {
-                            Some(v)
-                        }
+                        Some(v)
                     }
                 }
                 None => None,
@@ -131,12 +129,11 @@ fn color_output(colorize: bool, path: &Path) -> io::Result<String> {
         Err(_err) => PathBuf::new(),
     };
 
-    let print_name;
-    if !symlink.to_str().unwrap().is_empty() {
-        print_name = format!("{} -> {}", filename, symlink.to_str().unwrap());
+    let print_name: String = if !symlink.to_str().unwrap().is_empty() {
+        format!("{} -> {}", filename, symlink.to_str().unwrap())
     } else {
-        print_name = filename.to_string();
-    }
+        filename.to_string()
+    };
 
     match colorize {
         true => {
@@ -163,12 +160,12 @@ fn color_output(colorize: bool, path: &Path) -> io::Result<String> {
                 ))
             }
         }
-        false => Ok(format!("{}", print_name)),
+        false => Ok(print_name),
     }
 }
 
 pub fn run(show_all: bool, colorize: bool, level: usize, dir: &Path) -> Result<(), Box<dyn Error>> {
-    visit_dirs(&dir, 0, level, String::from(""), colorize, show_all)?;
+    visit_dirs(dir, 0, level, String::from(""), colorize, show_all)?;
     Ok(())
 }
 
@@ -194,15 +191,31 @@ pub trait IsExecutable {
     fn is_executable(&self) -> bool;
 }
 
-#[cfg(target_os = "windows")]
-mod windows {
-    use std::os::windows::ffi::OsStrExt;
+#[cfg(unix)]
+mod unix {
+    use std::os::unix::fs::PermissionsExt;
     use std::path::Path;
 
+    use super::IsExecutable;
+
+    impl IsExecutable for Path {
+        fn is_executable(&self) -> bool {
+            let metadata = match self.metadata() {
+                Ok(metadata) => metadata,
+                Err(_) => return false,
+            };
+            let permissions = metadata.permissions();
+            metadata.is_file() && permissions.mode() & 0o111 != 0
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
+mod windows {
+    use super::IsExecutable;
+    use std::{os::windows::ffi::OsStrExt, path::Path};
     use winapi::ctypes::{c_ulong, wchar_t};
     use winapi::um::winbase::GetBinaryTypeW;
-
-    use super::IsExecutable;
 
     impl IsExecutable for Path {
         fn is_executable(&self) -> bool {

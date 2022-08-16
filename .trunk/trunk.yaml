@@ -3,12 +3,25 @@ cli:
   version: 0.16.1-beta
 lint:
   enabled:
-    - clippy@nightly
+    - clippy@SYSTEM
     - git-diff-check@SYSTEM
     - gitleaks@8.10.3
     - markdownlint@0.32.1
     - prettier@2.7.1
-    - rustfmt@nightly
+    - rustfmt@SYSTEM
     - shellcheck@0.8.0
     - shfmt@3.5.0
     - taplo@release-taplo-cli-0.6.8
+
+  definitions:
+    - name: clippy
+      type: clippy
+      files:
+        - rust
+      command:
+        - cargo
+        - clippy
+        - --message-format
+        - json
+        # - --target=x86_64-pc-windows-msvc
+        - --no-deps
