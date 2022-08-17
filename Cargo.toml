@@ -8,7 +8,6 @@ description = "Vanilla Coffee game: in progress"
 dynamic = ["bevy/dynamic"]
 
 
-
 [build-dependencies]
 embed-resource = "1.7.3"
 
@@ -25,6 +24,10 @@ glob = "0.3"
 
 #[cfg(target_os = "windows")]
 winapi = "0.3.0"
+
+
+[dependencies.bevy_egui]
+version = "0.15"
 
 [dependencies.bevy_asset_loader]
 version = "0.12.0"

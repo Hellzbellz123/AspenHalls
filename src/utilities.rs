@@ -28,7 +28,6 @@ pub(crate) fn set_window_icon(
 #[cfg(target_os = "windows")]
 extern crate winapi;
 
-#[cfg(target_os = "windows")]
 pub fn debugdirwindows() {
     let dir = std::env::current_dir().unwrap();
 
@@ -262,7 +261,7 @@ mod windows {
                     | 1 // An MS-DOS-based application
                     | 2 // A 16-bit Windows-based application
                     | 3 // A PIF file that executes an MS-DOS-based application
-                    | 4 // A POSIX – based application
+                    | 4 // A POSIX - based application
                     | 5 // A 16-bit OS/2-based application
                     | 6 // A 64-bit Windows-based application
                     => return true,

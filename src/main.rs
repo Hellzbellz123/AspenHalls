@@ -10,12 +10,13 @@ pub mod characters;
 pub mod game;
 pub mod loading;
 pub mod splashscreen;
+mod ui;
 // pub mod ui;
 mod dev_tools;
 pub mod utilities;
 
 pub fn main() {
-    #[cfg(target_os = "windows")]
+    #[cfg(debug_assertions)]
     utilities::debugdirwindows();
     App::new()
         .insert_resource(Msaa { samples: 1 })
