@@ -13,7 +13,6 @@ use crate::{
     characters::player::{PlayerComponent, PlayerPlugin},
     loading::LoadingPlugin,
     splashscreen::SplashPlugin,
-    ui,
     // ui::MenuPlugin,
 };
 
@@ -44,13 +43,14 @@ impl Plugin for GamePlugin {
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
         app.add_plugin(LoadingPlugin)
+            // .insert_resource(GamePaused::Paused)
             .insert_resource(TimeInfo {
                 time_step: 0.0,
                 game_paused: true,
                 pause_menu: false,
             })
             .add_plugin(SplashPlugin)
-            .add_plugin(ui::MenuPlugin)
+            // .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)

@@ -56,7 +56,7 @@ fn countdown(
     mut timer: ResMut<SplashTimer>,
 ) {
     if timer.tick(time.delta()).finished() {
-        game_state.set(GameStage::Menu).unwrap();
+        game_state.set(GameStage::Playing).unwrap();
     }
 }
 
