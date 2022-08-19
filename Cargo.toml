@@ -55,12 +55,17 @@ features = [
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
   #"wayland",              # Linux: Support Wayland windowing system
-  # "dynamic"
+  "dynamic"
 ]
 
 [dependencies.bevy-inspector-egui]
 version = "0.12.1"
 features = []
+
+# [dependencies.kayak_ui]
+# version = "*"
+# path = "crates/kayak_ui"
+# git = "https://github.com/StarArawn/kayak_ui"
 
 [dependencies.leafwing-input-manager]
 version = "0.5.1"
