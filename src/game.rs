@@ -1,22 +1,14 @@
-use bevy::{
-    app::App,
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    prelude::*,
-};
+use bevy::{app::App, prelude::*};
 
-use bevy_inspector_egui::{Inspectable, RegisterInspectable};
-use std::time::Duration;
+use bevy_inspector_egui::Inspectable;
 
 use crate::{
-    action_manager::bindings::ActionsPlugin,
-    audio::InternalAudioPlugin,
-    characters::player::{PlayerComponent, PlayerPlugin},
-    loading::LoadingPlugin,
-    splashscreen::SplashPlugin,
-    // ui::MenuPlugin,
+    action_manager::bindings::ActionsPlugin, audio::InternalAudioPlugin,
+    characters::player::PlayerPlugin, loading::LoadingPlugin, splashscreen::SplashPlugin,
+    ui::MenuPlugin,
 };
 
-#[derive(Debug, Clone, PartialEq, Component, Inspectable)]
+#[derive(Debug, Clone, PartialEq, Component, Inspectable, Reflect)]
 pub struct TimeInfo {
     pub time_step: f32,
     pub game_paused: bool,
@@ -38,29 +30,17 @@ pub enum GameStage {
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        let _registry = app
-            .world
-            .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
-
         app.add_plugin(LoadingPlugin)
-            // .insert_resource(GamePaused::Paused)
             .insert_resource(TimeInfo {
                 time_step: 0.0,
                 game_paused: true,
                 pause_menu: false,
             })
             .add_plugin(SplashPlugin)
-            // .add_plugin(MenuPlugin)
+            .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
-            .register_inspectable::<PlayerComponent>()
-            .register_inspectable::<TimeInfo>() // tells bevy-inspector-egui how to display the struct in the world inspector
-            .add_plugin(FrameTimeDiagnosticsPlugin::default())
-            .add_plugin(LogDiagnosticsPlugin {
-                wait_duration: Duration::from_secs(20),
-                ..Default::default()
-            })
             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
     }
 }

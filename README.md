@@ -24,14 +24,15 @@ im just keeping this old snippet here for others too see how to use xwin on its 
 
 xwin
 
-```# [target.x86_64-pc-windows-msvc]
-# linker = "lld-link"
-# rustflags = [
-#   "-C",
-#   "target-feature=+crt-static",
-#   "-Zshare-generics=off",
-#   "-Lnative=/opt/xwin/crt/lib/x86_64",
-#   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
-#   "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
-# ]
+```rust
+[target.x86_64-pc-windows-msvc]
+ linker = "lld-link"
+ rustflags = [
+   "-C",
+   "target-feature=+crt-static",
+   "-Zshare-generics=off",
+   "-Lnative=/opt/xwin/crt/lib/x86_64",
+   "-Lnative=/opt/xwin/sdk/lib/um/x86_64",
+   "-Lnative=/opt/xwin/sdk/lib/ucrt/x86_64",
+ ]
 ```

@@ -25,11 +25,24 @@ impl Default for PlayerInput {
 
         let mut input_map = InputMap::default();
 
-        // basic keyboard movement
-        input_map.insert(KeyCode::W, Up);
-        input_map.insert(KeyCode::S, Down);
-        input_map.insert(KeyCode::A, Left);
-        input_map.insert(KeyCode::D, Right);
+        // movement
+        input_map.insert(
+            VirtualDPad {
+                up: KeyCode::W.into(),
+                down: KeyCode::S.into(),
+                left: KeyCode::A.into(),
+                right: KeyCode::D.into(),
+            },
+            Move,
+        );
+        input_map.insert(
+            DualAxis::symmetric(
+                GamepadAxisType::LeftStickX,
+                GamepadAxisType::LeftStickY,
+                0.01, // TODO: this should probably be a game setting in a control menu so should the rest of this technically but w/e this is defaults
+            ),
+            Move,
+        );
 
         input_map.insert(KeyCode::LShift, GameActions::Dash);
         input_map.insert(GamepadButtonType::RightTrigger2, GameActions::Dash);
@@ -37,7 +50,7 @@ impl Default for PlayerInput {
         input_map.insert(KeyCode::Escape, GameActions::Pause);
         input_map.insert(GamepadButtonType::Start, GameActions::Pause);
 
-        // input_map.set_gamepad(Gamepad(0));
+        input_map.set_gamepad(Gamepad { id: 0 });
         Self {
             input: InputManagerBundle::<GameActions> {
                 input_map,

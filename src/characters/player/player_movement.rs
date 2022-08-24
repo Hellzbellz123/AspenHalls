@@ -34,27 +34,35 @@ pub fn player_movement_system(
         Vec3::new(255., 255., 255.),
     );
 
-    for action_state in query_action_state.iter() {
-        if action_state.pressed(GameActions::Right) && !timeinfo.game_paused {
-            player_transform.translation.x +=
-                1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
-            sprite.0.flip_x = true;
-        }
+    let action_state = query_action_state.single();
+    if action_state.pressed(GameActions::Move) {
+        // Virtual direction pads are one of the types which return an AxisPair. The values will be
+        // represented as `-1.0`, `0.0`, or `1.0` depending on the combination of buttons pressed.
+        let axis_pair = action_state.axis_pair(GameActions::Move).unwrap();
 
-        if action_state.pressed(GameActions::Left) && !timeinfo.game_paused {
+        let horizontal = axis_pair.x();
+        let vertical = axis_pair.y();
+
+        if horizontal <= 0.0 && !timeinfo.game_paused {
             player_transform.translation.x +=
-                -1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
+                horizontal * player.speed * time.delta_seconds() * timeinfo.time_step;
             sprite.0.flip_x = false;
         }
 
-        if action_state.pressed(GameActions::Up) && !timeinfo.game_paused {
-            player_transform.translation.y +=
-                1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
+        if horizontal >= 0.0 && !timeinfo.game_paused {
+            player_transform.translation.x +=
+                horizontal * player.speed * time.delta_seconds() * timeinfo.time_step;
+            sprite.0.flip_x = true;
         }
 
-        if action_state.pressed(GameActions::Down) && !timeinfo.game_paused {
+        if vertical <= 0.0 && !timeinfo.game_paused {
             player_transform.translation.y +=
-                -1.0 * player.speed * time.delta_seconds() * timeinfo.time_step;
+                vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
+        }
+
+        if vertical >= 0.0 && !timeinfo.game_paused {
+            player_transform.translation.y +=
+                vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
     }
 }

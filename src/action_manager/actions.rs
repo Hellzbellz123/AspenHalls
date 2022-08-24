@@ -1,7 +1,10 @@
+use bevy_inspector_egui::Inspectable;
 use leafwing_input_manager::Actionlike;
+use serde::Deserialize;
 
-#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
+#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Inspectable, Deserialize)]
 pub enum GameActions {
+    Move,
     Right,
     Left,
     Down,

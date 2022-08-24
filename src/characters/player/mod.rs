@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use crate::{
     action_manager::bindings::PlayerInput,
@@ -10,7 +9,8 @@ use crate::{
 mod player_movement;
 mod player_utils;
 
-#[derive(Component, Inspectable, Reflect)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct PlayerComponent {
     //stores important player data
     pub speed: f32,

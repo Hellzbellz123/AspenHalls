@@ -3,15 +3,16 @@
 
 use bevy::prelude::*;
 use bevy::DefaultPlugins;
+use dev_tools::DebugPlugin;
 
 pub mod action_manager;
 pub mod audio;
 pub mod characters;
+mod dev_tools;
 pub mod game;
 pub mod loading;
 pub mod splashscreen;
-// pub mod ui;
-mod dev_tools;
+pub mod ui;
 pub mod utilities;
 
 pub fn main() {
@@ -30,5 +31,6 @@ pub fn main() {
         .add_plugins(DefaultPlugins)
         .add_state(game::GameStage::Loading)
         .add_plugin(game::GamePlugin)
+        .add_plugin(DebugPlugin)
         .run();
 }
