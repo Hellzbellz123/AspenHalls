@@ -42,28 +42,33 @@ pub fn player_movement_system(
 
         let horizontal = axis_pair.x();
         let vertical = axis_pair.y();
+        let mut velocity = Vec3::ZERO;
 
         if horizontal <= 0.0 && !timeinfo.game_paused {
-            player_transform.translation.x +=
-                horizontal * player.speed * time.delta_seconds() * timeinfo.time_step;
+            velocity.x += horizontal
+                * player.speed
+                * time.delta_seconds()
+                * timeinfo.time_step.clamp(-1.0, 1.0);
             sprite.0.flip_x = false;
         }
 
         if horizontal >= 0.0 && !timeinfo.game_paused {
-            player_transform.translation.x +=
-                horizontal * player.speed * time.delta_seconds() * timeinfo.time_step;
+            velocity.x += horizontal
+                * player.speed
+                * time.delta_seconds()
+                * timeinfo.time_step.clamp(-1.0, 1.0);
             sprite.0.flip_x = true;
         }
 
         if vertical <= 0.0 && !timeinfo.game_paused {
-            player_transform.translation.y +=
-                vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
+            velocity.y += vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
 
         if vertical >= 0.0 && !timeinfo.game_paused {
             player_transform.translation.y +=
                 vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
+        player_transform.translation += velocity; //.clamp(Vec3::new(-1.0, -1.0, 0.0), Vec3::new(1.0, 1.0, 0.0))
     }
 }
 

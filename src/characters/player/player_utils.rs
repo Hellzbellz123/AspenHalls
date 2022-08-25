@@ -6,23 +6,18 @@ use crate::{
 use bevy::prelude::*;
 
 pub fn spawn_player(mut commands: Commands, textures: Res<GameTextureAssets>) {
-    commands
-        .spawn_bundle(PlayerBundle {
-            player: PlayerComponent {
-                speed: 100.0,
-                sprint_available: false,
-            },
-            psprite: SpriteBundle {
-                texture: textures.texture_player.clone(),
-                transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
-                ..Default::default()
-            },
-            pinput_map: PlayerInput::default(),
-        })
-        .insert(PlayerComponent {
+    commands.spawn_bundle(PlayerBundle {
+        player: PlayerComponent {
             speed: 100.0,
             sprint_available: false,
-        });
+        },
+        psprite: SpriteBundle {
+            texture: textures.texture_player.clone(),
+            transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
+            ..Default::default()
+        },
+        pinput_map: PlayerInput::default(),
+    });
 }
 
 // pub struct WalkingSound {

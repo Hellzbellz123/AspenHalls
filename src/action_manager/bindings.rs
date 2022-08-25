@@ -45,7 +45,7 @@ impl Default for PlayerInput {
         );
 
         input_map.insert(KeyCode::LShift, GameActions::Dash);
-        input_map.insert(GamepadButtonType::RightTrigger2, GameActions::Dash);
+        input_map.insert(GamepadButtonType::West, GameActions::Dash);
 
         input_map.insert(KeyCode::Escape, GameActions::Pause);
         input_map.insert(GamepadButtonType::Start, GameActions::Pause);

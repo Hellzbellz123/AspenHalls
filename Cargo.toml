@@ -27,6 +27,10 @@ glob = "0.3"
 #[cfg(target_os = "windows")]
 winapi = "0.3.0"
 
+# [dependencies.bevy_config_cam]
+# git = "https://github.com/BlackPhlox/bevy_config_cam"
+# branch = "bevy_dolly"
+
 [dependencies.bevy_asset_loader]
 version = "0.12.0"
 # git = "https://github.com/NiklasEi/bevy_asset_loader.git"

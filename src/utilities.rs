@@ -25,11 +25,9 @@ pub(crate) fn set_window_icon(
     primary.set_window_icon(std::option::Option::Some(icon));
 }
 
-#[cfg(target_os = "windows")]
 extern crate winapi;
 
-#[cfg(target_os = "windows")]
-pub fn debugdirwindows() {
+pub fn debugdir() {
     let dir = std::env::current_dir().unwrap();
 
     println!("Current Working Director is: {:?}", dir);
@@ -191,7 +189,7 @@ pub trait IsExecutable {
     fn is_executable(&self) -> bool;
 }
 
-#[cfg(unix)]
+#[cfg(target_os = "linux")]
 mod unix {
     use std::os::unix::fs::PermissionsExt;
     use std::path::Path;
