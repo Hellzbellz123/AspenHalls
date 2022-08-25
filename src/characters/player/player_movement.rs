@@ -28,12 +28,6 @@ pub fn player_movement_system(
         player.speed = 100.0
     }
 
-    Vec3::clamp(
-        player_transform.translation,
-        Vec3::ZERO,
-        Vec3::new(255., 255., 255.),
-    );
-
     let action_state = query_action_state.single();
     if action_state.pressed(GameActions::Move) {
         // Virtual direction pads are one of the types which return an AxisPair. The values will be
@@ -68,7 +62,7 @@ pub fn player_movement_system(
             player_transform.translation.y +=
                 vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
         }
-        player_transform.translation += velocity; //.clamp(Vec3::new(-1.0, -1.0, 0.0), Vec3::new(1.0, 1.0, 0.0))
+        player_transform.translation += velocity.clamp(Vec3::new(-1.0, -1.0, 0.0), Vec3::new(1.0, 1.0, 0.0));
     }
 }
 
