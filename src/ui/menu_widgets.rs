@@ -11,7 +11,7 @@ use kayak_ui::{
 };
 
 use crate::{
-    loading::UiTextureAssets,
+    loading::assets::UiTextureAssets,
     ui::menus::main_menu::{AppExitEvent, PlayButtonEvent}, //OptionsButtonEvent
 };
 

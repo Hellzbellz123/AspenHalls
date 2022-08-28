@@ -2,10 +2,14 @@ use bevy::prelude::*;
 
 use crate::{
     action_manager::bindings::PlayerInput,
-    characters::player::{player_movement::*, player_utils::spawn_player},
+    characters::player::{
+        player_movement::*,
+        player_utils::{animate_sprite, spawn_player},
+    },
     game::GameStage,
 };
 
+pub mod heroes;
 mod player_movement;
 mod player_utils;
 
@@ -25,7 +29,7 @@ pub struct PlayerBundle {
     #[bundle]
     pub pinput_map: PlayerInput,
     #[bundle]
-    pub psprite: SpriteBundle,
+    pub psprite: SpriteSheetBundle,
 }
 
 pub struct PlayerPlugin;
@@ -36,6 +40,7 @@ impl Plugin for PlayerPlugin {
         app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(spawn_player))
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
+                    .with_system(animate_sprite)
                     .with_system(player_movement_system)
                     .with_system(player_sprint),
             );

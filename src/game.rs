@@ -4,8 +4,7 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::{
     action_manager::bindings::ActionsPlugin, audio::InternalAudioPlugin,
-    characters::player::PlayerPlugin, loading::LoadingPlugin, splashscreen::SplashPlugin,
-    ui::MenuPlugin,
+    characters::player::PlayerPlugin, ui::MenuPlugin,
 };
 
 #[derive(Debug, Clone, PartialEq, Component, Inspectable, Reflect)]
@@ -30,14 +29,7 @@ pub enum GameStage {
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(LoadingPlugin)
-            .insert_resource(TimeInfo {
-                time_step: 0.0,
-                game_paused: true,
-                pause_menu: false,
-            })
-            .add_plugin(SplashPlugin)
-            .add_plugin(MenuPlugin)
+        app.add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)

@@ -14,7 +14,7 @@ use crate::{
     action_manager::actions::GameActions,
     characters::player::PlayerComponent,
     game::TimeInfo,
-    loading::{FontAssets, UiTextureAssets},
+    loading::assets::{FontAssets, UiTextureAssets},
     ui::{
         menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
         menus::main_menu::destroy_menu,

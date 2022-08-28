@@ -10,7 +10,7 @@ use kayak_ui::{
 
 use crate::{
     game::{self, TimeInfo},
-    loading::{FontAssets, UiTextureAssets},
+    loading::assets::{FontAssets, UiTextureAssets},
     ui::menu_widgets::{ExitButton, PlayButton, SettingsButton},
 };
 
