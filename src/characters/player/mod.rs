@@ -1,35 +1,43 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
 
 use crate::{
     action_manager::bindings::PlayerInput,
     characters::player::{
+        player_animation::FacingDirection,
         player_movement::*,
-        player_utils::{animate_sprite, spawn_player},
+        player_utils::spawn_player, //animate_sprite,
     },
     game::GameStage,
 };
 
-pub mod heroes;
+use self::player_animation::FrameAnimation;
+
+pub mod player_animation;
 mod player_movement;
 mod player_utils;
 
-#[derive(Component, Default, Reflect)]
+#[derive(Component, Default, Reflect, Inspectable)]
 #[reflect(Component)]
 pub struct PlayerComponent {
     //stores important player data
     pub speed: f32,
     pub sprint_available: bool,
+    pub facing: FacingDirection,
+    pub just_moved: bool,
 }
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
-    pub player: PlayerComponent,
+    name: Name,
+    pub player_data: PlayerComponent,
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
+    pub player_animations: FrameAnimation,
     #[bundle]
-    pub pinput_map: PlayerInput,
+    pub player_input_map: PlayerInput,
     #[bundle]
-    pub psprite: SpriteSheetBundle,
+    pub player_sprite_sheet: SpriteSheetBundle,
 }
 
 pub struct PlayerPlugin;
@@ -40,7 +48,7 @@ impl Plugin for PlayerPlugin {
         app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(spawn_player))
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
-                    .with_system(animate_sprite)
+                    // .with_system(animate_sprite)
                     .with_system(player_movement_system)
                     .with_system(player_sprint),
             );

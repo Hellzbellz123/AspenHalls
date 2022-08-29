@@ -1,70 +1,80 @@
 use crate::{
     action_manager::bindings::PlayerInput,
     characters::player::{PlayerBundle, PlayerComponent},
-    loading::assets::RexTextureAssets,
 };
 use bevy::prelude::*;
+
+use super::player_animation::{self, FacingDirection, FrameAnimation};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
-pub fn spawn_player(
-    mut commands: Commands,
-    rex_animations: Res<RexTextureAssets>,
-    _animation_set: ResMut<Assets<TextureAtlas>>,
-) {
-    commands
-        .spawn_bundle(PlayerBundle {
-            player: PlayerComponent {
-                speed: 100.0,
-                sprint_available: false,
+pub fn spawn_player(mut commands: Commands, characters: Res<player_animation::CharacterSheet>) {
+    commands.spawn_bundle(PlayerBundle {
+        player_animations: FrameAnimation {
+            timer: Timer::from_seconds(0.2, true),
+            frames: characters.player_idle.to_vec(),
+            current_frame: 0,
+        },
+        player_data: PlayerComponent {
+            speed: 100.0,
+            sprint_available: false,
+            facing: FacingDirection::Down,
+            just_moved: false,
+        },
+        player_sprite_sheet: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                custom_size: Some(Vec2::new(32., 64.)),
+                ..default()
             },
-            psprite: SpriteSheetBundle {
-                sprite: TextureAtlasSprite {
-                    index: (1),
-                    custom_size: Some(Vec2::new(32., 64.)),
-                    ..Default::default()
-                },
-                texture_atlas: rex_animations.idle.clone(),
-                // transform: todo!(),
-                // global_transform: todo!(),
-                ..Default::default()
-            },
-            pinput_map: PlayerInput::default(),
-        })
-        .insert(AnimationTimer(Timer::from_seconds(0.01, true)));
+            texture_atlas: characters.handle.clone(),
+            // transform: todo!(),
+            // global_transform: todo!(),
+            ..default()
+        },
+        player_input_map: PlayerInput::default(),
+        name: Name::new("player"),
+    });
 }
 
-pub fn animate_sprite(
-    time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
-    )>,
-) {
-    for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).expect("where are our animations?");
-            let atg = texture_atlas.textures.len();
+// pub fn animate_sprite(
+//     timeinfo: ResMut<TimeInfo>,
+//     texture_atlases: Res<Assets<TextureAtlas>>,
+//     mut query: Query<(
+//         &mut AnimationTimer,
+//         &mut TextureAtlasSprite,
+//         &Handle<TextureAtlas>,
+//     )>,
+// ) {
+//     for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
+//         timer.tick(Duration::from_secs_f32(0.3));
+//         if timer.just_finished() & !timeinfo.game_paused {
+//             let texture_atlas = texture_atlases
+//                 .get(texture_atlas_handle)
+//                 .expect("where are our animations?");
+//             let tal = texture_atlas.textures.len();
 
-            if sprite.index == atg {
-                sprite.index = 1
-            }
-            else if sprite.index != atg {
-                if sprite.index > atg {
-                info!("sprites arent the same length, Skipping.....");
-                sprite.index = 1
-                }
-                else {
-                    sprite.index = (sprite.index + 1) % atg;
-                }
-            }
-        }
-    }
-}
+//             info!("sprite index: {:?}, max index: {:?} ", sprite.index, tal);
+
+//             // match tal {
+//             //     tal if tal-1 == sprite.index => sprite.index = 0,
+//             //     tal if sprite.index < tal-1 => sprite.index += 1, // % texture_atlas.textures.len()
+//             //     _ => print!("match error?"),
+//             // };
+
+//             if sprite.index >= tal-1 {
+//                 info!("sprite index longer than TAL");
+//                 sprite.index = 0;
+//             } else if tal == sprite.index {
+//                 info!("resetting animation loop");
+//                 sprite.index = 0;
+//             } else if sprite.index < tal-1 {
+//                 sprite.index += 1 % texture_atlas.textures.len();
+//                 info!("sprite index being increased");
+//             }
+//         }
+//     }
+// }
 
 // pub struct WalkingSound {
 //     pub timer: Timer,

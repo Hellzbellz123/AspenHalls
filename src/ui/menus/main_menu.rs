@@ -24,7 +24,9 @@ pub(crate) fn startup(
     mut image_manager: ResMut<ImageManager>,
     mut font_mapping: ResMut<FontMapping>,
 ) {
-    commands.spawn_bundle(UICameraBundle::new());
+    commands
+        .spawn_bundle(UICameraBundle::new())
+        .insert(Name::new("UI Camera config"));
 
     let main_font = font_assets.fira_sans_msdf.clone();
     let title_font = font_assets.fantasque_sans_msdf.clone();

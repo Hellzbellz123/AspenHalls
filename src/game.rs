@@ -3,8 +3,10 @@ use bevy::{app::App, prelude::*};
 use bevy_inspector_egui::Inspectable;
 
 use crate::{
-    action_manager::bindings::ActionsPlugin, audio::InternalAudioPlugin,
-    characters::player::PlayerPlugin, ui::MenuPlugin,
+    action_manager::bindings::ActionsPlugin,
+    audio::InternalAudioPlugin,
+    characters::player::{player_animation::GraphicsPlugin, PlayerPlugin},
+    ui::MenuPlugin,
 };
 
 #[derive(Debug, Clone, PartialEq, Component, Inspectable, Reflect)]
@@ -33,6 +35,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
+            .add_plugin(GraphicsPlugin)
             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
     }
 }

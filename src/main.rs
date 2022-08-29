@@ -4,6 +4,7 @@
 use bevy::prelude::*;
 use bevy::render::texture::ImageSettings;
 use bevy::DefaultPlugins;
+
 use dev_tools::DebugPlugin;
 use game::TimeInfo;
 use loading::LoadingPlugin;

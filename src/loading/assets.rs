@@ -36,6 +36,9 @@ pub struct RexTextureAssets {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 1))]
     #[asset(path = "characters/heroes/rex-walksouth.png")]
     pub walksouth: Handle<TextureAtlas>,
+
+    #[asset(path = "characters/heroes/rex-sheet.png")]
+    pub rex_full_sheet: Handle<Image>,
 }
 
 #[derive(AssetCollection, Clone)]

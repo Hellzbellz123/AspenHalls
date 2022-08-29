@@ -1,5 +1,25 @@
 {
   "rust-analyzer.runnables.extraArgs": ["--target=x86_64-pc-windows-msvc"],
-  "files.exclude": {},
-  "explorerExclude.backup": null
+  "files.exclude": {
+    "**/.git": false,
+    "**/.svn": false,
+    "**/.hg": false,
+    "**/CVS": false,
+    "**/.DS_Store": false,
+    "**/Thumbs.db": false,
+    "**/.trunk/*out": false,
+    "**/.trunk": false,
+    "**/.vscode": false
+  },
+  "explorerExclude.backup": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/.trunk/*out": true,
+    "**/.trunk": true,
+    "**/.vscode": true
+  }
 }

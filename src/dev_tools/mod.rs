@@ -4,9 +4,15 @@ use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
 };
-use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
 
-use crate::{characters::player::PlayerComponent, game::TimeInfo};
+use crate::{
+    characters::player::{
+        player_animation::{CharacterSheet, FacingDirection, FrameAnimation},
+        PlayerComponent,
+    },
+    game::TimeInfo,
+};
 
 pub struct DebugPlugin;
 
@@ -22,7 +28,10 @@ impl Plugin for DebugPlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()
             })
-            .register_type::<PlayerComponent>()
-            .register_type::<TimeInfo>(); // tells bevy-inspector-egui how to display the struct in the world inspector
+            .register_inspectable::<PlayerComponent>()
+            .register_type::<TimeInfo>()
+            .register_type::<FrameAnimation>()
+            .register_inspectable::<CharacterSheet>()
+            .register_inspectable::<FacingDirection>(); // tells bevy-inspector-egui how to display the struct in the world inspector
     }
 }

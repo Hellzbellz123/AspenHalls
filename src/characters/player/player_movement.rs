@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::prelude::{Query, With, *};
 use leafwing_input_manager::prelude::ActionState;
 
@@ -6,8 +8,10 @@ use crate::{
     loading::assets::RexTextureAssets,
 };
 
+use super::player_animation::{FacingDirection, FrameAnimation};
+
 pub fn player_movement_system(
-    player_animations: Res<RexTextureAssets>,
+    _player_animations: Res<RexTextureAssets>,
     timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<GameActions>>,
     time: Res<Time>,
@@ -19,7 +23,7 @@ pub fn player_movement_system(
     )>,
 ) {
     // let movement_dir = Vec3::ZERO;
-    let (mut player_transform, mut player, mut texture_atlas_handle, mut texture) =
+    let (mut player_transform, mut player, _texture_atlas_handle, mut texture) =
         player_query.single_mut();
     let timeinfo = timeinfo.as_ref();
 
@@ -43,50 +47,60 @@ pub fn player_movement_system(
 
         if horizontal <= -0.1 && !timeinfo.game_paused {
             texture.flip_x = true;
-            *texture_atlas_handle = player_animations.walkeast.clone();
             velocity.x += horizontal
                 * player.speed
                 * time.delta_seconds()
                 * timeinfo.time_step.clamp(-1.0, 1.0);
+            player.facing = FacingDirection::Left
         }
 
         if horizontal >= 0.1 && !timeinfo.game_paused {
             texture.flip_x = false;
-            *texture_atlas_handle = player_animations.walkeast.clone();
             velocity.x += horizontal
                 * player.speed
                 * time.delta_seconds()
                 * timeinfo.time_step.clamp(-1.0, 1.0);
+            player.facing = FacingDirection::Right
         }
 
         if vertical <= -0.1 && !timeinfo.game_paused {
-            *texture_atlas_handle = player_animations.walksouth.clone();
             velocity.y += vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
+            player.facing = FacingDirection::Down
         }
 
         if vertical >= 0.1 && !timeinfo.game_paused {
-            *texture_atlas_handle = player_animations.walknorth.clone();
             player_transform.translation.y +=
                 vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
+            player.facing = FacingDirection::Up
         }
         player_transform.translation += velocity;
-        // velocity.clamp(Vec3::new(-1.0, -1.0, 0.0), Vec3::new(1.0, 1.0, 0.0));
+    } else if action_state.released(GameActions::Move) {
+        player.facing = FacingDirection::Idle
     }
 }
 
 pub fn player_sprint(
-    input_query: Query<&ActionState<GameActions>, With<PlayerComponent>>,
+    mut input_query: Query<&ActionState<GameActions> , With<PlayerComponent>>,
     mut player_query: Query<&mut PlayerComponent>,
+    mut anim_query: Query<&mut FrameAnimation, With<PlayerComponent>>
 ) {
-    let action_state = input_query.single();
+    // let (mut player_transform, mut player, _texture_atlas_handle, mut texture) =
+    //     player_query.single_mut();
+
+
+    let action_state = input_query.single_mut();
+    let mut animation = anim_query.single_mut();
     let mut player = player_query.single_mut();
-    // let (mut _transform, mut player) = player_query.single_mut();
 
     if action_state.pressed(GameActions::Dash) {
+        animation.timer.set_duration(Duration::from_millis(100));
+        // animation.timer= Timer::from_seconds(0.1, true);
         player.sprint_available = true;
     }
 
     if action_state.released(GameActions::Dash) {
+        animation.timer.set_duration(Duration::from_millis(200));
+        // animation.timer= Timer::from_seconds(0.1, true);
         player.sprint_available = false;
     }
 }
