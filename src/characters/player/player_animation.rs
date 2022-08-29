@@ -83,7 +83,9 @@ impl GraphicsPlugin {
         characters: Res<CharacterSheet>,
     ) {
         for (player_compontent, mut animation) in sprites_query.iter_mut() {
-            if player_compontent.facing == FacingDirection::Idle{animation.frames = characters.player_idle.to_vec()}
+            if player_compontent.facing == FacingDirection::Idle {
+                animation.frames = characters.player_idle.to_vec()
+            }
             if player_compontent.facing == FacingDirection::Up {
                 animation.frames = characters.player_up.to_vec()
             } else if player_compontent.facing == FacingDirection::Down {

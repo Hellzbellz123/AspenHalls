@@ -80,13 +80,12 @@ pub fn player_movement_system(
 }
 
 pub fn player_sprint(
-    mut input_query: Query<&ActionState<GameActions> , With<PlayerComponent>>,
+    mut input_query: Query<&ActionState<GameActions>, With<PlayerComponent>>,
     mut player_query: Query<&mut PlayerComponent>,
-    mut anim_query: Query<&mut FrameAnimation, With<PlayerComponent>>
+    mut anim_query: Query<&mut FrameAnimation, With<PlayerComponent>>,
 ) {
     // let (mut player_transform, mut player, _texture_atlas_handle, mut texture) =
     //     player_query.single_mut();
-
 
     let action_state = input_query.single_mut();
     let mut animation = anim_query.single_mut();
