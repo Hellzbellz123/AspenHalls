@@ -27,20 +27,6 @@ glob = "0.3"
 #[cfg(target_os = "windows")]
 winapi = "0.3.0"
 
-# [dependencies.bevy_config_cam]
-# git = "https://github.com/BlackPhlox/bevy_config_cam"
-# branch = "bevy_dolly"
-
-[dependencies.bevy_asset_loader]
-version = "0.12.0"
-# git = "https://github.com/NiklasEi/bevy_asset_loader.git"
-features = ["2d"]
-
-[dependencies.bevy_kira_audio]
-version = "0.12.0"
-default-features = false
-features = ["mp3", "ogg"]
-
 [dependencies.bevy]
 version = "0.8.1"
 default-features = false
@@ -63,6 +49,23 @@ features = [
   # "dynamic"
 ]
 
+[dependencies.bevy_ecs_ldtk]
+
+# [dependencies.bevy_config_cam]
+# git = "https://github.com/BlackPhlox/bevy_config_cam"
+# branch = "bevy_dolly"
+
+[dependencies.bevy_asset_loader]
+version = "0.12.1"
+# git = "https://github.com/NiklasEi/bevy_asset_loader.git"
+features = ["2d"]
+
+[dependencies.bevy_kira_audio]
+version = "0.12.0"
+default-features = false
+features = ["mp3", "ogg"]
+
+
 [dependencies.bevy-inspector-egui]
 version = "0.12.1"
 features = []
@@ -74,7 +77,7 @@ features = ["bevy_renderer"]
 
 
 [dependencies.leafwing-input-manager]
-version = "0.5.1"
+version = "0.5.2"
 # path = "crates/leafwing-input-manager"
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
 
