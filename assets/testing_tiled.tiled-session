@@ -1,0 +1,52 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "levels/testinghall.tmx",
+    "expandedProjectPaths": [
+        ".",
+        "levels",
+        "tilemaps"
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "levels/testinghall.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": -453,
+                "y": 114
+            }
+        },
+        "tilemaps/TopDown_by_deepnight.tsx": {
+            "scaleInDock": 2,
+            "scaleInEditor": 2
+        },
+        "tilemaps/finalbossblues-icons_full_16.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.imagePath": "/home/hellzbellz/Source/vanillacoffee/assets/tilemaps",
+    "map.fixedSize": false,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+        "levels/testinghall.tmx",
+        "tilemaps/TopDown_by_deepnight.tsx"
+    ],
+    "project": "testing_tiled.tiled-project",
+    "property.type": "bool",
+    "recentFiles": [
+        "tilemaps/TopDown_by_deepnight.tsx",
+        "levels/testinghall.tmx",
+        "tilemaps/finalbossblues-icons_full_16.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
