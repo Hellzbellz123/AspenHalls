@@ -3,7 +3,7 @@ use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::prelude::*;
 
 #[derive(AssetCollection)]
-pub struct FontAssets {
+pub struct FontHandles {
     #[asset(path = "fonts/FiraSans-Bold.ttf")]
     pub fira_sans_ttf: Handle<Font>,
     #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
@@ -14,13 +14,13 @@ pub struct FontAssets {
 }
 
 #[derive(AssetCollection)]
-pub struct AudioAssets {
+pub struct AudioHandles {
     #[asset(path = "audio/ost/expansion.ogg")]
     pub gamesoundtrack: Handle<AudioSource>,
 }
 
 #[derive(AssetCollection, Clone)]
-pub struct RexTextureAssets {
+pub struct RexTextureHandles {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 2, rows = 1))]
     #[asset(path = "characters/heroes/rex-idle.png")]
     pub idle: Handle<TextureAtlas>,
@@ -42,7 +42,7 @@ pub struct RexTextureAssets {
 }
 
 #[derive(AssetCollection, Clone)]
-pub struct UiTextureAssets {
+pub struct UiTextureHandles {
     #[asset(path = "textures/splashscreen.png")]
     pub splash_image: Handle<Image>,
 

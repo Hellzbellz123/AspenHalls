@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::{
-    characters::player::PlayerComponent,
+    characters::player::PDataComponent,
     game::{GameStage, TimeInfo},
 };
 
@@ -17,7 +17,9 @@ pub struct CharacterSheet {
     pub player_right: [usize; 3],
 }
 
-#[derive(Component, Default, Clone, Copy, Inspectable, PartialEq, Eq, PartialOrd, Ord, Reflect)]
+#[derive(
+    Component, Default, Clone, Copy, Inspectable, PartialEq, Eq, PartialOrd, Ord, Debug, Reflect,
+)]
 pub enum FacingDirection {
     #[default]
     Idle,
@@ -34,7 +36,8 @@ pub struct PlayerGraphics {
 
 #[derive(Component, Default, Reflect)]
 #[reflect(Component)]
-pub struct FrameAnimation {
+#[allow(clippy::module_name_repetitions)]
+pub struct TargetAnimation {
     pub timer: Timer,
     pub frames: Vec<usize>,
     pub current_frame: usize,
@@ -79,22 +82,23 @@ impl GraphicsPlugin {
     }
 
     fn update_player_graphics(
-        mut sprites_query: Query<(&PlayerComponent, &mut FrameAnimation), Changed<PlayerComponent>>,
+        mut sprites_query: Query<(&PDataComponent, &mut TargetAnimation), Changed<PDataComponent>>,
         characters: Res<CharacterSheet>,
     ) {
         for (player_compontent, mut animation) in sprites_query.iter_mut() {
-            if player_compontent.facing == FacingDirection::Idle {
-                animation.frames = characters.player_idle.to_vec()
-            }
-            if player_compontent.facing == FacingDirection::Up {
-                animation.frames = characters.player_up.to_vec()
+            if matches!(
+                player_compontent.facing,
+                FacingDirection::Right | FacingDirection::Left
+            ) {
+                animation.frames = characters.player_right.to_vec();
+            } else if player_compontent.facing == FacingDirection::Up {
+                animation.frames = characters.player_up.to_vec();
             } else if player_compontent.facing == FacingDirection::Down {
-                animation.frames = characters.player_down.to_vec()
-            } else if player_compontent.facing == FacingDirection::Left {
-                animation.frames = characters.player_right.to_vec()
-            } else if player_compontent.facing == FacingDirection::Right {
-                animation.frames = characters.player_right.to_vec()
+                animation.frames = characters.player_down.to_vec();
+            } else if player_compontent.facing == FacingDirection::Idle {
+                animation.frames = characters.player_idle.to_vec();
             }
+
             // animation.frames = match graphics.facing {
             //     FacingDirection::Up => characters.player_up.to_vec(),
             //     FacingDirection::Down => characters.player_down.to_vec(),
@@ -106,20 +110,18 @@ impl GraphicsPlugin {
 
     fn frame_animation(
         timeinfo: ResMut<TimeInfo>,
-        mut sprites_query: Query<(&mut TextureAtlasSprite, &mut FrameAnimation)>,
+        mut sprites_query: Query<(&mut TextureAtlasSprite, &mut TargetAnimation)>,
         time: Res<Time>,
     ) {
         for (mut sprite, mut animation) in sprites_query.iter_mut() {
             animation.timer.tick(time.delta());
-            if !timeinfo.game_paused {
-                if animation.timer.just_finished() {
-                    if !animation.frames.is_empty() {
-                        animation.current_frame =
-                            (animation.current_frame + 1) % animation.frames.len();
-                        sprite.index = animation.frames[animation.current_frame];
-                    } else {
-                        info!("no animations available ?")
-                    }
+            if !timeinfo.game_paused && animation.timer.just_finished() {
+                if animation.frames.is_empty() {
+                    info!("no animations available ?");
+                } else {
+                    animation.current_frame =
+                        (animation.current_frame + 1) % animation.frames.len();
+                    sprite.index = animation.frames[animation.current_frame];
                 }
             }
         }

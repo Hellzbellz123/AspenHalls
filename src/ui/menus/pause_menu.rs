@@ -11,10 +11,10 @@ use kayak_ui::{
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::GameActions,
-    characters::player::PlayerComponent,
+    action_manager::actions::PlayerBindables,
+    characters::player::PDataComponent,
     game::TimeInfo,
-    loading::assets::{FontAssets, UiTextureAssets},
+    loading::assets::{FontHandles, UiTextureHandles},
     ui::{
         menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
         menus::main_menu::destroy_menu,
@@ -23,17 +23,17 @@ use crate::{
 
 pub fn listen_for_pause_event(
     mut timeinfo: ResMut<TimeInfo>,
-    input_query: Query<&ActionState<GameActions>, With<PlayerComponent>>,
+    input_query: Query<&ActionState<PlayerBindables>, With<PDataComponent>>,
     commands: Commands,
-    font_assets: Res<FontAssets>,
-    ui_assets: Res<UiTextureAssets>,
+    font_assets: Res<FontHandles>,
+    ui_assets: Res<UiTextureHandles>,
     image_manager: ResMut<ImageManager>,
     font_mapping: ResMut<FontMapping>,
 ) {
     let action_state = input_query.single();
     let mut timeinfo = timeinfo.as_mut();
 
-    if action_state.just_pressed(GameActions::Pause) {
+    if action_state.just_pressed(PlayerBindables::Pause) {
         info!("pause action pressed, state: {:?}", timeinfo);
 
         if timeinfo.pause_menu {
@@ -58,8 +58,8 @@ pub fn listen_for_pause_event(
 
 fn spawn_menu(
     mut commands: Commands,
-    font_assets: Res<FontAssets>,
-    ui_assets: Res<UiTextureAssets>,
+    font_assets: Res<FontHandles>,
+    ui_assets: Res<UiTextureHandles>,
     mut image_manager: ResMut<ImageManager>,
     mut font_mapping: ResMut<FontMapping>,
 ) {

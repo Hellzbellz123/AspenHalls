@@ -28,7 +28,8 @@ pub(crate) fn set_window_icon(
 extern crate winapi;
 
 pub fn debugdir() {
-    let dir = std::env::current_dir().unwrap();
+    let dir = std::env::current_dir()
+        .expect("Couldnt get current working directory, No permissions or doesnt exist");
 
     println!("Current Working Director is: {:?}", dir);
     run(true, true, 1, &dir).expect("could list directory for some reason");
@@ -52,6 +53,7 @@ pub enum ANSIColor {
 }
 
 impl ANSIColor {
+    #[must_use]
     pub fn as_string(&self) -> &str {
         match &self {
             ANSIColor::RED => "\u{001B}[0;31m",
@@ -71,7 +73,7 @@ fn visit_dirs(
     dir: &Path,
     depth: usize,
     level: usize,
-    prefix: String,
+    prefix: &str,
     colorize: bool,
     show_all: bool,
 ) -> io::Result<()> {
@@ -101,18 +103,18 @@ fn visit_dirs(
             let path = entry.path();
 
             if index == entries.len() - 1 {
-                println!("{}└── {}", prefix, color_output(colorize, &path)?);
+                println!("{}└── {}", prefix, color_output(colorize, &path));
                 if path.is_dir() {
                     let depth = depth + 1;
-                    let prefix_new = prefix.clone() + "    ";
-                    visit_dirs(&path, depth, level, prefix_new, colorize, show_all)?
+                    let prefix_new = prefix.to_string().clone() + "    ";
+                    visit_dirs(&path, depth, level, &prefix_new, colorize, show_all)?;
                 }
             } else {
-                println!("{}├── {}", prefix, color_output(colorize, &path)?);
+                println!("{}├── {}", prefix, color_output(colorize, &path));
                 if path.is_dir() {
                     let depth = depth + 1;
-                    let prefix_new = prefix.clone() + "│   ";
-                    visit_dirs(&path, depth, level, prefix_new, colorize, show_all)?
+                    let prefix_new = prefix.to_string() + "│   ";
+                    visit_dirs(&path, depth, level, &prefix_new, colorize, show_all)?;
                 }
             }
         }
@@ -120,50 +122,51 @@ fn visit_dirs(
     Ok(())
 }
 
-fn color_output(colorize: bool, path: &Path) -> io::Result<String> {
+fn color_output(colorize: bool, path: &Path) -> std::string::String {
     let filename = path.file_name().unwrap().to_str().unwrap();
     let symlink = match fs::read_link(path) {
         Ok(v) => v,
         Err(_err) => PathBuf::new(),
     };
 
-    let print_name: String = if !symlink.to_str().unwrap().is_empty() {
-        format!("{} -> {}", filename, symlink.to_str().unwrap())
-    } else {
+    let print_name: String = if symlink.to_str().unwrap().is_empty() {
         filename.to_string()
+    } else {
+        format!("{} -> {}", filename, symlink.to_str().unwrap())
     };
 
-    match colorize {
-        true => {
-            if path.is_dir() {
-                Ok(format!(
-                    "{}{}{}",
-                    ANSIColor::YELLOW.as_string(),
-                    print_name,
-                    ANSIColor::RESET.as_string()
-                ))
-            } else if is_executable(&path) {
-                Ok(format!(
-                    "{}{}{}",
-                    ANSIColor::GREEN.as_string(),
-                    print_name,
-                    ANSIColor::RESET.as_string()
-                ))
-            } else {
-                Ok(format!(
-                    "{}{}{}",
-                    ANSIColor::MAGENTA.as_string(),
-                    print_name,
-                    ANSIColor::RESET.as_string()
-                ))
-            }
-        }
-        false => Ok(print_name),
+    if !colorize {
+        print_name
+    } else if path.is_dir() {
+        format!(
+            "{}{}{}",
+            ANSIColor::YELLOW.as_string(),
+            print_name,
+            ANSIColor::RESET.as_string()
+        )
+    } else if is_executable(&path) {
+        format!(
+            "{}{}{}",
+            ANSIColor::GREEN.as_string(),
+            print_name,
+            ANSIColor::RESET.as_string()
+        )
+    } else {
+        format!(
+            "{}{}{}",
+            ANSIColor::MAGENTA.as_string(),
+            print_name,
+            ANSIColor::RESET.as_string()
+        )
     }
 }
 
+/// # Errors
+/// Will return `Err` if `path` does not exist or the user does not have
+/// permission to read it, may also error if theres no where to println too
+
 pub fn run(show_all: bool, colorize: bool, level: usize, dir: &Path) -> Result<(), Box<dyn Error>> {
-    visit_dirs(dir, 0, level, String::from(""), colorize, show_all)?;
+    visit_dirs(dir, 0, level, "", colorize, show_all)?;
     Ok(())
 }
 
@@ -247,7 +250,7 @@ mod windows {
             let windows_string_ptr = windows_string.as_ptr();
 
             let mut binary_type: c_ulong = 42;
-            let binary_type_ptr = &mut binary_type as *mut c_ulong;
+            let binary_type_ptr = std::ptr::addr_of_mut!(binary_type);
 
             let ret = unsafe { GetBinaryTypeW(windows_string_ptr, binary_type_ptr) };
             if binary_type_ptr.is_null() {

@@ -4,22 +4,22 @@ use bevy_inspector_egui::Inspectable;
 use crate::{
     action_manager::bindings::PlayerInput,
     characters::player::{
-        player_animation::FacingDirection,
-        player_movement::*,
-        player_utils::spawn_player, //animate_sprite,
+        animation::FacingDirection,
+        movement::{camera_movement_system, player_movement_system, player_sprint},
+        utilities::spawn_player, //animate_sprite,
     },
     game::GameStage,
 };
 
-use self::player_animation::FrameAnimation;
+use self::animation::TargetAnimation;
 
-pub mod player_animation;
-mod player_movement;
-mod player_utils;
+pub mod animation;
+mod movement;
+mod utilities;
 
 #[derive(Component, Default, Reflect, Inspectable)]
 #[reflect(Component)]
-pub struct PlayerComponent {
+pub struct PDataComponent {
     //stores important player data
     pub speed: f32,
     pub sprint_available: bool,
@@ -30,10 +30,10 @@ pub struct PlayerComponent {
 #[derive(Bundle)]
 pub struct PlayerBundle {
     name: Name,
-    pub player_data: PlayerComponent,
+    pub player_data: PDataComponent,
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
-    pub player_animations: FrameAnimation,
+    pub player_animations: TargetAnimation,
     #[bundle]
     pub player_input_map: PlayerInput,
     #[bundle]
@@ -50,6 +50,7 @@ impl Plugin for PlayerPlugin {
                 SystemSet::on_update(GameStage::Playing)
                     // .with_system(animate_sprite)
                     .with_system(player_movement_system)
+                    .with_system(camera_movement_system)
                     .with_system(player_sprint),
             );
     }

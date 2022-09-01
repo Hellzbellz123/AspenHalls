@@ -10,7 +10,7 @@ use kayak_ui::{
 
 use crate::{
     game::{self, TimeInfo},
-    loading::assets::{FontAssets, UiTextureAssets},
+    loading::assets::{FontHandles, UiTextureHandles},
     ui::menu_widgets::{ExitButton, PlayButton, SettingsButton},
 };
 
@@ -19,8 +19,8 @@ pub struct AppExitEvent;
 
 pub(crate) fn startup(
     mut commands: Commands,
-    font_assets: Res<FontAssets>,
-    ui_assets: Res<UiTextureAssets>,
+    font_assets: Res<FontHandles>,
+    ui_assets: Res<UiTextureHandles>,
     mut image_manager: ResMut<ImageManager>,
     mut font_mapping: ResMut<FontMapping>,
 ) {

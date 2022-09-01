@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{Audio, AudioControl, AudioPlugin};
 
-use crate::{game::GameStage, loading::assets::AudioAssets};
+use crate::{game::GameStage, loading::assets::AudioHandles};
 
 pub struct InternalAudioPlugin;
 
@@ -16,7 +16,7 @@ impl Plugin for InternalAudioPlugin {
     }
 }
 
-fn start_audio(audio_assets: Res<AudioAssets>, audio: Res<Audio>) {
+fn start_audio(audio_assets: Res<AudioHandles>, audio: Res<Audio>) {
     audio.set_volume(0.1);
     audio.play(audio_assets.gamesoundtrack.clone()).looped();
 }

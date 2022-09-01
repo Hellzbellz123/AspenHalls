@@ -5,7 +5,7 @@ use bevy_inspector_egui::Inspectable;
 use crate::{
     action_manager::bindings::ActionsPlugin,
     audio::InternalAudioPlugin,
-    characters::player::{player_animation::GraphicsPlugin, PlayerPlugin},
+    characters::player::{animation::GraphicsPlugin, PlayerPlugin},
     ui::MenuPlugin,
 };
 
@@ -20,13 +20,13 @@ pub struct TimeInfo {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
 pub enum GameStage {
-    //splash
-    Splash,
-    // During the loading State the LoadingPlugin will load our assets and display splash?!
+    /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
     Loading,
-    // Here the menu is drawn and waiting for player interaction
+    /// game "stage" for loading in splashscreen and spawning camera
+    Splash,
+    /// Here the menu is drawn and waiting for player interaction
     Menu,
-    // During this State the actual game logic is executed
+    /// During this State the actual game logic is executed
     Playing,
 }
 

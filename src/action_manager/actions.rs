@@ -3,7 +3,7 @@ use leafwing_input_manager::Actionlike;
 use serde::Deserialize;
 
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Inspectable, Deserialize)]
-pub enum GameActions {
+pub enum PlayerBindables {
     Move,
     Right,
     Left,

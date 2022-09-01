@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::*, loading::assets::UiTextureAssets};
+use crate::{game::GameStage, loading::assets::UiTextureHandles};
 
 // This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
 pub struct SplashPlugin;
@@ -33,7 +33,7 @@ struct MainCamera {
 #[derive(Deref, DerefMut)]
 struct SplashTimer(Timer);
 
-fn splash_setup(mut commands: Commands, textures: Res<UiTextureAssets>) {
+fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
     info!("loading splash");
 
     commands

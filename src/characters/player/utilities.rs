@@ -1,22 +1,23 @@
 use crate::{
     action_manager::bindings::PlayerInput,
-    characters::player::{PlayerBundle, PlayerComponent},
+    characters::player::{PDataComponent, PlayerBundle},
+    TILE_SIZE,
 };
 use bevy::prelude::*;
 
-use super::player_animation::{self, FacingDirection, FrameAnimation};
+use super::animation::{self, FacingDirection, TargetAnimation};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
-pub fn spawn_player(mut commands: Commands, characters: Res<player_animation::CharacterSheet>) {
+pub fn spawn_player(mut commands: Commands, characters: Res<animation::CharacterSheet>) {
     commands.spawn_bundle(PlayerBundle {
-        player_animations: FrameAnimation {
+        player_animations: TargetAnimation {
             timer: Timer::from_seconds(0.2, true),
             frames: characters.player_idle.to_vec(),
             current_frame: 0,
         },
-        player_data: PlayerComponent {
+        player_data: PDataComponent {
             speed: 100.0,
             sprint_available: false,
             facing: FacingDirection::Down,
@@ -24,12 +25,12 @@ pub fn spawn_player(mut commands: Commands, characters: Res<player_animation::Ch
         },
         player_sprite_sheet: SpriteSheetBundle {
             sprite: TextureAtlasSprite {
-                custom_size: Some(Vec2::new(32., 64.)),
+                custom_size: Some(Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0)), //character is 1 tile wide by 2 tiles wide
                 ..default()
             },
             texture_atlas: characters.handle.clone(),
-            // transform: todo!(),
-            // global_transform: todo!(),
+            transform: Transform::from_xyz(0.0, 30.0, 8.0),
+            // global_transform:  , // Vec3::new(0.0, 0.0, 8.0)
             ..default()
         },
         player_input_map: PlayerInput::default(),

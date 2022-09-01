@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
-use super::actions::GameActions;
+use super::actions::PlayerBindables;
 
 pub struct ActionsPlugin;
 
@@ -9,19 +9,19 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(InputManagerPlugin::<GameActions>::default());
+        app.add_plugin(InputManagerPlugin::<PlayerBindables>::default());
     }
 }
 
 #[derive(Bundle)]
 pub struct PlayerInput {
     #[bundle]
-    input: InputManagerBundle<GameActions>,
+    input: InputManagerBundle<PlayerBindables>,
 }
 
 impl Default for PlayerInput {
     fn default() -> Self {
-        use GameActions::*;
+        use PlayerBindables::Move;
 
         let mut input_map = InputMap::default();
 
@@ -44,15 +44,15 @@ impl Default for PlayerInput {
             Move,
         );
 
-        input_map.insert(KeyCode::LShift, GameActions::Dash);
-        input_map.insert(GamepadButtonType::West, GameActions::Dash);
+        input_map.insert(KeyCode::LShift, PlayerBindables::Dash);
+        input_map.insert(GamepadButtonType::West, PlayerBindables::Dash);
 
-        input_map.insert(KeyCode::Escape, GameActions::Pause);
-        input_map.insert(GamepadButtonType::Start, GameActions::Pause);
+        input_map.insert(KeyCode::Escape, PlayerBindables::Pause);
+        input_map.insert(GamepadButtonType::Start, PlayerBindables::Pause);
 
         input_map.set_gamepad(Gamepad { id: 0 });
         Self {
-            input: InputManagerBundle::<GameActions> {
+            input: InputManagerBundle::<PlayerBindables> {
                 input_map,
                 ..Default::default()
             },

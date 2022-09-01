@@ -11,7 +11,7 @@ use kayak_ui::{
 };
 
 use crate::{
-    loading::assets::UiTextureAssets,
+    loading::assets::UiTextureHandles,
     ui::menus::main_menu::{AppExitEvent, PlayButtonEvent}, //OptionsButtonEvent
 };
 
@@ -37,7 +37,7 @@ pub fn OptionsButton(props: BlueButtonProps) {
 
         let (handle1, handle2) = {
             let uitexassets = world
-                .get_resource::<UiTextureAssets>()
+                .get_resource::<UiTextureHandles>()
                 .expect("no texture assets?");
             let handle1: Handle<bevy::render::texture::Image> =
                 uitexassets.button_blue_pressed_png.clone();
@@ -67,17 +67,14 @@ pub fn OptionsButton(props: BlueButtonProps) {
     };
 
     let on_event = OnEvent::new(move |_, event| match event.event_type {
-        EventType::MouseOut(..) => {
-            cloned_current_button_handle.set(blue_button_handle);
-        }
-        EventType::MouseUp(..) => {
+        EventType::MouseOut(..) | EventType::MouseUp(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
         EventType::MouseDown(..) => {
             cloned_current_button_handle.set(blue_button_hover_handle);
         }
         EventType::Click(..) => {
-            info!("todo! make a settings menu and a saving system")
+            info!("todo! make a settings menu and a saving system");
         }
 
         _ => (),
@@ -108,7 +105,7 @@ pub fn PlayButton(props: BlueButtonProps) {
 
         let (handle1, handle2) = {
             let uitexassets = world
-                .get_resource::<UiTextureAssets>()
+                .get_resource::<UiTextureHandles>()
                 .expect("no texture assets?");
             let handle1: Handle<bevy::render::texture::Image> =
                 uitexassets.button_blue_pressed_png.clone();
@@ -138,10 +135,7 @@ pub fn PlayButton(props: BlueButtonProps) {
     };
 
     let on_event = OnEvent::new(move |ctx, event| match event.event_type {
-        EventType::MouseOut(..) => {
-            cloned_current_button_handle.set(blue_button_handle);
-        }
-        EventType::MouseUp(..) => {
+        EventType::MouseOut(..) | EventType::MouseUp(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
         EventType::MouseDown(..) => {
@@ -149,7 +143,7 @@ pub fn PlayButton(props: BlueButtonProps) {
         }
         EventType::Click(..) => {
             ctx.query_world::<EventWriter<PlayButtonEvent>, _, ()>(|mut writer| {
-                writer.send(PlayButtonEvent)
+                writer.send(PlayButtonEvent);
             });
         }
         _ => (),
@@ -180,7 +174,7 @@ pub fn ExitButton(props: BlueButtonProps) {
 
         let (handle1, handle2) = {
             let uitexassets = world
-                .get_resource::<UiTextureAssets>()
+                .get_resource::<UiTextureHandles>()
                 .expect("no texture assets?");
             let handle1: Handle<bevy::render::texture::Image> =
                 uitexassets.button_blue_pressed_png.clone();
@@ -210,10 +204,7 @@ pub fn ExitButton(props: BlueButtonProps) {
     };
 
     let on_event = OnEvent::new(move |ctx, event| match event.event_type {
-        EventType::MouseOut(..) => {
-            cloned_current_button_handle.set(blue_button_handle);
-        }
-        EventType::MouseUp(..) => {
+        EventType::MouseOut(..) | EventType::MouseUp(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
         EventType::MouseDown(..) => {
@@ -221,7 +212,7 @@ pub fn ExitButton(props: BlueButtonProps) {
         }
         EventType::Click(..) => {
             ctx.query_world::<EventWriter<AppExitEvent>, _, ()>(|mut writer| {
-                writer.send(AppExitEvent)
+                writer.send(AppExitEvent);
             });
         }
         _ => (),
@@ -253,7 +244,7 @@ pub fn SaveButton(props: BlueButtonProps) {
 
         let (handle1, handle2) = {
             let uitexassets = world
-                .get_resource::<UiTextureAssets>()
+                .get_resource::<UiTextureHandles>()
                 .expect("no texture assets?");
             let handle1: Handle<bevy::render::texture::Image> =
                 uitexassets.button_blue_pressed_png.clone();
@@ -283,17 +274,14 @@ pub fn SaveButton(props: BlueButtonProps) {
     };
 
     let on_event = OnEvent::new(move |_ctx, event| match event.event_type {
-        EventType::MouseOut(..) => {
-            cloned_current_button_handle.set(blue_button_handle);
-        }
-        EventType::MouseUp(..) => {
+        EventType::MouseOut(..) | EventType::MouseUp(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
         EventType::MouseDown(..) => {
             cloned_current_button_handle.set(blue_button_hover_handle);
         }
         EventType::Click(..) => {
-            info!("TODO: Savegame state, but we need a game first")
+            info!("TODO: Savegame state, but we need a game first");
         }
         _ => (),
     });
@@ -324,7 +312,7 @@ pub fn SettingsButton(props: BlueButtonProps) {
 
         let (handle1, handle2) = {
             let uitexassets = world
-                .get_resource::<UiTextureAssets>()
+                .get_resource::<UiTextureHandles>()
                 .expect("no texture assets?");
             let handle1: Handle<bevy::render::texture::Image> =
                 uitexassets.button_blue_pressed_png.clone();
@@ -354,17 +342,14 @@ pub fn SettingsButton(props: BlueButtonProps) {
     };
 
     let on_event = OnEvent::new(move |_, event| match event.event_type {
-        EventType::MouseOut(..) => {
-            cloned_current_button_handle.set(blue_button_handle);
-        }
-        EventType::MouseUp(..) => {
+        EventType::MouseOut(..) | EventType::MouseUp(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
         EventType::MouseDown(..) => {
             cloned_current_button_handle.set(blue_button_hover_handle);
         }
         EventType::Click(..) => {
-            info!("should probably make a game before i get a settings menu built.")
+            info!("should probably make a game before i get a settings menu built.");
         }
         _ => (),
     });
@@ -394,7 +379,7 @@ pub fn ResumeButton(props: BlueButtonProps) {
 
         let (handle1, handle2) = {
             let uitexassets = world
-                .get_resource::<UiTextureAssets>()
+                .get_resource::<UiTextureHandles>()
                 .expect("no texture assets?");
             let handle1: Handle<bevy::render::texture::Image> =
                 uitexassets.button_blue_pressed_png.clone();
@@ -424,10 +409,7 @@ pub fn ResumeButton(props: BlueButtonProps) {
     };
 
     let on_event = OnEvent::new(move |ctx, event| match event.event_type {
-        EventType::MouseOut(..) => {
-            cloned_current_button_handle.set(blue_button_handle);
-        }
-        EventType::MouseUp(..) => {
+        EventType::MouseOut(..) | EventType::MouseUp(..) => {
             cloned_current_button_handle.set(blue_button_handle);
         }
         EventType::MouseDown(..) => {
@@ -435,7 +417,7 @@ pub fn ResumeButton(props: BlueButtonProps) {
         }
         EventType::Click(..) => {
             ctx.query_world::<EventWriter<PlayButtonEvent>, _, ()>(|mut writer| {
-                writer.send(PlayButtonEvent)
+                writer.send(PlayButtonEvent);
             });
         }
         _ => (),

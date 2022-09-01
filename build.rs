@@ -74,6 +74,10 @@ fn get_output_path() -> PathBuf {
     path
 }
 
+/// # Errors
+///
+/// Will return `Err` if `path` does not exist or the user does not have
+/// permission to read/write.
 pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::io::Error> {
     let mut stack = vec![PathBuf::from(from.as_ref())];
 

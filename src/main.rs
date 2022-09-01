@@ -21,6 +21,8 @@ pub mod splashscreen;
 pub mod ui;
 pub mod utilities;
 
+pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
+
 pub fn main() {
     utilities::debugdir();
     App::new()

@@ -1,4 +1,3 @@
-use bevy_ecs_ldtk::prelude::*;
 use std::time::Duration;
 
 use bevy_ecs_ldtk::LayerMetadata;
@@ -11,8 +10,8 @@ use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
 
 use crate::{
     characters::player::{
-        player_animation::{CharacterSheet, FacingDirection, FrameAnimation},
-        PlayerComponent,
+        animation::{CharacterSheet, FacingDirection, TargetAnimation},
+        PDataComponent,
     },
     game::TimeInfo,
 };
@@ -32,9 +31,9 @@ impl Plugin for DebugPlugin {
                 ..Default::default()
             })
             //custom inspectables not from plugins
-            .register_inspectable::<PlayerComponent>()
+            .register_inspectable::<PDataComponent>()
             .register_type::<TimeInfo>()
-            .register_type::<FrameAnimation>()
+            .register_type::<TargetAnimation>()
             .register_inspectable::<CharacterSheet>()
             .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
             // LDTK debug data
