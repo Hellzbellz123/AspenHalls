@@ -13,12 +13,13 @@ use splashscreen::SplashPlugin;
 pub mod action_manager;
 pub mod audio;
 pub mod characters;
-mod dev_tools;
 pub mod game;
 pub mod loading;
 pub mod splashscreen;
 pub mod ui;
 pub mod utilities;
+mod game_world;
+mod dev_tools;
 
 pub fn main() {
     utilities::debugdir();

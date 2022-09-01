@@ -46,10 +46,12 @@ features = [
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
   #"wayland",              # Linux: Support Wayland windowing system
-  # "dynamic"
+  "dynamic"
 ]
 
 [dependencies.bevy_ecs_ldtk]
+version = "0.4.0"
+features = []
 
 # [dependencies.bevy_config_cam]
 # git = "https://github.com/BlackPhlox/bevy_config_cam"

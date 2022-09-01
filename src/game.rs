@@ -9,6 +9,9 @@ use crate::{
     ui::MenuPlugin,
 };
 
+use game_world::MapSystem;
+
+
 #[derive(Debug, Clone, PartialEq, Component, Inspectable, Reflect)]
 pub struct TimeInfo {
     pub time_step: f32,
@@ -34,6 +37,7 @@ impl Plugin for GamePlugin {
         app.add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
+            .add_plugin(MapSystem)
             .add_plugin(PlayerPlugin)
             .add_plugin(GraphicsPlugin)
             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
