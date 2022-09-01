@@ -23,6 +23,12 @@ impl Plugin for SplashPlugin {
 #[derive(Component)]
 struct OnSplashScreen;
 
+#[derive(Component)]
+struct MainCamera {
+    #[allow(dead_code)]
+    is_active: bool,
+}
+
 // Newtype to use a `Timer` for this screen as a resource
 #[derive(Deref, DerefMut)]
 struct SplashTimer(Timer);
@@ -30,7 +36,17 @@ struct SplashTimer(Timer);
 fn splash_setup(mut commands: Commands, textures: Res<UiTextureAssets>) {
     info!("loading splash");
 
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands
+        .spawn_bundle(Camera2dBundle {
+            camera: Camera {
+                priority: 1,
+                is_active: true,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(Name::new("main camera"))
+        .insert(MainCamera { is_active: true });
 
     // Display the logo
     commands

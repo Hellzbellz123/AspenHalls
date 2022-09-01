@@ -9,8 +9,7 @@ use crate::{
     ui::MenuPlugin,
 };
 
-use game_world::MapSystem;
-
+use crate::game_world::MapSystem;
 
 #[derive(Debug, Clone, PartialEq, Component, Inspectable, Reflect)]
 pub struct TimeInfo {

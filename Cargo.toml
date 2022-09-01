@@ -46,7 +46,7 @@ features = [
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
   #"wayland",              # Linux: Support Wayland windowing system
-  "dynamic"
+  # "dynamic"
 ]
 
 [dependencies.bevy_ecs_ldtk]

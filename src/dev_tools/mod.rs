@@ -1,4 +1,7 @@
+use bevy_ecs_ldtk::prelude::*;
 use std::time::Duration;
+
+use bevy_ecs_ldtk::LayerMetadata;
 
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -28,10 +31,15 @@ impl Plugin for DebugPlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()
             })
+            //custom inspectables not from plugins
             .register_inspectable::<PlayerComponent>()
             .register_type::<TimeInfo>()
             .register_type::<FrameAnimation>()
             .register_inspectable::<CharacterSheet>()
-            .register_inspectable::<FacingDirection>(); // tells bevy-inspector-egui how to display the struct in the world inspector
+            .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
+            // LDTK debug data
+            .register_type::<LayerMetadata>();
+        // .register_inspectable::<LevelSet>();
+        // .register_type::<LevelSet>();
     }
 }
