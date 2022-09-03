@@ -56,6 +56,7 @@ fn copyassets() {
 fn compilewindowicons() {
     let target = env::var("TARGET").unwrap();
     if target.contains("windows") {
+        print!("cargo:warning=embedding icon.rc");
         embed_resource::compile("assets/icons/windows/icon.rc");
     }
 }

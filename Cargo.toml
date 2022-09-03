@@ -14,7 +14,6 @@ embed-resource = "1.7.3"
 [dependencies]
 embed-resource = "1.7.3"
 winit = "0.26.1"
-image = "0.24.2"
 serde = "1.0.138"
 serde_derive = "1.0.143"
 rand = "0.8.5"
@@ -70,7 +69,12 @@ features = ["mp3", "ogg"]
 
 [dependencies.bevy-inspector-egui]
 version = "0.12.1"
-features = []
+default-features = false
+features = [
+  "bevy_render",
+  "bevy_sprite",
+  "bevy_text",
+]
 
 [dependencies.kayak_ui]
 git = "https://github.com/StarArawn/kayak_ui"
@@ -83,6 +87,13 @@ version = "0.5.2"
 # path = "crates/leafwing-input-manager"
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
 
+
+[dependencies.image]
+version = "0.24.3"
+default-features = false
+features = [
+  "png",
+  ]
 
 [package.metadata.bundle]
 name = "Vanilla Coffee"

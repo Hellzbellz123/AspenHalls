@@ -7,7 +7,6 @@ impl Plugin for MapSystem {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_plugin(LdtkPlugin)
             .add_startup_system(setup)
-            .insert_resource(LevelSelection::Index(1))
             .insert_resource(LdtkSettings {
                 level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
                     load_level_neighbors: true,
@@ -16,7 +15,10 @@ impl Plugin for MapSystem {
                 int_grid_rendering: IntGridRendering::Colorful,
                 level_background: LevelBackground::Nonexistent,
             })
-            .register_ldtk_entity::<MyBundle>("MyEntityIdentifier");
+            .add_system_set(
+                SystemSet::on_update(crate::game::GameStage::Playing)
+                            .with_system(spawn_world_when_playing)
+            );
     }
 }
 
@@ -26,29 +28,26 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         // level_set: todo!(),
         transform: Transform {
             translation: Vec3 {
-                x: -800.0,
-                y: -1000.0,
-                z: 1.0,
+                x: 0.0,
+                y: 0.0,
+                z: 0.0,
             },
-            rotation: Quat::from_axis_angle(
-                Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                },
-                90.0,
-            ),
             scale: Vec3 {
-                x: 2.0,
-                y: 2.0,
+                x: 3.0,
+                y: 3.0,
                 z: 1.0,
             },
+            ..default()
         },
         // global_transform: todo!(),
         // visibility: todo!(),
         // computed_visibility: todo!(),
-        ..Default::default()
+        ..default()
     });
+}
+
+fn spawn_world_when_playing (mut commands: Commands) {
+    commands.insert_resource(LevelSelection::Index(0));
 }
 
 #[derive(Component, Default)]

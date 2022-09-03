@@ -3,7 +3,6 @@ b = "xwin build"
 r = "xwin run"
 
 [build]
-rustc-wrapper = "sccache"
 target = "x86_64-pc-windows-msvc"
 
 [profile.dev]
