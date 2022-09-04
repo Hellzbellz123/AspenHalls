@@ -5,11 +5,11 @@ use kayak_ui::bevy::CameraUiKayak;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerBindables, characters::player::PDataComponent, game::TimeInfo,
+    action_manager::actions::PlayerBindables, characters::player::PlayerState, game::TimeInfo,
     loading::assets::RexTextureHandles,
 };
 
-use super::animation::{FacingDirection, TargetAnimation};
+use super::animation::{AnimState, FacingDirection};
 
 pub fn player_movement_system(
     _player_animations: Res<RexTextureHandles>,
@@ -18,7 +18,7 @@ pub fn player_movement_system(
     time: Res<Time>,
     mut player_query: Query<(
         &mut Transform,
-        &mut PDataComponent,
+        &mut PlayerState,
         &mut Handle<TextureAtlas>,
         &mut TextureAtlasSprite,
     )>,
@@ -81,9 +81,9 @@ pub fn player_movement_system(
 }
 
 pub fn player_sprint(
-    mut input_query: Query<&ActionState<PlayerBindables>, With<PDataComponent>>,
-    mut player_query: Query<&mut PDataComponent>,
-    mut anim_query: Query<&mut TargetAnimation, With<PDataComponent>>,
+    mut input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
+    mut player_query: Query<&mut PlayerState>,
+    mut anim_query: Query<&mut AnimState, With<PlayerState>>,
 ) {
     // let (mut player_transform, mut player, _texture_atlas_handle, mut texture) =
     //     player_query.single_mut();
@@ -106,19 +106,18 @@ pub fn player_sprint(
 }
 
 pub fn camera_movement_system(
-    // trunk-ignore(clippy/type_complexity)
     mut querymany: ParamSet<(
         Query<(&mut Transform, &Camera), Without<CameraUiKayak>>,
-        Query<&mut Transform, With<PDataComponent>>,
-    )>, // mut camera_query: Query<(&mut Transform, &Camera)>
+        Query<&mut Transform, With<PlayerState>>,
+    )>,
 ) {
-    let camera_pos = querymany.p0().single_mut().0.translation;
-    let player_pos = querymany.p1().single_mut().translation;
+    let camera_trans = querymany.p0().single_mut().0.translation;
+    let player_trans = querymany.p1().single_mut().translation;
+
+    querymany.p0().single_mut().0.translation = (camera_trans.lerp(player_trans, 0.05));
+
+    // mut camera_query: Query<(&mut Transform, &Camera)>
     // let mut camera_transform = camera_query.single();
-
     // camera_transform.0.translation = player_transform.translation;
-
-    querymany.p0().single_mut().0.translation = querymany.p1().single_mut().translation;
-
-    info!("moving camera using {}, and {}", player_pos, camera_pos)
+    // info!("moving camera using {}, and {}", player_pos, camera_pos);
 }

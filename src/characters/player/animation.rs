@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::{
-    characters::player::PDataComponent,
+    characters::player::PlayerState,
     game::{GameStage, TimeInfo},
 };
 
@@ -37,7 +37,7 @@ pub struct PlayerGraphics {
 #[derive(Component, Default, Reflect)]
 #[reflect(Component)]
 #[allow(clippy::module_name_repetitions)]
-pub struct TargetAnimation {
+pub struct AnimState {
     pub timer: Timer,
     pub frames: Vec<usize>,
     pub current_frame: usize,
@@ -82,7 +82,7 @@ impl GraphicsPlugin {
     }
 
     fn update_player_graphics(
-        mut sprites_query: Query<(&PDataComponent, &mut TargetAnimation), Changed<PDataComponent>>,
+        mut sprites_query: Query<(&PlayerState, &mut AnimState), Changed<PlayerState>>,
         characters: Res<CharacterSheet>,
     ) {
         for (player_compontent, mut animation) in sprites_query.iter_mut() {
@@ -110,7 +110,7 @@ impl GraphicsPlugin {
 
     fn frame_animation(
         timeinfo: ResMut<TimeInfo>,
-        mut sprites_query: Query<(&mut TextureAtlasSprite, &mut TargetAnimation)>,
+        mut sprites_query: Query<(&mut TextureAtlasSprite, &mut AnimState)>,
         time: Res<Time>,
     ) {
         for (mut sprite, mut animation) in sprites_query.iter_mut() {

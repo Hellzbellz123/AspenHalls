@@ -1,23 +1,23 @@
 use crate::{
     action_manager::bindings::PlayerInput,
-    characters::player::{PDataComponent, PlayerBundle},
+    characters::player::{PlayerBundle, PlayerState},
     TILE_SIZE,
 };
 use bevy::prelude::*;
 
-use super::animation::{self, FacingDirection, TargetAnimation};
+use super::animation::{self, AnimState, FacingDirection};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
 pub fn spawn_player(mut commands: Commands, characters: Res<animation::CharacterSheet>) {
     commands.spawn_bundle(PlayerBundle {
-        player_animations: TargetAnimation {
+        player_animations: AnimState {
             timer: Timer::from_seconds(0.2, true),
             frames: characters.player_idle.to_vec(),
             current_frame: 0,
         },
-        player_data: PDataComponent {
+        player_data: PlayerState {
             speed: 100.0,
             sprint_available: false,
             facing: FacingDirection::Down,

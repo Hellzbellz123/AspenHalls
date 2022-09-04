@@ -1,6 +1,8 @@
+pub mod debug_dirs;
+
 use std::time::Duration;
 
-use bevy_ecs_ldtk::LayerMetadata;
+use bevy_ecs_ldtk::{LayerMetadata, IntGridCell, GridCoords, LevelSet};
 
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -10,8 +12,8 @@ use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
 
 use crate::{
     characters::player::{
-        animation::{CharacterSheet, FacingDirection, TargetAnimation},
-        PDataComponent,
+        animation::{AnimState, CharacterSheet, FacingDirection},
+        PlayerState,
     },
     game::TimeInfo,
 };
@@ -31,14 +33,14 @@ impl Plugin for DebugPlugin {
                 ..Default::default()
             })
             //custom inspectables not from plugins
-            .register_inspectable::<PDataComponent>()
+            .register_inspectable::<PlayerState>()
             .register_type::<TimeInfo>()
-            .register_type::<TargetAnimation>()
+            .register_type::<AnimState>()
             .register_inspectable::<CharacterSheet>()
             .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
             // LDTK debug data
-            .register_type::<LayerMetadata>();
-        // .register_inspectable::<LevelSet>();
-        // .register_type::<LevelSet>();
+            .register_type::<LayerMetadata>()
+            .register_type::<IntGridCell>()
+            .register_type::<GridCoords>() ;
     }
 }

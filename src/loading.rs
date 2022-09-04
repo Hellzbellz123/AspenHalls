@@ -11,9 +11,9 @@ use crate::loading::assets::{AudioHandles, FontHandles, RexTextureHandles, UiTex
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html/>
 
-pub struct LoadingPlugin;
+pub struct AssetLoadPlugin;
 
-impl Plugin for LoadingPlugin {
+impl Plugin for AssetLoadPlugin {
     fn build(&self, app: &mut App) {
         info!("asset loader init");
         LoadingState::new(GameStage::Loading)

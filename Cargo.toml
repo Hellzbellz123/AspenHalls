@@ -1,8 +1,15 @@
 [package]
 name = "vanillacoffee"
-version = "0.0.2"
+version = "0.0.3"
+authors = ["Hellzbellz123 (Taylor Smith)"]
 edition = "2021"
 description = "Vanilla Coffee game: in progress"
+documentation = "https://github.com/Hellzbellz123/VanillaCoffee/blob/main/README.md"
+readme = "README.md"
+homepage = "https://github.com/Hellzbellz123/VanillaCoffee"
+repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
+license-file = "LICENSE"
+resolver = "2"
 
 [features]
 dynamic = ["bevy/dynamic"]
@@ -12,19 +19,18 @@ dynamic = ["bevy/dynamic"]
 embed-resource = "1.7.3"
 
 [dependencies]
-embed-resource = "1.7.3"
-winit = "0.26.1"
+glob = "0.3"
+rand = "0.8.5"
 serde = "1.0.138"
 serde_derive = "1.0.143"
-rand = "0.8.5"
-glob = "0.3"
-
+winit = "0.26.1"
+winapi = "0.3.9"
 # chrono = "0.4.19"
 # fern = "0.6.1"
 # bevy_ecs_ldtk = "0.3.0"
 
-#[cfg(target_os = "windows")]
-winapi = "0.3.0"
+# [target.x86_64-pc-windows-msvc.dependencies]
+
 
 [dependencies.bevy]
 version = "0.8.1"
@@ -70,11 +76,7 @@ features = ["mp3", "ogg"]
 [dependencies.bevy-inspector-egui]
 version = "0.12.1"
 default-features = false
-features = [
-  "bevy_render",
-  "bevy_sprite",
-  "bevy_text",
-]
+features = ["bevy_render", "bevy_sprite", "bevy_text"]
 
 [dependencies.kayak_ui]
 git = "https://github.com/StarArawn/kayak_ui"
@@ -91,19 +93,17 @@ version = "0.5.2"
 [dependencies.image]
 version = "0.24.3"
 default-features = false
-features = [
-  "png",
-  ]
+features = ["png"]
 
-[package.metadata.bundle]
-name = "Vanilla Coffee"
-identifier = "io.github.hellzbellz123.vanillacoffee"
-icon = ["assets/textures/stonercaticon.png"]
-copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
-description = "Vanilla Coffee game: in progress"
-long_description = """
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-eiusmod tempor incididunt ut labore et dolore magna aliqua.  Ut
-enim ad minim veniam, quis nostrud exercitation ullamco laboris
-nisi ut aliquip ex ea commodo consequat.
-"""
+# [package.metadata.bundle]
+# name = "Vanilla Coffee"
+# identifier = "io.github.hellzbellz123.vanillacoffee"
+# icon = ["assets/textures/stonercaticon.png"]
+# copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
+# description = "Vanilla Coffee game: in progress"
+# long_description = """
+# Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+# eiusmod tempor incididunt ut labore et dolore magna aliqua.  Ut
+# enim ad minim veniam, quis nostrud exercitation ullamco laboris
+# nisi ut aliquip ex ea commodo consequat.
+# """

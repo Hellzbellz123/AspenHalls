@@ -11,7 +11,7 @@ use crate::{
     game::GameStage,
 };
 
-use self::animation::TargetAnimation;
+use self::animation::AnimState;
 
 pub mod animation;
 mod movement;
@@ -19,7 +19,7 @@ mod utilities;
 
 #[derive(Component, Default, Reflect, Inspectable)]
 #[reflect(Component)]
-pub struct PDataComponent {
+pub struct PlayerState {
     //stores important player data
     pub speed: f32,
     pub sprint_available: bool,
@@ -30,10 +30,10 @@ pub struct PDataComponent {
 #[derive(Bundle)]
 pub struct PlayerBundle {
     name: Name,
-    pub player_data: PDataComponent,
+    pub player_data: PlayerState,
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
-    pub player_animations: TargetAnimation,
+    pub player_animations: AnimState,
     #[bundle]
     pub player_input_map: PlayerInput,
     #[bundle]

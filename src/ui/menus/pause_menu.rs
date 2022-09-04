@@ -12,7 +12,7 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    characters::player::PDataComponent,
+    characters::player::PlayerState,
     game::TimeInfo,
     loading::assets::{FontHandles, UiTextureHandles},
     ui::{
@@ -23,7 +23,7 @@ use crate::{
 
 pub fn listen_for_pause_event(
     mut timeinfo: ResMut<TimeInfo>,
-    input_query: Query<&ActionState<PlayerBindables>, With<PDataComponent>>,
+    input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
     commands: Commands,
     font_assets: Res<FontHandles>,
     ui_assets: Res<UiTextureHandles>,

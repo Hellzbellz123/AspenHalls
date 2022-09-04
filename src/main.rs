@@ -5,9 +5,9 @@ use bevy::prelude::*;
 use bevy::render::texture::ImageSettings;
 use bevy::DefaultPlugins;
 
-use dev_tools::DebugPlugin;
+use dev_tools::{debug_dirs, DebugPlugin};
 use game::TimeInfo;
-use loading::LoadingPlugin;
+use loading::AssetLoadPlugin;
 use splashscreen::SplashPlugin;
 
 pub mod action_manager;
@@ -24,7 +24,7 @@ pub mod utilities;
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
 
 pub fn main() {
-    utilities::debugdir();
+    debug_dirs::debugdir();
     App::new()
         // .insert_resource(Msaa { samples: 0 })
         .insert_resource(ClearColor(Color::BLACK)) //rgb(100.0, 100.0, 100.0)
@@ -38,7 +38,7 @@ pub fn main() {
         .add_startup_system(utilities::set_window_icon)
         .add_plugins(DefaultPlugins)
         .add_state(game::GameStage::Loading)
-        .add_plugin(LoadingPlugin)
+        .add_plugin(AssetLoadPlugin)
         .insert_resource(TimeInfo {
             time_step: 0.0,
             game_paused: true,
@@ -49,3 +49,24 @@ pub fn main() {
         .add_plugin(DebugPlugin)
         .run();
 }
+
+// struct GamePlugin;
+// impl Plugin for GamePlugin {
+//     fn build(&self, app: &mut App) {
+//         app.add_plugin(MenuPlugin)
+//             .add_plugin(ActionsPlugin)
+//             .add_plugin(InternalAudioPlugin)
+//             .add_plugin(MapSystem)
+//             .add_plugin(PlayerPlugin)
+//             .add_plugin(GraphicsPlugin)
+//             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
+//     }
+// }
+
+// pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
+//     *timeinfo = TimeInfo {
+//         time_step: 1.0,
+//         game_paused: false,
+//         pause_menu: false,
+//     }
+// }
