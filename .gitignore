@@ -1,4 +1,5 @@
 /target
 /publish
 /crates
+/statistics
 *.pdb
