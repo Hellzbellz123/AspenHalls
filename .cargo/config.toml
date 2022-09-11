@@ -10,21 +10,3 @@ opt-level = 3
 [profile.release]
 lto = "fat"
 opt-level = 3
-
-###### VENDORED STUFF (cargo is cool, sets this up for you) ######
-#
-# [source.crates-io]
-# replace-with = "vendored-sources"
-#
-# [source."https://github.com/StarArawn/kayak_ui"]
-# git = "https://github.com/StarArawn/kayak_ui"
-# rev = "6f4894704295b6ac9a117650c8d9d2a503190d60"
-# replace-with = "vendored-sources"
-#
-# [source."https://github.com/geom3trik/morphorm"]
-# git = "https://github.com/geom3trik/morphorm"
-# rev = "1243152d4cebea46fd3e5098df26402c73acae91"
-# replace-with = "vendored-sources"
-#
-# [source.vendored-sources]
-# directory = "crates/"

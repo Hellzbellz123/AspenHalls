@@ -1,8 +1,4 @@
 /target
 /publish
-/crates/kayak_ui
-/crates/*
 /crates
 *.pdb
-**/*.rs.bk
-.vscode/tasks.json
