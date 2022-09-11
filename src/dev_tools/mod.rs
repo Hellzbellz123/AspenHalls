@@ -2,7 +2,7 @@ pub mod debug_dirs;
 
 use std::time::Duration;
 
-use bevy_ecs_ldtk::{LayerMetadata, IntGridCell, GridCoords, LevelSet};
+use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
 
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -41,6 +41,6 @@ impl Plugin for DebugPlugin {
             // LDTK debug data
             .register_type::<LayerMetadata>()
             .register_type::<IntGridCell>()
-            .register_type::<GridCoords>() ;
+            .register_type::<GridCoords>();
     }
 }

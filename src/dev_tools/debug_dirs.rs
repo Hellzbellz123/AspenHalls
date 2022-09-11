@@ -122,7 +122,7 @@ fn color_output(colorize: bool, path: &Path) -> std::string::String {
             print_name,
             ANSIColor::RESET.as_string()
         )
-    } else if path.is_absolute(){
+    } else if path.is_absolute() {
         format!(
             "{}{}{}",
             ANSIColor::RED.as_string(),

@@ -114,7 +114,7 @@ pub fn camera_movement_system(
     let camera_trans = querymany.p0().single_mut().0.translation;
     let player_trans = querymany.p1().single_mut().translation;
 
-    querymany.p0().single_mut().0.translation = (camera_trans.lerp(player_trans, 0.05));
+    querymany.p0().single_mut().0.translation = camera_trans.lerp(player_trans, 0.05);
 
     // mut camera_query: Query<(&mut Transform, &Camera)>
     // let mut camera_transform = camera_query.single();
