@@ -20,7 +20,7 @@ impl Plugin for MapSystem {
                     load_level_neighbors: true,
                 },
                 set_clear_color: SetClearColor::No,
-                int_grid_rendering: IntGridRendering::Invisible,
+                int_grid_rendering: IntGridRendering::Colorful,
                 level_background: LevelBackground::Nonexistent,
             })
             .add_startup_system(setup)
