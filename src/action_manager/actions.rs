@@ -1,8 +1,11 @@
+use bevy::reflect::Reflect;
 use bevy_inspector_egui::Inspectable;
 use leafwing_input_manager::Actionlike;
 use serde::Deserialize;
 
-#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Inspectable, Deserialize)]
+#[derive(
+    Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Inspectable, Deserialize, Reflect,
+)]
 pub enum PlayerBindables {
     Move,
     Right,

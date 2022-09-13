@@ -1,107 +1,112 @@
 use std::time::Duration;
 
 use bevy::prelude::{Query, With, *};
+use heron::Velocity;
 use kayak_ui::bevy::CameraUiKayak;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerBindables, characters::player::PlayerState, game::TimeInfo,
+    action_manager::actions::PlayerBindables,
+    characters::player::animation::{AnimState, FacingDirection},
+    characters::player::PlayerState,
+    game::TimeInfo,
+    game_world::level::components::Collides,
     loading::assets::RexTextureHandles,
 };
-
-use super::animation::{AnimState, FacingDirection};
 
 pub fn player_movement_system(
     _player_animations: Res<RexTextureHandles>,
     timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<PlayerBindables>>,
-    time: Res<Time>,
-    mut player_query: Query<(
-        &mut Transform,
-        &mut PlayerState,
-        &mut Handle<TextureAtlas>,
-        &mut TextureAtlasSprite,
-    )>,
+    _time: Res<Time>,
+    _wall_collider_query: Query<(&Transform, &Collides, Without<PlayerState>)>,
+    mut player_query: Query<(&mut Velocity, &mut PlayerState, With<Transform>)>,
 ) {
-    // let movement_dir = Vec3::ZERO;
-    let (mut player_transform, mut player, _texture_atlas_handle, mut texture) =
-        player_query.single_mut();
+    let (mut velocity, mut player, _) = player_query.single_mut();
+    let action_state = query_action_state.single();
     let timeinfo = timeinfo.as_ref();
 
-    if player.sprint_available {
-        player.speed = 255.0;
-    }
-
-    if !player.sprint_available {
-        player.speed = 100.0;
-    }
-
-    let action_state = query_action_state.single();
     if action_state.pressed(PlayerBindables::Move) {
-        // Virtual direction pads are one of the types which return an AxisPair. The values will be
-        // represented as `-1.0`, `0.0`, or `1.0` depending on the combination of buttons pressed.
+        // Virtual direction pads are one of the types which return an AxisPair
         let axis_pair = action_state.axis_pair(PlayerBindables::Move).unwrap();
 
-        let horizontal = axis_pair.x();
-        let vertical = axis_pair.y();
-        let mut velocity = Vec3::ZERO;
+        let delta: Vec2 = axis_pair.xy();
+        let new_velocity = Velocity::from_linear(
+            delta.extend(0.0).normalize_or_zero() * player.speed * timeinfo.time_step,
+        );
 
-        if horizontal <= -0.1 && !timeinfo.game_paused {
-            texture.flip_x = true;
-            velocity.x += horizontal
-                * player.speed
-                * time.delta_seconds()
-                * timeinfo.time_step.clamp(-1.0, 1.0);
-            player.facing = FacingDirection::Left;
-        }
-
-        if horizontal >= 0.1 && !timeinfo.game_paused {
-            texture.flip_x = false;
-            velocity.x += horizontal
-                * player.speed
-                * time.delta_seconds()
-                * timeinfo.time_step.clamp(-1.0, 1.0);
-            player.facing = FacingDirection::Right;
-        }
-
-        if vertical <= -0.1 && !timeinfo.game_paused {
-            velocity.y += vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
-            player.facing = FacingDirection::Down;
-        }
-
-        if vertical >= 0.1 && !timeinfo.game_paused {
-            player_transform.translation.y +=
-                vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
-            player.facing = FacingDirection::Up;
-        }
-        player_transform.translation += velocity;
+        *velocity = new_velocity;
     } else if action_state.released(PlayerBindables::Move) {
         player.facing = FacingDirection::Idle;
+        let new_velocity = Velocity::from_linear(Vec3::ZERO);
+        *velocity = new_velocity;
     }
 }
+
+// mut camera_query: Query<(&mut Transform, &Camera)>
+// let mut camera_transform = camera_query.single();
+// camera_transform.0.translation = player_transform.translation;
+// info!("moving camera using {}, and {}", player_pos, camera_pos);
+
+// if horizontal <= -0.1 && !timeinfo.game_paused {
+//     //if pressing stick and game isnt paused go left
+//     texture.flip_x = true;
+//     player.velocity.x += horizontal
+//         * player.speed
+//         * time.delta_seconds()
+//         * timeinfo.time_step.clamp(0., 1.0);
+//     player.facing = FacingDirection::Left;
+// }
+// if horizontal >= 0.2 && !timeinfo.game_paused {
+//     //if pressing stick and game isnt paused go right
+//     texture.flip_x = false;
+//     player.velocity.x += horizontal
+//         * player.speed
+//         * time.delta_seconds()
+//         * timeinfo.time_step.clamp(-1.0, 1.0);
+//     player.facing = FacingDirection::Right;
+// }
+// if vertical <= -0.2 && !timeinfo.game_paused {
+//     //if pressing stick and game isnt paused
+//     player.velocity.y +=
+//         vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
+//     if vertical < -0.2 {
+//         player.facing = FacingDirection::Down
+//     }
+// }
+// if vertical >= 0.1 && !timeinfo.game_paused {
+//     //if pressing stick and game isnt paused
+//     player.velocity.y +=
+//         vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
+//     if vertical > 0.2 {
+//         player.facing = FacingDirection::Up
+//     }
+// }
+// let target:Vec3 = player_transform.translation + player.velocity.extend(0.0)
 
 pub fn player_sprint(
     mut input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
     mut player_query: Query<&mut PlayerState>,
     mut anim_query: Query<&mut AnimState, With<PlayerState>>,
 ) {
-    // let (mut player_transform, mut player, _texture_atlas_handle, mut texture) =
-    //     player_query.single_mut();
-
     let action_state = input_query.single_mut();
     let mut animation = anim_query.single_mut();
     let mut player = player_query.single_mut();
 
     if action_state.pressed(PlayerBindables::Dash) {
         animation.timer.set_duration(Duration::from_millis(100));
-        // animation.timer= Timer::from_seconds(0.1, true);
         player.sprint_available = true;
     }
 
     if action_state.released(PlayerBindables::Dash) {
         animation.timer.set_duration(Duration::from_millis(200));
-        // animation.timer= Timer::from_seconds(0.1, true);
         player.sprint_available = false;
+    }
+
+    if player.sprint_available {
+        player.speed = 255.0;
+    } else {
+        player.speed = 150.0;
     }
 }
 
@@ -115,9 +120,4 @@ pub fn camera_movement_system(
     let player_trans = querymany.p1().single_mut().translation;
 
     querymany.p0().single_mut().0.translation = camera_trans.lerp(player_trans, 0.05);
-
-    // mut camera_query: Query<(&mut Transform, &Camera)>
-    // let mut camera_transform = camera_query.single();
-    // camera_transform.0.translation = player_transform.translation;
-    // info!("moving camera using {}, and {}", player_pos, camera_pos);
 }

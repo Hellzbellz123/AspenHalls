@@ -374,7 +374,7 @@
 		},
 		{
 			"__type": "IntGrid",
-			"identifier": "Collisions",
+			"identifier": "CollisionGrid",
 			"type": "IntGrid",
 			"uid": 2,
 			"gridSize": 16,

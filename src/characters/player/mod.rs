@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
+use heron::{CollisionLayers, PhysicMaterial, RigidBody, RotationConstraints, Velocity};
 
 use crate::{
     action_manager::bindings::PlayerInput,
@@ -21,10 +22,20 @@ mod utilities;
 #[reflect(Component)]
 pub struct PlayerState {
     //stores important player data
+    pub target_positon: Option<Vec2>,
     pub speed: f32,
     pub sprint_available: bool,
     pub facing: FacingDirection,
     pub just_moved: bool,
+}
+
+#[derive(Bundle)]
+pub struct RigidBodyBundle {
+    rigidbody: RigidBody,
+    collisionlayers: CollisionLayers,
+    rconstraints: RotationConstraints,
+    physicsmat: PhysicMaterial,
+    velocity: Velocity,
 }
 
 #[derive(Bundle)]
@@ -34,6 +45,8 @@ pub struct PlayerBundle {
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
     pub player_animations: AnimState,
+    #[bundle]
+    rigidbody: RigidBodyBundle,
     #[bundle]
     pub player_input_map: PlayerInput,
     #[bundle]

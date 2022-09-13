@@ -1,22 +1,24 @@
-pub mod debug_dirs;
-
-use std::time::Duration;
-
-use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
-
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
 };
+use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
 use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
 
+use std::time::Duration;
+
 use crate::{
+    action_manager::actions::PlayerBindables,
     characters::player::{
         animation::{AnimState, CharacterSheet, FacingDirection},
         PlayerState,
     },
     game::TimeInfo,
+    game_world::level::components::Collides,
 };
+
+pub mod debug_dirs;
+// pub mod gamebar;
 
 pub struct DebugPlugin;
 
@@ -38,6 +40,8 @@ impl Plugin for DebugPlugin {
             .register_type::<AnimState>()
             .register_inspectable::<CharacterSheet>()
             .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
+            .register_inspectable::<Collides>()
+            .register_type::<PlayerBindables>()
             // LDTK debug data
             .register_type::<LayerMetadata>()
             .register_type::<IntGridCell>()

@@ -7,6 +7,7 @@ use bevy::DefaultPlugins;
 
 use dev_tools::{debug_dirs, DebugPlugin};
 use game::TimeInfo;
+use heron::PhysicsLayer;
 use loading::AssetLoadPlugin;
 use splashscreen::SplashPlugin;
 
@@ -22,6 +23,14 @@ pub mod ui;
 pub mod utilities;
 
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
+pub const PLAYER_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
+
+#[derive(PhysicsLayer)]
+enum Layer {
+    World,
+    Player,
+    // Enemies,
+}
 
 pub fn main() {
     debug_dirs::debugdir();
@@ -40,6 +49,7 @@ pub fn main() {
         .add_state(game::GameStage::Loading)
         .add_plugin(AssetLoadPlugin)
         .insert_resource(TimeInfo {
+            game_time: Time::default(),
             time_step: 0.0,
             game_paused: true,
             pause_menu: false,

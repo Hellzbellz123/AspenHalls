@@ -1,6 +1,7 @@
 use bevy::{app::App, prelude::*};
 
 use bevy_inspector_egui::Inspectable;
+use heron::{Gravity, PhysicsPlugin};
 
 use crate::{
     action_manager::bindings::ActionsPlugin,
@@ -11,8 +12,9 @@ use crate::{
 
 use crate::game_world::MapSystem;
 
-#[derive(Debug, Clone, PartialEq, Component, Inspectable, Reflect)]
+#[derive(Debug, Clone, Component, Reflect)]
 pub struct TimeInfo {
+    pub game_time: Time,
     pub time_step: f32,
     pub game_paused: bool,
     pub pause_menu: bool,
@@ -36,6 +38,8 @@ impl Plugin for GamePlugin {
         app.add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
+            .add_plugin(PhysicsPlugin::default())
+            .insert_resource(Gravity::from(Vec3::new(0.0, 0.0, 0.0)))
             .add_plugin(MapSystem)
             .add_plugin(PlayerPlugin)
             .add_plugin(GraphicsPlugin)
@@ -45,6 +49,7 @@ impl Plugin for GamePlugin {
 
 pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
     *timeinfo = TimeInfo {
+        game_time: Time::default(),
         time_step: 1.0,
         game_paused: false,
         pause_menu: false,
