@@ -30,7 +30,7 @@ pub fn player_movement_system(
     let (mut velocity, mut player, mut texture, _) = player_query.single_mut();
     let action_state = query_action_state.single();
     let timeinfo = timeinfo.as_ref();
-    let mut delta = Vec2::ZERO;
+    let delta;
 
     if action_state.pressed(PlayerBindables::Move) {
         // Virtual direction pads are one of the types which return an AxisPair
@@ -59,14 +59,11 @@ pub fn player_movement_system(
         );
 
         *velocity = new_velocity;
-    } else if action_state.released(PlayerBindables::Move) {
-        delta = Vec2::ZERO;
+    } else if !action_state.pressed(PlayerBindables::Move) {
         player.facing = FacingDirection::Idle;
         let new_velocity = Velocity::from_linear(Vec3::ZERO);
         *velocity = new_velocity;
     }
-    // info!("player velocity: {:?}", velocity);
-    // info!("player dpad delta{:?}", delta);
 }
 
 // mut camera_query: Query<(&mut Transform, &Camera)>

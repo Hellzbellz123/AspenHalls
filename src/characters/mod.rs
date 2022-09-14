@@ -2,7 +2,7 @@ use bevy::{prelude::Vec2, sprite::collide_aabb::Collision};
 
 pub mod player;
 
-pub fn collide_2(a_pos: Vec2, a_size: Vec2, b_pos: Vec2, b_size: Vec2) -> Option<Collision> {
+#[must_use] pub fn collide_2(a_pos: Vec2, a_size: Vec2, b_pos: Vec2, b_size: Vec2) -> Option<Collision> {
     let a_min = a_pos - a_size / 2.0;
     let a_max = a_pos + a_size / 2.0;
 
