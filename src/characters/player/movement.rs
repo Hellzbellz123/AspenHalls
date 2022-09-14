@@ -20,27 +20,53 @@ pub fn player_movement_system(
     query_action_state: Query<&ActionState<PlayerBindables>>,
     _time: Res<Time>,
     _wall_collider_query: Query<(&Transform, &Collides, Without<PlayerState>)>,
-    mut player_query: Query<(&mut Velocity, &mut PlayerState, With<Transform>)>,
+    mut player_query: Query<(
+        &mut Velocity,
+        &mut PlayerState,
+        &mut TextureAtlasSprite,
+        With<Transform>,
+    )>,
 ) {
-    let (mut velocity, mut player, _) = player_query.single_mut();
+    let (mut velocity, mut player, mut texture, _) = player_query.single_mut();
     let action_state = query_action_state.single();
     let timeinfo = timeinfo.as_ref();
+    let mut delta = Vec2::ZERO;
 
     if action_state.pressed(PlayerBindables::Move) {
         // Virtual direction pads are one of the types which return an AxisPair
         let axis_pair = action_state.axis_pair(PlayerBindables::Move).unwrap();
 
-        let delta: Vec2 = axis_pair.xy();
+        delta = axis_pair.xy();
+
+        let horizontal = axis_pair.x();
+        let vertical = axis_pair.y();
+
+        if horizontal < 0.0 && !timeinfo.game_paused {
+            texture.flip_x = true;
+            player.facing = FacingDirection::Right;
+        } else if horizontal > 0.0 && !timeinfo.game_paused {
+            texture.flip_x = false;
+            player.facing = FacingDirection::Left;
+        }
+        if vertical < 0.0 && !timeinfo.game_paused {
+            player.facing = FacingDirection::Down;
+        } else if vertical > 0.0 && !timeinfo.game_paused {
+            player.facing = FacingDirection::Up;
+        }
+
         let new_velocity = Velocity::from_linear(
             delta.extend(0.0).normalize_or_zero() * player.speed * timeinfo.time_step,
         );
 
         *velocity = new_velocity;
     } else if action_state.released(PlayerBindables::Move) {
+        delta = Vec2::ZERO;
         player.facing = FacingDirection::Idle;
         let new_velocity = Velocity::from_linear(Vec3::ZERO);
         *velocity = new_velocity;
     }
+    // info!("player velocity: {:?}", velocity);
+    // info!("player dpad delta{:?}", delta);
 }
 
 // mut camera_query: Query<(&mut Transform, &Camera)>
@@ -49,40 +75,17 @@ pub fn player_movement_system(
 // info!("moving camera using {}, and {}", player_pos, camera_pos);
 
 // if horizontal <= -0.1 && !timeinfo.game_paused {
-//     //if pressing stick and game isnt paused go left
-//     texture.flip_x = true;
-//     player.velocity.x += horizontal
-//         * player.speed
-//         * time.delta_seconds()
-//         * timeinfo.time_step.clamp(0., 1.0);
 //     player.facing = FacingDirection::Left;
 // }
 // if horizontal >= 0.2 && !timeinfo.game_paused {
-//     //if pressing stick and game isnt paused go right
-//     texture.flip_x = false;
-//     player.velocity.x += horizontal
-//         * player.speed
-//         * time.delta_seconds()
-//         * timeinfo.time_step.clamp(-1.0, 1.0);
 //     player.facing = FacingDirection::Right;
 // }
 // if vertical <= -0.2 && !timeinfo.game_paused {
-//     //if pressing stick and game isnt paused
-//     player.velocity.y +=
-//         vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
-//     if vertical < -0.2 {
-//         player.facing = FacingDirection::Down
-//     }
+//     player.facing = FacingDirection::Down
 // }
 // if vertical >= 0.1 && !timeinfo.game_paused {
-//     //if pressing stick and game isnt paused
-//     player.velocity.y +=
-//         vertical * player.speed * time.delta_seconds() * timeinfo.time_step;
-//     if vertical > 0.2 {
-//         player.facing = FacingDirection::Up
-//     }
+//     player.facing = FacingDirection::Up
 // }
-// let target:Vec3 = player_transform.translation + player.velocity.extend(0.0)
 
 pub fn player_sprint(
     mut input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,

@@ -1035,15 +1035,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1ad822118d20d2c234f427000d5acc36eabe1e29a348c89b63dd60b13f28e5d"
 
 [[package]]
-name = "bvh-arena"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75d7fa374b59083098857b58a27235f536d5b5d13428ceaeaad6eb83d1efde7c"
-dependencies = [
- "slotmap",
-]
-
-[[package]]
 name = "bytemuck"
 version = "1.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4039,7 +4030,6 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_ecs_ldtk",
  "bevy_kira_audio",
- "bvh-arena",
  "embed-resource",
  "glob",
  "heron",

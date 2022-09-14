@@ -20,7 +20,7 @@ impl Plugin for MapSystem {
                     load_level_neighbors: true,
                 },
                 set_clear_color: SetClearColor::No,
-                int_grid_rendering: IntGridRendering::Colorful,
+                int_grid_rendering: IntGridRendering::Invisible,
                 level_background: LevelBackground::Nonexistent,
             })
             .add_startup_system(setup)
@@ -34,7 +34,7 @@ impl Plugin for MapSystem {
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn_bundle(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("levels/testinghall.ldtk"),
+        ldtk_handle: asset_server.load("levels/testinghallold.ldtk"),
         // level_set: todo!(),
         transform: Transform {
             translation: Vec3 {

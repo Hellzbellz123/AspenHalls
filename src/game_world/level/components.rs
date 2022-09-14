@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{LdtkIntCell, IntGridCell};
+use bevy_ecs_ldtk::LdtkIntCell;
 use bevy_inspector_egui::Inspectable;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Component, Inspectable)]
