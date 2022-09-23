@@ -9,15 +9,11 @@ use kayak_ui::{
 };
 
 use crate::{
-    game::{self, TimeInfo},
     loading::assets::{FontHandles, UiTextureHandles},
     ui::menu_widgets::{ExitButton, PlayButton, SettingsButton},
 };
 
-pub struct PlayButtonEvent;
-pub struct AppExitEvent;
-
-pub(crate) fn startup(
+pub(crate) fn draw_mainmenu(
     mut commands: Commands,
     font_assets: Res<FontHandles>,
     ui_assets: Res<UiTextureHandles>,
@@ -64,67 +60,29 @@ pub(crate) fn startup(
 
         render! {
             <App>
-                <NinePatch
-                    styles={Some(nine_patch_styles)}
-                    border={Edge::all(30.0)}
-                    handle={panel_brown_handle}
-                    >
-                    <Text
-                        styles={Some(header_styles)}
-                        size={78.0}
-                        content={"Vanilla Coffee".to_string()}
-                        font={title_font_id}
-                    />
-                    <PlayButton>
-                        <Text line_height={Some(40.0)} size={32.0} content={"Play".to_string()} font={main_font_id} />
-                    </PlayButton>
-                    <SettingsButton styles={Some(options_button_styles)}>
-                        <Text line_height={Some(40.0)} size={26.0} content={"Options".to_string()} font={main_font_id} />
-                    </SettingsButton>
-                    <ExitButton styles={Some(options_button_styles)}>
-                        <Text line_height={Some(40.0)} size={24.0} content={"Exit Game".to_string()} font={main_font_id} />
-                    </ExitButton>
-                </NinePatch>
+            <NinePatch
+            styles={Some(nine_patch_styles)}
+            border={Edge::all(30.0)}
+            handle={panel_brown_handle}
+            >
+            <Text
+            styles={Some(header_styles)}
+            size={78.0}
+            content={"Vanilla Coffee".to_string()}
+            font={title_font_id}
+            />
+            <PlayButton>
+            <Text line_height={Some(40.0)} size={32.0} content={"Play".to_string()} font={main_font_id} />
+            </PlayButton>
+            <SettingsButton styles={Some(options_button_styles)}>
+            <Text line_height={Some(40.0)} size={26.0} content={"Options".to_string()} font={main_font_id} />
+            </SettingsButton>
+            <ExitButton styles={Some(options_button_styles)}>
+            <Text line_height={Some(40.0)} size={24.0} content={"Exit Game".to_string()} font={main_font_id} />
+            </ExitButton>
+            </NinePatch>
             </App>
         }
     });
     commands.insert_resource(context);
-}
-
-pub fn destroy_menu(mut commands: Commands) {
-    commands.remove_resource::<BevyContext>();
-}
-
-//if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate file.
-pub fn play_button_event(
-    mut reader: EventReader<PlayButtonEvent>,
-    mut state: ResMut<bevy::prelude::State<game::GameStage>>,
-    mut commands: Commands,
-    mut timeinfo: ResMut<TimeInfo>,
-) {
-    for _ in reader.iter() {
-        if *state.current() == game::GameStage::Menu {
-            info!("play button was pressed");
-            let _ = state.set(game::GameStage::Playing);
-        }
-
-        if *state.current() == game::GameStage::Playing {
-            info!("resume button pressed");
-            commands.remove_resource::<BevyContext>();
-            timeinfo.pause_menu = false;
-            timeinfo.game_paused = false;
-            timeinfo.time_step = 1.0;
-        }
-    }
-}
-
-//if it has pub(crate) fn its probably actually a system and can probably be refactored into a seperate ui systems file or in mod.rs.
-pub fn exit_system(
-    mut reader: EventReader<AppExitEvent>,
-    mut exit: EventWriter<bevy::app::AppExit>,
-) {
-    for _ in reader.iter() {
-        exit.send(bevy::app::AppExit);
-        info!("Exiting Game, AppExit Detected");
-    }
 }

@@ -81,12 +81,3 @@ fn name_colliders(
             );
     }
 }
-
-//             ColliderBundle {
-//                 collider: CollisionShape::Cuboid {
-//                     half_extends: Vec3::new(8., 8., 0.),
-//                     border_radius: None,
-//                 },
-//                 rigidbody: RigidBody::Static,
-//                 ..Default::default()
-//             }

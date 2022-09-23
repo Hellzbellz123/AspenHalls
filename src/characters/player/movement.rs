@@ -9,17 +9,12 @@ use crate::{
     action_manager::actions::PlayerBindables,
     characters::player::animation::{AnimState, FacingDirection},
     characters::player::PlayerState,
-    game::TimeInfo,
-    game_world::level::components::Collides,
-    loading::assets::RexTextureHandles,
+    game::TimeInfo
 };
 
 pub fn player_movement_system(
-    _player_animations: Res<RexTextureHandles>,
     timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<PlayerBindables>>,
-    _time: Res<Time>,
-    _wall_collider_query: Query<(&Transform, &Collides, Without<PlayerState>)>,
     mut player_query: Query<(
         &mut Velocity,
         &mut PlayerState,
@@ -66,24 +61,6 @@ pub fn player_movement_system(
     }
 }
 
-// mut camera_query: Query<(&mut Transform, &Camera)>
-// let mut camera_transform = camera_query.single();
-// camera_transform.0.translation = player_transform.translation;
-// info!("moving camera using {}, and {}", player_pos, camera_pos);
-
-// if horizontal <= -0.1 && !timeinfo.game_paused {
-//     player.facing = FacingDirection::Left;
-// }
-// if horizontal >= 0.2 && !timeinfo.game_paused {
-//     player.facing = FacingDirection::Right;
-// }
-// if vertical <= -0.2 && !timeinfo.game_paused {
-//     player.facing = FacingDirection::Down
-// }
-// if vertical >= 0.1 && !timeinfo.game_paused {
-//     player.facing = FacingDirection::Up
-// }
-
 pub fn player_sprint(
     mut input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
     mut player_query: Query<&mut PlayerState>,
@@ -111,13 +88,11 @@ pub fn player_sprint(
 }
 
 pub fn camera_movement_system(
-    mut querymany: ParamSet<(
-        Query<(&mut Transform, &Camera), Without<CameraUiKayak>>,
-        Query<&mut Transform, With<PlayerState>>,
-    )>,
+    mut camera_transform : Query<&mut Transform, (Without<CameraUiKayak>, With<Camera>)>,
+    player_transform: Query<&Transform, (With<PlayerState>, Without<Camera>)>,
 ) {
-    let camera_trans = querymany.p0().single_mut().0.translation;
-    let player_trans = querymany.p1().single_mut().translation;
+    let mut camera_trans = camera_transform.single_mut();
+    let player_trans = player_transform.single();
 
-    querymany.p0().single_mut().0.translation = camera_trans.lerp(player_trans, 0.05);
+    camera_trans.translation = camera_trans.translation.lerp(player_trans.translation, 0.05);
 }

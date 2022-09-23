@@ -10,7 +10,7 @@
     "**/.trunk/*out": true,
     "**/.trunk": true,
     "**/.vscode": true,
-    ".cargo": true,
+    ".cargo": false,
     ".gitattributes": true,
     ".markdownlint.yaml": true,
     ".shellcheckrc": true

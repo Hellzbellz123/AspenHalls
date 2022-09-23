@@ -20,25 +20,10 @@ pub struct AudioHandles {
 }
 
 #[derive(AssetCollection, Clone)]
-pub struct RexTextureHandles {
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 2, rows = 1))]
-    #[asset(path = "characters/heroes/rex-idle.png")]
-    pub idle: Handle<TextureAtlas>,
-
-    #[asset(texture_atlas(tile_size_x = 13., tile_size_y = 36., columns = 3, rows = 1))]
-    #[asset(path = "characters/heroes/rex-walkeast.png")]
-    pub walkeast: Handle<TextureAtlas>,
-
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 1))]
-    #[asset(path = "characters/heroes/rex-walknorth.png")]
-    pub walknorth: Handle<TextureAtlas>,
-
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 1))]
-    #[asset(path = "characters/heroes/rex-walksouth.png")]
-    pub walksouth: Handle<TextureAtlas>,
-
+pub struct PlayerTextureHandles {
+    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
     #[asset(path = "characters/heroes/rex-sheet.png")]
-    pub rex_full_sheet: Handle<Image>,
+    pub rex_full_sheet: Handle<TextureAtlas>,
 }
 
 #[derive(AssetCollection, Clone)]

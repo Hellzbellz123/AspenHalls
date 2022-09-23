@@ -14,7 +14,6 @@ use crate::game_world::MapSystem;
 
 #[derive(Debug, Clone, Component, Reflect)]
 pub struct TimeInfo {
-    pub game_time: Time,
     pub time_step: f32,
     pub game_paused: bool,
     pub pause_menu: bool,
@@ -49,7 +48,6 @@ impl Plugin for GamePlugin {
 
 pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
     *timeinfo = TimeInfo {
-        game_time: Time::default(),
         time_step: 1.0,
         game_paused: false,
         pause_menu: false,

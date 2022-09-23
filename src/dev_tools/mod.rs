@@ -4,7 +4,6 @@ use bevy::{
 };
 use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
 use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
-
 use std::time::Duration;
 
 use crate::{
@@ -17,13 +16,13 @@ use crate::{
     game_world::level::components::Collides,
 };
 
-pub mod debug_dirs;
-// pub mod gamebar;
+mod debug_dirs;
 
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
+        debug_dirs::debugdir();
         let _registry = app
             .world
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);

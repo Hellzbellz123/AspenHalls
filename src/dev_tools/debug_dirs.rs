@@ -178,7 +178,7 @@ pub trait IsExecutable {
 }
 
 #[cfg(target_os = "linux")]
-mod unix {
+mod linux {
     use std::os::unix::fs::PermissionsExt;
     use std::path::Path;
 

@@ -1,4 +1,4 @@
-use bevy::prelude::{Commands, Res, ResMut, *};
+use bevy::prelude::{Commands, Res, ResMut};
 // use bevy_inspector_egui::Inspectable;
 use kayak_ui::{
     bevy::{BevyContext, FontMapping, ImageManager},
@@ -8,55 +8,13 @@ use kayak_ui::{
     },
     widgets::{App, NinePatch, Text},
 };
-use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerBindables,
-    characters::player::PlayerState,
-    game::TimeInfo,
     loading::assets::{FontHandles, UiTextureHandles},
-    ui::{
-        menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
-        menus::main_menu::destroy_menu,
-    },
+    ui::menu_widgets::{ExitButton, OptionsButton, ResumeButton, SaveButton},
 };
 
-pub fn listen_for_pause_event(
-    mut timeinfo: ResMut<TimeInfo>,
-    input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
-    commands: Commands,
-    font_assets: Res<FontHandles>,
-    ui_assets: Res<UiTextureHandles>,
-    image_manager: ResMut<ImageManager>,
-    font_mapping: ResMut<FontMapping>,
-) {
-    let action_state = input_query.single();
-    let mut timeinfo = timeinfo.as_mut();
-
-    if action_state.just_pressed(PlayerBindables::Pause) {
-        info!("pause action pressed, state: {:?}", timeinfo);
-
-        if timeinfo.pause_menu {
-            destroy_menu(commands);
-            timeinfo.pause_menu = false;
-            timeinfo.game_paused = false;
-            timeinfo.time_step = 1.0;
-        } else {
-            spawn_menu(
-                commands,
-                font_assets,
-                ui_assets,
-                image_manager,
-                font_mapping,
-            );
-            timeinfo.pause_menu = true;
-            timeinfo.game_paused = true;
-            timeinfo.time_step = 0.;
-        }
-    }
-}
-
-fn spawn_menu(
+pub fn draw_pausemenu(
     mut commands: Commands,
     font_assets: Res<FontHandles>,
     ui_assets: Res<UiTextureHandles>,

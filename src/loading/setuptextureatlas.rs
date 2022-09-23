@@ -1,7 +1,7 @@
-use super::assets::RexTextureHandles;
+use super::assets::PlayerTextureHandles;
 use bevy::prelude::*;
 
-pub fn drawatlas(_player_animations: Res<RexTextureHandles>) {
+pub fn drawatlas(_player_animations: Res<PlayerTextureHandles>) {
     info!("loading player animations");
 
     // let rex_idle_anim = TextureAtlas::from_grid(

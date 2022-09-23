@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
 use crate::game::GameStage;
-use crate::loading::assets::{AudioHandles, FontHandles, RexTextureHandles, UiTextureHandles};
+use crate::loading::assets::{AudioHandles, FontHandles, PlayerTextureHandles, UiTextureHandles};
 
 /// This plugin loads all assets using [`AssetLoader`] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
@@ -19,7 +19,7 @@ impl Plugin for AssetLoadPlugin {
         LoadingState::new(GameStage::Loading)
             .with_collection::<FontHandles>()
             .with_collection::<AudioHandles>()
-            .with_collection::<RexTextureHandles>()
+            .with_collection::<PlayerTextureHandles>()
             .with_collection::<UiTextureHandles>()
             .continue_to_state(GameStage::Splash)
             .build(app);

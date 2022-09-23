@@ -1,3 +1,6 @@
+[alias]
+rld = "run --features=dev_linux --target=x86_64-unknown-linux-gnu"
+
 [build]
 target = "x86_64-pc-windows-msvc"
 

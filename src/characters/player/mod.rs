@@ -7,7 +7,7 @@ use crate::{
     characters::player::{
         animation::FacingDirection,
         movement::{camera_movement_system, player_movement_system, player_sprint},
-        utilities::spawn_player, //animate_sprite,
+        utilities::spawn_player,
     },
     game::GameStage,
 };
@@ -42,11 +42,11 @@ pub struct RigidBodyBundle {
 pub struct PlayerBundle {
     name: Name,
     pub player_data: PlayerState,
-    // This bundle must be added to your player entity
-    // (or whatever else you wish to control)
     pub player_animations: AnimState,
     #[bundle]
     rigidbody: RigidBodyBundle,
+    // This bundle must be added to your player entity
+    // (or whatever else you wish to control)
     #[bundle]
     pub player_input_map: PlayerInput,
     #[bundle]
@@ -61,7 +61,6 @@ impl Plugin for PlayerPlugin {
         app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(spawn_player))
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
-                    // .with_system(animate_sprite)
                     .with_system(player_movement_system)
                     .with_system(camera_movement_system)
                     .with_system(player_sprint),

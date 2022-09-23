@@ -52,8 +52,8 @@ pub fn spawn_player(mut commands: Commands, characters: Res<animation::Character
                     .with_mask(Layer::World),
             },
         })
-        .with_children(|children| {
-            children
+        .with_children(|parent| {
+            parent
                 .spawn()
                 .insert(CollisionShape::Cuboid {
                     half_extends: Vec3::new(TILE_SIZE.x / 2.0, TILE_SIZE.y / 2.0, 0.0),

@@ -1,2 +1,2 @@
-pub(crate) mod main_menu;
-pub(crate) mod pause_menu;
+pub mod main_menu;
+pub mod pause_menu;

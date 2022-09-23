@@ -3,7 +3,7 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::{
     characters::player::PlayerState,
-    game::{GameStage, TimeInfo},
+    game::{GameStage, TimeInfo}, loading::assets::PlayerTextureHandles,
 };
 
 pub struct GraphicsPlugin;
@@ -57,23 +57,10 @@ impl Plugin for GraphicsPlugin {
 impl GraphicsPlugin {
     fn load_graphics(
         mut commands: Commands,
-        assets: Res<AssetServer>,
-        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        selected_player: Res<PlayerTextureHandles>,
     ) {
-        let columns = 5;
-        let image = assets.load("characters/heroes/rex-sheet.png");
-        let atlas = TextureAtlas::from_grid(
-            image,
-            Vec2::new(18.0, 36.0),
-            columns,
-            4,
-            // Vec2::new(0., 0.),
-            // Vec2::new(0., 1.),
-        );
-        let atlas_handle = texture_atlases.add(atlas);
-
         commands.insert_resource(CharacterSheet {
-            handle: atlas_handle,
+            handle: selected_player.rex_full_sheet.clone(),
             player_idle: [0, 1],
             player_down: [5, 6, 7, 8, 9],
             player_up: [10, 11, 12, 13, 14],
@@ -98,13 +85,6 @@ impl GraphicsPlugin {
             } else if player_compontent.facing == FacingDirection::Idle {
                 animation.frames = characters.player_idle.to_vec();
             }
-
-            // animation.frames = match graphics.facing {
-            //     FacingDirection::Up => characters.player_up.to_vec(),
-            //     FacingDirection::Down => characters.player_down.to_vec(),
-            //     FacingDirection::Left => characters.player_right.to_vec(),
-            //     FacingDirection::Right => characters.player_right.to_vec(),
-            // }
         }
     }
 

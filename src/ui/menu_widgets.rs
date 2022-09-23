@@ -12,7 +12,7 @@ use kayak_ui::{
 
 use crate::{
     loading::assets::UiTextureHandles,
-    ui::menus::main_menu::{AppExitEvent, PlayButtonEvent}, //OptionsButtonEvent
+    ui::events_handlers::{AppExitEvent, PlayButtonEvent}, //OptionsButtonEvent
 };
 
 #[derive(WidgetProps, Clone, Debug, Default, PartialEq)]
@@ -30,6 +30,7 @@ pub fn OptionsButton(props: BlueButtonProps) {
     let (blue_button_handle, blue_button_hover_handle) = {
         let world = context.get_global_mut::<World>();
         if world.is_err() {
+            warn!("world is error in widget");
             return;
         }
 

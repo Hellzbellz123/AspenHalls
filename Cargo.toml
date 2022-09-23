@@ -12,7 +12,8 @@ license-file = "LICENSE"
 resolver = "2"
 
 [features]
-dynamic = ["bevy/dynamic"]
+dev_linux = ["bevy/dynamic", "dev"]
+dev = ["heron/debug-2d"]
 
 
 [build-dependencies]
@@ -31,19 +32,9 @@ winit = "0.26.1"
 [target.x86_64-pc-windows-msvc.dependencies]
 winapi = "0.3.9"
 
-[dependencies.windows]
-version = "0.39.0"
-features = [
-  "Graphics_Capture",
-  "Foundation",
-  "Security_Authorization_AppCapabilityAccess",
-  "Graphics_DirectX_Direct3D11",
-  "System",
-]
-
 [dependencies.heron]
 version = "4.0.1"
-features = ["2d", "debug-2d"]
+features = ["2d"]
 
 [dependencies.bevy]
 version = "0.8.1"
@@ -63,18 +54,12 @@ features = [
   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
   "serialize",            # Support for `serde` Serialize/Deserialize
   "jpeg",
-  #"wayland",              # Linux: Support Wayland windowing system
-  # "dynamic"
 ]
 
 [dependencies.bevy_ecs_ldtk]
 # version = "0.4.0"
 git = "https://github.com/Trouv/bevy_ecs_ldtk.git"
 features = []
-
-# [dependencies.bevy_config_cam]
-# git = "https://github.com/BlackPhlox/bevy_config_cam"
-# branch = "bevy_dolly"
 
 [dependencies.bevy_asset_loader]
 version = "0.12.1"
