@@ -6,7 +6,7 @@ use heron::{Gravity, PhysicsPlugin};
 use crate::{
     action_manager::bindings::ActionsPlugin,
     audio::InternalAudioPlugin,
-    characters::player::{animation::GraphicsPlugin, PlayerPlugin},
+    actors::{player::{animation::GraphicsPlugin, PlayerPlugin}, enemys::EnemyPlugin},
     ui::MenuPlugin,
 };
 
@@ -41,6 +41,7 @@ impl Plugin for GamePlugin {
             .insert_resource(Gravity::from(Vec3::new(0.0, 0.0, 0.0)))
             .add_plugin(MapSystem)
             .add_plugin(PlayerPlugin)
+            .add_plugin(EnemyPlugin)
             .add_plugin(GraphicsPlugin)
             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
     }

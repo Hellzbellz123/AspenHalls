@@ -7,9 +7,9 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    characters::player::animation::{AnimState, FacingDirection},
-    characters::player::PlayerState,
-    game::TimeInfo
+    actors::player::animation::{AnimState, FacingDirection},
+    actors::player::PlayerState,
+    game::TimeInfo,
 };
 
 pub fn player_movement_system(
@@ -88,11 +88,13 @@ pub fn player_sprint(
 }
 
 pub fn camera_movement_system(
-    mut camera_transform : Query<&mut Transform, (Without<CameraUiKayak>, With<Camera>)>,
+    mut camera_transform: Query<&mut Transform, (Without<CameraUiKayak>, With<Camera>)>,
     player_transform: Query<&Transform, (With<PlayerState>, Without<Camera>)>,
 ) {
     let mut camera_trans = camera_transform.single_mut();
     let player_trans = player_transform.single();
 
-    camera_trans.translation = camera_trans.translation.lerp(player_trans.translation, 0.05);
+    camera_trans.translation = camera_trans
+        .translation
+        .lerp(player_trans.translation, 0.05);
 }

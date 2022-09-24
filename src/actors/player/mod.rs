@@ -4,7 +4,7 @@ use heron::{CollisionLayers, PhysicMaterial, RigidBody, RotationConstraints, Vel
 
 use crate::{
     action_manager::bindings::PlayerInput,
-    characters::player::{
+    actors::player::{
         animation::FacingDirection,
         movement::{camera_movement_system, player_movement_system, player_sprint},
         utilities::spawn_player,

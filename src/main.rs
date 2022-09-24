@@ -1,5 +1,5 @@
 // disable console on windows for release builds
-//#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use bevy::prelude::*;
 use bevy::render::texture::ImageSettings;
@@ -13,7 +13,7 @@ use splashscreen::SplashPlugin;
 
 pub mod action_manager;
 pub mod audio;
-pub mod characters;
+pub mod actors;
 pub mod game;
 pub mod game_world;
 pub mod loading;
@@ -21,7 +21,7 @@ pub mod splashscreen;
 pub mod ui;
 pub mod utilities;
 
-#[cfg(feature="dev")]
+// #[cfg(feature="dev")]
 mod dev_tools;
 
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
@@ -34,8 +34,7 @@ enum Layer {
     // Enemies,
 }
 
-
-#[cfg(not(feature="dev"))]
+#[cfg(not(feature = "dev"))]
 pub fn main() {
     App::new()
         // .insert_resource(Msaa { samples: 0 })
@@ -61,7 +60,7 @@ pub fn main() {
         .run();
 }
 
-#[cfg(feature="dev")]
+#[cfg(feature = "dev")]
 pub fn main() {
     App::new()
         // .insert_resource(Msaa { samples: 0 })

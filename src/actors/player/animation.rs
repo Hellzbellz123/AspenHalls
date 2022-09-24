@@ -2,8 +2,9 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::{
-    characters::player::PlayerState,
-    game::{GameStage, TimeInfo}, loading::assets::PlayerTextureHandles,
+    actors::player::PlayerState,
+    game::{GameStage, TimeInfo},
+    loading::assets::PlayerTextureHandles,
 };
 
 pub struct GraphicsPlugin;
@@ -55,10 +56,7 @@ impl Plugin for GraphicsPlugin {
 }
 
 impl GraphicsPlugin {
-    fn load_graphics(
-        mut commands: Commands,
-        selected_player: Res<PlayerTextureHandles>,
-    ) {
+    fn load_graphics(mut commands: Commands, selected_player: Res<PlayerTextureHandles>) {
         commands.insert_resource(CharacterSheet {
             handle: selected_player.rex_full_sheet.clone(),
             player_idle: [0, 1],

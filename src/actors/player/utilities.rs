@@ -1,6 +1,6 @@
 use crate::{
     action_manager::bindings::PlayerInput,
-    characters::player::{PlayerBundle, PlayerState},
+    actors::player::{PlayerBundle, PlayerState},
     Layer, PLAYER_SIZE, TILE_SIZE,
 };
 use bevy::prelude::*;

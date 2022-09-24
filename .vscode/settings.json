@@ -8,7 +8,7 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/.trunk/*out": true,
-    "**/.trunk": true,
+    "**/.trunk": false,
     "**/.vscode": true,
     ".cargo": false,
     ".gitattributes": true,

@@ -9,11 +9,14 @@ readme = "README.md"
 homepage = "https://github.com/Hellzbellz123/VanillaCoffee"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 license-file = "LICENSE"
-resolver = "2"
 
 [features]
 dev_linux = ["bevy/dynamic", "dev"]
 dev = ["heron/debug-2d"]
+
+[workspace]
+exclude = ["crates"]
+resolver = "2"
 
 
 [build-dependencies]
@@ -22,8 +25,8 @@ embed-resource = "1.7.3"
 [dependencies]
 glob = "0.3"
 rand = "0.8.5"
-serde = "1.0.138"
-serde_derive = "1.0.143"
+serde = "1.0.144"
+serde_derive = "1.0.144"
 winit = "0.26.1"
 
 # chrono = "0.4.19"
@@ -78,6 +81,7 @@ default-features = false
 features = ["bevy_render", "bevy_sprite", "bevy_text"]
 
 [dependencies.kayak_ui]
+# path = "crates/kayak_ui_experiments"
 git = "https://github.com/StarArawn/kayak_ui"
 rev = "6f4894704295b6ac9a117650c8d9d2a503190d60"
 features = ["bevy_renderer"]

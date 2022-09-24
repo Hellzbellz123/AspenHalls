@@ -4,7 +4,7 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    characters::player::PlayerState,
+    actors::player::PlayerState,
     game::{self, TimeInfo},
     loading::assets::{FontHandles, UiTextureHandles},
     ui::menus::pause_menu::draw_pausemenu,

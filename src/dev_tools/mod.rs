@@ -8,7 +8,7 @@ use std::time::Duration;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    characters::player::{
+    actors::player::{
         animation::{AnimState, CharacterSheet, FacingDirection},
         PlayerState,
     },

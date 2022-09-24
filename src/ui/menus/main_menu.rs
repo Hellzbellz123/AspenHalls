@@ -24,8 +24,8 @@ pub(crate) fn draw_mainmenu(
         .spawn_bundle(UICameraBundle::new())
         .insert(Name::new("UI Camera config"));
 
-    let main_font = font_assets.fira_sans_msdf.clone();
-    let title_font = font_assets.fantasque_sans_msdf.clone();
+    let main_font = &font_assets.fira_sans_msdf;
+    let title_font = &font_assets.fantasque_sans_msdf;
 
     font_mapping.add("FiraSans-Bold", main_font.clone());
     font_mapping.add("FantasqueSansNF", title_font.clone());
@@ -55,8 +55,8 @@ pub(crate) fn draw_mainmenu(
             ..Style::default()
         };
 
-        let main_font_id = font_mapping.get(&main_font);
-        let title_font_id = font_mapping.get(&title_font);
+        let main_font_id = font_mapping.get(main_font);
+        let title_font_id = font_mapping.get(title_font);
 
         render! {
             <App>

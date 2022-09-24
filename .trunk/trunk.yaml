@@ -1,22 +1,26 @@
 version: 0.1
+runtimes:
+  enabled:
+    - go@1.18.3
+    - node@16.14.2
 plugins:
   sources:
     - id: trunk
-      ref: v0.0.3
+      ref: v0.0.4
       uri: https://github.com/trunk-io/plugins
 cli:
-  version: 0.17.0-beta
+  version: 0.18.0-beta
 lint:
   enabled:
     - clippy@SYSTEM
     - git-diff-check@SYSTEM
-    - gitleaks@8.10.3
-    - markdownlint@0.32.1
+    - gitleaks@8.13.0
+    - markdownlint@0.32.2
     - prettier@2.7.1
     - rustfmt@SYSTEM
     - shellcheck@0.8.0
     - shfmt@3.5.0
-    - taplo@release-taplo-cli-0.6.8
+    - taplo@release-taplo-cli-0.7.0
 
   definitions:
     - name: clippy
