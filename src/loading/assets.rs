@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
-use bevy_kira_audio::prelude::*;
 
 #[derive(AssetCollection)]
 pub struct FontHandles {
@@ -13,10 +12,12 @@ pub struct FontHandles {
     pub fantasque_sans_msdf: Handle<kayak_ui::font::KayakFont>,
 }
 
-#[derive(AssetCollection)]
+#[derive(AssetCollection, Debug)]
 pub struct AudioHandles {
-    #[asset(path = "audio/ost/expansion.ogg")]
-    pub gamesoundtrack: Handle<AudioSource>,
+    #[asset(path = "audio/ost/expansion.wav")]
+    pub gamesoundtrack: Handle<bevy_kira_audio::AudioSource>,
+    #[asset(path = "audio/footstep", collection(typed))]
+    pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
 }
 
 #[derive(AssetCollection, Clone)]
@@ -40,3 +41,15 @@ pub struct UiTextureHandles {
     #[asset(path = "kenny/buttonSquare_blue.png")]
     pub button_blue_png: Handle<Image>,
 }
+
+// BEVY ODDIO ASSET CONFIG
+// #[derive(AssetCollection, Debug)]
+// pub struct AudioHandles {
+//     #[asset(path = "audio/ost/expansion.wav")]
+//     pub gamesoundtrack: Handle<bevy_oddio::AudioSource<Stereo>>,//Handle<bevy_kira_audio::AudioSource>,
+//     #[asset(path = "audio/footstep", collection(typed))]
+//     pub footsteps: Vec<Handle<bevy_oddio::AudioSource<Stereo>>>, //Vec<Handle<bevy_kira_audio::AudioSource>>,
+
+//     #[asset(path = "audio/ost/expansion.wav")]
+//     pub gamesoundtracktwo: Handle<bevy_oddio::AudioSource<Stereo>>
+// }

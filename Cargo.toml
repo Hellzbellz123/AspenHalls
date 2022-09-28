@@ -28,6 +28,7 @@ rand = "0.8.5"
 serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.26.1"
+bevy-discord-presence = "0.3.3"
 
 # chrono = "0.4.19"
 # fern = "0.6.1"
@@ -43,16 +44,16 @@ features = ["2d"]
 version = "0.8.1"
 default-features = false
 features = [
-  "animation",            # Animation support
-  "bevy_gilrs",           # Gamepad input support
-  "bevy_winit",           # Window management
-  "x11",                  # Linux: Support X11 windowing system
-  "filesystem_watcher",   # Asset hot-reloading
-  "bevy_render",          # Rendering framework core
-  "bevy_core_pipeline",   # Higher-level rendering abstractions
-  "bevy_sprite",          # 2D (sprites) rendering
-  "bevy_text",            # Text/font rendering
-  "bevy_ui",              # UI toolkit
+  "animation",          # Animation support
+  "bevy_gilrs",         # Gamepad input support
+  "bevy_winit",         # Window management
+  "x11",                # Linux: Support X11 windowing system
+  "filesystem_watcher", # Asset hot-reloading
+  "bevy_render",        # Rendering framework core
+  "bevy_core_pipeline", # Higher-level rendering abstractions
+  "bevy_sprite",        # 2D (sprites) rendering
+  "bevy_text",          # Text/font rendering
+  # "bevy_ui",              # UI toolkit
   "png",
   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
   "serialize",            # Support for `serde` Serialize/Deserialize
@@ -72,11 +73,18 @@ features = ["2d"]
 [dependencies.bevy_kira_audio]
 version = "0.12.0"
 default-features = false
-features = ["mp3", "ogg"]
+features = ["ogg", "wav"]
 
+# [dependencies.bevy_oddio]
+# git = "https://github.com/harudagondi/bevy_oddio.git"
+# branch = "spatial-audio"
+# features = [
+#   "wav",
+#   # "ogg",
+# ]
 
 [dependencies.bevy-inspector-egui]
-version = "0.12.1"
+version = "0.13.0"
 default-features = false
 features = ["bevy_render", "bevy_sprite", "bevy_text"]
 

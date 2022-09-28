@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
-use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
+use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
 use std::time::Duration;
 
 use crate::{
@@ -12,6 +12,7 @@ use crate::{
         animation::{AnimState, CharacterSheet, FacingDirection},
         PlayerState,
     },
+    audio::SoundSettings,
     game::TimeInfo,
     game_world::level::components::Collides,
 };
@@ -27,7 +28,8 @@ impl Plugin for DebugPlugin {
             .world
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
-        app.add_plugin(WorldInspectorPlugin::new())
+        app.add_plugin(InspectorPlugin::<SoundSettings>::new())
+            .add_plugin(WorldInspectorPlugin::new())
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
             .add_plugin(LogDiagnosticsPlugin {
                 wait_duration: Duration::from_secs(20),

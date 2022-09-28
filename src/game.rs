@@ -5,8 +5,11 @@ use heron::{Gravity, PhysicsPlugin};
 
 use crate::{
     action_manager::bindings::ActionsPlugin,
+    actors::{
+        enemies::EnemyPlugin,
+        player::{animation::GraphicsPlugin, PlayerPlugin},
+    },
     audio::InternalAudioPlugin,
-    actors::{player::{animation::GraphicsPlugin, PlayerPlugin}, enemies::EnemyPlugin},
     ui::MenuPlugin,
 };
 

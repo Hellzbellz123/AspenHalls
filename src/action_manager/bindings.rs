@@ -50,6 +50,8 @@ impl Default for PlayerInput {
         input_map.insert(KeyCode::Escape, PlayerBindables::Pause);
         input_map.insert(GamepadButtonType::Start, PlayerBindables::Pause);
 
+        input_map.insert(KeyCode::Q, PlayerBindables::Heal);
+
         input_map.set_gamepad(Gamepad { id: 0 });
         Self {
             input: InputManagerBundle::<PlayerBindables> {

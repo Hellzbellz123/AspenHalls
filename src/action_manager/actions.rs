@@ -13,6 +13,6 @@ pub enum PlayerBindables {
     Dash,
     Sprint,
     Pause,
-    // Heal,
+    Heal,
     // Menus,
 }

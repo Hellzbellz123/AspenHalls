@@ -1,5 +1,6 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![feature(lint_reasons)]
 
 use bevy::prelude::*;
 use bevy::render::texture::ImageSettings;
@@ -10,10 +11,11 @@ use game::TimeInfo;
 use heron::PhysicsLayer;
 use loading::AssetLoadPlugin;
 use splashscreen::SplashPlugin;
+use utilities::UtilitiesPlugin;
 
 pub mod action_manager;
-pub mod audio;
 pub mod actors;
+pub mod audio;
 pub mod game;
 pub mod game_world;
 pub mod loading;
@@ -23,6 +25,11 @@ pub mod utilities;
 
 // #[cfg(feature="dev")]
 mod dev_tools;
+
+// pub struct AppSettings {
+//     sound_settings: SoundSettings,
+//     control_settings: PlayerInput,
+// }
 
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
 pub const PLAYER_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
@@ -46,8 +53,8 @@ pub fn main() {
             title: "Project Kira".to_string(), // ToDo
             ..Default::default()
         })
-        .add_startup_system(utilities::set_window_icon)
         .add_plugins(DefaultPlugins)
+        .add_plugin(UtilitiesPlugin)
         .add_state(game::GameStage::Loading)
         .add_plugin(AssetLoadPlugin)
         .insert_resource(TimeInfo {
@@ -72,8 +79,8 @@ pub fn main() {
             title: "Project Kira".to_string(), // ToDo
             ..Default::default()
         })
-        .add_startup_system(utilities::set_window_icon)
         .add_plugins(DefaultPlugins)
+        .add_plugin(UtilitiesPlugin)
         .add_state(game::GameStage::Loading)
         .add_plugin(AssetLoadPlugin)
         .insert_resource(TimeInfo {
@@ -86,24 +93,3 @@ pub fn main() {
         .add_plugin(dev_tools::DebugPlugin)
         .run();
 }
-
-// struct GamePlugin;
-// impl Plugin for GamePlugin {
-//     fn build(&self, app: &mut App) {
-//         app.add_plugin(MenuPlugin)
-//             .add_plugin(ActionsPlugin)
-//             .add_plugin(InternalAudioPlugin)
-//             .add_plugin(MapSystem)
-//             .add_plugin(PlayerPlugin)
-//             .add_plugin(GraphicsPlugin)
-//             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
-//     }
-// }
-
-// pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
-//     *timeinfo = TimeInfo {
-//         time_step: 1.0,
-//         game_paused: false,
-//         pause_menu: false,
-//     }
-// }

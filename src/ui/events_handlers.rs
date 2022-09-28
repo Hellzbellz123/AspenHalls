@@ -18,28 +18,36 @@ pub fn destroy_menu(mut commands: Commands) {
 }
 
 pub fn play_button_event(
-    mut reader: EventReader<PlayButtonEvent>,
-    mut state: ResMut<bevy::prelude::State<game::GameStage>>,
+    events: EventReader<PlayButtonEvent>,
+    mut current_state: ResMut<bevy::prelude::State<game::GameStage>>,
     mut commands: Commands,
     mut timeinfo: ResMut<TimeInfo>,
 ) {
-    for _ in reader.iter() {
-        if *state.current() == game::GameStage::Menu {
-            info!("play button was pressed");
-            let _ = state.set(game::GameStage::Playing);
+    if !events.is_empty() {
+        if *current_state.current() == game::GameStage::Menu {
+            commands.remove_resource::<BevyContext>();
+            current_state
+                .push(game::GameStage::Playing)
+                .expect("couldnt set state, weird");
+            info!(
+                "play button was pressed, current state: {:?}",
+                current_state
+            )
         }
 
-        if *state.current() == game::GameStage::Playing {
+        if *current_state.current() == game::GameStage::Playing {
             info!("resume button pressed");
             commands.remove_resource::<BevyContext>();
             timeinfo.pause_menu = false;
             timeinfo.game_paused = false;
             timeinfo.time_step = 1.0;
         }
+        events.clear();
     }
 }
 
 pub fn pause_game(
+    // bevytime: Res<Time>,
     mut timeinfo: ResMut<TimeInfo>,
     input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
     commands: Commands,
@@ -52,8 +60,6 @@ pub fn pause_game(
     let mut timeinfo = timeinfo.as_mut();
 
     if action_state.just_pressed(PlayerBindables::Pause) {
-        info!("pause action pressed, {:?}", timeinfo);
-
         if timeinfo.pause_menu {
             destroy_menu(commands);
             timeinfo.pause_menu = false;
@@ -71,15 +77,14 @@ pub fn pause_game(
             timeinfo.game_paused = true;
             timeinfo.time_step = 0.;
         }
+        // info!("pause action pressed, {:?} \n {:?}", timeinfo, bevytime);
     }
 }
 
-pub fn exit_system(
-    mut reader: EventReader<AppExitEvent>,
-    mut exit: EventWriter<bevy::app::AppExit>,
-) {
-    for _ in reader.iter() {
+pub fn exit_system(events: EventReader<AppExitEvent>, mut exit: EventWriter<bevy::app::AppExit>) {
+    if !events.is_empty() {
         exit.send(bevy::app::AppExit);
         info!("Exiting Game, AppExit Detected");
+        events.clear()
     }
 }
