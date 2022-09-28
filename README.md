@@ -16,7 +16,7 @@ users compiling on windows should comment out the rustflags for the msvc target 
 
 make sure to move /assets next to the application exe, same folder.
 
-## For Linux users wanting to build for window
+## For Linux users wanting to build for windows
 
 cargo install c cargo-xwin
 
