@@ -57,10 +57,10 @@ impl Plugin for InternalAudioPlugin {
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()
             .insert_resource(SoundSettings {
-                mastervolume: 1.0,
+                mastervolume: 0.5,
                 ambiencevolume: 1.0,
-                musicvolume: 1.0,
-                soundvolume: 1.0,
+                musicvolume: 0.1,
+                soundvolume: 0.5,
             })
             .insert_resource(WalkingSound {
                 timer: Timer::from_seconds(0.65, true),
@@ -112,7 +112,6 @@ pub fn player_walking_sound_system(
                 .expect("SHOULD NEVER BE EMPTY")
                 .clone();
             audio.play(chandle);
-
         }
     }
 }

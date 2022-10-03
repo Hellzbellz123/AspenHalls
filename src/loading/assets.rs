@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_ecs_ldtk::LdtkAsset;
 
 #[derive(AssetCollection)]
 pub struct FontHandles {
@@ -40,6 +41,12 @@ pub struct UiTextureHandles {
 
     #[asset(path = "kenny/buttonSquare_blue.png")]
     pub button_blue_png: Handle<Image>,
+}
+
+#[derive(AssetCollection, Clone, Debug)]
+pub struct MapAssetHandles {
+    #[asset(path = "levels/testinghallold.ldtk")]
+    pub homeworld: Handle<LdtkAsset>,
 }
 
 // BEVY ODDIO ASSET CONFIG

@@ -14,7 +14,7 @@ use crate::{
     },
     audio::SoundSettings,
     game::TimeInfo,
-    game_world::level::components::Collides,
+    game_world::world_components::Collides,
 };
 
 mod debug_dirs;

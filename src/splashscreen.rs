@@ -45,7 +45,7 @@ fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
             },
             ..default()
         })
-        .insert(Name::new("main camera"))
+        .insert(Name::new("Main Camera"))
         .insert(MainCamera { is_active: true });
 
     // Display the logo
