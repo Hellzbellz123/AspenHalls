@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use crate::{
     action_manager::bindings::PlayerInput,
@@ -13,7 +12,7 @@ use crate::{
     game::GameStage,
 };
 
-use crate::actors::animation::{AnimState, FacingDirection};
+use crate::actors::animation::AnimState;
 
 use super::ActorState;
 

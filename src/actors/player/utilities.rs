@@ -2,7 +2,7 @@ use crate::{
     action_manager::bindings::PlayerInput,
     actors::{
         animation::{AnimState, AnimationSheet, FacingDirection},
-        player::{PlayerBundle, ActorState},
+        player::{ActorState, PlayerBundle},
     },
     loading::assets::PlayerTextureHandles,
     Layer, PLAYER_SIZE, TILE_SIZE,

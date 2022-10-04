@@ -1,12 +1,8 @@
+use crate::actors::ActorState;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-use crate::{
-    game::{GameStage, TimeInfo},
-    loading::assets::PlayerTextureHandles,
-};
-
-use super::ActorState;
+use crate::game::{GameStage, TimeInfo};
 
 pub struct GraphicsPlugin;
 
@@ -48,10 +44,10 @@ pub struct AnimState {
 impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
-                SystemSet::on_update(GameStage::Playing)
-                    .with_system(Self::update_current_animation)
-                    .with_system(Self::frame_animation),
-            );
+            SystemSet::on_update(GameStage::Playing)
+                .with_system(Self::update_current_animation)
+                .with_system(Self::frame_animation),
+        );
     }
 }
 
