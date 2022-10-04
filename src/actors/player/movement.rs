@@ -7,8 +7,10 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    actors::player::animation::{AnimState, FacingDirection},
-    actors::player::PlayerState,
+    actors::{
+        animation::{AnimState, FacingDirection},
+        player::ActorState,
+    },
     game::TimeInfo,
 };
 
@@ -17,7 +19,7 @@ pub fn player_movement_system(
     query_action_state: Query<&ActionState<PlayerBindables>>,
     mut player_query: Query<(
         &mut Velocity,
-        &mut PlayerState,
+        &mut ActorState,
         &mut TextureAtlasSprite,
         With<Transform>,
     )>,
@@ -62,9 +64,9 @@ pub fn player_movement_system(
 }
 
 pub fn player_sprint(
-    mut input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
-    mut player_query: Query<&mut PlayerState>,
-    mut anim_query: Query<&mut AnimState, With<PlayerState>>,
+    mut input_query: Query<&ActionState<PlayerBindables>, With<ActorState>>,
+    mut player_query: Query<&mut ActorState>,
+    mut anim_query: Query<&mut AnimState, With<ActorState>>,
 ) {
     let action_state = input_query.single_mut();
     let mut animation = anim_query.single_mut();
@@ -89,7 +91,7 @@ pub fn player_sprint(
 
 pub fn camera_movement_system(
     mut camera_transform: Query<&mut Transform, (Without<CameraUiKayak>, With<Camera>)>,
-    player_transform: Query<&Transform, (With<PlayerState>, Without<Camera>)>,
+    player_transform: Query<&Transform, (With<ActorState>, Without<Camera>)>,
 ) {
     let mut camera_trans = camera_transform.single_mut();
     let player_trans = player_transform.single();

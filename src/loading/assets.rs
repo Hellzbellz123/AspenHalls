@@ -29,6 +29,13 @@ pub struct PlayerTextureHandles {
 }
 
 #[derive(AssetCollection, Clone)]
+pub struct EnemyTextureHandles {
+    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
+    #[asset(path = "characters/enemies/skele-sheet.png")]
+    pub skele_full_sheet: Handle<TextureAtlas>,
+}
+
+#[derive(AssetCollection, Clone)]
 pub struct UiTextureHandles {
     #[asset(path = "textures/splashscreen.png")]
     pub splash_image: Handle<Image>,
@@ -45,7 +52,7 @@ pub struct UiTextureHandles {
 
 #[derive(AssetCollection, Clone, Debug)]
 pub struct MapAssetHandles {
-    #[asset(path = "levels/testinghallold.ldtk")]
+    #[asset(path = "levels/homeworld.ldtk")]
     pub homeworld: Handle<LdtkAsset>,
 }
 

@@ -2,20 +2,21 @@ use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 use crate::{
-    actors::player::PlayerState,
     game::{GameStage, TimeInfo},
     loading::assets::PlayerTextureHandles,
 };
 
+use super::ActorState;
+
 pub struct GraphicsPlugin;
 
 #[derive(Default, Component, Inspectable)]
-pub struct CharacterSheet {
+pub struct AnimationSheet {
     pub handle: Handle<TextureAtlas>,
-    pub player_idle: [usize; 2],
-    pub player_up: [usize; 5],
-    pub player_down: [usize; 5],
-    pub player_right: [usize; 3],
+    pub idle_animation: [usize; 5],
+    pub up_animation: [usize; 5],
+    pub down_animation: [usize; 5],
+    pub right_animation: [usize; 5],
 }
 
 #[derive(
@@ -40,48 +41,39 @@ pub struct PlayerGraphics {
 #[allow(clippy::module_name_repetitions)]
 pub struct AnimState {
     pub timer: Timer,
-    pub frames: Vec<usize>,
+    pub current_frames: Vec<usize>,
     pub current_frame: usize,
 }
 
 impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameStage::Menu).with_system(Self::load_graphics))
-            .add_system_set(
+        app.add_system_set(
                 SystemSet::on_update(GameStage::Playing)
-                    .with_system(Self::update_player_graphics)
+                    .with_system(Self::update_current_animation)
                     .with_system(Self::frame_animation),
             );
     }
 }
 
 impl GraphicsPlugin {
-    fn load_graphics(mut commands: Commands, selected_player: Res<PlayerTextureHandles>) {
-        commands.insert_resource(CharacterSheet {
-            handle: selected_player.rex_full_sheet.clone(),
-            player_idle: [0, 1],
-            player_down: [5, 6, 7, 8, 9],
-            player_up: [10, 11, 12, 13, 14],
-            player_right: [15, 16, 17],
-        });
-    }
-
-    fn update_player_graphics(
-        mut sprites_query: Query<(&PlayerState, &mut AnimState), Changed<PlayerState>>,
-        characters: Res<CharacterSheet>,
+    fn update_current_animation(
+        mut sprites_query: Query<
+            (&ActorState, &mut AnimState, &AnimationSheet),
+            Changed<ActorState>,
+        >,
     ) {
-        for (player_compontent, mut animation) in sprites_query.iter_mut() {
+        for (player_compontent, mut animation, anim_sheet) in sprites_query.iter_mut() {
             if matches!(
                 player_compontent.facing,
                 FacingDirection::Right | FacingDirection::Left
             ) {
-                animation.frames = characters.player_right.to_vec();
+                animation.current_frames = anim_sheet.right_animation.to_vec();
             } else if player_compontent.facing == FacingDirection::Up {
-                animation.frames = characters.player_up.to_vec();
+                animation.current_frames = anim_sheet.up_animation.to_vec();
             } else if player_compontent.facing == FacingDirection::Down {
-                animation.frames = characters.player_down.to_vec();
+                animation.current_frames = anim_sheet.down_animation.to_vec();
             } else if player_compontent.facing == FacingDirection::Idle {
-                animation.frames = characters.player_idle.to_vec();
+                animation.current_frames = anim_sheet.idle_animation.to_vec();
             }
         }
     }
@@ -94,12 +86,12 @@ impl GraphicsPlugin {
         for (mut sprite, mut animation) in sprites_query.iter_mut() {
             animation.timer.tick(time.delta());
             if !timeinfo.game_paused && animation.timer.just_finished() {
-                if animation.frames.is_empty() {
+                if animation.current_frames.is_empty() {
                     info!("no animations available ?");
                 } else {
                     animation.current_frame =
-                        (animation.current_frame + 1) % animation.frames.len();
-                    sprite.index = animation.frames[animation.current_frame];
+                        (animation.current_frame + 1) % animation.current_frames.len();
+                    sprite.index = animation.current_frames[animation.current_frame];
                 }
             }
         }

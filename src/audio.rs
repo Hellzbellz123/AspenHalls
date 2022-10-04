@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    actors::player::{animation::FacingDirection, PlayerState},
+    actors::{animation::FacingDirection, ActorState},
     game::GameStage,
     loading::assets::AudioHandles,
 };
@@ -26,26 +26,26 @@ pub struct WalkingSound {
 #[derive(Inspectable, Debug)]
 pub struct SoundSettings {
     #[inspectable(min = 0.0, max = 1.0)]
-    mastervolume: f64,
+    pub mastervolume: f64,
     #[inspectable(min = 0.0, max = 1.0)]
-    ambiencevolume: f64,
+    pub ambiencevolume: f64,
     #[inspectable(min = 0.0, max = 1.0)]
-    musicvolume: f64,
+    pub musicvolume: f64,
     #[inspectable(min = 0.0, max = 1.0)]
-    soundvolume: f64,
+    pub soundvolume: f64,
 }
 
-impl FromWorld for SoundSettings {
-    #[allow(unused_variables, reason = "clippy says its unused but it isnt")]
-    fn from_world(world: &mut World) -> Self {
-        SoundSettings {
-            mastervolume: 0.5,
-            ambiencevolume: 1.0,
-            musicvolume: 0.1,
-            soundvolume: 0.5,
-        }
-    }
-}
+// impl FromWorld for SoundSettings {
+//     #[allow(unused_variables, reason = "clippy says its unused but it isnt")]
+//     fn from_world(world: &mut World) -> Self {
+//         SoundSettings {
+//             mastervolume: 0.5,
+//             ambiencevolume: 1.0,
+//             musicvolume: 0.1,
+//             soundvolume: 0.5,
+//         }
+//     }
+// }
 
 pub struct InternalAudioPlugin;
 
@@ -56,17 +56,10 @@ impl Plugin for InternalAudioPlugin {
             .add_audio_channel::<Music>()
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()
-            .insert_resource(SoundSettings {
-                mastervolume: 0.5,
-                ambiencevolume: 1.0,
-                musicvolume: 0.1,
-                soundvolume: 0.5,
-            })
             .insert_resource(WalkingSound {
                 timer: Timer::from_seconds(0.65, true),
                 is_first_time: true,
             })
-            .add_system(update_volumes)
             .add_system_set(
                 SystemSet::on_exit(GameStage::Loading).with_system(play_background_audio),
             )
@@ -82,7 +75,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
 
 pub fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
-    mut player_query: Query<&mut PlayerState>,
+    mut player_query: Query<&mut ActorState>,
     mut walksound_res: ResMut<WalkingSound>,
     audio: Res<AudioChannel<Sound>>,
     time: Res<Time>,
@@ -115,21 +108,6 @@ pub fn player_walking_sound_system(
         }
     }
 }
-
-fn update_volumes(
-    settings: Res<SoundSettings>,
-    bgm: Res<AudioChannel<Music>>,
-    bga: Res<AudioChannel<Ambience>>,
-    bgs: Res<AudioChannel<Sound>>,
-) {
-    if settings.is_changed() {
-        info!("volumes changed, applying settings");
-        bgm.set_volume(settings.musicvolume * settings.mastervolume);
-        bga.set_volume(settings.ambiencevolume * settings.mastervolume);
-        bgs.set_volume(settings.soundvolume * settings.mastervolume);
-    }
-}
-
 // fn play_music_oddio(audio_assets: Res<AudioHandles>, mut audio: ResMut<bevy_oddio::Audio<bevy_oddio::frames::Stereo>>) {
 //     // let playing = audio.play(audio_assets.gamesoundtracktwo.clone(), 0.1);
 //     // bevy_oddio::output::AudioSink

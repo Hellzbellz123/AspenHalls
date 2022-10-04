@@ -1,48 +1,30 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use heron::{CollisionLayers, PhysicMaterial, RigidBody, RotationConstraints, Velocity};
 
 use crate::{
     action_manager::bindings::PlayerInput,
-    actors::player::{
-        animation::FacingDirection,
-        movement::{camera_movement_system, player_movement_system, player_sprint},
-        utilities::spawn_player,
+    actors::{
+        player::{
+            movement::{camera_movement_system, player_movement_system, player_sprint},
+            utilities::spawn_player,
+        },
+        RigidBodyBundle,
     },
     game::GameStage,
 };
 
-use self::animation::AnimState;
+use crate::actors::animation::{AnimState, FacingDirection};
 
-pub mod animation;
+use super::ActorState;
+
 mod movement;
 mod utilities;
-
-#[derive(Component, Default, Reflect, Inspectable)]
-#[reflect(Component)]
-pub struct PlayerState {
-    //stores important player data
-    pub target_positon: Option<Vec2>,
-    pub speed: f32,
-    pub sprint_available: bool,
-    pub facing: FacingDirection,
-    pub just_moved: bool,
-}
-
-#[derive(Bundle)]
-pub struct RigidBodyBundle {
-    rigidbody: RigidBody,
-    collisionlayers: CollisionLayers,
-    rconstraints: RotationConstraints,
-    physicsmat: PhysicMaterial,
-    velocity: Velocity,
-}
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
     name: Name,
-    pub player_data: PlayerState,
-    pub player_animations: AnimState,
+    pub player_state: ActorState,
+    pub player_animationstate: AnimState,
     #[bundle]
     rigidbody: RigidBodyBundle,
     // This bundle must be added to your player entity

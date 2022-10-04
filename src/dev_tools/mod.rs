@@ -8,13 +8,13 @@ use std::time::Duration;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    actors::player::{
-        animation::{AnimState, CharacterSheet, FacingDirection},
-        PlayerState,
+    actors::{
+        animation::{AnimState, AnimationSheet, FacingDirection},
+        ActorState,
     },
-    audio::SoundSettings,
     game::TimeInfo,
     game_world::world_components::Collides,
+    AppSettings,
 };
 
 mod debug_dirs;
@@ -28,7 +28,7 @@ impl Plugin for DebugPlugin {
             .world
             .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
-        app.add_plugin(InspectorPlugin::<SoundSettings>::new())
+        app.add_plugin(InspectorPlugin::<AppSettings>::new())
             .add_plugin(WorldInspectorPlugin::new())
             .add_plugin(FrameTimeDiagnosticsPlugin::default())
             .add_plugin(LogDiagnosticsPlugin {
@@ -36,10 +36,10 @@ impl Plugin for DebugPlugin {
                 ..Default::default()
             })
             //custom inspectables not from plugins
-            .register_inspectable::<PlayerState>()
+            .register_inspectable::<ActorState>()
             .register_type::<TimeInfo>()
             .register_type::<AnimState>()
-            .register_inspectable::<CharacterSheet>()
+            .register_inspectable::<AnimationSheet>()
             .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
             .register_inspectable::<Collides>()
             .register_type::<PlayerBindables>()

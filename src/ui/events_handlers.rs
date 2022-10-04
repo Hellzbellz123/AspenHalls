@@ -4,7 +4,7 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    actors::player::PlayerState,
+    actors::ActorState,
     game::{self, TimeInfo},
     loading::assets::{FontHandles, UiTextureHandles},
     ui::menus::pause_menu::draw_pausemenu,
@@ -49,7 +49,7 @@ pub fn play_button_event(
 pub fn pause_game(
     // bevytime: Res<Time>,
     mut timeinfo: ResMut<TimeInfo>,
-    input_query: Query<&ActionState<PlayerBindables>, With<PlayerState>>,
+    input_query: Query<&ActionState<PlayerBindables>, With<ActorState>>,
     commands: Commands,
     font_assets: Res<FontHandles>,
     ui_assets: Res<UiTextureHandles>,
