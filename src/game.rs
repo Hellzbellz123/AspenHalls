@@ -45,10 +45,9 @@ impl Plugin for GamePlugin {
             .add_plugin(EnemyPlugin)
             .add_plugin(GraphicsPlugin)
             .add_system_set(
-                SystemSet::on_enter(GameStage::Playing)
-                    .with_system(setup_time_state)
-                    // .with_system(zoom_control),
-            ).add_system(zoom_control);
+                SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state), // .with_system(zoom_control),
+            )
+            .add_system(zoom_control);
     }
 }
 
