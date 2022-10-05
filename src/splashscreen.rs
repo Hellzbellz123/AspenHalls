@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{game::GameStage, loading::assets::UiTextureHandles};
+use crate::{game::GameStage, loading::assets::UiTextureHandles, utilities::game::SystemLabels};
 
 // This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
 pub struct SplashPlugin;
@@ -8,9 +8,18 @@ pub struct SplashPlugin;
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
         // As this plugin is managing the splash screen, it will focus on the state `GameState::Splash`
+        info!("debugging broke stuff :(");
         app
             // When entering the state, spawn everything needed for this screen
-            .add_system_set(SystemSet::on_enter(GameStage::Splash).with_system(splash_setup))
+            .add_system_set(
+                SystemSet::on_enter(GameStage::Splash)
+                    .with_system(
+                        spawn_main_camera
+                            .label(SystemLabels::InitSettings)
+                            .before(SystemLabels::UpdateSettings),
+                    )
+                    .with_system(splash_setup.label(SystemLabels::UpdateSettings)),
+            )
             .add_system_set(SystemSet::on_update(GameStage::Splash).with_system(countdown))
             // When exiting the state, despawn everything that was spawned for this screen
             .add_system_set(
@@ -18,24 +27,21 @@ impl Plugin for SplashPlugin {
             );
     }
 }
-
 // Tag component used to tag entities added on the splash screen
 #[derive(Component)]
 struct OnSplashScreen;
 
 #[derive(Component)]
-struct MainCamera {
+pub struct MainCamera {
     #[allow(dead_code)]
-    is_active: bool,
+    pub is_active: bool,
 }
 
 // Newtype to use a `Timer` for this screen as a resource
 #[derive(Deref, DerefMut)]
 struct SplashTimer(Timer);
 
-fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
-    info!("loading splash");
-
+fn spawn_main_camera(mut commands: Commands) {
     commands
         .spawn_bundle(Camera2dBundle {
             camera: Camera {
@@ -47,7 +53,11 @@ fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
         })
         .insert(Name::new("Main Camera"))
         .insert(MainCamera { is_active: true });
+    info!("Main Camera Spawned");
+}
 
+fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
+    info!("loading splash");
     // Display the logo
     commands
         .spawn_bundle(ImageBundle {

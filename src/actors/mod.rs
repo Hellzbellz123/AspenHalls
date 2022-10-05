@@ -8,7 +8,7 @@ pub mod animation;
 pub mod enemies;
 pub mod player;
 
-#[derive(Bundle)]
+#[derive(Bundle)] //bundle for ease of use
 pub struct RigidBodyBundle {
     rigidbody: RigidBody,
     collisionlayers: CollisionLayers,
@@ -21,7 +21,6 @@ pub struct RigidBodyBundle {
 #[reflect(Component)]
 pub struct ActorState {
     //stores actor information, all actors have this
-    pub target_positon: Option<Vec2>,
     pub speed: f32,
     pub sprint_available: bool,
     pub facing: FacingDirection,

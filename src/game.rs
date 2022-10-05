@@ -2,15 +2,16 @@ use bevy::{app::App, prelude::*};
 
 use bevy_inspector_egui::Inspectable;
 use heron::{Gravity, PhysicsPlugin};
+use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::bindings::ActionsPlugin,
+    action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
     actors::{animation::GraphicsPlugin, enemies::EnemyPlugin, player::PlayerPlugin},
     audio::InternalAudioPlugin,
+    game_world::MapSystemPlugin,
     ui::MenuPlugin,
+    utilities::game::AppSettings,
 };
-
-use crate::game_world::MapSystem;
 
 #[derive(Debug, Clone, Component, Reflect)]
 pub struct TimeInfo {
@@ -39,11 +40,15 @@ impl Plugin for GamePlugin {
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PhysicsPlugin::default())
             .insert_resource(Gravity::from(Vec3::new(0.0, 0.0, 0.0)))
-            .add_plugin(MapSystem)
+            .add_plugin(MapSystemPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(EnemyPlugin)
             .add_plugin(GraphicsPlugin)
-            .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state));
+            .add_system_set(
+                SystemSet::on_enter(GameStage::Playing)
+                    .with_system(setup_time_state)
+                    // .with_system(zoom_control),
+            ).add_system(zoom_control);
     }
 }
 
@@ -52,5 +57,20 @@ pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
         time_step: 1.0,
         game_paused: false,
         pause_menu: false,
+    }
+}
+
+pub fn zoom_control(
+    mut settings: ResMut<AppSettings>,
+    query_action_state: Query<&ActionState<PlayerBindables>>,
+) {
+    if !query_action_state.is_empty() {
+        let actions = query_action_state.get_single().expect("no ents?");
+
+        if actions.pressed(PlayerBindables::ZoomIn) {
+            settings.camera_zoom += 0.01;
+        } else if actions.pressed(PlayerBindables::ZoomOut) {
+            settings.camera_zoom -= 0.01;
+        }
     }
 }

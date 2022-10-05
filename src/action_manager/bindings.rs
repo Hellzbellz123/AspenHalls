@@ -53,6 +53,9 @@ impl Default for PlayerInput {
 
         input_map.insert(KeyCode::Q, PlayerBindables::Heal);
 
+        input_map.insert(KeyCode::NumpadAdd, PlayerBindables::ZoomIn);
+        input_map.insert(KeyCode::NumpadSubtract, PlayerBindables::ZoomOut);
+
         input_map.set_gamepad(Gamepad { id: 0 });
         Self {
             input: InputManagerBundle::<PlayerBindables> {

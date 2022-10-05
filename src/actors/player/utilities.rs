@@ -5,7 +5,7 @@ use crate::{
         player::{ActorState, PlayerBundle},
     },
     loading::assets::PlayerTextureHandles,
-    Layer, PLAYER_SIZE, TILE_SIZE,
+    utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
 };
 use bevy::prelude::*;
 use heron::{CollisionLayers, CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
@@ -21,12 +21,18 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 current_frames: vec![0, 1, 2, 3, 4],
                 current_frame: 0,
             },
+            available_animations: AnimationSheet {
+                handle: selected_player.rex_full_sheet.clone(),
+                idle_animation: [0, 1, 2, 3, 4],
+                down_animation: [5, 6, 7, 8, 9],
+                up_animation: [10, 11, 12, 13, 14],
+                right_animation: [15, 16, 17, 18, 19],
+            },
             player_state: ActorState {
                 speed: 150.0,
                 sprint_available: false,
                 facing: FacingDirection::Idle,
                 just_moved: false,
-                target_positon: Some(Vec2::ZERO),
             },
             player_sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {
@@ -50,9 +56,10 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 },
                 rconstraints: RotationConstraints::lock(),
                 collisionlayers: CollisionLayers::none()
-                    .with_group(Layer::Player)
-                    .with_mask(Layer::World),
+                    .with_group(PhysicsLayers::Player)
+                    .with_mask(PhysicsLayers::World),
             },
+            player: super::Player,
         })
         .with_children(|parent| {
             parent
@@ -62,12 +69,5 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                     border_radius: None,
                 })
                 .insert(Transform::from_translation(Vec3::new(0., -24., 0.)));
-        })
-        .insert(AnimationSheet {
-            handle: selected_player.rex_full_sheet.clone(),
-            idle_animation: [0, 1, 2, 3, 4],
-            down_animation: [5, 6, 7, 8, 9],
-            up_animation: [10, 11, 12, 13, 14],
-            right_animation: [15, 16, 17, 18, 19],
         });
 }

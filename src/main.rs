@@ -2,20 +2,19 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![feature(lint_reasons)]
 
-use audio::{Ambience, Music, Sound, SoundSettings};
-use bevy::prelude::*;
-use bevy::render::texture::ImageSettings;
-use bevy::DefaultPlugins;
+use audio::{Ambience, Music, Sound};
+use bevy::prelude::{Camera2d, OrthographicProjection, ParallelSystemDescriptorCoercion};
+use bevy::{
+    prelude::{info, App, ClearColor, Color, Query, Res, ResMut, With},
+    render::texture::ImageSettings,
+    window::{WindowDescriptor, Windows},
+};
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use bevy_inspector_egui::Inspectable;
-use bevy_kira_audio::AudioChannel;
-use bevy_kira_audio::AudioControl;
-// use dev_tools::{debug_dirs, DebugPlugin};
 use game::TimeInfo;
-use heron::PhysicsLayer;
-use loading::AssetLoadPlugin;
-use splashscreen::SplashPlugin;
-use utilities::UtilitiesPlugin;
+
+use splashscreen::MainCamera;
+use utilities::game::{AppSettings, SystemLabels};
 
 pub mod action_manager;
 pub mod actors;
@@ -27,41 +26,6 @@ pub mod loading;
 pub mod splashscreen;
 pub mod ui;
 pub mod utilities;
-
-#[derive(Inspectable)]
-pub struct AppSettings {
-    sound_settings: SoundSettings,
-    resolution: Vec2,
-    // control_settings: PlayerInput,
-}
-
-//TODO: default app settings if its a setting it goes here, move this too settings plugin
-impl FromWorld for AppSettings {
-    fn from_world(_: &mut World) -> Self {
-        AppSettings {
-            sound_settings: SoundSettings {
-                mastervolume: 0.5,
-                ambiencevolume: 0.5,
-                musicvolume: 0.5,
-                soundvolume: 0.5,
-            },
-            resolution: Vec2 {
-                x: 1200.0,
-                y: 800.0,
-            },
-        }
-    }
-}
-
-pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
-pub const PLAYER_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
-
-#[derive(PhysicsLayer)]
-enum Layer {
-    World,
-    Player,
-    // Enemies,
-}
 
 pub fn main() {
     App::new()
@@ -75,38 +39,49 @@ pub fn main() {
             title: "Project Kira".to_string(), // ToDo
             ..Default::default()
         })
-        .add_plugins(DefaultPlugins)
-        .add_plugin(UtilitiesPlugin)
+        .add_plugins(bevy::DefaultPlugins)
+        .add_plugin(utilities::UtilitiesPlugin)
         .add_state(game::GameStage::Loading)
-        .add_plugin(AssetLoadPlugin)
+        .add_plugin(loading::AssetLoadPlugin)
         .insert_resource(TimeInfo {
             time_step: 0.0,
             game_paused: true,
             pause_menu: false,
         })
-        .add_plugin(SplashPlugin)
+        .add_plugin(splashscreen::SplashPlugin)
         .add_plugin(game::GamePlugin)
         .add_plugin(dev_tools::DebugPlugin)
-        .add_system(update_settings)
+        .add_system(update_settings.after(SystemLabels::InitSettings))
+        //     SystemSet::on_enter(GameStage::Splash)
+        //         .with_system(update_settings.label(SystemLabels::UpdateSettings)),
+        // )
         .run();
 }
 
-//TODO: move this to loading plugin
+//TODO: move this to loading plugin and only run it when the settings resource changes, or on game load.
+// (system ordering is imporatant here) the camera needs to be spawned first or we get a panic
 fn update_settings(
     mut windows: ResMut<Windows>,
     settings: Res<AppSettings>,
     bgm: Res<AudioChannel<Music>>,
     bga: Res<AudioChannel<Ambience>>,
     bgs: Res<AudioChannel<Sound>>,
+    mut camera: Query<(&mut OrthographicProjection, &Camera2d, With<MainCamera>)>,
 ) {
     let window = windows.primary_mut();
+
+    if !camera.is_empty() {
+        camera.get_single_mut().expect("no camera?").0.scale = settings.camera_zoom;
+    }
+
     if settings.is_changed() {
         window.set_resolution(settings.resolution.x, settings.resolution.y);
-
-        let sound_settings = &settings.sound_settings;
+        //camera zoom
+        //sound settings
         info!("volumes changed, applying settings");
-        bgm.set_volume(sound_settings.musicvolume * sound_settings.mastervolume);
-        bga.set_volume(sound_settings.ambiencevolume * sound_settings.mastervolume);
-        bgs.set_volume(sound_settings.soundvolume * sound_settings.mastervolume);
+        let mastervolume = &settings.sound_settings.mastervolume;
+        bgm.set_volume(settings.sound_settings.musicvolume * mastervolume);
+        bga.set_volume(settings.sound_settings.ambiencevolume * mastervolume);
+        bgs.set_volume(settings.sound_settings.soundvolume * mastervolume);
     }
 }

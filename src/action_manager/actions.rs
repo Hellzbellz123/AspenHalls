@@ -14,5 +14,8 @@ pub enum PlayerBindables {
     Sprint,
     Pause,
     Heal,
+
+    ZoomIn,
+    ZoomOut,
     // Menus,
 }

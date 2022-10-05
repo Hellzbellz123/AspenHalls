@@ -8,12 +8,14 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/.trunk/*out": true,
-    "**/.trunk": false,
+    "**/.trunk": true,
     "**/.vscode": true,
-    ".cargo": false,
+    ".cargo": true,
     ".gitattributes": true,
     ".markdownlint.yaml": true,
-    ".shellcheckrc": true
+    ".shellcheckrc": true,
+    "Cargo.lock": true,
+    ".gitignore": true
   },
   "explorerExclude.backup": {}
 }

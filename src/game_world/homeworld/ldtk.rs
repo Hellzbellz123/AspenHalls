@@ -2,7 +2,10 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::{LdtkWorldBundle, LevelSelection};
 use heron::{CollisionLayers, CollisionShape, RigidBody};
 
-use crate::{game_world::world_components::Collides, loading::assets::MapAssetHandles, Layer};
+use crate::{
+    game_world::world_components::Collides, loading::assets::MapAssetHandles,
+    utilities::game::PhysicsLayers,
+};
 
 pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
     commands.spawn_bundle(LdtkWorldBundle {
@@ -44,8 +47,8 @@ pub fn name_colliders(
             })
             .insert(
                 CollisionLayers::none()
-                    .with_group(Layer::World)
-                    .with_mask(Layer::Player),
+                    .with_group(PhysicsLayers::World)
+                    .with_mask(PhysicsLayers::Player),
             );
     }
 }

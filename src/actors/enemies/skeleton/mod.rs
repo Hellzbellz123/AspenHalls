@@ -1,10 +1,20 @@
-use bevy::{prelude::Name, sprite::SpriteSheetBundle};
+use bevy::{
+    prelude::{Bundle, Name},
+    sprite::SpriteSheetBundle,
+};
 
-use crate::actors::{animation::AnimState, RigidBodyBundle};
+use crate::actors::{animation::AnimState, ActorState, RigidBodyBundle};
 
-struct SkeletonBundle {
-    name: Name,
-    sprite: SpriteSheetBundle,
-    rigidbody: RigidBodyBundle,
-    animation_state: AnimState,
+use super::Enemy;
+
+#[derive(Bundle)]
+pub struct SkeletonBundle {
+    pub name: Name,
+    pub actortype: Enemy,
+    pub actorstate: ActorState,
+    pub animation_state: AnimState,
+    #[bundle]
+    pub sprite: SpriteSheetBundle,
+    #[bundle]
+    pub rigidbody: RigidBodyBundle,
 }

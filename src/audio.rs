@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    actors::{animation::FacingDirection, ActorState},
+    actors::{animation::FacingDirection, player::Player, ActorState},
     game::GameStage,
     loading::assets::AudioHandles,
 };
@@ -75,7 +75,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
 
 pub fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
-    mut player_query: Query<&mut ActorState>,
+    mut player_query: Query<&mut ActorState, With<Player>>,
     mut walksound_res: ResMut<WalkingSound>,
     audio: Res<AudioChannel<Sound>>,
     time: Res<Time>,
@@ -108,47 +108,3 @@ pub fn player_walking_sound_system(
         }
     }
 }
-// fn play_music_oddio(audio_assets: Res<AudioHandles>, mut audio: ResMut<bevy_oddio::Audio<bevy_oddio::frames::Stereo>>) {
-//     // let playing = audio.play(audio_assets.gamesoundtracktwo.clone(), 0.1);
-//     // bevy_oddio::output::AudioSink
-// }
-
-// pub fn player_walking_oddio(
-//     mut player_query: Query<&mut PlayerState>,
-//     mut walk_sound_resource: ResMut<WalkingSound>,
-//     // asset_server: Res<AssetServer>,
-//     audio_assets: Res<AudioHandles>,
-//     mut audio: ResMut<bevy_oddio::Audio<bevy_oddio::frames::Stereo>>,
-//     // audio: Res<AudioChannel<Sound>>,
-//     time: Res<Time>,
-// ) {
-//     let playerdata = player_query.single_mut();
-//     if playerdata.facing == FacingDirection::Idle {
-//         walk_sound_resource.timer.reset();
-//         walk_sound_resource.is_first_time = true;
-//     } else {
-//         if !playerdata.sprint_available {
-//             walk_sound_resource.timer.set_duration(Duration::from_millis(650));
-//         } else if playerdata.sprint_available {
-//             walk_sound_resource.timer.set_duration(Duration::from_millis(150));
-//         }
-
-//         walk_sound_resource.timer.tick(time.delta());
-//         if walk_sound_resource.timer.finished() || walk_sound_resource.is_first_time {
-//             if walk_sound_resource.is_first_time {
-//                 walk_sound_resource.is_first_time = false;
-//                 walk_sound_resource.timer.reset();
-//             }
-
-//             let mut rng = thread_rng();
-//             let chandle = audio_assets.footsteps.choose(&mut rng).expect("this array will always be filled or the game wont start");
-
-//             let bs = audio.play(chandle.clone(), 1.0);
-//             info!("footstep sound {:?}", chandle);
-
-//             // info!("play footsteps for player");
-//             // let playing = audio.play(audio_assets.footsteps., 0.1);
-//             // audio.play(asset_server.load(format!("audio/footstep/footstep-{}.wav", index).as_str()), 1.0);
-//         }
-//     }
-// }
