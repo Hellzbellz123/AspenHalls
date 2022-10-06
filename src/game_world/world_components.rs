@@ -1,40 +1,120 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::LdtkIntCell;
-use bevy_inspector_egui::Inspectable;
+use bevy_ecs_ldtk::{IntGridCell, LdtkIntCell};
+use heron::{CollisionLayers, CollisionShape, RigidBody};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Component, Inspectable)]
-pub struct Collides {
-    active: bool,
+use crate::utilities::game::PhysicsLayers;
+
+#[derive(Bundle, LdtkIntCell)]
+pub struct HeronBundles{
+    #[from_int_grid_cell]
+    #[bundle]
+    collisionbundle: CollisionBundle,
 }
 
-impl Default for Collides {
-    fn default() -> Self {
-        Collides { active: true }
+#[derive(Clone, Debug, Bundle, LdtkIntCell)]
+pub struct CollisionBundle {
+    name: Name,
+    rigidbody: RigidBody,
+    collision_shape: CollisionShape,
+    collision_layers: CollisionLayers,
+}
+
+impl From<IntGridCell> for CollisionBundle {
+    fn from(int_grid_cell: IntGridCell) -> CollisionBundle {
+        if int_grid_cell.value == 1 {
+            CollisionBundle {
+                name: Name::new("CollisonBundle"),
+                rigidbody: RigidBody::Static,
+                collision_shape: CollisionShape::Cuboid {
+                    half_extends: Vec3 {
+                        x: 16.0,
+                        y: 16.0,
+                        z: 0.0,
+                    },
+                    border_radius: None,
+                },
+                collision_layers: CollisionLayers::none()
+                    .with_group(PhysicsLayers::World)
+                    .with_masks(&[PhysicsLayers::Player, PhysicsLayers::Enemies])
+            }
+        } else if int_grid_cell.value == 2 {
+            CollisionBundle {
+                name: Name::new("SensorBundle"),
+                rigidbody: RigidBody::Sensor,
+                collision_shape: CollisionShape::Cuboid {
+                    half_extends: Vec3 {
+                        x: 16.0,
+                        y: 16.0,
+                        z: 0.0,
+                    },
+                    border_radius: None,
+                },
+                collision_layers: CollisionLayers::none()
+                .with_group(PhysicsLayers::Sensor).with_mask(PhysicsLayers::Player)
+            }
+        } else {
+            debug!("we hit some weird shit");
+            return CollisionBundle {
+                name: Name::new("SHOULDNT EXIST!!!"),
+                rigidbody: RigidBody::Static,
+                collision_shape: CollisionShape::default(),
+                collision_layers: CollisionLayers::none(),
+            };
+        }
     }
 }
 
-#[derive(Clone, Debug, Bundle, LdtkIntCell, Default)]
-pub struct ColliderBundle {
-    active: Collides,
-}
+// im only keeping this for documentation purposes. this took me 3 weeks to figure out.
+// pub fn name_colliders(
+//     mut commands: Commands,
+//     entity_query: Query<(Entity, &Parent, &CollisionShape, &Transform), Added<CollisionShape>>,
+// ) {
+//     for entity in entity_query.iter() {
+//         info!("naming colliders: {}", entity.0.id());
+//         commands
+//             .entity(entity.0)
+//             .insert(Name::new("levelCollider"))
+//             .insert(RigidBody::Static)
+//             .insert(CollisionShape::Cuboid {
+//                 half_extends: Vec3::new(16.0, 16.0, 0.0),
+//                 border_radius: None,
+//             })
+//             .insert(
+//                 CollisionLayers::none()
+//                     .with_group(PhysicsLayers::World)
+//                     .with_mask(PhysicsLayers::Player),
+//             );
+//     }
+// }
 
-// // not used yet maybe not at all
-// impl From<IntGridCell> for ColliderBundle {
-//     fn from(int_grid_cell: IntGridCell) -> ColliderBundle {
-//         if int_grid_cell.value == 1 {
-//             ColliderBundle {
-//                 collider: CollisionShape::Cuboid {
-//                     half_extends: Vec3::new(8., 8., 0.),
-//                     border_radius: None,
-//                 },
-//                 rigidbody: RigidBody::Static,
-//                 ..Default::default()
-//             }
-//         } else {
+// pub fn name_colliders_simple(
+//     mut commands: Commands,
+//     entity_query: Query<(Entity, &Parent, &Transform), Added<CollisionShape>>,
+// ) {
+//     for entity in entity_query.iter() {
+//         info!("naming colliders: {}", entity.0.id());
+//         commands.entity(entity.0).insert(Name::new("levelCollider"));
+//     }
+// }
 
+
+// impl FromWorld for ColliderBundle {
+//     fn from_world(world: &mut World) -> Self {
+//         Self {
+//             name: Name::new("NamedCollider".to_string()),
+//             rigidbody: RigidBody::Static,
+//             collision_shape: CollisionShape::Cuboid {
+//                 half_extends: Vec3::new(16.0, 16.0, 0.0),
+//                 border_radius: None,
+//             },
+//             collision_layers: CollisionLayers::none()
+//                 .with_group(PhysicsLayers::World)
+//                 .with_mask(PhysicsLayers::Player),
 //         }
 //     }
 // }
+
+// // not used yet maybe not at all
 
 // use bevy::prelude::*;
 // use bevy_ecs_ldtk::{prelude::*, utils::ldtk_pixel_coords_to_translation_pivoted};

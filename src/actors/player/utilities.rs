@@ -57,7 +57,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 rconstraints: RotationConstraints::lock(),
                 collisionlayers: CollisionLayers::none()
                     .with_group(PhysicsLayers::Player)
-                    .with_mask(PhysicsLayers::World),
+                    // .with_mask(PhysicsLayers::World),
             },
             player: super::Player,
         })

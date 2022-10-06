@@ -1,3 +1,4 @@
+
 [package]
 name = "vanillacoffee"
 version = "0.0.3"
@@ -23,18 +24,10 @@ resolver = "2"
 embed-resource = "1.7.3"
 
 [dependencies]
-glob = "0.3"
 rand = "0.8.5"
 serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.26.1"
-bevy-discord-presence = "0.3.3"
-
-# chrono = "0.4.19"
-# fern = "0.6.1"
-
-[target.x86_64-pc-windows-msvc.dependencies]
-winapi = "0.3.9"
 
 [dependencies.heron]
 version = "4.0.1"
@@ -88,6 +81,10 @@ version = "0.13.0"
 default-features = false
 features = ["bevy_render", "bevy_sprite", "bevy_text"]
 
+[dependencies.bevy-inspector-egui-rapier]
+version = "0.6.0"
+features = ["rapier2d"]
+
 [dependencies.kayak_ui]
 # path = "crates/kayak_ui_experiments"
 git = "https://github.com/StarArawn/kayak_ui"
@@ -100,11 +97,16 @@ version = "0.5.2"
 # path = "crates/leafwing-input-manager"
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
 
-
 [dependencies.image]
 version = "0.24.3"
 default-features = false
 features = ["png"]
+
+# chrono = "0.4.19"
+# fern = "0.6.1"
+
+[target.x86_64-pc-windows-msvc.dependencies]
+winapi = "0.3.9"
 
 # [package.metadata.bundle]
 # name = "Vanilla Coffee"

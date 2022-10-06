@@ -10,11 +10,11 @@ pub mod player;
 
 #[derive(Bundle)] //bundle for ease of use
 pub struct RigidBodyBundle {
-    rigidbody: RigidBody,
-    collisionlayers: CollisionLayers,
-    rconstraints: RotationConstraints,
-    physicsmat: PhysicMaterial,
-    velocity: Velocity,
+    pub rigidbody: RigidBody,
+    pub collisionlayers: CollisionLayers,
+    pub rconstraints: RotationConstraints,
+    pub physicsmat: PhysicMaterial,
+    pub velocity: Velocity,
 }
 
 #[derive(Component, Default, Reflect, Inspectable)]

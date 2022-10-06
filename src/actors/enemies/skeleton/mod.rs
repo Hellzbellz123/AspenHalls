@@ -1,3 +1,5 @@
+pub mod utilities;
+
 use bevy::{
     prelude::{Bundle, Name},
     sprite::SpriteSheetBundle,

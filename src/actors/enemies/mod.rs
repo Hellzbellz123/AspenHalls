@@ -9,12 +9,12 @@ use rand::prelude::*;
 
 use crate::actors::enemies::skeleton::SkeletonBundle;
 
-mod skeleton;
+pub mod skeleton;
 
 #[derive(Component)]
 pub struct Enemy;
 
-const MAX_ENEMIES: i32 = 100;
+const MAX_ENEMIES: i32 = 0;
 
 fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
     let mut rng = rand::thread_rng();
@@ -68,8 +68,8 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             rconstraints: RotationConstraints::lock(),
                             collisionlayers: CollisionLayers::none()
                                 .with_group(PhysicsLayers::Enemies)
-                                .with_mask(PhysicsLayers::World)
-                                .with_mask(PhysicsLayers::Player),
+                                // .with_mask(PhysicsLayers::World)
+                                // .with_mask(PhysicsLayers::Player),
                         },
                     })
                     .with_children(|skele_parent| {
@@ -95,6 +95,7 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter))
-            .add_system_set(SystemSet::on_update(GameStage::Playing).with_system(on_update));
+            .add_system_set(SystemSet::on_update(GameStage::Playing).with_system(on_update).with_system(skeleton::utilities::spawn_skeleton_button));
     }
 }
+

@@ -1,6 +1,6 @@
 use bevy::prelude::{FromWorld, SystemLabel, Vec2, World};
 use bevy_inspector_egui::Inspectable;
-use heron::PhysicsLayer;
+use heron::{PhysicsLayer, CollisionLayers};
 
 use crate::audio::SoundSettings;
 
@@ -12,6 +12,7 @@ pub enum PhysicsLayers {
     World,
     Player,
     Enemies,
+    Sensor,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
@@ -55,4 +56,14 @@ impl FromWorld for AppSettings {
             camera_zoom: 1.0,
         }
     }
+}
+
+//determines if entity is in player collision layer
+fn is_player(layers: CollisionLayers) -> bool {
+    layers.contains_group(PhysicsLayers::Player) && !layers.contains_group(PhysicsLayers::Enemies)
+}
+
+//determines if entity is in enemy collision layer
+fn is_enemy(layers: CollisionLayers) -> bool {
+    !layers.contains_group(PhysicsLayers::Player) && layers.contains_group(PhysicsLayers::Enemies)
 }
