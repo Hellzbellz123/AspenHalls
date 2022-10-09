@@ -12,7 +12,7 @@ use crate::{
     action_manager::actions::PlayerBindables,
     actors::{
         animation::{AnimState, AnimationSheet, FacingDirection},
-        ActorState,
+        ActorState, player::Player,
     },
     game::TimeInfo,
     // game_world::world_components::Collides,
@@ -41,6 +41,7 @@ impl Plugin for DebugPlugin {
             .add_plugin(InspectableRapierPlugin)
             //custom inspectables not from plugins
             .register_inspectable::<ActorState>()
+            .register_inspectable::<Player>()
             .register_type::<TimeInfo>()
             .register_type::<AnimState>()
             .register_inspectable::<AnimationSheet>()

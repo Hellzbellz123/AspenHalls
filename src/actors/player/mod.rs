@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
 
 use crate::{
     action_manager::bindings::PlayerInput,
@@ -34,7 +35,7 @@ pub struct PlayerBundle {
     pub player_sprite_sheet: SpriteSheetBundle,
 }
 
-#[derive(Component)]
+#[derive(Component, Inspectable)]
 pub struct Player {
     pub just_teleported: bool,
 }

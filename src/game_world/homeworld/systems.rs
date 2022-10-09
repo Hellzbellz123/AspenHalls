@@ -40,7 +40,7 @@ pub fn spawn_level_0(mut commands: Commands) {
                 set_clear_color: SetClearColor::No,
                 int_grid_rendering: IntGridRendering::Invisible,
                 level_background: LevelBackground::Nonexistent,
-            })// LevelSelection::Index(0));
+            })
 }
 
 pub fn homeworld_teleport(
@@ -89,14 +89,18 @@ pub fn homeworld_teleport(
 pub fn enter_the_dungeon(
     // mut commands: Commands,
     player_tp_events: EventReader<PlayerTeleportEvent>,
-    mut player_transform: Query<&mut Transform, With<Player>>,
+    mut player_query: Query<(&mut Transform, &mut Player)>,
 ) {
     if !player_tp_events.is_empty() {
-        let mut mutplayer_transform = player_transform.get_single_mut().expect("should always be a player if we are getting the event");
-
-        *mutplayer_transform = Transform::from_xyz(46.0, 2900.0, 8.0);
-        //do some stuff then clear events
+        if !player_query.single().1.just_teleported {
+            let (mut ptransform, mut player ) = player_query.get_single_mut().expect("should always be a player if we are getting the event");
+            *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
+            player.just_teleported = true;
+            //do some stuff then clear events
+        }
         info!("player teleport/next playing sub-phase");
         player_tp_events.clear();
+    } else {
+        player_query.single_mut().1.just_teleported = false;
     }
 }
