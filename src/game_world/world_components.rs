@@ -1,4 +1,3 @@
-
 // im only keeping this for documentation purposes. this took me 3 weeks to figure out.
 // pub fn name_colliders(
 //     mut commands: Commands,

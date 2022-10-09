@@ -29,6 +29,10 @@ serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.26.1"
 
+[dependencies.big-brain]
+version = "0.14.0"
+features = ["trace"]
+
 [dependencies.heron]
 version = "4.0.1"
 features = ["2d"]

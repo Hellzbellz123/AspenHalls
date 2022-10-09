@@ -1041,6 +1041,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "big-brain"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c5e2361eee29536b4ef1e65da0dc2f63380ffdc5622418b6902f412cd63d2e7"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bindgen"
 version = "0.59.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4226,6 +4235,7 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_ecs_ldtk",
  "bevy_kira_audio",
+ "big-brain",
  "embed-resource",
  "heron",
  "image 0.24.4",

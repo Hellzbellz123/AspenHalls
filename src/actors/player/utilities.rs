@@ -8,7 +8,7 @@ use crate::{
     utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
 };
 use bevy::prelude::*;
-use heron::{CollisionLayers, CollisionShape, RotationConstraints, Velocity};
+use heron::{CollisionLayers, CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
@@ -51,10 +51,15 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 velocity: Velocity::default(),
                 rconstraints: RotationConstraints::lock(),
                 collision_layers: CollisionLayers::all_masks::<PhysicsLayers>()
-                    .with_group(PhysicsLayers::Player), //PhysicsLayers::Player.layers()
+                    .with_group(PhysicsLayers::Player),
+                physicsmat: PhysicMaterial {
+                    restitution: 0.1,
+                    density: 100.0,
+                    friction: 0.5,
+                }, //PhysicsLayers::Player.layers()
             },
             player: super::Player {
-                just_teleported: false
+                just_teleported: false,
             },
         })
         .with_children(|parent| {

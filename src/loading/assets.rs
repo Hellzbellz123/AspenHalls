@@ -26,6 +26,9 @@ pub struct PlayerTextureHandles {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
     #[asset(path = "characters/heroes/rex-sheet.png")]
     pub rex_full_sheet: Handle<TextureAtlas>,
+
+    #[asset(path = "textures/bevy.png")]
+    pub rex_attack: Handle<Image>,
 }
 
 #[derive(AssetCollection, Clone)]

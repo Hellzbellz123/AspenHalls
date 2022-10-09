@@ -5,7 +5,7 @@ use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    actors::{animation::FacingDirection, player::Player, ActorState},
+    actors::{animation::FacingDirection, components::Player, ActorState},
     game::GameStage,
     loading::assets::AudioHandles,
 };

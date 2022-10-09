@@ -1,4 +1,3 @@
-
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{IntGridCell, LdtkIntCell};
 use heron::{CollisionLayers, CollisionShape, RigidBody};
@@ -62,13 +61,13 @@ impl From<IntGridCell> for CollisionBundle {
             }
         } else {
             debug!("we hit some weird shit");
-            return CollisionBundle {
+            CollisionBundle {
                 name: Name::new("SHOULDNT EXIST!!!"),
                 rigidbody: RigidBody::Static,
                 collision_shape: CollisionShape::default(),
                 collision_layers: CollisionLayers::none(),
                 sensor: WorldSensor { active: false },
-            };
+            }
         }
     }
 }

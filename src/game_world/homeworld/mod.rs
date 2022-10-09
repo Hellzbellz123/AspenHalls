@@ -1,11 +1,12 @@
 use bevy::prelude::{Plugin, SystemSet};
-use bevy_ecs_ldtk::{
-    prelude::RegisterLdtkObjects,
-};
+use bevy_ecs_ldtk::prelude::RegisterLdtkObjects;
 
 use crate::game::GameStage;
 
-use self::{systems::{homeworld_teleport, enter_the_dungeon}, components::HeronCollisonBundle};
+use self::{
+    components::HeronCollisonBundle,
+    systems::{enter_the_dungeon, homeworld_teleport},
+};
 
 pub mod components;
 pub mod systems;
@@ -25,7 +26,9 @@ impl Plugin for HomeWorldPlugin {
                 SystemSet::on_enter(GameStage::Playing).with_system(systems::spawn_level_0),
             )
             .add_system_set(
-                SystemSet::on_update(GameStage::Playing).with_system(homeworld_teleport).with_system(enter_the_dungeon),
+                SystemSet::on_update(GameStage::Playing)
+                    .with_system(homeworld_teleport)
+                    .with_system(enter_the_dungeon),
             );
     }
 }

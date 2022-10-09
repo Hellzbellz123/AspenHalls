@@ -1,10 +1,10 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 use crate::{
     action_manager::bindings::PlayerInput,
     actors::{
         animation::{AnimState, AnimationSheet},
+        components::Player,
         player::{
             movement::{camera_movement_system, player_movement_system, player_sprint},
             utilities::spawn_player,
@@ -33,11 +33,6 @@ pub struct PlayerBundle {
     pub player_input_map: PlayerInput,
     #[bundle]
     pub player_sprite_sheet: SpriteSheetBundle,
-}
-
-#[derive(Component, Inspectable)]
-pub struct Player {
-    pub just_teleported: bool,
 }
 
 pub struct PlayerPlugin;

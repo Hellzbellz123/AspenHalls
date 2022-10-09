@@ -1,12 +1,13 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{LdtkWorldBundle, LevelSelection, LdtkSettings, LevelSpawnBehavior, SetClearColor, IntGridRendering, LevelBackground};
+use bevy_ecs_ldtk::{
+    IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground, LevelSelection,
+    LevelSpawnBehavior, SetClearColor,
+};
 use heron::CollisionEvent;
 
 use crate::{
-    actors::player::Player,
-    game_world::{homeworld::PlayerTeleportEvent},
-    loading::assets::MapAssetHandles,
-    utilities::game::is_sensor,
+    actors::components::Player, game_world::homeworld::PlayerTeleportEvent,
+    loading::assets::MapAssetHandles, utilities::game::is_sensor,
 };
 
 use super::components::WorldSensor;
@@ -34,13 +35,13 @@ pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
 pub fn spawn_level_0(mut commands: Commands) {
     commands.insert_resource(LevelSelection::Index(1));
     commands.insert_resource(LdtkSettings {
-                level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
-                    load_level_neighbors: true,
-                },
-                set_clear_color: SetClearColor::No,
-                int_grid_rendering: IntGridRendering::Invisible,
-                level_background: LevelBackground::Nonexistent,
-            })
+        level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
+            load_level_neighbors: true,
+        },
+        set_clear_color: SetClearColor::No,
+        int_grid_rendering: IntGridRendering::Invisible,
+        level_background: LevelBackground::Nonexistent,
+    })
 }
 
 pub fn homeworld_teleport(
@@ -53,7 +54,6 @@ pub fn homeworld_teleport(
     let player = player_query
         .get_single()
         .expect("should always be a player");
-
 
     if !world_sensor.is_empty() {
         collision_events
@@ -93,7 +93,9 @@ pub fn enter_the_dungeon(
 ) {
     if !player_tp_events.is_empty() {
         if !player_query.single().1.just_teleported {
-            let (mut ptransform, mut player ) = player_query.get_single_mut().expect("should always be a player if we are getting the event");
+            let (mut ptransform, mut player) = player_query
+                .get_single_mut()
+                .expect("should always be a player if we are getting the event");
             *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
             player.just_teleported = true;
             //do some stuff then clear events

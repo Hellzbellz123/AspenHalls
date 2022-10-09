@@ -5,6 +5,7 @@ use heron::prelude::*;
 use crate::actors::animation::FacingDirection;
 
 pub mod animation;
+pub mod components;
 pub mod enemies;
 pub mod player;
 
@@ -13,7 +14,7 @@ pub struct RigidBodyBundle {
     pub rigidbody: RigidBody,
     pub collision_layers: CollisionLayers,
     pub rconstraints: RotationConstraints,
-    // pub physicsmat: PhysicMaterial,
+    pub physicsmat: PhysicMaterial,
     pub velocity: Velocity,
 }
 

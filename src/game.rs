@@ -13,7 +13,8 @@ use crate::{
     utilities::game::AppSettings,
 };
 
-#[derive(Debug, Clone, Component, Reflect)]
+#[derive(Debug, Clone, Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct TimeInfo {
     pub time_step: f32,
     pub game_paused: bool,

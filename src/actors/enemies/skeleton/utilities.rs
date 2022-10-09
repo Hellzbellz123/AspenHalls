@@ -3,15 +3,15 @@ use bevy::{
     sprite::{SpriteSheetBundle, TextureAtlasSprite},
     time::Timer,
 };
-use heron::{CollisionShape, RotationConstraints, Velocity};
+use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
     actors::{
-        animation::FacingDirection,
+        animation::{AnimationSheet, FacingDirection},
+        components::{Aggroable, Player},
         enemies::{skeleton::SkeletonBundle, Enemy},
-        player::Player,
         ActorState, RigidBodyBundle,
     },
     loading::assets::EnemyTextureHandles,
@@ -46,6 +46,13 @@ pub fn spawn_skeleton_button(
                             current_frames: vec![0, 1, 2, 3, 4],
                             current_frame: 0,
                         },
+                        available_animations: AnimationSheet {
+                            handle: enemyassets.skele_full_sheet.clone(),
+                            idle_animation: [0, 1, 2, 3, 4],
+                            down_animation: [5, 6, 7, 8, 9],
+                            up_animation: [10, 11, 12, 13, 14],
+                            right_animation: [15, 16, 17, 18, 19],
+                        },
                         sprite: SpriteSheetBundle {
                             sprite: TextureAtlasSprite {
                                 custom_size: Some(PLAYER_SIZE), //character is 1 tile wide by 2 tiles wide
@@ -67,7 +74,13 @@ pub fn spawn_skeleton_button(
                             velocity: Velocity::default(),
                             rconstraints: RotationConstraints::lock(),
                             collision_layers: PhysicsLayers::Enemy.layers(),
+                            physicsmat: PhysicMaterial {
+                                restitution: 0.01,
+                                density: 100.0,
+                                friction: 0.5,
+                            },
                         },
+                        aggroable: Aggroable { distance: 5.0 },
                     })
                     .with_children(|skele_parent| {
                         skele_parent

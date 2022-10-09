@@ -12,7 +12,8 @@ use crate::{
     action_manager::actions::PlayerBindables,
     actors::{
         animation::{AnimState, AnimationSheet, FacingDirection},
-        ActorState, player::Player,
+        components::Player,
+        ActorState,
     },
     game::TimeInfo,
     // game_world::world_components::Collides,

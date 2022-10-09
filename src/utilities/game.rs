@@ -13,6 +13,8 @@ pub enum PhysicsLayers {
     Player,
     Enemy,
     Sensor,
+    PlayerAttack,
+    EnemyAttack,
 }
 
 impl PhysicsLayers {
@@ -40,6 +42,12 @@ impl PhysicsLayers {
             PhysicsLayers::Sensor => CollisionLayers::none()
                 .with_group(PhysicsLayers::Sensor)
                 .with_masks(vec![PhysicsLayers::Player]),
+            PhysicsLayers::PlayerAttack => CollisionLayers::none()
+                .with_group(PhysicsLayers::PlayerAttack)
+                .with_masks(vec![PhysicsLayers::Enemy, PhysicsLayers::World]),
+            PhysicsLayers::EnemyAttack => CollisionLayers::none()
+                .with_group(PhysicsLayers::EnemyAttack)
+                .with_masks(vec![PhysicsLayers::Player, PhysicsLayers::World]),
         }
     }
 }

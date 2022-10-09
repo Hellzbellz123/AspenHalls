@@ -4,15 +4,20 @@ use crate::{
     utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
 };
 use bevy::prelude::{App, Plugin, SystemSet, *};
-use heron::{CollisionShape, RotationConstraints, Velocity};
+use big_brain::BigBrainPlugin;
+use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 use rand::prelude::*;
 
-use crate::actors::enemies::skeleton::SkeletonBundle;
+use crate::actors::{
+    components::{Aggroable, Enemy},
+    enemies::skeleton::SkeletonBundle,
+    RigidBodyBundle,
+};
 
+use super::animation::AnimationSheet;
+
+pub mod shaman_ai;
 pub mod skeleton;
-
-#[derive(Component)]
-pub struct Enemy;
 
 const MAX_ENEMIES: i32 = 10;
 
@@ -44,6 +49,13 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             current_frames: vec![0, 1, 2, 3, 4],
                             current_frame: 0,
                         },
+                        available_animations: AnimationSheet {
+                            handle: enemyassets.skele_full_sheet.clone(),
+                            idle_animation: [0, 1, 2, 3, 4],
+                            down_animation: [5, 6, 7, 8, 9],
+                            up_animation: [10, 11, 12, 13, 14],
+                            right_animation: [15, 16, 17, 18, 19],
+                        },
                         sprite: SpriteSheetBundle {
                             sprite: TextureAtlasSprite {
                                 custom_size: Some(PLAYER_SIZE), //character is 1 tile wide by 2 tiles wide
@@ -57,12 +69,18 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             ),
                             ..default()
                         },
-                        rigidbody: super::RigidBodyBundle {
+                        rigidbody: RigidBodyBundle {
                             rigidbody: heron::RigidBody::Dynamic,
                             velocity: Velocity::default(),
                             rconstraints: RotationConstraints::lock(),
                             collision_layers: PhysicsLayers::Enemy.layers(),
+                            physicsmat: PhysicMaterial {
+                                restitution: 0.1,
+                                density: 100.0,
+                                friction: 0.5,
+                            },
                         },
+                        aggroable: Aggroable { distance: 5.0 },
                     })
                     .with_children(|skele_parent| {
                         skele_parent
@@ -87,11 +105,12 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         // app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter))
-        app.add_system_set(
-            SystemSet::on_update(GameStage::Playing)
-                .with_system(on_update)
-                .with_system(skeleton::utilities::spawn_skeleton_button),
-        )
-        .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter));
+        app.add_plugin(BigBrainPlugin)
+            .add_system_set(
+                SystemSet::on_update(GameStage::Playing)
+                    .with_system(on_update)
+                    .with_system(skeleton::utilities::spawn_skeleton_button),
+            )
+            .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter));
     }
 }
