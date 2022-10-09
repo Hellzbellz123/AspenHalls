@@ -8,11 +8,11 @@ rlt = "build --target=x86_64-unknown-linux-gnu -Zunstable-options --keep-going -
 [build]
 target = ["x86_64-pc-windows-msvc"]
 
-# [profile.dev]
-# opt-level = 1
+[profile.dev]
+opt-level = 1
 
-# [profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-# opt-level = 3
+[profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+opt-level = 3
 
 [profile.release]
 lto = "fat"

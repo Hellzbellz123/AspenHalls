@@ -49,6 +49,7 @@ fn spawn_main_camera(mut commands: Commands) {
                 is_active: true,
                 ..default()
             },
+            transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
             ..default()
         })
         .insert(Name::new("Main Camera"))

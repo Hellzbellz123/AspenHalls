@@ -40,7 +40,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                     ..default()
                 },
                 texture_atlas: selected_player.rex_full_sheet.clone(),
-                transform: Transform::from_xyz(0.0, 30.0, 8.0),
+                transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
                 // global_transform:  , // Vec3::new(0.0, 0.0, 8.0)
                 ..default()
             },
@@ -53,7 +53,9 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 collision_layers: CollisionLayers::all_masks::<PhysicsLayers>()
                     .with_group(PhysicsLayers::Player), //PhysicsLayers::Player.layers()
             },
-            player: super::Player,
+            player: super::Player {
+                just_teleported: false
+            },
         })
         .with_children(|parent| {
             parent

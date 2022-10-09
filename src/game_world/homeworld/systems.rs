@@ -1,13 +1,15 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{LdtkWorldBundle, LevelSelection};
+use bevy_ecs_ldtk::{LdtkWorldBundle, LevelSelection, LdtkSettings, LevelSpawnBehavior, SetClearColor, IntGridRendering, LevelBackground};
 use heron::CollisionEvent;
 
 use crate::{
     actors::player::Player,
-    game_world::{homeworld::PlayerTeleportEvent, world_components::WorldSensor},
+    game_world::{homeworld::PlayerTeleportEvent},
     loading::assets::MapAssetHandles,
     utilities::game::is_sensor,
 };
+
+use super::components::WorldSensor;
 
 pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
     commands.spawn_bundle(LdtkWorldBundle {
@@ -19,8 +21,8 @@ pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
                 z: 0.0,
             },
             scale: Vec3 {
-                x: 1.0,
-                y: 1.0,
+                x: 3.0,
+                y: 3.0,
                 z: 1.0,
             },
             ..default()
@@ -30,7 +32,15 @@ pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
 }
 
 pub fn spawn_level_0(mut commands: Commands) {
-    commands.insert_resource(LevelSelection::Index(0));
+    commands.insert_resource(LevelSelection::Index(1));
+    commands.insert_resource(LdtkSettings {
+                level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
+                    load_level_neighbors: true,
+                },
+                set_clear_color: SetClearColor::No,
+                int_grid_rendering: IntGridRendering::Invisible,
+                level_background: LevelBackground::Nonexistent,
+            })// LevelSelection::Index(0));
 }
 
 pub fn homeworld_teleport(
@@ -84,7 +94,7 @@ pub fn enter_the_dungeon(
     if !player_tp_events.is_empty() {
         let mut mutplayer_transform = player_transform.get_single_mut().expect("should always be a player if we are getting the event");
 
-        *mutplayer_transform = Transform::from_xyz(0.0, 0.0, 8.0);
+        *mutplayer_transform = Transform::from_xyz(46.0, 2900.0, 8.0);
         //do some stuff then clear events
         info!("player teleport/next playing sub-phase");
         player_tp_events.clear();

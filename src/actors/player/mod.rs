@@ -35,7 +35,9 @@ pub struct PlayerBundle {
 }
 
 #[derive(Component)]
-pub struct Player;
+pub struct Player {
+    pub just_teleported: bool,
+}
 
 pub struct PlayerPlugin;
 /// This plugin handles player related stuff like movement

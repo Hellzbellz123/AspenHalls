@@ -5,7 +5,7 @@ use bevy::{
 use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
 use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
 use bevy_inspector_egui_rapier::InspectableRapierPlugin;
-use heron::CollisionEvent;
+
 use std::time::Duration;
 
 use crate::{

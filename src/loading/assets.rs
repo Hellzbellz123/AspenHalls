@@ -52,7 +52,7 @@ pub struct UiTextureHandles {
 
 #[derive(AssetCollection, Clone, Debug)]
 pub struct MapAssetHandles {
-    #[asset(path = "levels/homeworld.ldtk")]
+    #[asset(path = "levels/homeworldbroke.ldtk")]
     pub homeworld: Handle<LdtkAsset>,
 }
 

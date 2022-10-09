@@ -14,7 +14,7 @@ pub mod skeleton;
 #[derive(Component)]
 pub struct Enemy;
 
-const MAX_ENEMIES: i32 = 0;
+const MAX_ENEMIES: i32 = 10;
 
 fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
     let mut rng = rand::thread_rng();
@@ -51,8 +51,8 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             },
                             texture_atlas: enemyassets.skele_full_sheet.clone(),
                             transform: Transform::from_xyz(
-                                rng.gen_range(0.0..2195.0),
-                                rng.gen_range(0.0..1460.0),
+                                rng.gen_range(-470.0..520.0),
+                                rng.gen_range(2818.0..3805.0),
                                 8.0,
                             ),
                             ..default()
@@ -91,6 +91,7 @@ impl Plugin for EnemyPlugin {
             SystemSet::on_update(GameStage::Playing)
                 .with_system(on_update)
                 .with_system(skeleton::utilities::spawn_skeleton_button),
-        );
+        )
+        .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter));
     }
 }
