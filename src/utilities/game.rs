@@ -1,18 +1,47 @@
 use bevy::prelude::{FromWorld, SystemLabel, Vec2, World};
 use bevy_inspector_egui::Inspectable;
-use heron::{PhysicsLayer, CollisionLayers};
+use heron::{CollisionLayers, PhysicsLayer};
 
 use crate::audio::SoundSettings;
 
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
 pub const PLAYER_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
 
-#[derive(PhysicsLayer)]
+#[derive(PhysicsLayer, Inspectable)]
 pub enum PhysicsLayers {
     World,
     Player,
-    Enemies,
+    Enemy,
     Sensor,
+}
+
+impl PhysicsLayers {
+    #[must_use]
+    pub fn layers(&self) -> CollisionLayers {
+        match self {
+            PhysicsLayers::Player => CollisionLayers::none()
+                .with_group(PhysicsLayers::Player)
+                .with_masks(vec![
+                    PhysicsLayers::Enemy,
+                    PhysicsLayers::Sensor,
+                    PhysicsLayers::Player,
+                    PhysicsLayers::World,
+                ]),
+            PhysicsLayers::Enemy => CollisionLayers::none()
+                .with_group(PhysicsLayers::Enemy)
+                .with_masks(vec![
+                    PhysicsLayers::Player,
+                    PhysicsLayers::Enemy,
+                    PhysicsLayers::World,
+                ]),
+            PhysicsLayers::World => CollisionLayers::none()
+                .with_group(PhysicsLayers::World)
+                .with_masks(vec![PhysicsLayers::Player, PhysicsLayers::Enemy]),
+            PhysicsLayers::Sensor => CollisionLayers::none()
+                .with_group(PhysicsLayers::Sensor)
+                .with_masks(vec![PhysicsLayers::Player]),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
@@ -58,12 +87,40 @@ impl FromWorld for AppSettings {
     }
 }
 
-//determines if entity is in player collision layer
-fn is_player(layers: CollisionLayers) -> bool {
-    layers.contains_group(PhysicsLayers::Player) && !layers.contains_group(PhysicsLayers::Enemies)
+#[must_use]
+pub fn is_player(layers: CollisionLayers) -> bool {
+    //determines if entity is in player collision layer
+    layers.contains_group(PhysicsLayers::Player)
+        && !layers.contains_group(PhysicsLayers::Enemy)
+        && !layers.contains_group(PhysicsLayers::Sensor)
+        && !layers.contains_group(PhysicsLayers::World)
+    // && !layers.contains_group(PhysicsLayers::Projectile)
 }
 
-//determines if entity is in enemy collision layer
-fn is_enemy(layers: CollisionLayers) -> bool {
-    !layers.contains_group(PhysicsLayers::Player) && layers.contains_group(PhysicsLayers::Enemies)
+#[must_use]
+pub fn is_enemy(layers: CollisionLayers) -> bool {
+    //determines if entity is in enemy collision layer
+    layers.contains_group(PhysicsLayers::Enemy)
+        && !layers.contains_group(PhysicsLayers::Player)
+        && !layers.contains_group(PhysicsLayers::Sensor)
+        && !layers.contains_group(PhysicsLayers::World)
+    // && !layers.contains_group(PhysicsLayers::Projectile)
+}
+
+#[must_use]
+pub fn is_sensor(layers: CollisionLayers) -> bool {
+    layers.contains_group(PhysicsLayers::Sensor)
+        && !layers.contains_group(PhysicsLayers::Player)
+        && !layers.contains_group(PhysicsLayers::World)
+        && !layers.contains_group(PhysicsLayers::Enemy)
+    // && !layers.contains_group(PhysicsLayers::Projectile)
+}
+
+#[must_use]
+pub fn is_wall(layers: CollisionLayers) -> bool {
+    layers.contains_group(PhysicsLayers::World)
+        && !layers.contains_group(PhysicsLayers::Player)
+        && !layers.contains_group(PhysicsLayers::Enemy)
+        && !layers.contains_group(PhysicsLayers::Enemy)
+    // && !layers.contains_group(PhysicsLayers::Projectile)
 }

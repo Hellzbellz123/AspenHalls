@@ -50,21 +50,45 @@ impl Plugin for DebugPlugin {
             // LDTK debug data
             .register_type::<LayerMetadata>()
             .register_type::<IntGridCell>()
-            .register_type::<GridCoords>()
-            .add_system(log_collisions);
+            .register_type::<GridCoords>();
+        // .add_system(debug_collision_events);
     }
 }
 
+// fn log_collisions(mut events: EventReader<CollisionEvent>) {
+//     for event in events.iter() {
+//         if event.is_started() {
+//             info!("{:?}", event);
+//         }
+//     }
+// }
 
-fn log_collisions(mut events: EventReader<CollisionEvent>) {
-    for event in events.iter() {
-        match event {
-            CollisionEvent::Started(d1, d2) => {
-                println!("Collision started between {:?} and {:?}", d1, d2)
-            }
-            CollisionEvent::Stopped(d1, d2) => {
-                println!("Collision stopped between {:?} and {:?}", d1, d2)
-            }
-        }
-    }
-}
+// fn debug_collision_events(mut commands: Commands, mut events: EventReader<CollisionEvent>) {
+//     events
+//         .iter()
+//         // We care about when the entities "start" to collide
+//         .filter(|e| e.is_started())
+//         .filter_map(|event| {
+//             let (entity_1, entity_2) = event.rigid_body_entities();
+//             let (layers_1, layers_2) = event.collision_layers();
+//             if is_player(layers_1) && is_enemy(layers_2) | is_player(layers_2) && is_enemy(layers_1)
+//             {
+//                 info!("player and enemy collided");
+//                 Some(entity_1)
+//             } else if is_player(layers_2) && is_sensor(layers_1)
+//                 || is_player(layers_1) && is_sensor(layers_2)
+//             {
+//                 info!("player and sensor collided");
+//                 layers_1.groups_bits();
+//                 Some(entity_1)
+//             } else {
+//                 info!("not player or enemy or sensor, we can ignore");
+//                 // This event is not the collision between an enemy and the player. We can ignore it.
+//                 None
+//             }
+//         })
+//         .for_each(|entity| {
+//             // let player = entity.id();
+//             info!("{}", entity.id());
+//         })
+// }

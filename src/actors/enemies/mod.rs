@@ -4,7 +4,7 @@ use crate::{
     utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
 };
 use bevy::prelude::{App, Plugin, SystemSet, *};
-use heron::{CollisionLayers, CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
+use heron::{CollisionShape, RotationConstraints, Velocity};
 use rand::prelude::*;
 
 use crate::actors::enemies::skeleton::SkeletonBundle;
@@ -60,16 +60,8 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                         rigidbody: super::RigidBodyBundle {
                             rigidbody: heron::RigidBody::Dynamic,
                             velocity: Velocity::default(),
-                            physicsmat: PhysicMaterial {
-                                friction: 1.0,
-                                density: 100.0,
-                                ..Default::default()
-                            },
                             rconstraints: RotationConstraints::lock(),
-                            collisionlayers: CollisionLayers::none()
-                                .with_group(PhysicsLayers::Enemies)
-                                // .with_mask(PhysicsLayers::World)
-                                // .with_mask(PhysicsLayers::Player),
+                            collision_layers: PhysicsLayers::Enemy.layers(),
                         },
                     })
                     .with_children(|skele_parent| {
@@ -94,8 +86,11 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter))
-            .add_system_set(SystemSet::on_update(GameStage::Playing).with_system(on_update).with_system(skeleton::utilities::spawn_skeleton_button));
+        // app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter))
+        app.add_system_set(
+            SystemSet::on_update(GameStage::Playing)
+                .with_system(on_update)
+                .with_system(skeleton::utilities::spawn_skeleton_button),
+        );
     }
 }
-

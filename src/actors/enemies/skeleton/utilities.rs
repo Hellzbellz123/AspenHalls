@@ -1,8 +1,22 @@
-use bevy::{prelude::{Commands, ResMut, Query, Transform, With, info, Name, default, BuildChildren, Vec3}, time::Timer, sprite::{SpriteSheetBundle, TextureAtlasSprite}};
-use heron::{Velocity, PhysicMaterial, RotationConstraints, CollisionLayers, CollisionShape};
+use bevy::{
+    prelude::{default, info, BuildChildren, Commands, Name, Query, ResMut, Transform, Vec3, With},
+    sprite::{SpriteSheetBundle, TextureAtlasSprite},
+    time::Timer,
+};
+use heron::{CollisionShape, RotationConstraints, Velocity};
 use leafwing_input_manager::prelude::ActionState;
 
-use crate::{loading::assets::EnemyTextureHandles, action_manager::actions::PlayerBindables, actors::{player::Player, enemies::{skeleton::SkeletonBundle, Enemy}, ActorState, animation::FacingDirection, RigidBodyBundle}, utilities::game::{PLAYER_SIZE, PhysicsLayers, TILE_SIZE}};
+use crate::{
+    action_manager::actions::PlayerBindables,
+    actors::{
+        animation::FacingDirection,
+        enemies::{skeleton::SkeletonBundle, Enemy},
+        player::Player,
+        ActorState, RigidBodyBundle,
+    },
+    loading::assets::EnemyTextureHandles,
+    utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
+};
 
 pub fn spawn_skeleton_button(
     mut commands: Commands,
@@ -17,8 +31,6 @@ pub fn spawn_skeleton_button(
             info!("Pressed devtest button");
 
             if !player_query.is_empty() {
-                // let player_transform = ;
-
                 commands
                     .spawn_bundle(SkeletonBundle {
                         name: Name::new("Skeleton"),
@@ -41,25 +53,20 @@ pub fn spawn_skeleton_button(
                             },
                             texture_atlas: enemyassets.skele_full_sheet.clone(),
                             transform: Transform {
-                                translation:  player_query.get_single().expect("always a player, hopefully").0.translation,
+                                translation: player_query
+                                    .get_single()
+                                    .expect("always a player, hopefully")
+                                    .0
+                                    .translation,
                                 ..default()
                             },
                             ..default()
                         },
                         rigidbody: RigidBodyBundle {
-                            rigidbody: heron::RigidBody::Static,
+                            rigidbody: heron::RigidBody::Dynamic,
                             velocity: Velocity::default(),
-                            physicsmat: PhysicMaterial {
-                                friction: 1.0,
-                                density: 100.0,
-                                ..Default::default()
-                            },
                             rconstraints: RotationConstraints::lock(),
-                            collisionlayers: CollisionLayers::none()
-                                .with_group(PhysicsLayers::Enemies)
-                                // .without_mask(PhysicsLayers::TeleportSensor)
-                                // .with_mask(PhysicsLayers::World)
-                                // .with_mask(PhysicsLayers::Player),
+                            collision_layers: PhysicsLayers::Enemy.layers(),
                         },
                     })
                     .with_children(|skele_parent| {
@@ -75,4 +82,3 @@ pub fn spawn_skeleton_button(
         };
     }
 }
-

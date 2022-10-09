@@ -1,23 +1,16 @@
 use bevy::{app::App, prelude::*};
 
 use bevy_inspector_egui::Inspectable;
-use heron::{
-    CollisionLayers, CollisionShape, Gravity, PhysicMaterial, PhysicsPlugin, RotationConstraints,
-    Velocity,
-};
+use heron::{Gravity, PhysicsPlugin};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
-    actors::{
-        animation::{GraphicsPlugin},
-        enemies::{EnemyPlugin},
-        player::{PlayerPlugin},
-    },
+    actors::{animation::GraphicsPlugin, enemies::EnemyPlugin, player::PlayerPlugin},
     audio::InternalAudioPlugin,
     game_world::MapSystemPlugin,
     ui::MenuPlugin,
-    utilities::game::{AppSettings},
+    utilities::game::AppSettings,
 };
 
 #[derive(Debug, Clone, Component, Reflect)]
@@ -52,8 +45,7 @@ impl Plugin for GamePlugin {
             .add_plugin(EnemyPlugin)
             .add_plugin(GraphicsPlugin)
             .add_system_set(
-                SystemSet::on_enter(GameStage::Playing)
-                    .with_system(setup_time_state) , // .with_system(zoom_control),
+                SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state), // .with_system(zoom_control),
             )
             .add_system(zoom_control);
     }

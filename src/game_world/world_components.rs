@@ -5,7 +5,7 @@ use heron::{CollisionLayers, CollisionShape, RigidBody};
 use crate::utilities::game::PhysicsLayers;
 
 #[derive(Bundle, LdtkIntCell)]
-pub struct HeronBundles{
+pub struct HeronCollisonBundle {
     #[from_int_grid_cell]
     #[bundle]
     collisionbundle: CollisionBundle,
@@ -17,6 +17,13 @@ pub struct CollisionBundle {
     rigidbody: RigidBody,
     collision_shape: CollisionShape,
     collision_layers: CollisionLayers,
+    sensor: WorldSensor,
+}
+
+/// just a marker for sensors, saying whether active
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct WorldSensor {
+    pub active: bool,
 }
 
 impl From<IntGridCell> for CollisionBundle {
@@ -33,9 +40,8 @@ impl From<IntGridCell> for CollisionBundle {
                     },
                     border_radius: None,
                 },
-                collision_layers: CollisionLayers::none()
-                    .with_group(PhysicsLayers::World)
-                    .with_masks(&[PhysicsLayers::Player, PhysicsLayers::Enemies])
+                collision_layers: PhysicsLayers::World.layers(),
+                sensor: WorldSensor { active: false },
             }
         } else if int_grid_cell.value == 2 {
             CollisionBundle {
@@ -49,8 +55,9 @@ impl From<IntGridCell> for CollisionBundle {
                     },
                     border_radius: None,
                 },
-                collision_layers: CollisionLayers::none()
-                .with_group(PhysicsLayers::Sensor).with_mask(PhysicsLayers::Player)
+                collision_layers: CollisionLayers::all_masks::<PhysicsLayers>()
+                    .with_group(PhysicsLayers::Sensor),
+                sensor: WorldSensor { active: true },
             }
         } else {
             debug!("we hit some weird shit");
@@ -59,6 +66,7 @@ impl From<IntGridCell> for CollisionBundle {
                 rigidbody: RigidBody::Static,
                 collision_shape: CollisionShape::default(),
                 collision_layers: CollisionLayers::none(),
+                sensor: WorldSensor { active: false },
             };
         }
     }
@@ -96,7 +104,6 @@ impl From<IntGridCell> for CollisionBundle {
 //         commands.entity(entity.0).insert(Name::new("levelCollider"));
 //     }
 // }
-
 
 // impl FromWorld for ColliderBundle {
 //     fn from_world(world: &mut World) -> Self {

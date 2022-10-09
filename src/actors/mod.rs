@@ -11,9 +11,9 @@ pub mod player;
 #[derive(Bundle)] //bundle for ease of use
 pub struct RigidBodyBundle {
     pub rigidbody: RigidBody,
-    pub collisionlayers: CollisionLayers,
+    pub collision_layers: CollisionLayers,
     pub rconstraints: RotationConstraints,
-    pub physicsmat: PhysicMaterial,
+    // pub physicsmat: PhysicMaterial,
     pub velocity: Velocity,
 }
 
