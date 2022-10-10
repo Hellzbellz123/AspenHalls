@@ -1,19 +1,28 @@
 use bevy::{
-    prelude::{default, info, BuildChildren, Commands, Name, Query, ResMut, Transform, Vec3, With},
+    prelude::{
+        default, info, BuildChildren, Commands, Entity, Name, Query, ResMut, Transform, Vec3, With,
+    },
     sprite::{SpriteSheetBundle, TextureAtlasSprite},
     time::Timer,
 };
+
+use big_brain::{
+    prelude::{ActionState, Actor, FirstToScore},
+    thinker::Thinker,
+};
+
 use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
-use leafwing_input_manager::prelude::ActionState;
+use leafwing_input_manager::prelude::ActionState as LActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
     actors::{
         animation::{AnimationSheet, FacingDirection},
-        components::{Aggroable, Player},
+        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Player},
         enemies::{skeleton::SkeletonBundle, Enemy},
         ActorState, RigidBodyBundle,
     },
+    game::TimeInfo,
     loading::assets::EnemyTextureHandles,
     utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
 };
@@ -21,7 +30,7 @@ use crate::{
 pub fn spawn_skeleton_button(
     mut commands: Commands,
     enemyassets: ResMut<EnemyTextureHandles>,
-    query_action_state: Query<&ActionState<PlayerBindables>>,
+    query_action_state: Query<&LActionState<PlayerBindables>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
     if !query_action_state.is_empty() {
@@ -75,13 +84,22 @@ pub fn spawn_skeleton_button(
                             rconstraints: RotationConstraints::lock(),
                             collision_layers: PhysicsLayers::Enemy.layers(),
                             physicsmat: PhysicMaterial {
-                                restitution: 0.01,
-                                density: 100.0,
+                                restitution: 0.1,
+                                density: 1.0,
                                 friction: 0.5,
                             },
                         },
-                        aggroable: Aggroable { distance: 5.0 },
+                        aggroable: Aggroable { distance: 200.0 },
                     })
+                    .insert(Attacking {
+                        timer: Timer::from_seconds(5., true),
+                        is_attacking: false,
+                    })
+                    .insert(
+                        Thinker::build()
+                            .picker(FirstToScore { threshold: 0.8 })
+                            .when(Aggroed, AttackPlayer)
+                    )
                     .with_children(|skele_parent| {
                         skele_parent
                             .spawn()
@@ -95,3 +113,34 @@ pub fn spawn_skeleton_button(
         };
     }
 }
+
+pub fn update_skeleton_graphics(
+    timeinfo: ResMut<TimeInfo>,
+    mut enemy_query: Query<(
+        &mut Velocity,
+        &mut ActorState,
+        &mut TextureAtlasSprite,
+        Entity,
+        With<Enemy>,
+    )>,
+) {
+    if !timeinfo.game_paused {
+        enemy_query.for_each_mut(|(velocity, mut enemystate, mut sprite, _ent, _)| {
+
+            if velocity.linear == Vec3::ZERO {
+                enemystate.facing = FacingDirection::Idle;
+            } else if velocity.linear.x > 5.0 {
+                sprite.flip_x = false;
+                enemystate.facing = FacingDirection::Right;
+            } else if velocity.linear.x < -5.0 {
+                sprite.flip_x = true;
+                enemystate.facing = FacingDirection::Left;
+            } else if velocity.linear.y < -5.0 {
+                enemystate.facing = FacingDirection::Down;
+            } else if velocity.linear.y > 5.0 {
+                enemystate.facing = FacingDirection::Up;
+            }
+        })
+    }
+}
+

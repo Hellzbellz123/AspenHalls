@@ -8,10 +8,10 @@ pub struct Aggroable {
     pub distance: f32,
 }
 
-#[derive(Component, Default, Clone, Debug)]
+#[derive(Component, Default, Clone, Debug, Inspectable)]
 pub struct Aggroed;
 
-#[derive(Component, Default, Clone, Debug)]
+#[derive(Component, Default, Clone, Debug, Inspectable)]
 pub struct AttackPlayer;
 
 #[derive(Component, Default, Clone, Debug, Reflect)]
@@ -21,7 +21,16 @@ pub struct Attacking {
     pub is_attacking: bool,
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone, Debug, Reflect)]
+#[reflect(Component)]
+pub struct CanMeander;
+
+#[derive(Component, Default, Clone, Debug, Reflect)]
+#[reflect(Component)]
+pub struct IsMeandering;
+
+
+#[derive(Component, Inspectable)]
 pub struct Enemy;
 
 #[derive(Component, Inspectable)]
@@ -29,7 +38,8 @@ pub struct Player {
     pub just_teleported: bool,
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct TimeToLive(pub Timer);
 
 #[derive(Bundle)]

@@ -12,7 +12,7 @@ use crate::{
     action_manager::actions::PlayerBindables,
     actors::{
         animation::{AnimState, AnimationSheet, FacingDirection},
-        components::Player,
+        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Player, TimeToLive},
         ActorState,
     },
     game::TimeInfo,
@@ -52,7 +52,13 @@ impl Plugin for DebugPlugin {
             // LDTK debug data
             .register_type::<LayerMetadata>()
             .register_type::<IntGridCell>()
-            .register_type::<GridCoords>();
+            .register_type::<GridCoords>()
+            // bigbrain AI
+            .register_inspectable::<Aggroable>()
+            .register_inspectable::<Aggroed>()
+            .register_type::<Attacking>()
+            .register_inspectable::<AttackPlayer>()
+            .register_type::<TimeToLive>();
         // .add_system(debug_collision_events);
     }
 }

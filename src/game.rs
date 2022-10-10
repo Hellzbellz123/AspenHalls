@@ -6,7 +6,10 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
-    actors::{animation::GraphicsPlugin, enemies::EnemyPlugin, player::PlayerPlugin},
+    actors::{
+        animation::GraphicsPlugin, components::TimeToLive, enemies::EnemyPlugin,
+        player::PlayerPlugin,
+    },
     audio::InternalAudioPlugin,
     game_world::MapSystemPlugin,
     ui::MenuPlugin,
@@ -48,6 +51,7 @@ impl Plugin for GamePlugin {
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state), // .with_system(zoom_control),
             )
+            .add_system_set(SystemSet::on_update(GameStage::Playing).with_system(time_to_live))
             .add_system(zoom_control);
     }
 }
@@ -71,6 +75,18 @@ pub fn zoom_control(
             settings.camera_zoom += 0.01;
         } else if actions.pressed(PlayerBindables::ZoomOut) {
             settings.camera_zoom -= 0.01;
+        }
+    }
+}
+
+fn time_to_live(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut TimeToLive)>,
+) {
+    for (entity, mut timer) in query.iter_mut() {
+        if timer.0.tick(time.delta()).finished() {
+            commands.entity(entity).despawn();
         }
     }
 }

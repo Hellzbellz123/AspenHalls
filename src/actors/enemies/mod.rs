@@ -4,7 +4,7 @@ use crate::{
     utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
 };
 use bevy::prelude::{App, Plugin, SystemSet, *};
-use big_brain::BigBrainPlugin;
+use big_brain::{prelude::FirstToScore, thinker::Thinker, BigBrainPlugin};
 use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 use rand::prelude::*;
 
@@ -14,7 +14,12 @@ use crate::actors::{
     RigidBodyBundle,
 };
 
-use super::animation::AnimationSheet;
+use self::{shaman_ai::ShamanAiPlugin, skeleton::{actions::on_shoot, utilities::update_skeleton_graphics}};
+
+use super::{
+    animation::AnimationSheet,
+    components::{Aggroed, AttackPlayer, Attacking, IsMeandering},
+};
 
 pub mod shaman_ai;
 pub mod skeleton;
@@ -76,12 +81,22 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             collision_layers: PhysicsLayers::Enemy.layers(),
                             physicsmat: PhysicMaterial {
                                 restitution: 0.1,
-                                density: 100.0,
+                                density: 1.0,
                                 friction: 0.5,
                             },
                         },
-                        aggroable: Aggroable { distance: 5.0 },
+                        aggroable: Aggroable { distance: 200.0 },
                     })
+                    .insert(Attacking {
+                        timer: Timer::from_seconds(2., true),
+                        is_attacking: false,
+                    })
+                    .insert(
+                        Thinker::build()
+                            .picker(FirstToScore { threshold: 1.0 })
+                            .when(Aggroed, AttackPlayer)
+                            // .otherwise(IsMeandering),
+                    )
                     .with_children(|skele_parent| {
                         skele_parent
                             .spawn()
@@ -106,10 +121,13 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         // app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter))
         app.add_plugin(BigBrainPlugin)
+            .add_plugin(ShamanAiPlugin)
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
                     .with_system(on_update)
-                    .with_system(skeleton::utilities::spawn_skeleton_button),
+                    .with_system(skeleton::utilities::spawn_skeleton_button)
+                    .with_system(on_shoot)
+                    .with_system(update_skeleton_graphics),
             )
             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter));
     }

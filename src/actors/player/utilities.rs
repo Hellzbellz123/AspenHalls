@@ -54,7 +54,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                     .with_group(PhysicsLayers::Player),
                 physicsmat: PhysicMaterial {
                     restitution: 0.1,
-                    density: 100.0,
+                    density: 1.0,
                     friction: 0.5,
                 }, //PhysicsLayers::Player.layers()
             },

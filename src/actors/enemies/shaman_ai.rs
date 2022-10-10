@@ -1,4 +1,5 @@
 // all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfield
+// for being the only real useful example of big-brain as far as im concerned
 use bevy::prelude::*;
 use big_brain::{
     prelude::{ActionState, Actor, Score},
@@ -6,44 +7,113 @@ use big_brain::{
 };
 use heron::Velocity;
 
-use crate::actors::components::{Aggroable, Aggroed, AttackPlayer, Attacking, Enemy, Player};
+use crate::{
+    actors::{
+        animation::FacingDirection,
+        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Enemy, CanMeander, Player, IsMeandering},
+        ActorState,
+    },
+    game::TimeInfo,
+};
 
-pub struct ShamanAi;
+pub struct ShamanAiPlugin;
 
-impl Plugin for ShamanAi {
+impl Plugin for ShamanAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(BigBrainStage::Actions, aggro_system)
+            // .add_system_to_stage(BigBrainStage::Actions, random_wander_system)
             .add_system_to_stage(BigBrainStage::Scorers, aggro_score_system);
     }
 }
 
 fn aggro_system(
+    timeinfo: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<(&Transform, &mut Velocity, &Aggroable, &mut Attacking)>,
+    mut enemy_query: Query<(
+        &Transform,
+        &mut Velocity,
+        &Aggroable,
+        &mut Attacking,
+        &mut ActorState,
+        &mut TextureAtlasSprite,
+        With<Enemy>,
+    )>,
     mut query: Query<(&Actor, &mut ActionState), With<AttackPlayer>>,
 ) {
-    if let Ok(player_transform) = player_query.get_single() {
+    if !timeinfo.game_paused {
+        if let Ok(player_transform) = player_query.get_single() {
+            for (Actor(actor), mut state) in query.iter_mut() {
+                if let Ok((
+                    enemy_transform,
+                    mut velocity,
+                    aggroable,
+                    mut attacking,
+                    mut enemystate,
+                    _sprite,
+                    _,
+                )) = enemy_query.get_mut(*actor)
+                {
+                    match *state {
+                        ActionState::Requested => {
+                            attacking.is_attacking = true;
+                            *state = ActionState::Executing;
+                        }
+                        ActionState::Executing => {
+                            let distance =
+                                player_transform.translation - enemy_transform.translation;
+                            if distance.length().abs() < aggroable.distance.abs() {
+                                *velocity =
+                                    Velocity::from_linear(distance.normalize_or_zero() * 50.);
+                            } else {
+                                info!("player go idle");
+                                *velocity = Velocity::from_linear(Vec3::ZERO);
+                                attacking.is_attacking = false;
+                                enemystate.facing = FacingDirection::Idle;
+                                *state = ActionState::Success;
+                            }
+                        }
+                        ActionState::Cancelled => {
+                            attacking.is_attacking = false;
+                            *state = ActionState::Failure;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn random_wander_system(
+    timeinfo: ResMut<TimeInfo>,
+    player_query: Query<&Transform, With<Player>>,
+    mut enemy_query: Query<(
+        &Transform,
+        &mut Velocity,
+        &IsMeandering,
+        &mut ActorState,
+        &mut TextureAtlasSprite,
+        &CanMeander,
+        With<Enemy>,
+    )>,
+    mut query: Query<(&Actor, &mut ActionState), With<CanMeander>>,
+) {
+    if timeinfo.game_paused {
         for (Actor(actor), mut state) in query.iter_mut() {
-            if let Ok((transform, mut velocity, aggroable, mut attacking)) =
+            if let Ok((enemy_transform, mut velocity, aggroable, mut enemystate, sprite, meander, _a)) =
                 enemy_query.get_mut(*actor)
             {
                 match *state {
                     ActionState::Requested => {
-                        attacking.is_attacking = true;
+                        info!("meandering action requested");
                         *state = ActionState::Executing;
                     }
                     ActionState::Executing => {
-                        let distance = player_transform.translation - transform.translation;
-                        if distance.length().abs() < aggroable.distance.abs() {
-                            *velocity = Velocity::from_linear(distance.normalize_or_zero() * 20.);
-                        } else {
-                            *velocity = Velocity::from_linear(Vec3::ZERO);
-                            attacking.is_attacking = false;
-                            *state = ActionState::Success;
-                        }
+                        info!("executing meandering");
+                        *state = ActionState::Success;
                     }
                     ActionState::Cancelled => {
-                        attacking.is_attacking = false;
+                        info!("cancelling meandering action");
                         *state = ActionState::Failure;
                     }
                     _ => {}
