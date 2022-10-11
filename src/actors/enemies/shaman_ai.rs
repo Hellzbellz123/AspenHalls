@@ -10,7 +10,7 @@ use heron::Velocity;
 use crate::{
     actors::{
         animation::FacingDirection,
-        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Enemy, CanMeander, Player, IsMeandering},
+        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Enemy, Player},
         ActorState,
     },
     game::TimeInfo,
@@ -84,44 +84,44 @@ fn aggro_system(
     }
 }
 
-fn random_wander_system(
-    timeinfo: ResMut<TimeInfo>,
-    player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<(
-        &Transform,
-        &mut Velocity,
-        &IsMeandering,
-        &mut ActorState,
-        &mut TextureAtlasSprite,
-        &CanMeander,
-        With<Enemy>,
-    )>,
-    mut query: Query<(&Actor, &mut ActionState), With<CanMeander>>,
-) {
-    if timeinfo.game_paused {
-        for (Actor(actor), mut state) in query.iter_mut() {
-            if let Ok((enemy_transform, mut velocity, aggroable, mut enemystate, sprite, meander, _a)) =
-                enemy_query.get_mut(*actor)
-            {
-                match *state {
-                    ActionState::Requested => {
-                        info!("meandering action requested");
-                        *state = ActionState::Executing;
-                    }
-                    ActionState::Executing => {
-                        info!("executing meandering");
-                        *state = ActionState::Success;
-                    }
-                    ActionState::Cancelled => {
-                        info!("cancelling meandering action");
-                        *state = ActionState::Failure;
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
-}
+// fn random_wander_system(
+//     timeinfo: ResMut<TimeInfo>,
+//     player_query: Query<&Transform, With<Player>>,
+//     mut enemy_query: Query<(
+//         &Transform,
+//         &mut Velocity,
+//         &IsMeandering,
+//         &mut ActorState,
+//         &mut TextureAtlasSprite,
+//         &CanMeander,
+//         With<Enemy>,
+//     )>,
+//     mut query: Query<(&Actor, &mut ActionState), With<CanMeander>>,
+// ) {
+//     if timeinfo.game_paused {
+//         for (Actor(actor), mut state) in query.iter_mut() {
+//             if let Ok((enemy_transform, mut velocity, aggroable, mut enemystate, sprite, meander, _a)) =
+//                 enemy_query.get_mut(*actor)
+//             {
+//                 match *state {
+//                     ActionState::Requested => {
+//                         info!("meandering action requested");
+//                         *state = ActionState::Executing;
+//                     }
+//                     ActionState::Executing => {
+//                         info!("executing meandering");
+//                         *state = ActionState::Success;
+//                     }
+//                     ActionState::Cancelled => {
+//                         info!("cancelling meandering action");
+//                         *state = ActionState::Failure;
+//                     }
+//                     _ => {}
+//                 }
+//             }
+//         }
+//     }
+// }
 
 fn aggro_score_system(
     player_query: Query<&Transform, With<Player>>,

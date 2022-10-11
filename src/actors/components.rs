@@ -29,7 +29,6 @@ pub struct CanMeander;
 #[reflect(Component)]
 pub struct IsMeandering;
 
-
 #[derive(Component, Inspectable)]
 pub struct Enemy;
 

@@ -6,10 +6,7 @@ use bevy::{
     time::Timer,
 };
 
-use big_brain::{
-    prelude::{ActionState, Actor, FirstToScore},
-    thinker::Thinker,
-};
+use big_brain::{prelude::FirstToScore, thinker::Thinker};
 
 use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 use leafwing_input_manager::prelude::ActionState as LActionState;
@@ -98,7 +95,7 @@ pub fn spawn_skeleton_button(
                     .insert(
                         Thinker::build()
                             .picker(FirstToScore { threshold: 0.8 })
-                            .when(Aggroed, AttackPlayer)
+                            .when(Aggroed, AttackPlayer),
                     )
                     .with_children(|skele_parent| {
                         skele_parent
@@ -126,7 +123,6 @@ pub fn update_skeleton_graphics(
 ) {
     if !timeinfo.game_paused {
         enemy_query.for_each_mut(|(velocity, mut enemystate, mut sprite, _ent, _)| {
-
             if velocity.linear == Vec3::ZERO {
                 enemystate.facing = FacingDirection::Idle;
             } else if velocity.linear.x > 5.0 {
@@ -143,4 +139,3 @@ pub fn update_skeleton_graphics(
         })
     }
 }
-

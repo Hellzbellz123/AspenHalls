@@ -14,11 +14,14 @@ use crate::actors::{
     RigidBodyBundle,
 };
 
-use self::{shaman_ai::ShamanAiPlugin, skeleton::{actions::on_shoot, utilities::update_skeleton_graphics}};
+use self::{
+    shaman_ai::ShamanAiPlugin,
+    skeleton::{actions::on_shoot, utilities::update_skeleton_graphics},
+};
 
 use super::{
     animation::AnimationSheet,
-    components::{Aggroed, AttackPlayer, Attacking, IsMeandering},
+    components::{Aggroed, AttackPlayer, Attacking},
 };
 
 pub mod shaman_ai;
@@ -94,8 +97,7 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                     .insert(
                         Thinker::build()
                             .picker(FirstToScore { threshold: 1.0 })
-                            .when(Aggroed, AttackPlayer)
-                            // .otherwise(IsMeandering),
+                            .when(Aggroed, AttackPlayer), // .otherwise(IsMeandering),
                     )
                     .with_children(|skele_parent| {
                         skele_parent
