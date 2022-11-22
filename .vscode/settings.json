@@ -1,5 +1,5 @@
 {
-  "rust-analyzer.runnables.extraArgs": ["--target=x86_64-pc-windows-msvc"],
+  // "rust-analyzer.runnables.extraArgs": ["--target=x86_64-pc-windows-msvc"],
   "files.exclude": {
     "**/.git": false,
     "**/.svn": false,
@@ -33,5 +33,9 @@
     ".shellcheckrc": true,
     "Cargo.lock": true,
     ".gitignore": true
-  }
+  },
+  "lldb.displayFormat": "auto",
+  "lldb.showDisassembly": "always",
+  "lldb.dereferencePointers": true,
+  "lldb.consoleMode": "commands"
 }
