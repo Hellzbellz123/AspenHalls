@@ -1,11 +1,11 @@
 // all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfield
 // for being the only real useful example of big-brain as far as im concerned
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::Velocity;
 use big_brain::{
     prelude::{ActionState, Actor, Score},
     BigBrainStage,
 };
-use heron::Velocity;
 
 use crate::{
     actors::{
@@ -63,10 +63,10 @@ fn aggro_system(
                                 player_transform.translation - enemy_transform.translation;
                             if distance.length().abs() < aggroable.distance.abs() {
                                 *velocity =
-                                    Velocity::from_linear(distance.normalize_or_zero() * 50.);
+                                    Velocity::linear(distance.normalize_or_zero().truncate() * 50.);
                             } else {
                                 info!("player go idle");
-                                *velocity = Velocity::from_linear(Vec3::ZERO);
+                                *velocity = Velocity::linear(Vec2::ZERO);
                                 attacking.is_attacking = false;
                                 enemystate.facing = FacingDirection::Idle;
                                 *state = ActionState::Success;

@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use heron::prelude::*;
+use bevy_rapier2d::prelude::{
+    Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution, RigidBody,
+    Velocity,
+};
 
 use crate::actors::animation::FacingDirection;
 
@@ -8,14 +11,23 @@ pub mod animation;
 pub mod components;
 pub mod enemies;
 pub mod player;
+pub mod spawners;
 
 #[derive(Bundle)] //bundle for ease of use
 pub struct RigidBodyBundle {
-    pub rigidbody: RigidBody,
-    pub collision_layers: CollisionLayers,
-    pub rconstraints: RotationConstraints,
-    pub physicsmat: PhysicMaterial,
-    pub velocity: Velocity,
+    rigidbody: RigidBody,
+    velocity: Velocity,
+    friction: Friction,
+    howbouncy: Restitution,
+    massprop: ColliderMassProperties,
+    rotationlocks: LockedAxes,
+    dampingprop: Damping,
+}
+
+#[derive(Bundle)]
+pub struct ActorColliderBundle {
+    transform_bundle: TransformBundle,
+    collider: Collider,
 }
 
 #[derive(Component, Default, Reflect, Inspectable)]
@@ -27,3 +39,15 @@ pub struct ActorState {
     pub facing: FacingDirection,
     pub just_moved: bool,
 }
+
+//     rigidbody: heron::RigidBody::Dynamic,
+//     velocity: Velocity::default(),
+//     rconstraints: RotationConstraints::lock(),
+//     collision_layers: CollisionLayers::all_masks::<PhysicsLayers>()
+//         .with_group(PhysicsLayers::Player),
+//     physicsmat: PhysicMaterial {
+//         restitution: 0.1,
+//         density: 1.0,
+//         friction: 0.5,
+//     }, //PhysicsLayers::Player.layers()
+// },

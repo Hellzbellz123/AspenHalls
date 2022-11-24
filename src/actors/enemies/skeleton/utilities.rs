@@ -1,14 +1,17 @@
 use bevy::{
     prelude::{
-        default, info, BuildChildren, Commands, Entity, Name, Query, ResMut, Transform, Vec3, With,
+        default, info, BuildChildren, Commands, Entity, Name, Query, ResMut, Transform, Vec2, Vec3,
+        With,
     },
     sprite::{SpriteSheetBundle, TextureAtlasSprite},
     time::Timer,
+    transform::TransformBundle,
 };
 
+use bevy_rapier2d::prelude::*;
 use big_brain::{prelude::FirstToScore, thinker::Thinker};
 
-use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
+// use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 use leafwing_input_manager::prelude::ActionState as LActionState;
 
 use crate::{
@@ -17,11 +20,11 @@ use crate::{
         animation::{AnimationSheet, FacingDirection},
         components::{Aggroable, Aggroed, AttackPlayer, Attacking, Player},
         enemies::{skeleton::SkeletonBundle, Enemy},
-        ActorState, RigidBodyBundle,
+        ActorColliderBundle, ActorState, RigidBodyBundle,
     },
     game::TimeInfo,
     loading::assets::EnemyTextureHandles,
-    utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
+    utilities::game::{ACTOR_PHYSICS_LAYER, PLAYER_SIZE},
 };
 
 pub fn spawn_skeleton_button(
@@ -38,7 +41,7 @@ pub fn spawn_skeleton_button(
 
             if !player_query.is_empty() {
                 commands
-                    .spawn_bundle(SkeletonBundle {
+                    .spawn(SkeletonBundle {
                         name: Name::new("Skeleton"),
                         actortype: Enemy,
                         actorstate: ActorState {
@@ -48,7 +51,7 @@ pub fn spawn_skeleton_button(
                             just_moved: false,
                         },
                         animation_state: crate::actors::animation::AnimState {
-                            timer: Timer::from_seconds(0.2, true),
+                            timer: Timer::from_seconds(0.2, bevy::time::TimerMode::Repeating),
                             current_frames: vec![0, 1, 2, 3, 4],
                             current_frame: 0,
                         },
@@ -76,20 +79,21 @@ pub fn spawn_skeleton_button(
                             ..default()
                         },
                         rigidbody: RigidBodyBundle {
-                            rigidbody: heron::RigidBody::Dynamic,
-                            velocity: Velocity::default(),
-                            rconstraints: RotationConstraints::lock(),
-                            collision_layers: PhysicsLayers::Enemy.layers(),
-                            physicsmat: PhysicMaterial {
-                                restitution: 0.1,
-                                density: 1.0,
-                                friction: 0.5,
+                            rigidbody: RigidBody::Dynamic,
+                            velocity: Velocity::zero(),
+                            friction: Friction::coefficient(0.7),
+                            howbouncy: Restitution::coefficient(0.3),
+                            massprop: ColliderMassProperties::Density(0.3),
+                            rotationlocks: LockedAxes::ROTATION_LOCKED,
+                            dampingprop: Damping {
+                                linear_damping: 1.0,
+                                angular_damping: 1.0,
                             },
                         },
                         aggroable: Aggroable { distance: 200.0 },
                     })
                     .insert(Attacking {
-                        timer: Timer::from_seconds(5., true),
+                        timer: Timer::from_seconds(5., bevy::time::TimerMode::Repeating),
                         is_attacking: false,
                     })
                     .insert(
@@ -97,14 +101,21 @@ pub fn spawn_skeleton_button(
                             .picker(FirstToScore { threshold: 0.8 })
                             .when(Aggroed, AttackPlayer),
                     )
-                    .with_children(|skele_parent| {
-                        skele_parent
-                            .spawn()
-                            .insert(CollisionShape::Cuboid {
-                                half_extends: Vec3::new(TILE_SIZE.x / 2.0, TILE_SIZE.y / 2.0, 0.0),
-                                border_radius: None,
-                            })
-                            .insert(Transform::from_translation(Vec3::new(0., -24., 0.)));
+                    .with_children(|child| {
+                        child.spawn(ActorColliderBundle {
+                            transform_bundle: TransformBundle {
+                                local: (Transform {
+                                    translation: (Vec3 {
+                                        x: 0.,
+                                        y: -5.,
+                                        z: ACTOR_PHYSICS_LAYER,
+                                    }),
+                                    ..default()
+                                }),
+                                ..default()
+                            },
+                            collider: Collider::capsule_y(10.4, 13.12),
+                        });
                     });
             }
         };
@@ -123,17 +134,17 @@ pub fn update_skeleton_graphics(
 ) {
     if !timeinfo.game_paused {
         enemy_query.for_each_mut(|(velocity, mut enemystate, mut sprite, _ent, _)| {
-            if velocity.linear == Vec3::ZERO {
+            if velocity.linvel == Vec2::ZERO {
                 enemystate.facing = FacingDirection::Idle;
-            } else if velocity.linear.x > 5.0 {
+            } else if velocity.linvel.x > 5.0 {
                 sprite.flip_x = false;
                 enemystate.facing = FacingDirection::Right;
-            } else if velocity.linear.x < -5.0 {
+            } else if velocity.linvel.x < -5.0 {
                 sprite.flip_x = true;
                 enemystate.facing = FacingDirection::Left;
-            } else if velocity.linear.y < -5.0 {
+            } else if velocity.linvel.y < -5.0 {
                 enemystate.facing = FacingDirection::Down;
-            } else if velocity.linear.y > 5.0 {
+            } else if velocity.linvel.y > 5.0 {
                 enemystate.facing = FacingDirection::Up;
             }
         })

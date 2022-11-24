@@ -1,7 +1,6 @@
 use bevy::{app::App, prelude::*};
 
 use bevy_inspector_egui::Inspectable;
-use heron::{Gravity, PhysicsPlugin};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
@@ -12,11 +11,11 @@ use crate::{
     },
     audio::InternalAudioPlugin,
     game_world::MapSystemPlugin,
-    ui::MenuPlugin,
+    // ui::MenuPlugin,
     utilities::game::AppSettings,
 };
 
-#[derive(Debug, Clone, Component, Default, Reflect)]
+#[derive(Debug, Clone, Component, Default, Reflect, Resource)]
 #[reflect(Component)]
 pub struct TimeInfo {
     pub time_step: f32,
@@ -39,11 +38,10 @@ pub enum GameStage {
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(MenuPlugin)
+        app
+            // .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            .add_plugin(PhysicsPlugin::default())
-            .insert_resource(Gravity::from(Vec3::new(0.0, 0.0, 0.0)))
             .add_plugin(MapSystemPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(EnemyPlugin)

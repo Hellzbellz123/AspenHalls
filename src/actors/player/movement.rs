@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use bevy::prelude::{Query, With, *};
-use heron::Velocity;
-use kayak_ui::bevy::CameraUiKayak;
+
+use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
@@ -51,15 +51,13 @@ pub fn player_movement_system(
             player.facing = FacingDirection::Up;
         }
 
-        let new_velocity = Velocity::from_linear(
-            delta.extend(0.0).normalize_or_zero() * player.speed * timeinfo.time_step,
-        );
+        let new_velocity =
+            Velocity::linear(delta.normalize_or_zero() * player.speed * timeinfo.time_step);
 
         *velocity = new_velocity;
     } else if !action_state.pressed(PlayerBindables::Move) {
+        velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
         player.facing = FacingDirection::Idle;
-        let new_velocity = Velocity::from_linear(Vec3::ZERO);
-        *velocity = new_velocity;
     }
 }
 
@@ -90,7 +88,7 @@ pub fn player_sprint(
 }
 
 pub fn camera_movement_system(
-    mut camera_transform: Query<&mut Transform, (Without<CameraUiKayak>, With<Camera>)>,
+    mut camera_transform: Query<&mut Transform, With<Camera>>,
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
 ) {
     let mut camera_trans = camera_transform.single_mut();

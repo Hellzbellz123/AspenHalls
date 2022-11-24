@@ -1,16 +1,18 @@
 use bevy::prelude::*;
-use heron::{
-    CollisionLayers, CollisionShape, PhysicMaterial, RigidBody, RotationConstraints, Velocity,
+use bevy_rapier2d::prelude::{
+    ActiveEvents, Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution,
+    RigidBody, Sensor, Velocity,
 };
 
 use crate::{
     actors::{
         components::{Attacking, Enemy, Player, ProjectileBundle, TimeToLive},
-        RigidBodyBundle,
+        ActorColliderBundle, RigidBodyBundle,
     },
     game::TimeInfo,
     loading::assets::PlayerTextureHandles,
-    utilities::game::PhysicsLayers,
+    utilities::game::ACTOR_PHYSICS_LAYER,
+    // utilities::game::PhysicsLayers,
 };
 
 pub fn on_shoot(
@@ -21,7 +23,7 @@ pub fn on_shoot(
     player_query: Query<&Transform, With<Player>>,
     mut query: Query<(&Transform, &mut Attacking), With<Enemy>>,
 ) {
-    let rconstraints = RotationConstraints::allow();
+    // let rconstraints = RotationConstraints::allow();
 
     if !timeinfo.game_paused {
         if let Ok(player_transform) = player_query.get_single() {
@@ -31,7 +33,7 @@ pub fn on_shoot(
                     continue;
                 }
 
-                let direction =
+                let direction: Vec3 =
                     (player_transform.translation - transform.translation).normalize_or_zero();
 
                 // Make sure that the projectiles spawn outside of the body so that it doesn't collide
@@ -40,44 +42,59 @@ pub fn on_shoot(
                 new_transform.translation = transform.translation + beyond_body_diff;
 
                 commands
-                    .spawn_bundle(ProjectileBundle {
-                        sprite_bundle: SpriteBundle {
-                            texture: assets.rex_attack.clone(),
-                            transform: new_transform,
-                            sprite: Sprite {
-                                custom_size: Some(Vec2::new(32.0, 32.0)),
+                    .spawn((
+                        ProjectileBundle {
+                            sprite_bundle: SpriteBundle {
+                                texture: assets.rex_attack.clone(),
+                                transform: new_transform,
+                                sprite: Sprite {
+                                    custom_size: Some(Vec2::new(32.0, 32.0)),
+                                    ..default()
+                                },
                                 ..default()
                             },
-                            ..default()
-                        },
 
-                        collider_bundle: RigidBodyBundle {
-                            collision_layers: CollisionLayers::none()
-                                .with_groups(vec![PhysicsLayers::EnemyAttack, PhysicsLayers::Enemy])
-                                .with_masks(&[
-                                    // PhysicsLayers::World,
-                                    PhysicsLayers::Player,
-                                    PhysicsLayers::PlayerAttack,
-                                ]),
-                            rigidbody: RigidBody::Dynamic,
-                            rconstraints,
-                            physicsmat: PhysicMaterial {
-                                restitution: 0.7,
-                                density: 1.,
-                                friction: 0.5,
+                            collider_bundle: RigidBodyBundle {
+                                velocity: Velocity::linear(direction.truncate() * 250.),
+                                rigidbody: RigidBody::Dynamic,
+                                friction: Friction::coefficient(0.7),
+                                howbouncy: Restitution::coefficient(0.3),
+                                massprop: ColliderMassProperties::Density(0.3),
+                                rotationlocks: LockedAxes::ROTATION_LOCKED,
+                                dampingprop: Damping {
+                                    linear_damping: 1.0,
+                                    angular_damping: 1.0,
+                                },
                             },
-                            velocity: Velocity::from_linear(direction * 150.),
-                        },
 
-                        ttl: TimeToLive(Timer::from_seconds(5.0, false)),
-                    })
-                    .insert(CollisionShape::Cuboid {
-                        half_extends: Vec3::new(4.0, 4.0, 0.0),
-                        border_radius: None,
+                            ttl: TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
+                        },
+                        Sensor,
+                    ))
+                    .with_children(|child| {
+                        child
+                            .spawn(ActorColliderBundle {
+                                transform_bundle: TransformBundle {
+                                    local: (Transform {
+                                        translation: (Vec3 {
+                                            x: 0.,
+                                            y: 0.,
+                                            z: ACTOR_PHYSICS_LAYER,
+                                        }),
+                                        ..default()
+                                    }),
+                                    ..default()
+                                },
+                                collider: Collider::ball(10.0),
+                            })
+                            .insert((
+                                TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
+                                ActiveEvents::COLLISION_EVENTS,
+                            ));
                     });
             }
+        } else {
+            info!("cant attack, game paused")
         }
-    } else {
-        info!("cant attack, game paused")
     }
 }

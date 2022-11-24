@@ -1,17 +1,18 @@
 use crate::{
     game::GameStage,
     loading::assets::EnemyTextureHandles,
-    utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
+    utilities::game::{ACTOR_PHYSICS_LAYER, PLAYER_SIZE},
 };
 use bevy::prelude::{App, Plugin, SystemSet, *};
+use bevy_rapier2d::prelude::*;
 use big_brain::{prelude::FirstToScore, thinker::Thinker, BigBrainPlugin};
-use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
+// use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 use rand::prelude::*;
 
 use crate::actors::{
     components::{Aggroable, Enemy},
     enemies::skeleton::SkeletonBundle,
-    RigidBodyBundle,
+    // RigidBodyBundle,
 };
 
 use self::{
@@ -22,6 +23,7 @@ use self::{
 use super::{
     animation::AnimationSheet,
     components::{Aggroed, AttackPlayer, Attacking},
+    ActorColliderBundle, RigidBodyBundle,
 };
 
 pub mod shaman_ai;
@@ -33,17 +35,18 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
     let mut rng = rand::thread_rng();
 
     commands
-        .spawn()
-        .insert(Name::new("EnemyContainer")) //this "EntityContainer" should eventually be expanded too choose enemies and spawn them in and too setup hp and ai.
-        .insert_bundle(SpatialBundle {
-            visibility: Visibility::visible(),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            ..default()
-        })
+        .spawn((
+            Name::new("EnemyContainer"),
+            SpatialBundle {
+                visibility: Visibility::VISIBLE,
+                transform: Transform::from_xyz(0.0, 0.0, 0.0),
+                ..default()
+            },
+        ))
         .with_children(|parent| {
             for _ in 0..MAX_ENEMIES {
                 parent
-                    .spawn_bundle(SkeletonBundle {
+                    .spawn(SkeletonBundle {
                         name: Name::new("Skeleton"),
                         actortype: Enemy,
                         actorstate: super::ActorState {
@@ -53,7 +56,7 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             just_moved: false,
                         },
                         animation_state: crate::actors::animation::AnimState {
-                            timer: Timer::from_seconds(0.2, true),
+                            timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                             current_frames: vec![0, 1, 2, 3, 4],
                             current_frame: 0,
                         },
@@ -77,21 +80,22 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             ),
                             ..default()
                         },
+                        aggroable: Aggroable { distance: 200.0 },
                         rigidbody: RigidBodyBundle {
-                            rigidbody: heron::RigidBody::Dynamic,
-                            velocity: Velocity::default(),
-                            rconstraints: RotationConstraints::lock(),
-                            collision_layers: PhysicsLayers::Enemy.layers(),
-                            physicsmat: PhysicMaterial {
-                                restitution: 0.1,
-                                density: 1.0,
-                                friction: 0.5,
+                            rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
+                            velocity: Velocity::zero(),
+                            friction: Friction::coefficient(0.7),
+                            howbouncy: Restitution::coefficient(0.3),
+                            massprop: ColliderMassProperties::Density(0.3),
+                            rotationlocks: LockedAxes::ROTATION_LOCKED,
+                            dampingprop: Damping {
+                                linear_damping: 1.0,
+                                angular_damping: 1.0,
                             },
                         },
-                        aggroable: Aggroable { distance: 200.0 },
                     })
                     .insert(Attacking {
-                        timer: Timer::from_seconds(2., true),
+                        timer: Timer::from_seconds(2., TimerMode::Repeating),
                         is_attacking: false,
                     })
                     .insert(
@@ -99,14 +103,21 @@ fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
                             .picker(FirstToScore { threshold: 1.0 })
                             .when(Aggroed, AttackPlayer), // .otherwise(IsMeandering),
                     )
-                    .with_children(|skele_parent| {
-                        skele_parent
-                            .spawn()
-                            .insert(CollisionShape::Cuboid {
-                                half_extends: Vec3::new(TILE_SIZE.x / 2.0, TILE_SIZE.y / 2.0, 0.0),
-                                border_radius: None,
-                            })
-                            .insert(Transform::from_translation(Vec3::new(0., -24., 0.)));
+                    .with_children(|child| {
+                        child.spawn(ActorColliderBundle {
+                            transform_bundle: TransformBundle {
+                                local: (Transform {
+                                    translation: (Vec3 {
+                                        x: 0.,
+                                        y: -5.,
+                                        z: ACTOR_PHYSICS_LAYER,
+                                    }),
+                                    ..default()
+                                }),
+                                ..default()
+                            },
+                            collider: Collider::capsule_y(10.4, 13.12),
+                        });
                     });
             }
         });

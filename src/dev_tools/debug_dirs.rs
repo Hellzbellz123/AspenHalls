@@ -55,18 +55,7 @@ fn visit_dirs(
     if dir.is_dir() {
         let entry_set = fs::read_dir(dir)?; // contains DirEntry
         let mut entries = entry_set
-            .filter_map(|v| match v.ok() {
-                Some(v) => {
-                    if show_all {
-                        Some(v)
-                    } else if v.file_name().to_str()?.starts_with('.') {
-                        None
-                    } else {
-                        Some(v)
-                    }
-                }
-                None => None,
-            })
+            .filter_map(|v| v.ok().filter(|_v| show_all))
             .collect::<Vec<_>>();
         entries.sort_by(|a, b| a.path().file_name().cmp(&b.path().file_name()));
 

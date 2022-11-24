@@ -13,7 +13,7 @@ license-file = "LICENSE"
 
 [features]
 dev_linux = ["bevy/dynamic", "dev"]
-dev = ["heron/debug-2d"]
+dev = ["bevy_rapier2d/debug-render"]
 
 [workspace]
 exclude = ["crates"]
@@ -27,18 +27,18 @@ embed-resource = "1.7.3"
 rand = "0.8.5"
 serde = "1.0.144"
 serde_derive = "1.0.144"
-winit = "0.26.1"
+winit = "0.27.5"
 
 [dependencies.big-brain]
-version = "0.14.0"
+version = "0.15.0"
 features = ["trace"]
 
-[dependencies.heron]
-version = "4.0.1"
-features = ["2d"]
+# [dependencies.heron]
+# version = "4.0.1"
+# features = ["2d"]
 
 [dependencies.bevy]
-version = "0.8.1"
+version = "0.9.0"
 default-features = false
 features = [
   "animation",          # Animation support
@@ -63,33 +63,38 @@ git = "https://github.com/Trouv/bevy_ecs_ldtk.git"
 features = ["atlas"]
 
 [dependencies.bevy_asset_loader]
-version = "0.13.0"
+version = "0.14.1"
 # git = "https://github.com/NiklasEi/bevy_asset_loader.git"
 features = ["2d"]
 
 [dependencies.bevy_kira_audio]
-version = "0.12.0"
+version = "0.13.0"
 default-features = false
 features = ["ogg", "wav"]
 
 [dependencies.bevy-inspector-egui]
-version = "0.13.0"
+version = "0.14.0"
 default-features = false
 features = ["bevy_render", "bevy_sprite", "bevy_text"]
 
 [dependencies.bevy-inspector-egui-rapier]
-version = "0.7.0"
+version = "0.8.0"
 features = ["rapier2d"]
 
-[dependencies.kayak_ui]
-# path = "crates/kayak_ui_experiments"
-git = "https://github.com/StarArawn/kayak_ui"
-rev = "6f4894704295b6ac9a117650c8d9d2a503190d60"
-features = ["bevy_renderer"]
+[dependencies.bevy_rapier2d]
+version = "0.19.0"
+features = [
+  "simd-nightly",
+  "parallel",
+  # "serde-serialize"
+]
 
+
+[dependencies.kayak_ui]
+git = "https://github.com/StarArawn/kayak_ui.git"
 
 [dependencies.leafwing-input-manager]
-version = "0.6.1"
+version = "0.7.0"
 # path = "crates/leafwing-input-manager"
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
 

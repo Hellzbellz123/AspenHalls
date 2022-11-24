@@ -9,14 +9,16 @@ use crate::{
             movement::{camera_movement_system, player_movement_system, player_sprint},
             utilities::spawn_player,
         },
-        ActorState, RigidBodyBundle,
+        ActorState,
     },
     game::GameStage,
     utilities::game::SystemLabels,
 };
 
+use super::RigidBodyBundle;
+
 mod movement;
-mod utilities;
+pub mod utilities;
 
 #[derive(Bundle)]
 pub struct PlayerBundle {

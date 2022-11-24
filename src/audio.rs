@@ -11,12 +11,16 @@ use crate::{
 };
 
 /// music is played in this channel
+#[derive(Resource)]
 pub struct Music;
 /// nothing is currently played here, inteded for menu sounds/creaking/etc atmospheric sounds
+#[derive(Resource)]
 pub struct Ambience;
 /// this audio is for everything gameplay related, footsteps of npc/enemy can be used to tell if enemys exist?
+#[derive(Resource)]
 pub struct Sound;
 
+#[derive(Resource)]
 pub struct WalkingSound {
     pub timer: Timer,
     pub is_first_time: bool,
@@ -57,7 +61,7 @@ impl Plugin for InternalAudioPlugin {
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()
             .insert_resource(WalkingSound {
-                timer: Timer::from_seconds(0.65, true),
+                timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
             .add_system_set(

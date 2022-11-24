@@ -32,8 +32,9 @@ pub struct IsMeandering;
 #[derive(Component, Inspectable)]
 pub struct Enemy;
 
-#[derive(Component, Inspectable)]
+#[derive(Component, Inspectable, Clone, Copy)]
 pub struct Player {
+    pub wants_to_teleport: bool,
     pub just_teleported: bool,
 }
 
@@ -44,7 +45,6 @@ pub struct TimeToLive(pub Timer);
 #[derive(Bundle)]
 pub struct ProjectileBundle {
     pub ttl: TimeToLive,
-
     #[bundle]
     pub sprite_bundle: SpriteBundle,
 

@@ -38,12 +38,12 @@ pub struct MainCamera {
 }
 
 // Newtype to use a `Timer` for this screen as a resource
-#[derive(Deref, DerefMut)]
+#[derive(Resource, Deref, DerefMut)]
 struct SplashTimer(Timer);
 
 fn spawn_main_camera(mut commands: Commands) {
     commands
-        .spawn_bundle(Camera2dBundle {
+        .spawn(Camera2dBundle {
             camera: Camera {
                 priority: 1,
                 is_active: true,
@@ -61,7 +61,7 @@ fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
     info!("loading splash");
     // Display the logo
     commands
-        .spawn_bundle(ImageBundle {
+        .spawn(ImageBundle {
             style: Style {
                 margin: UiRect::all(Val::Auto),
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
@@ -71,7 +71,7 @@ fn splash_setup(mut commands: Commands, textures: Res<UiTextureHandles>) {
             ..default()
         })
         .insert(OnSplashScreen);
-    commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, false)));
+    commands.insert_resource(SplashTimer(Timer::from_seconds(1.0, TimerMode::Once)));
     info!("spawning splash ImageBundle");
 }
 
@@ -82,7 +82,7 @@ fn countdown(
     mut timer: ResMut<SplashTimer>,
 ) {
     if timer.tick(time.delta()).finished() {
-        game_state.set(GameStage::Menu).unwrap();
+        game_state.set(GameStage::Playing).unwrap(); //TODO:change back too menu when updated too new kayakui version
     }
 }
 

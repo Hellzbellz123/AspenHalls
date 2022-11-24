@@ -1,19 +1,19 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::LdtkAsset;
 
-#[derive(AssetCollection)]
+#[derive(AssetCollection, Resource)]
 pub struct FontHandles {
     #[asset(path = "fonts/FiraSans-Bold.ttf")]
     pub fira_sans_ttf: Handle<Font>,
-    #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
-    pub fira_sans_msdf: Handle<kayak_ui::font::KayakFont>,
+    // #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
+    // pub fira_sans_msdf: Handle<kayak_ui::font::KayakFont>,
 
-    #[asset(path = "fonts/FantasqueSansMonoNF.kayak_font")]
-    pub fantasque_sans_msdf: Handle<kayak_ui::font::KayakFont>,
+    // #[asset(path = "fonts/FantasqueSansMonoNF.kayak_font")]
+    // pub fantasque_sans_msdf: Handle<kayak_ui::font::KayakFont>,
 }
 
-#[derive(AssetCollection, Debug)]
+#[derive(AssetCollection, Resource, Debug)]
 pub struct AudioHandles {
     #[asset(path = "audio/ost/expansion.wav")]
     pub gamesoundtrack: Handle<bevy_kira_audio::AudioSource>,
@@ -21,7 +21,7 @@ pub struct AudioHandles {
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
 }
 
-#[derive(AssetCollection, Clone)]
+#[derive(AssetCollection, Resource, Clone)]
 pub struct PlayerTextureHandles {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
     #[asset(path = "characters/heroes/rex-sheet.png")]
@@ -31,14 +31,14 @@ pub struct PlayerTextureHandles {
     pub rex_attack: Handle<Image>,
 }
 
-#[derive(AssetCollection, Clone)]
+#[derive(AssetCollection, Resource, Clone)]
 pub struct EnemyTextureHandles {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
     #[asset(path = "characters/enemies/skele-sheet.png")]
     pub skele_full_sheet: Handle<TextureAtlas>,
 }
 
-#[derive(AssetCollection, Clone)]
+#[derive(AssetCollection, Resource, Clone)]
 pub struct UiTextureHandles {
     #[asset(path = "textures/splashscreen.png")]
     pub splash_image: Handle<Image>,
@@ -53,7 +53,8 @@ pub struct UiTextureHandles {
     pub button_blue_png: Handle<Image>,
 }
 
-#[derive(AssetCollection, Clone, Debug)]
+#[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
+#[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
     #[asset(path = "levels/homeworldbroke.ldtk")]
     pub homeworld: Handle<LdtkAsset>,

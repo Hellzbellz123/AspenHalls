@@ -3,21 +3,28 @@ use crate::{
     actors::{
         animation::{AnimState, AnimationSheet, FacingDirection},
         player::{ActorState, PlayerBundle},
+        ActorColliderBundle,
     },
     loading::assets::PlayerTextureHandles,
-    utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
+    utilities::game::{ACTOR_PHYSICS_LAYER, PLAYER_SIZE},
 };
 use bevy::prelude::*;
-use heron::{CollisionLayers, CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
+use bevy_rapier2d::prelude::{
+    Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution, RigidBody,
+    Velocity,
+};
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
+#[derive(Component)]
+pub struct PlayerColliderTag;
+
 pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHandles>) {
     commands
-        .spawn_bundle(PlayerBundle {
+        .spawn((PlayerBundle {
             player_animationstate: AnimState {
-                timer: Timer::from_seconds(0.2, true),
+                timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                 current_frames: vec![0, 1, 2, 3, 4],
                 current_frame: 0,
             },
@@ -47,28 +54,40 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
             player_input_map: PlayerInput::default(),
             name: Name::new("player"),
             rigidbody: super::RigidBodyBundle {
-                rigidbody: heron::RigidBody::Dynamic,
+                rigidbody: RigidBody::Dynamic,
                 velocity: Velocity::default(),
-                rconstraints: RotationConstraints::lock(),
-                collision_layers: CollisionLayers::all_masks::<PhysicsLayers>()
-                    .with_group(PhysicsLayers::Player),
-                physicsmat: PhysicMaterial {
-                    restitution: 0.1,
-                    density: 1.0,
-                    friction: 0.5,
-                }, //PhysicsLayers::Player.layers()
+                friction: Friction::coefficient(0.7),
+                howbouncy: Restitution::coefficient(0.3),
+                massprop: ColliderMassProperties::Density(0.3),
+                rotationlocks: LockedAxes::ROTATION_LOCKED,
+                dampingprop: Damping {
+                    linear_damping: 1.0,
+                    angular_damping: 1.0,
+                },
             },
             player: super::Player {
+                wants_to_teleport: false,
                 just_teleported: false,
             },
-        })
-        .with_children(|parent| {
-            parent
-                .spawn()
-                .insert(CollisionShape::Cuboid {
-                    half_extends: Vec3::new(TILE_SIZE.x / 2.0, TILE_SIZE.y / 2.0, 0.0),
-                    border_radius: None,
-                })
-                .insert(Transform::from_translation(Vec3::new(0., -24., 0.)));
+        },))
+        .with_children(|child| {
+            child.spawn((
+                ActorColliderBundle {
+                    transform_bundle: TransformBundle {
+                        local: (Transform {
+                            translation: (Vec3 {
+                                x: 0.,
+                                y: -5.,
+                                z: ACTOR_PHYSICS_LAYER,
+                            }),
+                            ..default()
+                        }),
+                        ..default()
+                    },
+                    collider: Collider::capsule_y(10.4, 13.12),
+                },
+                PlayerColliderTag,
+                Name::new("PlayerCollider"), // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.
+            ));
         });
 }
