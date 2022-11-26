@@ -1,23 +1,27 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use bevy_kira_audio::prelude::*;
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
+use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
+
 use crate::{
-    actors::{animation::FacingDirection, components::Player, ActorState},
+    components::actors::{
+        animation::FacingDirection,
+        general::{ActorState, Player},
+    },
     game::GameStage,
     loading::assets::AudioHandles,
 };
 
 /// music is played in this channel
-#[derive(Resource)]
+#[derive(Resource, Component)]
 pub struct Music;
 /// nothing is currently played here, inteded for menu sounds/creaking/etc atmospheric sounds
-#[derive(Resource)]
+#[derive(Resource, Component)]
 pub struct Ambience;
 /// this audio is for everything gameplay related, footsteps of npc/enemy can be used to tell if enemys exist?
-#[derive(Resource)]
+#[derive(Resource, Component)]
 pub struct Sound;
 
 #[derive(Resource)]
@@ -56,7 +60,7 @@ pub struct InternalAudioPlugin;
 // This plugin is responsible to control the game audio
 impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(bevy_kira_audio::AudioPlugin)
+        app.add_plugin(AudioPlugin)
             .add_audio_channel::<Music>()
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()

@@ -5,11 +5,9 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
-    actors::{
-        animation::GraphicsPlugin, components::TimeToLive, enemies::EnemyPlugin,
-        player::PlayerPlugin,
-    },
+    actors::{animation::GraphicsPlugin, enemies::EnemyPlugin, player::PlayerPlugin},
     audio::InternalAudioPlugin,
+    components::actors::general::TimeToLive,
     game_world::MapSystemPlugin,
     // ui::MenuPlugin,
     utilities::game::AppSettings,
@@ -23,16 +21,15 @@ pub struct TimeInfo {
     pub pause_menu: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable, Resource)]
 pub enum GameStage {
     /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
     Loading,
-    /// game "stage" for loading in splashscreen and spawning camera
-    Splash,
     /// Here the menu is drawn and waiting for player interaction
     Menu,
     /// During this State the actual game logic is executed
     Playing,
+    FailedLoading,
 }
 
 pub struct GamePlugin;

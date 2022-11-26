@@ -12,15 +12,16 @@ use bevy_rapier2d::prelude::*;
 use big_brain::{prelude::FirstToScore, thinker::Thinker};
 
 // use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
-use leafwing_input_manager::prelude::ActionState as LActionState;
+use leafwing_input_manager::prelude::ActionState as LeafActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    actors::{
-        animation::{AnimationSheet, FacingDirection},
-        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Player},
-        enemies::{skeleton::SkeletonBundle, Enemy},
-        ActorColliderBundle, ActorState, RigidBodyBundle,
+    actors::enemies::skeleton::SkeletonBundle,
+    components::actors::{
+        ai::{AIAttackAction, AIAttackTimer, AIEnemy, AIIsAggroed},
+        animation::{AnimState, AnimationSheet, FacingDirection},
+        bundles::{ActorColliderBundle, RigidBodyBundle},
+        general::{ActorState, Player},
     },
     game::TimeInfo,
     loading::assets::EnemyTextureHandles,
@@ -30,7 +31,7 @@ use crate::{
 pub fn spawn_skeleton_button(
     mut commands: Commands,
     enemyassets: ResMut<EnemyTextureHandles>,
-    query_action_state: Query<&LActionState<PlayerBindables>>,
+    query_action_state: Query<&LeafActionState<PlayerBindables>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
     if !query_action_state.is_empty() {
@@ -41,66 +42,67 @@ pub fn spawn_skeleton_button(
 
             if !player_query.is_empty() {
                 commands
-                    .spawn(SkeletonBundle {
-                        name: Name::new("Skeleton"),
-                        actortype: Enemy,
-                        actorstate: ActorState {
-                            speed: 100.0,
-                            sprint_available: false,
-                            facing: FacingDirection::Idle,
-                            just_moved: false,
-                        },
-                        animation_state: crate::actors::animation::AnimState {
-                            timer: Timer::from_seconds(0.2, bevy::time::TimerMode::Repeating),
-                            current_frames: vec![0, 1, 2, 3, 4],
-                            current_frame: 0,
-                        },
-                        available_animations: AnimationSheet {
-                            handle: enemyassets.skele_full_sheet.clone(),
-                            idle_animation: [0, 1, 2, 3, 4],
-                            down_animation: [5, 6, 7, 8, 9],
-                            up_animation: [10, 11, 12, 13, 14],
-                            right_animation: [15, 16, 17, 18, 19],
-                        },
-                        sprite: SpriteSheetBundle {
-                            sprite: TextureAtlasSprite {
-                                custom_size: Some(PLAYER_SIZE), //character is 1 tile wide by 2 tiles wide
+                    .spawn((
+                        SkeletonBundle {
+                            name: Name::new("Skeleton"),
+                            actortype: AIEnemy,
+                            actorstate: ActorState {
+                                speed: 100.0,
+                                sprint_available: false,
+                                facing: FacingDirection::Idle,
+                                just_moved: false,
+                            },
+                            animation_state: AnimState {
+                                timer: Timer::from_seconds(0.2, bevy::time::TimerMode::Repeating),
+                                current_frames: vec![0, 1, 2, 3, 4],
+                                current_frame: 0,
+                            },
+                            available_animations: AnimationSheet {
+                                handle: enemyassets.skele_full_sheet.clone(),
+                                idle_animation: [0, 1, 2, 3, 4],
+                                down_animation: [5, 6, 7, 8, 9],
+                                up_animation: [10, 11, 12, 13, 14],
+                                right_animation: [15, 16, 17, 18, 19],
+                            },
+                            sprite: SpriteSheetBundle {
+                                sprite: TextureAtlasSprite {
+                                    custom_size: Some(PLAYER_SIZE), //character is 1 tile wide by 2 tiles wide
+                                    ..default()
+                                },
+                                texture_atlas: enemyassets.skele_full_sheet.clone(),
+                                transform: Transform {
+                                    translation: player_query
+                                        .get_single()
+                                        .expect("always a player, hopefully")
+                                        .0
+                                        .translation,
+                                    ..default()
+                                },
                                 ..default()
                             },
-                            texture_atlas: enemyassets.skele_full_sheet.clone(),
-                            transform: Transform {
-                                translation: player_query
-                                    .get_single()
-                                    .expect("always a player, hopefully")
-                                    .0
-                                    .translation,
-                                ..default()
+                            rigidbody: RigidBodyBundle {
+                                rigidbody: RigidBody::Dynamic,
+                                velocity: Velocity::zero(),
+                                friction: Friction::coefficient(0.7),
+                                howbouncy: Restitution::coefficient(0.3),
+                                massprop: ColliderMassProperties::Density(0.3),
+                                rotationlocks: LockedAxes::ROTATION_LOCKED,
+                                dampingprop: Damping {
+                                    linear_damping: 1.0,
+                                    angular_damping: 1.0,
+                                },
                             },
-                            ..default()
+                            // aggroable: AIAggroDistance { distance: 200.0 },
                         },
-                        rigidbody: RigidBodyBundle {
-                            rigidbody: RigidBody::Dynamic,
-                            velocity: Velocity::zero(),
-                            friction: Friction::coefficient(0.7),
-                            howbouncy: Restitution::coefficient(0.3),
-                            massprop: ColliderMassProperties::Density(0.3),
-                            rotationlocks: LockedAxes::ROTATION_LOCKED,
-                            dampingprop: Damping {
-                                linear_damping: 1.0,
-                                angular_damping: 1.0,
-                            },
+                        AIAttackTimer {
+                            timer: Timer::from_seconds(5., bevy::time::TimerMode::Repeating),
+                            is_attacking: false,
+                            is_near: false,
                         },
-                        aggroable: Aggroable { distance: 200.0 },
-                    })
-                    .insert(Attacking {
-                        timer: Timer::from_seconds(5., bevy::time::TimerMode::Repeating),
-                        is_attacking: false,
-                    })
-                    .insert(
                         Thinker::build()
                             .picker(FirstToScore { threshold: 0.8 })
-                            .when(Aggroed, AttackPlayer),
-                    )
+                            .when(AIIsAggroed, AIAttackAction),
+                    ))
                     .with_children(|child| {
                         child.spawn(ActorColliderBundle {
                             transform_bundle: TransformBundle {
@@ -129,7 +131,7 @@ pub fn update_skeleton_graphics(
         &mut ActorState,
         &mut TextureAtlasSprite,
         Entity,
-        With<Enemy>,
+        With<AIEnemy>,
     )>,
 ) {
     if !timeinfo.game_paused {

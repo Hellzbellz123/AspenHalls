@@ -6,19 +6,17 @@ use bevy::{
     sprite::SpriteSheetBundle,
 };
 
-use crate::actors::{
+use crate::components::actors::{
+    ai::AIEnemy,
     animation::{AnimState, AnimationSheet},
-    components::Aggroable,
-    ActorState, RigidBodyBundle,
+    bundles::RigidBodyBundle,
+    general::ActorState,
 };
-
-use super::Enemy;
 
 #[derive(Bundle)]
 pub struct SkeletonBundle {
     pub name: Name,
-    pub actortype: Enemy,
-    pub aggroable: Aggroable,
+    pub actortype: AIEnemy,
     pub actorstate: ActorState,
     pub animation_state: AnimState,
     pub available_animations: AnimationSheet,

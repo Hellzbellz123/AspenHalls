@@ -1,25 +1,35 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{
-    ActiveEvents, Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution,
-    RigidBody, Sensor, Velocity,
-};
+use bevy_rapier2d::prelude::*;
+use leafwing_input_manager::prelude::*;
 
 use crate::{
+    action_manager::actions::PlayerBindables,
     components::actors::{
         ai::{AIAttackTimer, AIEnemy},
         bundles::{ActorColliderBundle, ProjectileBundle, RigidBodyBundle},
-        general::{Player, TimeToLive},
+        general::{ActorState, Player, TimeToLive},
     },
     game::TimeInfo,
     loading::assets::PlayerTextureHandles,
     utilities::game::ACTOR_PHYSICS_LAYER,
-    // utilities::game::PhysicsLayers,
 };
+
+pub fn player_shoot_at_position(
+    mut input_query: Query<&ActionState<PlayerBindables>, With<ActorState>>,
+    mut player_query: Query<&mut ActorState, With<Player>>,
+    _player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
+) {
+    let action_state = input_query.single_mut();
+    let _player = player_query.single_mut();
+
+    if action_state.pressed(PlayerBindables::Shoot) {}
+
+    if action_state.released(PlayerBindables::Dash) {}
+}
 
 pub fn on_shoot(
     mut commands: Commands,
     timeinfo: Res<TimeInfo>,
-    time: Res<Time>,
     assets: ResMut<PlayerTextureHandles>,
     player_query: Query<&Transform, With<Player>>,
     mut query: Query<(&Transform, &mut AIAttackTimer), With<AIEnemy>>,
@@ -28,12 +38,7 @@ pub fn on_shoot(
 
     if !timeinfo.game_paused {
         if let Ok(player_transform) = player_query.get_single() {
-            for (transform, mut attacking) in query.iter_mut() {
-                // Only shoot when the cooldown is over
-                if !attacking.is_attacking || !attacking.timer.tick(time.delta()).just_finished() {
-                    continue;
-                }
-
+            for (transform, mut _attacking) in query.iter_mut() {
                 let direction: Vec3 =
                     (player_transform.translation - transform.translation).normalize_or_zero();
 
@@ -45,7 +50,7 @@ pub fn on_shoot(
                 commands
                     .spawn((
                         ProjectileBundle {
-                            name: Name::new("EnemyProjectile"),
+                            name: Name::new("PlayerProjectile"),
                             sprite_bundle: SpriteBundle {
                                 texture: assets.rex_attack.clone(),
                                 transform: new_transform,
@@ -68,7 +73,7 @@ pub fn on_shoot(
                                     angular_damping: 1.0,
                                 },
                             },
-                            ttl: TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
+                            ttl: TimeToLive(Timer::from_seconds(5.0, TimerMode::Once)),
                         },
                         Sensor,
                     ))
@@ -88,9 +93,9 @@ pub fn on_shoot(
                                 },
                                 collider: Collider::ball(10.0),
                             },
+                            Name::new("PlayerProjectile"),
                             TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
                             ActiveEvents::COLLISION_EVENTS,
-                            Name::new("EnemyProjectileCollider"),
                         ));
                     });
             }

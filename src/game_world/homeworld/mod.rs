@@ -17,7 +17,7 @@ pub struct HomeWorldPlugin;
 
 impl Plugin for HomeWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        info!("spawning ldtklevels");
+        info!("registering ldtk map cells and adding teleport event");
         app.register_ldtk_int_cell_for_layer::<RapierCollisionBundle>("CollisionGrid", 1)
             .register_ldtk_int_cell_for_layer::<RapierSensorBundle>("CollisionGrid", 2)
             .add_event::<PlayerTeleportEvent>()

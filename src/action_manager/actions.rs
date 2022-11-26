@@ -14,6 +14,8 @@ pub enum PlayerBindables {
     Sprint,
     Pause,
     Heal,
+    Shoot,
+    Melee,
 
     ZoomIn,
     ZoomOut,

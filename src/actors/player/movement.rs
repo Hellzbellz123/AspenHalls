@@ -7,9 +7,9 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::actions::PlayerBindables,
-    actors::{
+    components::actors::{
         animation::{AnimState, FacingDirection},
-        player::{ActorState, Player},
+        general::{ActorState, Player},
     },
     game::TimeInfo,
 };

@@ -8,20 +8,20 @@ use big_brain::{
 };
 
 use crate::{
-    actors::{
+    components::actors::{
+        ai::{AIAggroDistance, AIAttackAction, AIAttackTimer, AICanMeander, AIEnemy, AIIsAggroed},
         animation::FacingDirection,
-        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Enemy, Player},
-        ActorState,
+        general::{ActorState, Player},
     },
     game::TimeInfo,
 };
 
-pub struct ShamanAiPlugin;
+pub struct SimpleAIPlugin;
 
-impl Plugin for ShamanAiPlugin {
+impl Plugin for SimpleAIPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(BigBrainStage::Actions, aggro_system)
-            // .add_system_to_stage(BigBrainStage::Actions, random_wander_system)
+            .add_system_to_stage(BigBrainStage::Actions, random_wander_system)
             .add_system_to_stage(BigBrainStage::Scorers, aggro_score_system);
     }
 }
@@ -29,16 +29,17 @@ impl Plugin for ShamanAiPlugin {
 fn aggro_system(
     timeinfo: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
+    #[allow(clippy::type_complexity)]
     mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
-        &Aggroable,
-        &mut Attacking,
+        &AIAggroDistance,
+        &mut AIAttackTimer,
         &mut ActorState,
         &mut TextureAtlasSprite,
-        With<Enemy>,
+        With<AIEnemy>,
     )>,
-    mut query: Query<(&Actor, &mut ActionState), With<AttackPlayer>>,
+    mut query: Query<(&Actor, &mut ActionState), With<AIAttackAction>>,
 ) {
     if !timeinfo.game_paused {
         if let Ok(player_transform) = player_query.get_single() {
@@ -56,16 +57,18 @@ fn aggro_system(
                     match *state {
                         ActionState::Requested => {
                             attacking.is_attacking = true;
+                            info!("shaman ai attack requested");
                             *state = ActionState::Executing;
                         }
                         ActionState::Executing => {
+                            info!("shaman ai attack executing");
                             let distance =
                                 player_transform.translation - enemy_transform.translation;
                             if distance.length().abs() < aggroable.distance.abs() {
                                 *velocity =
                                     Velocity::linear(distance.normalize_or_zero().truncate() * 50.);
                             } else {
-                                info!("player go idle");
+                                info!("enemy_go_idle");
                                 *velocity = Velocity::linear(Vec2::ZERO);
                                 attacking.is_attacking = false;
                                 enemystate.facing = FacingDirection::Idle;
@@ -73,6 +76,7 @@ fn aggro_system(
                             }
                         }
                         ActionState::Cancelled => {
+                            info!("shaman ai attack cancelled/failed");
                             attacking.is_attacking = false;
                             *state = ActionState::Failure;
                         }
@@ -84,49 +88,50 @@ fn aggro_system(
     }
 }
 
-// fn random_wander_system(
-//     timeinfo: ResMut<TimeInfo>,
-//     player_query: Query<&Transform, With<Player>>,
-//     mut enemy_query: Query<(
-//         &Transform,
-//         &mut Velocity,
-//         &IsMeandering,
-//         &mut ActorState,
-//         &mut TextureAtlasSprite,
-//         &CanMeander,
-//         With<Enemy>,
-//     )>,
-//     mut query: Query<(&Actor, &mut ActionState), With<CanMeander>>,
-// ) {
-//     if timeinfo.game_paused {
-//         for (Actor(actor), mut state) in query.iter_mut() {
-//             if let Ok((enemy_transform, mut velocity, aggroable, mut enemystate, sprite, meander, _a)) =
-//                 enemy_query.get_mut(*actor)
-//             {
-//                 match *state {
-//                     ActionState::Requested => {
-//                         info!("meandering action requested");
-//                         *state = ActionState::Executing;
-//                     }
-//                     ActionState::Executing => {
-//                         info!("executing meandering");
-//                         *state = ActionState::Success;
-//                     }
-//                     ActionState::Cancelled => {
-//                         info!("cancelling meandering action");
-//                         *state = ActionState::Failure;
-//                     }
-//                     _ => {}
-//                 }
-//             }
-//         }
-//     }
-// }
+fn random_wander_system(
+    timeinfo: ResMut<TimeInfo>,
+    _player_query: Query<&Transform, With<Player>>,
+    #[allow(clippy::type_complexity)]
+    enemy_query: Query<(
+        &Transform,
+        &mut Velocity,
+        // &AIMeanderAction,
+        &mut ActorState,
+        &mut TextureAtlasSprite,
+        &AICanMeander,
+        With<AIEnemy>,
+    )>,
+    mut query: Query<(&Actor, &mut ActionState), With<AICanMeander>>,
+) {
+    if timeinfo.game_paused {
+        for (Actor(actor), mut state) in query.iter_mut() {
+            if let Ok((_enemy_transform, _velocity, _meandering, _enemystate, _sprite, _a)) =
+                enemy_query.get(*actor)
+            {
+                match *state {
+                    ActionState::Requested => {
+                        info!("meandering action requested");
+                        *state = ActionState::Executing;
+                    }
+                    ActionState::Executing => {
+                        info!("executing meandering");
+                        *state = ActionState::Success;
+                    }
+                    ActionState::Cancelled => {
+                        info!("cancelling meandering action");
+                        *state = ActionState::Failure;
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+}
 
 fn aggro_score_system(
     player_query: Query<&Transform, With<Player>>,
-    enemy_query: Query<(&Transform, &Aggroable), With<Enemy>>,
-    mut query: Query<(&Actor, &mut Score), With<Aggroed>>,
+    enemy_query: Query<(&Transform, &AIAggroDistance), With<AIEnemy>>,
+    mut query: Query<(&Actor, &mut Score), With<AIIsAggroed>>,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (Actor(actor), mut score) in query.iter_mut() {

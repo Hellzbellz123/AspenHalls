@@ -10,20 +10,22 @@ pub mod debug_plugin {
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
     use bevy_inspector_egui_rapier::InspectableRapierPlugin;
-    use bevy_rapier2d::prelude::{CollisionEvent, ContactForceEvent};
-    use bevy_rapier2d::render::RapierDebugRenderPlugin;
+    use bevy_rapier2d::{
+        prelude::{CollisionEvent, ContactForceEvent},
+        render::RapierDebugRenderPlugin,
+    };
     use std::time::Duration;
 
+    use crate::components::actors::ai::{
+        AIAggroDistance, AIAttackAction, AIAttackTimer, AIIsAggroed,
+    };
+    use crate::components::actors::animation::{AnimState, AnimationSheet, FacingDirection};
+    use crate::components::actors::general::{ActorState, Player, TimeToLive};
+    use crate::components::DebugTimer;
+
+    use crate::game::GameStage;
     use crate::{
-        action_manager::actions::PlayerBindables,
-        actors::{
-            animation::{AnimState, AnimationSheet, FacingDirection},
-            components::{Aggroable, Aggroed, AttackPlayer, Attacking, Player, TimeToLive},
-            ActorState,
-        },
-        dev_tools::debug_dirs::debugdir,
-        game::TimeInfo,
-        // game_world::world_components::Collides,
+        action_manager::actions::PlayerBindables, dev_tools::debug_dirs::debugdir, game::TimeInfo,
         AppSettings,
     };
 
@@ -37,6 +39,7 @@ pub mod debug_plugin {
                 .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
 
             app.add_plugin(InspectorPlugin::<AppSettings>::new())
+                // .add_plugin()
                 .add_plugin(WorldInspectorPlugin::new())
                 .add_plugin(FrameTimeDiagnosticsPlugin::default())
                 .add_plugin(LogDiagnosticsPlugin {
@@ -62,16 +65,20 @@ pub mod debug_plugin {
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
                 // bigbrain AI
-                .register_inspectable::<Aggroable>()
-                .register_inspectable::<Aggroed>()
-                .register_type::<Attacking>()
-                .register_inspectable::<AttackPlayer>()
+                .register_inspectable::<AIAggroDistance>()
+                .register_inspectable::<AIIsAggroed>()
+                .register_type::<AIAttackTimer>()
+                .register_inspectable::<AIAttackAction>()
                 .register_type::<TimeToLive>()
-                .add_system_to_stage(CoreStage::PostUpdate, display_events);
+                .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
+                .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)));
         }
     }
 
-    fn display_events(
+    fn debug_logging(
+        time: Res<Time>,
+        mut timer: ResMut<DebugTimer>,
+        current_gamestate: Res<State<GameStage>>,
         mut collision_events: EventReader<CollisionEvent>,
         mut contact_force_events: EventReader<ContactForceEvent>,
     ) {
@@ -81,6 +88,10 @@ pub mod debug_plugin {
         }
         for contact_force_event in contact_force_events.iter() {
             info!("Received contact force event: {:?}", contact_force_event);
+        }
+
+        if timer.tick(time.delta()).finished() {
+            info!("CURRENT GAMESTATE: {:?}", current_gamestate)
         }
     }
 }

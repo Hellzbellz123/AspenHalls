@@ -15,12 +15,12 @@ pub enum ANSIColor {
     // GREEN,
     // MAGENTA,
     // BLACK,
-    YELLOW,
-    RED,
-    RESET,
-    BLUE,
-    WHITE,
-    CYAN,
+    Yellow,
+    Red,
+    Reset,
+    Blue,
+    White,
+    Cyan,
 }
 
 impl ANSIColor {
@@ -30,12 +30,12 @@ impl ANSIColor {
             // ANSIColor::MAGENTA => "\u{001B}[0;35m",
             // ANSIColor::GREEN => "\u{001B}[0;32m",
             // ANSIColor::BLACK => "\u{001B}[0;30m",
-            ANSIColor::RED => "\u{001B}[0;31m",
-            ANSIColor::YELLOW => "\u{001B}[0;33m",
-            ANSIColor::BLUE => "\u{001B}[0;34m",
-            ANSIColor::CYAN => "\u{001B}[0;36m",
-            ANSIColor::WHITE => "\u{001B}[0;37m",
-            ANSIColor::RESET => "\u{001B}[0;0m",
+            ANSIColor::Red => "\u{001B}[0;31m",
+            ANSIColor::Yellow => "\u{001B}[0;33m",
+            ANSIColor::Blue => "\u{001B}[0;34m",
+            ANSIColor::Cyan => "\u{001B}[0;36m",
+            ANSIColor::White => "\u{001B}[0;37m",
+            ANSIColor::Reset => "\u{001B}[0;0m",
         }
     }
 }
@@ -100,37 +100,37 @@ fn color_output(colorize: bool, path: &Path) -> std::string::String {
     } else if path.is_dir() {
         format!(
             "{}{}{}",
-            ANSIColor::BLUE.as_string(),
+            ANSIColor::Blue.as_string(),
             print_name,
-            ANSIColor::RESET.as_string()
+            ANSIColor::Reset.as_string()
         )
     } else if is_executable(path) {
         format!(
             "{}{}{}",
-            ANSIColor::YELLOW.as_string(),
+            ANSIColor::Yellow.as_string(),
             print_name,
-            ANSIColor::RESET.as_string()
+            ANSIColor::Reset.as_string()
         )
     } else if path.is_absolute() {
         format!(
             "{}{}{}",
-            ANSIColor::RED.as_string(),
+            ANSIColor::Red.as_string(),
             print_name,
-            ANSIColor::RESET.as_string()
+            ANSIColor::Reset.as_string()
         )
     } else if path.is_symlink() {
         format!(
             "{}{}{}",
-            ANSIColor::WHITE.as_string(),
+            ANSIColor::White.as_string(),
             print_name,
-            ANSIColor::RESET.as_string()
+            ANSIColor::Reset.as_string()
         )
     } else {
         format!(
             "{}{}{}",
-            ANSIColor::CYAN.as_string(),
+            ANSIColor::Cyan.as_string(),
             print_name,
-            ANSIColor::RESET.as_string()
+            ANSIColor::Reset.as_string()
         )
     }
 }

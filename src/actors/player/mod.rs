@@ -2,21 +2,20 @@ use bevy::prelude::*;
 
 use crate::{
     action_manager::bindings::PlayerInput,
-    actors::{
+    actors::player::{
+        movement::{camera_movement_system, player_movement_system, player_sprint},
+        utilities::spawn_player,
+    },
+    components::actors::{
         animation::{AnimState, AnimationSheet},
-        components::Player,
-        player::{
-            movement::{camera_movement_system, player_movement_system, player_sprint},
-            utilities::spawn_player,
-        },
-        ActorState,
+        bundles::RigidBodyBundle,
+        general::{ActorState, CombatStats, DefenseStats, Player},
     },
     game::GameStage,
     utilities::game::SystemLabels,
 };
 
-use super::RigidBodyBundle;
-
+pub mod attack;
 mod movement;
 pub mod utilities;
 
@@ -27,14 +26,16 @@ pub struct PlayerBundle {
     pub player_state: ActorState,
     pub player_animationstate: AnimState,
     pub available_animations: AnimationSheet,
+    pub combat_stats: CombatStats,
+    pub defense_stats: DefenseStats,
     #[bundle]
     rigidbody: RigidBodyBundle,
+    #[bundle]
+    pub player_sprite_sheet: SpriteSheetBundle,
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
     #[bundle]
     pub player_input_map: PlayerInput,
-    #[bundle]
-    pub player_sprite_sheet: SpriteSheetBundle,
 }
 
 pub struct PlayerPlugin;

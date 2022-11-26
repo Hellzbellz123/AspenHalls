@@ -1,10 +1,13 @@
 // disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![feature(stmt_expr_attributes)]
+#![feature(type_ascription)]
 #![feature(lint_reasons)]
-
+// #![allow(dead_code)]
 use audio::{Ambience, Music, Sound};
-use bevy::prelude::{default, Camera2d, ImagePlugin, OrthographicProjection, PluginGroup, Vec2};
+use bevy::prelude::{
+    default, Camera2d, ClearColor, Color, ImagePlugin, OrthographicProjection, PluginGroup, Vec2,
+};
 use bevy::window::{
     MonitorSelection, PresentMode, WindowPlugin, WindowPosition, WindowResizeConstraints,
 };
@@ -15,24 +18,24 @@ use bevy::{
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_rapier2d::prelude::RapierPhysicsPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
+use components::MainCamera;
 
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
 
 use game::TimeInfo;
 
-use splashscreen::MainCamera;
 use utilities::game::AppSettings;
 
 pub mod action_manager;
 pub mod actors;
 pub mod audio;
+pub mod components;
 mod dev_tools;
 pub mod game;
 pub mod game_world;
 pub mod loading;
-pub mod splashscreen;
-// pub mod ui;
+pub mod ui;
 pub mod utilities;
 
 pub fn main() {
@@ -70,20 +73,26 @@ pub fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
+        .insert_resource(ClearColor(Color::Hsla {
+            hue: 294.0,
+            saturation: 0.71,
+            lightness: 0.08,
+            alpha: 1.0,
+        }))
+        .add_plugin(loading::AssetLoadPlugin)
+        .add_state(game::GameStage::Loading)
+        .add_plugin(ui::MainMenuPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
         .add_plugin(utilities::UtilitiesPlugin)
-        .add_state(game::GameStage::Loading)
-        .add_plugin(loading::AssetLoadPlugin)
         .insert_resource(RapierConfiguration {
             gravity: Vec2::ZERO,
             ..default()
         })
         .insert_resource(TimeInfo {
-            time_step: 0.0,
-            game_paused: true,
+            time_step: 1.0,         //TODO: change this back too false and 0.0 when we get the mainmenu back
+            game_paused: false,
             pause_menu: false,
         })
-        .add_plugin(splashscreen::SplashPlugin)
         .add_plugin(game::GamePlugin)
         .add_system(update_settings);
 

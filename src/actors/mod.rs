@@ -1,53 +1,21 @@
-use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
-use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution, RigidBody,
-    Velocity,
-};
+use bevy::prelude::{App, Plugin, SystemSet};
 
-use crate::actors::animation::FacingDirection;
+use crate::game::GameStage;
+
+use self::animation::GraphicsPlugin;
 
 pub mod animation;
-pub mod components;
+// pub mod components;
 pub mod enemies;
 pub mod player;
 pub mod spawners;
 
-#[derive(Bundle)] //bundle for ease of use
-pub struct RigidBodyBundle {
-    rigidbody: RigidBody,
-    velocity: Velocity,
-    friction: Friction,
-    howbouncy: Restitution,
-    massprop: ColliderMassProperties,
-    rotationlocks: LockedAxes,
-    dampingprop: Damping,
+impl Plugin for GraphicsPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set(
+            SystemSet::on_update(GameStage::Playing)
+                .with_system(Self::update_current_animation)
+                .with_system(Self::frame_animation),
+        );
+    }
 }
-
-#[derive(Bundle)]
-pub struct ActorColliderBundle {
-    transform_bundle: TransformBundle,
-    collider: Collider,
-}
-
-#[derive(Component, Default, Reflect, Inspectable)]
-#[reflect(Component)]
-pub struct ActorState {
-    //stores actor information, all actors have this
-    pub speed: f32,
-    pub sprint_available: bool,
-    pub facing: FacingDirection,
-    pub just_moved: bool,
-}
-
-//     rigidbody: heron::RigidBody::Dynamic,
-//     velocity: Velocity::default(),
-//     rconstraints: RotationConstraints::lock(),
-//     collision_layers: CollisionLayers::all_masks::<PhysicsLayers>()
-//         .with_group(PhysicsLayers::Player),
-//     physicsmat: PhysicMaterial {
-//         restitution: 0.1,
-//         density: 1.0,
-//         friction: 0.5,
-//     }, //PhysicsLayers::Player.layers()
-// },

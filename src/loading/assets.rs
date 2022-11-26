@@ -40,9 +40,8 @@ pub struct EnemyTextureHandles {
 
 #[derive(AssetCollection, Resource, Clone)]
 pub struct UiTextureHandles {
-    #[asset(path = "textures/splashscreen.png")]
-    pub splash_image: Handle<Image>,
-
+    // #[asset(path = "textures/splashscreen.png")]
+    // pub splash_image: Handle<Image>,
     #[asset(path = "kenny/panel_brown.png")]
     pub panel_brown_png: Handle<Image>,
 
@@ -56,7 +55,7 @@ pub struct UiTextureHandles {
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
-    #[asset(path = "levels/homeworldbroke.ldtk")]
+    #[asset(path = "levels/homeworld.ldtk")]
     pub homeworld: Handle<LdtkAsset>,
 }
 

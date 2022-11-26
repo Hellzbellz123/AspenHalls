@@ -1,58 +1,17 @@
-use crate::actors::ActorState;
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
-use crate::game::{GameStage, TimeInfo};
+use crate::{
+    components::actors::{
+        animation::{AnimState, AnimationSheet, FacingDirection},
+        general::ActorState,
+    },
+    game::TimeInfo,
+};
 
 pub struct GraphicsPlugin;
 
-#[derive(Default, Component, Inspectable)]
-pub struct AnimationSheet {
-    pub handle: Handle<TextureAtlas>,
-    pub idle_animation: [usize; 5],
-    pub up_animation: [usize; 5],
-    pub down_animation: [usize; 5],
-    pub right_animation: [usize; 5],
-}
-
-#[derive(
-    Component, Default, Clone, Copy, Inspectable, PartialEq, Eq, PartialOrd, Ord, Debug, Reflect,
-)]
-pub enum FacingDirection {
-    #[default]
-    Idle,
-    Down,
-    Left,
-    Up,
-    Right,
-}
-
-#[derive(Component, Default, Inspectable)]
-pub struct PlayerGraphics {
-    pub facing: FacingDirection,
-}
-
-#[derive(Component, Default, Reflect)]
-#[reflect(Component)]
-#[allow(clippy::module_name_repetitions)]
-pub struct AnimState {
-    pub timer: Timer,
-    pub current_frames: Vec<usize>,
-    pub current_frame: usize,
-}
-
-impl Plugin for GraphicsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(GameStage::Playing)
-                .with_system(Self::update_current_animation)
-                .with_system(Self::frame_animation),
-        );
-    }
-}
-
 impl GraphicsPlugin {
-    fn update_current_animation(
+    pub fn update_current_animation(
         mut sprites_query: Query<
             (&ActorState, &mut AnimState, &AnimationSheet),
             Changed<ActorState>,
@@ -74,7 +33,7 @@ impl GraphicsPlugin {
         }
     }
 
-    fn frame_animation(
+    pub fn frame_animation(
         timeinfo: ResMut<TimeInfo>,
         mut sprites_query: Query<(&mut TextureAtlasSprite, &mut AnimState)>,
         time: Res<Time>,

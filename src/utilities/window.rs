@@ -1,6 +1,7 @@
-use bevy::ecs::system::NonSend;
-use bevy::window::WindowId;
+use bevy::{ecs::{system::NonSend, entity::Entities}, window::{WindowId, Windows}, diagnostic::{EntityCountDiagnosticsPlugin, FrameTimeDiagnosticsPlugin, Diagnostics}, prelude::{ResMut, Res, State}};
 use winit::window::Icon;
+
+use crate::game::GameStage;
 // use bevy::winit::WinitWindows;
 // extern crate winapi;
 
@@ -30,3 +31,24 @@ pub fn set_window_icon(
 
     primary.set_window_icon(std::option::Option::Some(icon));
 }
+
+
+
+/// This system will then change the title during execution
+pub fn set_debug_title(
+    mut windows: ResMut<Windows>,
+    diagnostics: Res<Diagnostics>,
+    state: ResMut<State<GameStage>>,
+    entities: &Entities
+) {
+    if let Some(window) = windows.get_primary_mut() {
+        let title = format!(
+            "Avg. FPS: {:.02} | Entity Count: {:?} | CurrentState: {:?}",
+            diagnostics.get(FrameTimeDiagnosticsPlugin::FPS).unwrap().average().unwrap_or_default(),
+            (entities.len()),
+            state.current()
+        );
+        window.set_title(title);
+    }
+}
+
