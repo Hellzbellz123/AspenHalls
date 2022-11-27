@@ -5,15 +5,21 @@ rwd = "run --features=dev_linux --target=x86_64-pc-windows-msvc"
 rwt = "build --target=x86_64-pc-windows-msvc -Zunstable-options --keep-going --out-dir=publish --release"
 rlt = "build --target=x86_64-unknown-linux-gnu -Zunstable-options --keep-going --out-dir=publish --release"
 
-# [build]
-# target = ["x86_64-pc-windows-msvc"]
+[build]
+target = ["x86_64-pc-windows-msvc"]
 
-# [profile.dev]
-# opt-level = 1
+[profile.dev]
+incremental = true
+codegen-units = 128
+# lto = "thin"
+opt-level = 1
+debug = true
 
-# [profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-# opt-level = 3
+[profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code: this makes debug stuff not work quite right
+opt-level = 1
 
-# [profile.release]
-# lto = "fat"
-# opt-level = 3
+[profile.release]
+codegen-units = 32
+lto = "fat"
+debug = true #disable for published builds
+opt-level = 3

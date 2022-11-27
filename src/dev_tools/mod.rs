@@ -2,30 +2,38 @@ mod debug_dirs;
 
 // #[cfg(feature = "dev")]
 pub mod debug_plugin {
-    use bevy::prelude::EventReader;
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-        prelude::*,
+        prelude::{EventReader, *},
     };
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
     use bevy_inspector_egui_rapier::InspectableRapierPlugin;
+    use bevy_prototype_lyon::{
+        prelude::{DrawMode, FillMode, GeometryBuilder},
+        render::Shape,
+        shapes,
+    };
     use bevy_rapier2d::{
         prelude::{CollisionEvent, ContactForceEvent},
         render::RapierDebugRenderPlugin,
     };
     use std::time::Duration;
 
-    use crate::components::actors::ai::{
-        AIAggroDistance, AIAttackAction, AIAttackTimer, AIIsAggroed,
-    };
-    use crate::components::actors::animation::{AnimState, AnimationSheet, FacingDirection};
-    use crate::components::actors::general::{ActorState, Player, TimeToLive};
-    use crate::components::DebugTimer;
-
-    use crate::game::GameStage;
     use crate::{
-        action_manager::actions::PlayerBindables, dev_tools::debug_dirs::debugdir, game::TimeInfo,
+        action_manager::actions::PlayerBindables,
+        components::{
+            actors::{
+                ai::{AIAggroDistance, AIAttackAction, AIAttackTimer, AIIsAggroed},
+                animation::{AnimState, AnimationSheet, FacingDirection},
+                general::{ActorState, Player, TimeToLive},
+                spawners::Spawner,
+            },
+            DebugTimer,
+        },
+        dev_tools::debug_dirs::debugdir,
+        game::{GameStage, TimeInfo},
+        utilities::game::SystemLabels,
         AppSettings,
     };
 
@@ -52,6 +60,7 @@ pub mod debug_plugin {
                 .add_plugin(InspectableRapierPlugin)
                 .add_plugin(RapierDebugRenderPlugin::default())
                 //custom inspectables not from plugins
+                .register_inspectable::<Spawner>()
                 .register_inspectable::<ActorState>()
                 .register_inspectable::<Player>()
                 .register_type::<TimeInfo>()
@@ -68,9 +77,15 @@ pub mod debug_plugin {
                 .register_inspectable::<AIAggroDistance>()
                 .register_inspectable::<AIIsAggroed>()
                 .register_type::<AIAttackTimer>()
+                // .register_type::<Path>()
                 .register_inspectable::<AIAttackAction>()
                 .register_type::<TimeToLive>()
                 .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
+                .add_system_set(
+                    SystemSet::on_update(GameStage::Playing)
+                        .with_system(debug_visualize_spawner)
+                        .after(SystemLabels::Spawn),
+                )
                 .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)));
         }
     }
@@ -92,6 +107,38 @@ pub mod debug_plugin {
 
         if timer.tick(time.delta()).finished() {
             info!("CURRENT GAMESTATE: {:?}", current_gamestate)
+        }
+    }
+
+    fn debug_visualize_spawner(
+        mut cmds: Commands,
+        spawner_query: Query<((Entity, &Transform, &Spawner), Without<Shape>)>,
+    ) {
+        for ((entity, transform, spawner), _query) in &spawner_query {
+            let spawner_box_visual = shapes::Rectangle {
+                extents: Vec2 { x: 40.0, y: 40.0 },
+                origin: shapes::RectangleOrigin::Center,
+            };
+
+            let spawner_radius_visual = shapes::Circle {
+                radius: spawner.spawn_radius,
+                center: Vec2::ZERO,
+            };
+
+            info!("adding visual too spawner {:?}", entity);
+            let spawner_visual_bundle = GeometryBuilder::new()
+                .add(&spawner_box_visual)
+                .add(&spawner_radius_visual)
+                .build(
+                    DrawMode::Fill(FillMode::color(Color::Hsla {
+                        hue: 334.0,
+                        saturation: 0.83,
+                        lightness: 0.3,
+                        alpha: 0.25,
+                    })),
+                    *transform,
+                );
+            cmds.entity(entity).insert(spawner_visual_bundle);
         }
     }
 }

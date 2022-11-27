@@ -3,15 +3,23 @@ use bevy_inspector_egui::Inspectable;
 
 use crate::audio::SoundSettings;
 
+/// Z axis for physics interactions
 pub const ACTOR_PHYSICS_LAYER: f32 = 5.0;
+/// Z axis for sprites/entities to be positioned on
+pub const ACTOR_LAYER: f32 = 8.0;
+/// games tile size as const for easy use
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
-pub const PLAYER_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
+/// actor size
+pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
+///labels for system ordering
 pub enum SystemLabels {
-    // spawn label for systems that query things that might not exist
+    /// spawn label for systems that query things that might not exist
     Spawn,
+    /// insert settings resources
     InitSettings,
+    /// modify those settings resources
     UpdateSettings,
     /// everything that handles input
     Input,
@@ -23,10 +31,14 @@ pub enum SystemLabels {
     Map,
 }
 
+/// all game settings in metastruct
 #[derive(Inspectable, Resource)]
 pub struct AppSettings {
+    /// volume settings
     pub sound_settings: SoundSettings,
+    /// display resolution
     pub resolution: Vec2,
+    /// camera zooom
     pub camera_zoom: f32,
     // control_settings: PlayerInput,
 }
@@ -38,7 +50,7 @@ impl FromWorld for AppSettings {
             sound_settings: SoundSettings {
                 mastervolume: 0.2,
                 ambiencevolume: 0.5,
-                musicvolume: 0.5,
+                musicvolume: 0.2,
                 soundvolume: 0.5,
             },
             resolution: Vec2 {

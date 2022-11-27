@@ -3,6 +3,8 @@
 #![feature(stmt_expr_attributes)]
 #![feature(type_ascription)]
 #![feature(lint_reasons)]
+// #![forbid(missing_docs)]
+
 // #![allow(dead_code)]
 use audio::{Ambience, Music, Sound};
 use bevy::prelude::{
@@ -16,6 +18,7 @@ use bevy::{
     window::{WindowDescriptor, Windows},
 };
 use bevy_kira_audio::{AudioChannel, AudioControl};
+use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::RapierPhysicsPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
 use components::MainCamera;
@@ -82,6 +85,7 @@ pub fn main() {
         .add_plugin(loading::AssetLoadPlugin)
         .add_state(game::GameStage::Loading)
         .add_plugin(ui::MainMenuPlugin)
+        .add_plugin(ShapePlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
         .add_plugin(utilities::UtilitiesPlugin)
         .insert_resource(RapierConfiguration {
@@ -89,7 +93,7 @@ pub fn main() {
             ..default()
         })
         .insert_resource(TimeInfo {
-            time_step: 1.0,         //TODO: change this back too false and 0.0 when we get the mainmenu back
+            time_step: 1.0, //TODO: change this back too false and 0.0 when we get the mainmenu back
             game_paused: false,
             pause_menu: false,
         })

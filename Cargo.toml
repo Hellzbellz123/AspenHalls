@@ -12,6 +12,7 @@ repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 license-file = "LICENSE"
 
 [features]
+trace = ["dev", "bevy/trace_tracy", "big-brain/trace"]
 dev_linux = ["bevy/dynamic", "dev"]
 dev = ["bevy_rapier2d/debug-render"]
 
@@ -28,11 +29,11 @@ rand = "0.8.5"
 serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.27.5"
+bevy_prototype_lyon = "0.7.1"
 
 [dependencies.big-brain]
 # git = "https://github.com/zkat/big-brain"
 version = "0.15.0"
-features = ["trace"]
 
 
 [dependencies.bevy_kindly]

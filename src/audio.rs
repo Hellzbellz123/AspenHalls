@@ -81,7 +81,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
     audio.play(audio_assets.gamesoundtrack.clone()).looped();
 }
 
-pub fn player_walking_sound_system(
+fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
     mut player_query: Query<&mut ActorState, With<Player>>,
     mut walksound_res: ResMut<WalkingSound>,

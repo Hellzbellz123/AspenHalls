@@ -1,5 +1,22 @@
 {
   "files.exclude": {
+    "**/.git": false,
+    "**/.svn": false,
+    "**/.hg": false,
+    "**/CVS": false,
+    "**/.DS_Store": false,
+    "**/Thumbs.db": false,
+    "**/.trunk/*out": false,
+    "**/.trunk": false,
+    "**/.vscode": false,
+    ".cargo": false,
+    ".gitattributes": false,
+    ".markdownlint.yaml": false,
+    ".shellcheckrc": false,
+    "Cargo.lock": false,
+    ".gitignore": false
+  },
+  "explorerExclude.backup": {
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
@@ -16,7 +33,6 @@
     "Cargo.lock": true,
     ".gitignore": true
   },
-  "explorerExclude.backup": {},
   "lldb.displayFormat": "auto",
   "lldb.showDisassembly": "always",
   "lldb.dereferencePointers": true,

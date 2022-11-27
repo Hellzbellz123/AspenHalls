@@ -2,7 +2,7 @@ pub fn debugdir() {
     let dir = std::env::current_dir()
         .expect("Couldnt get current working directory, No permissions or doesnt exist");
 
-    println!("Current Working Director is: {:?}", dir);
+    println!("Current Working Director is: {dir:?}");
     run(true, true, 2, &dir).expect("could list directory for some reason");
 }
 
@@ -63,14 +63,14 @@ fn visit_dirs(
             let path = entry.path();
 
             if index == entries.len() - 1 {
-                println!("{}└── {}", prefix, color_output(colorize, &path));
+                println!("{prefix}└── {}", color_output(colorize, &path));
                 if path.is_dir() {
                     let depth = depth + 1;
                     let prefix_new = prefix.to_string().clone() + "    ";
                     visit_dirs(&path, depth, level, &prefix_new, colorize, show_all)?;
                 }
             } else {
-                println!("{}├── {}", prefix, color_output(colorize, &path));
+                println!("{prefix}├── {}", color_output(colorize, &path));
                 if path.is_dir() {
                     let depth = depth + 1;
                     let prefix_new = prefix.to_string() + "│   ";
@@ -92,7 +92,7 @@ fn color_output(colorize: bool, path: &Path) -> std::string::String {
     let print_name: String = if symlink.to_str().unwrap().is_empty() {
         filename.to_string()
     } else {
-        format!("{} -> {}", filename, symlink.to_str().unwrap())
+        format!("{filename} -> {}", symlink.to_str().unwrap())
     };
 
     if !colorize {

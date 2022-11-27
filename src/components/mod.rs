@@ -1,6 +1,39 @@
 use bevy::prelude::*;
 
 pub mod actors {
+    pub mod spawners {
+        use bevy::{
+            prelude::{Component, Deref, DerefMut, Vec3},
+            time::Timer,
+        };
+        use bevy_inspector_egui::Inspectable;
+
+        #[derive(Component)]
+        pub struct EnemyContainerTag;
+
+        #[derive(Debug, Component, DerefMut, Deref)]
+        pub struct SpawnerTimer(pub Timer);
+
+        #[derive(Component, Inspectable)]
+        pub enum EnemyType {
+            Skeleton,
+            Slime,
+        }
+
+        #[derive(Component, Inspectable)]
+        pub struct Spawner {
+            pub enemy_to_spawn: EnemyType,
+            pub spawn_radius: f32,
+            pub max_enemies: i32,
+        }
+
+        #[derive(Component)]
+        pub struct SpawnEvent {
+            pub enemy_to_spawn: EnemyType,
+            pub spawn_position: Vec3,
+            pub spawn_count: i32,
+        }
+    }
     pub mod bundles {
         use crate::components::actors::{
             ai::{AIAggroDistance, AIAttackTimer},
@@ -8,13 +41,16 @@ pub mod actors {
         };
         use bevy::prelude::*;
         use bevy_rapier2d::prelude::*;
-        use big_brain::thinker::Thinker;
+        use big_brain::thinker::ThinkerBuilder;
+
+        use super::ai::ActorType;
 
         #[derive(Bundle)]
         pub struct BigBrainBundle {
+            pub actortype: ActorType,
             pub aggrodistance: AIAggroDistance,
             pub aiattacktimer: AIAttackTimer,
-            pub thinker: Thinker,
+            pub thinker: ThinkerBuilder,
         }
 
         #[derive(Bundle)]
@@ -49,6 +85,16 @@ pub mod actors {
     pub mod ai {
         use bevy::prelude::*;
         use bevy_inspector_egui::Inspectable;
+
+        pub enum TypeEnum {
+            Enemy,
+            Neutral,
+            Friendly,
+            Player,
+        }
+
+        #[derive(Component, Deref, DerefMut)]
+        pub struct ActorType(pub TypeEnum);
 
         #[derive(Component, Inspectable)]
         pub struct AIEnemy;

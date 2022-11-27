@@ -6,7 +6,7 @@ use bevy_ecs_ldtk::{
 use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
-    actors::player::utilities::PlayerColliderTag,
+    actors::player::PlayerColliderTag,
     components::actors::general::Player,
     game_world::homeworld::{
         components::{HomeWorldTeleportSensor, TeleportTimer},
@@ -114,7 +114,7 @@ pub fn enter_the_dungeon(
         timer.tick(time.delta());
     }
 
-    if timer.finished() & !player.just_teleported {
+    if timer.finished() && !player.just_teleported {
         *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
         info!("player teleport/next playing sub-phase");
         player.just_teleported = true;

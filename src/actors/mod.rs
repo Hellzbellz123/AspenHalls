@@ -1,21 +1,22 @@
-use bevy::prelude::{App, Plugin, SystemSet};
+use bevy::prelude::{App, Plugin};
 
-use crate::game::GameStage;
-
-use self::animation::GraphicsPlugin;
-
+/// holds animation plugin
 pub mod animation;
-// pub mod components;
+/// holds enemies
 pub mod enemies;
+/// holds player information and functions
 pub mod player;
+/// holds spawner info
 pub mod spawners;
 
-impl Plugin for GraphicsPlugin {
+/// all npcs in the game, along with player and spawners
+pub struct ActorPlugin;
+
+impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(GameStage::Playing)
-                .with_system(Self::update_current_animation)
-                .with_system(Self::frame_animation),
-        );
+        app.add_plugin(spawners::SpawnerPlugin)
+            .add_plugin(animation::AnimationPlugin)
+            .add_plugin(player::PlayerPlugin)
+            .add_plugin(enemies::EnemyPlugin);
     }
 }

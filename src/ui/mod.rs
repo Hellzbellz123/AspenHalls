@@ -19,7 +19,7 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
-pub fn pass_to_play<T: Component>(
+fn pass_to_play<T: Component>(
     assetserver: ResMut<AssetServer>,
 
     time: Res<Time>,
@@ -29,25 +29,31 @@ pub fn pass_to_play<T: Component>(
     mut game_state: ResMut<State<GameStage>>,
 ) {
     let img: Handle<Image> = assetserver.load("splash/splashL.png");
-    let mut state_pushed = false;
+    let mut state_pushed;
     let imgloadstate = assetserver.get_load_state(img);
 
     if imgloadstate == LoadState::Loaded
         && timer.tick(time.delta()).finished()
         && game_state.current() == &GameStage::Menu
-        && !state_pushed
     {
-        info!("splash asset loaded");
+        state_pushed = false;
+
+        // info!("splash asset loaded");
         // game_state.set(GameStage::Menu).unwrap(); //TODO:change back too menu when updated too new kayakui version
         info!("pushing playing state too state stack");
-        game_state
-            .push(GameStage::Playing)
-            .expect("couldnt push state to stack");
+        if !state_pushed {
+            game_state
+                .push(GameStage::Playing)
+                .expect("couldnt push state to stack");
 
-        for entity in to_despawn.iter() {
-            info!("despawning entity: {:#?}", entity);
-            commands.entity(entity).despawn_recursive();
+            state_pushed = true;
+
+            for entity in to_despawn.iter() {
+                info!("despawning entity: {:#?}", entity);
+                commands.entity(entity).despawn_recursive();
+            }
+        } else if state_pushed {
+            info!(" do nothing?")
         }
-        state_pushed = true;
     }
 }

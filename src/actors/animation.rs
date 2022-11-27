@@ -5,13 +5,24 @@ use crate::{
         animation::{AnimState, AnimationSheet, FacingDirection},
         general::ActorState,
     },
-    game::TimeInfo,
+    game::{GameStage, TimeInfo},
 };
 
-pub struct GraphicsPlugin;
+/// plays animations for all actors with ([`ActorState`], [`AnimState`], [`AnimationSheet`], [`TextureAtlasSprite`])
+pub struct AnimationPlugin;
 
-impl GraphicsPlugin {
-    pub fn update_current_animation(
+impl Plugin for AnimationPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set(
+            SystemSet::on_update(GameStage::Playing)
+                .with_system(Self::update_current_animation)
+                .with_system(Self::frame_animation),
+        );
+    }
+}
+
+impl AnimationPlugin {
+    fn update_current_animation(
         mut sprites_query: Query<
             (&ActorState, &mut AnimState, &AnimationSheet),
             Changed<ActorState>,
@@ -33,7 +44,7 @@ impl GraphicsPlugin {
         }
     }
 
-    pub fn frame_animation(
+    fn frame_animation(
         timeinfo: ResMut<TimeInfo>,
         mut sprites_query: Query<(&mut TextureAtlasSprite, &mut AnimState)>,
         time: Res<Time>,

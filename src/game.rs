@@ -5,7 +5,7 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
-    actors::{animation::GraphicsPlugin, enemies::EnemyPlugin, player::PlayerPlugin},
+    actors::ActorPlugin,
     audio::InternalAudioPlugin,
     components::actors::general::TimeToLive,
     game_world::MapSystemPlugin,
@@ -40,9 +40,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(MapSystemPlugin)
-            .add_plugin(PlayerPlugin)
-            .add_plugin(EnemyPlugin)
-            .add_plugin(GraphicsPlugin)
+            .add_plugin(ActorPlugin)
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state), // .with_system(zoom_control),
             )

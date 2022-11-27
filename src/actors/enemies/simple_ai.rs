@@ -21,7 +21,7 @@ pub struct SimpleAIPlugin;
 impl Plugin for SimpleAIPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_to_stage(BigBrainStage::Actions, aggro_system)
-            .add_system_to_stage(BigBrainStage::Actions, random_wander_system)
+            // .add_system_to_stage(BigBrainStage::Actions, random_wander_system)
             .add_system_to_stage(BigBrainStage::Scorers, aggro_score_system);
     }
 }
@@ -29,8 +29,7 @@ impl Plugin for SimpleAIPlugin {
 fn aggro_system(
     timeinfo: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
-    #[allow(clippy::type_complexity)]
-    mut enemy_query: Query<(
+    #[allow(clippy::type_complexity)] mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
         &AIAggroDistance,
@@ -91,8 +90,7 @@ fn aggro_system(
 fn random_wander_system(
     timeinfo: ResMut<TimeInfo>,
     _player_query: Query<&Transform, With<Player>>,
-    #[allow(clippy::type_complexity)]
-    enemy_query: Query<(
+    #[allow(clippy::type_complexity)] enemy_query: Query<(
         &Transform,
         &mut Velocity,
         // &AIMeanderAction,
@@ -129,9 +127,9 @@ fn random_wander_system(
 }
 
 fn aggro_score_system(
-    player_query: Query<&Transform, With<Player>>,
-    enemy_query: Query<(&Transform, &AIAggroDistance), With<AIEnemy>>,
-    mut query: Query<(&Actor, &mut Score), With<AIIsAggroed>>,
+    player_query: Query<&Transform, With<Player>>, //player
+    enemy_query: Query<(&Transform, &AIAggroDistance), With<AIEnemy>>, //enemys that can aggro
+    mut query: Query<(&Actor, &mut Score), With<AIIsAggroed>>, //enemy brain?
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (Actor(actor), mut score) in query.iter_mut() {
