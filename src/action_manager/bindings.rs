@@ -45,6 +45,10 @@ impl Default for PlayerInput {
             Move,
         );
 
+        input_map.insert(KeyCode::Space, PlayerBindables::Shoot);
+
+        input_map.insert(KeyCode::F, PlayerBindables::Melee);
+
         input_map.insert(KeyCode::LShift, PlayerBindables::Dash);
         input_map.insert(GamepadButtonType::West, PlayerBindables::Dash);
 

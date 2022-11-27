@@ -1,65 +1,145 @@
-use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    prelude::*,
-};
-use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
-use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
-use bevy_inspector_egui_rapier::InspectableRapierPlugin;
-
-use std::time::Duration;
-
-use crate::{
-    action_manager::actions::PlayerBindables,
-    actors::{
-        animation::{AnimState, AnimationSheet, FacingDirection},
-        components::{Aggroable, Aggroed, AttackPlayer, Attacking, Player, TimeToLive},
-        ActorState,
-    },
-    game::TimeInfo,
-    // game_world::world_components::Collides,
-    AppSettings,
-};
-
 mod debug_dirs;
 
-pub struct DebugPlugin;
+// #[cfg(feature = "dev")]
+pub mod debug_plugin {
+    use bevy::{
+        diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+        prelude::{EventReader, *},
+    };
+    use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
+    use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
+    use bevy_inspector_egui_rapier::InspectableRapierPlugin;
+    use bevy_prototype_lyon::{
+        prelude::{DrawMode, FillMode, GeometryBuilder},
+        render::Shape,
+        shapes,
+    };
+    use bevy_rapier2d::{
+        prelude::{CollisionEvent, ContactForceEvent},
+        render::RapierDebugRenderPlugin,
+    };
+    use std::time::Duration;
 
-impl Plugin for DebugPlugin {
-    fn build(&self, app: &mut App) {
-        debug_dirs::debugdir();
-        let _registry = app
-            .world
-            .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
+    use crate::{
+        action_manager::actions::PlayerBindables,
+        components::{
+            actors::{
+                ai::{AIAggroDistance, AIAttackAction, AIAttackTimer, AIIsAggroed},
+                animation::{AnimState, AnimationSheet, FacingDirection},
+                general::{ActorState, Player, TimeToLive},
+                spawners::Spawner,
+            },
+            DebugTimer,
+        },
+        dev_tools::debug_dirs::debugdir,
+        game::{GameStage, TimeInfo},
+        utilities::game::SystemLabels,
+        AppSettings,
+    };
 
-        app.add_plugin(InspectorPlugin::<AppSettings>::new())
-            .add_plugin(WorldInspectorPlugin::new())
-            .add_plugin(FrameTimeDiagnosticsPlugin::default())
-            .add_plugin(LogDiagnosticsPlugin {
-                wait_duration: Duration::from_secs(20),
-                ..Default::default()
-            })
-            //rapier inspectables in this plugin
-            .add_plugin(InspectableRapierPlugin)
-            //custom inspectables not from plugins
-            .register_inspectable::<ActorState>()
-            .register_inspectable::<Player>()
-            .register_type::<TimeInfo>()
-            .register_type::<AnimState>()
-            .register_inspectable::<AnimationSheet>()
-            .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
-            // .register_inspectable::<Collides>()
-            .register_type::<PlayerBindables>()
-            // LDTK debug data
-            .register_type::<LayerMetadata>()
-            .register_type::<IntGridCell>()
-            .register_type::<GridCoords>()
-            // bigbrain AI
-            .register_inspectable::<Aggroable>()
-            .register_inspectable::<Aggroed>()
-            .register_type::<Attacking>()
-            .register_inspectable::<AttackPlayer>()
-            .register_type::<TimeToLive>();
-        // .add_system(debug_collision_events);
+    pub struct DebugPlugin;
+
+    impl Plugin for DebugPlugin {
+        fn build(&self, app: &mut App) {
+            debugdir();
+            let _registry = app
+                .world
+                .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
+
+            app.add_plugin(InspectorPlugin::<AppSettings>::new())
+                // .add_plugin()
+                .add_plugin(WorldInspectorPlugin::new())
+                .add_plugin(FrameTimeDiagnosticsPlugin::default())
+                .add_plugin(LogDiagnosticsPlugin {
+                    wait_duration: Duration::from_secs(20),
+                    ..Default::default()
+                })
+                // .add_plugin(InspectorPlugin::<crate::game_world::homeworld::components::InspectableData>::new())
+                .register_type::<Timer>()
+                //rapier inspectables in this plugin
+                .add_plugin(InspectableRapierPlugin)
+                .add_plugin(RapierDebugRenderPlugin::default())
+                //custom inspectables not from plugins
+                .register_inspectable::<Spawner>()
+                .register_inspectable::<ActorState>()
+                .register_inspectable::<Player>()
+                .register_type::<TimeInfo>()
+                .register_type::<AnimState>()
+                .register_inspectable::<AnimationSheet>()
+                .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
+                .register_type::<PlayerBindables>()
+                // .register_inspectable::<Collides>()
+                // LDTK debug data
+                .register_type::<LayerMetadata>()
+                .register_type::<IntGridCell>()
+                .register_type::<GridCoords>()
+                // bigbrain AI
+                .register_inspectable::<AIAggroDistance>()
+                .register_inspectable::<AIIsAggroed>()
+                .register_type::<AIAttackTimer>()
+                // .register_type::<Path>()
+                .register_inspectable::<AIAttackAction>()
+                .register_type::<TimeToLive>()
+                .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
+                .add_system_set(
+                    SystemSet::on_update(GameStage::Playing)
+                        .with_system(debug_visualize_spawner)
+                        .after(SystemLabels::Spawn),
+                )
+                .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)));
+        }
+    }
+
+    fn debug_logging(
+        time: Res<Time>,
+        mut timer: ResMut<DebugTimer>,
+        current_gamestate: Res<State<GameStage>>,
+        mut collision_events: EventReader<CollisionEvent>,
+        mut contact_force_events: EventReader<ContactForceEvent>,
+    ) {
+        // info!("Logging Collision Events");
+        for collision_event in collision_events.iter() {
+            info!("Received collision event: {:?}", collision_event);
+        }
+        for contact_force_event in contact_force_events.iter() {
+            info!("Received contact force event: {:?}", contact_force_event);
+        }
+
+        if timer.tick(time.delta()).finished() {
+            info!("CURRENT GAMESTATE: {:?}", current_gamestate)
+        }
+    }
+
+    fn debug_visualize_spawner(
+        mut cmds: Commands,
+        spawner_query: Query<((Entity, &Transform, &Spawner), Without<Shape>)>,
+    ) {
+        for ((entity, transform, spawner), _query) in &spawner_query {
+            let spawner_box_visual = shapes::Rectangle {
+                extents: Vec2 { x: 40.0, y: 40.0 },
+                origin: shapes::RectangleOrigin::Center,
+            };
+
+            let spawner_radius_visual = shapes::Circle {
+                radius: spawner.spawn_radius,
+                center: Vec2::ZERO,
+            };
+
+            info!("adding visual too spawner {:?}", entity);
+            let spawner_visual_bundle = GeometryBuilder::new()
+                .add(&spawner_box_visual)
+                .add(&spawner_radius_visual)
+                .build(
+                    DrawMode::Fill(FillMode::color(Color::Hsla {
+                        hue: 334.0,
+                        saturation: 0.83,
+                        lightness: 0.3,
+                        alpha: 0.25,
+                    })),
+                    *transform,
+                );
+            cmds.entity(entity).insert(spawner_visual_bundle);
+        }
     }
 }
 

@@ -1,29 +1,22 @@
-use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
-use heron::prelude::*;
+use bevy::prelude::{App, Plugin};
 
-use crate::actors::animation::FacingDirection;
-
+/// holds animation plugin
 pub mod animation;
-pub mod components;
+/// holds enemies
 pub mod enemies;
+/// holds player information and functions
 pub mod player;
+/// holds spawner info
+pub mod spawners;
 
-#[derive(Bundle)] //bundle for ease of use
-pub struct RigidBodyBundle {
-    pub rigidbody: RigidBody,
-    pub collision_layers: CollisionLayers,
-    pub rconstraints: RotationConstraints,
-    pub physicsmat: PhysicMaterial,
-    pub velocity: Velocity,
-}
+/// all npcs in the game, along with player and spawners
+pub struct ActorPlugin;
 
-#[derive(Component, Default, Reflect, Inspectable)]
-#[reflect(Component)]
-pub struct ActorState {
-    //stores actor information, all actors have this
-    pub speed: f32,
-    pub sprint_available: bool,
-    pub facing: FacingDirection,
-    pub just_moved: bool,
+impl Plugin for ActorPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_plugin(spawners::SpawnerPlugin)
+            .add_plugin(animation::AnimationPlugin)
+            .add_plugin(player::PlayerPlugin)
+            .add_plugin(enemies::EnemyPlugin);
+    }
 }

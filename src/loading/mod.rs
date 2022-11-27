@@ -1,5 +1,6 @@
 pub mod assets;
 pub mod setuptextureatlas;
+pub mod splashscreen;
 
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
@@ -18,6 +19,7 @@ pub struct AssetLoadPlugin;
 
 impl Plugin for AssetLoadPlugin {
     fn build(&self, app: &mut App) {
+        app.add_plugin(splashscreen::SplashPlugin);
         info!("asset loader init");
         LoadingState::new(GameStage::Loading)
             .with_collection::<FontHandles>()
@@ -26,7 +28,8 @@ impl Plugin for AssetLoadPlugin {
             .with_collection::<EnemyTextureHandles>()
             .with_collection::<UiTextureHandles>()
             .with_collection::<MapAssetHandles>()
-            .continue_to_state(GameStage::Splash)
+            .on_failure_continue_to_state(GameStage::FailedLoading)
+            .continue_to_state(GameStage::Menu)
             .build(app);
     }
 }

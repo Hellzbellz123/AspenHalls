@@ -1,22 +1,30 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use bevy_kira_audio::prelude::*;
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
+use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
+
 use crate::{
-    actors::{animation::FacingDirection, components::Player, ActorState},
+    components::actors::{
+        animation::FacingDirection,
+        general::{ActorState, Player},
+    },
     game::GameStage,
     loading::assets::AudioHandles,
 };
 
 /// music is played in this channel
+#[derive(Resource, Component)]
 pub struct Music;
 /// nothing is currently played here, inteded for menu sounds/creaking/etc atmospheric sounds
+#[derive(Resource, Component)]
 pub struct Ambience;
 /// this audio is for everything gameplay related, footsteps of npc/enemy can be used to tell if enemys exist?
+#[derive(Resource, Component)]
 pub struct Sound;
 
+#[derive(Resource)]
 pub struct WalkingSound {
     pub timer: Timer,
     pub is_first_time: bool,
@@ -52,12 +60,12 @@ pub struct InternalAudioPlugin;
 // This plugin is responsible to control the game audio
 impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(bevy_kira_audio::AudioPlugin)
+        app.add_plugin(AudioPlugin)
             .add_audio_channel::<Music>()
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()
             .insert_resource(WalkingSound {
-                timer: Timer::from_seconds(0.65, true),
+                timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
             .add_system_set(
@@ -73,7 +81,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
     audio.play(audio_assets.gamesoundtrack.clone()).looped();
 }
 
-pub fn player_walking_sound_system(
+fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
     mut player_query: Query<&mut ActorState, With<Player>>,
     mut walksound_res: ResMut<WalkingSound>,

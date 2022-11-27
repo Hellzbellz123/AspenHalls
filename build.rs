@@ -46,7 +46,7 @@ fn copyassets() {
 
     let out_dir = env::var("OUT_DIR").unwrap();
 
-    println!("cargo:warning=Cargo out dir: {}", out_dir);
+    println!("cargo:warning=Cargo out dir: {out_dir}");
 
     let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/");
     let output_path = Path::new(&output_path).join("assets/");
@@ -63,7 +63,7 @@ fn compilewindowicons() {
 
 fn get_output_path() -> PathBuf {
     let target = env::var("TARGET").unwrap();
-    println!("cargo:warning=target is: {}", target);
+    println!("cargo:warning=target is: {target}");
 
     //<root or manifest path>/target/<profile>/
     let currentworkingdirectory = env::var("CARGO_MANIFEST_DIR").unwrap();
@@ -98,7 +98,7 @@ pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::i
             output_root.join(&src)
         };
         if fs::metadata(&dest).is_err() {
-            println!(" mkdir: {:?}", dest);
+            println!(" mkdir: {dest:?}");
             fs::create_dir_all(&dest)?;
         }
 
@@ -115,7 +115,7 @@ pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::i
                         fs::copy(&path, &dest_path)?;
                     }
                     None => {
-                        println!("failed: {:?}", path);
+                        println!("failed: {path:?}");
                     }
                 }
             }

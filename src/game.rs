@@ -1,22 +1,19 @@
 use bevy::{app::App, prelude::*};
 
 use bevy_inspector_egui::Inspectable;
-use heron::{Gravity, PhysicsPlugin};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
     action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
-    actors::{
-        animation::GraphicsPlugin, components::TimeToLive, enemies::EnemyPlugin,
-        player::PlayerPlugin,
-    },
+    actors::ActorPlugin,
     audio::InternalAudioPlugin,
+    components::actors::general::TimeToLive,
     game_world::MapSystemPlugin,
-    ui::MenuPlugin,
+    // ui::MenuPlugin,
     utilities::game::AppSettings,
 };
 
-#[derive(Debug, Clone, Component, Default, Reflect)]
+#[derive(Debug, Clone, Component, Default, Reflect, Resource)]
 #[reflect(Component)]
 pub struct TimeInfo {
     pub time_step: f32,
@@ -24,30 +21,26 @@ pub struct TimeInfo {
     pub pause_menu: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable, Resource)]
 pub enum GameStage {
     /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
     Loading,
-    /// game "stage" for loading in splashscreen and spawning camera
-    Splash,
     /// Here the menu is drawn and waiting for player interaction
     Menu,
     /// During this State the actual game logic is executed
     Playing,
+    FailedLoading,
 }
 
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(MenuPlugin)
+        app
+            // .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            .add_plugin(PhysicsPlugin::default())
-            .insert_resource(Gravity::from(Vec3::new(0.0, 0.0, 0.0)))
             .add_plugin(MapSystemPlugin)
-            .add_plugin(PlayerPlugin)
-            .add_plugin(EnemyPlugin)
-            .add_plugin(GraphicsPlugin)
+            .add_plugin(ActorPlugin)
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing).with_system(setup_time_state), // .with_system(zoom_control),
             )

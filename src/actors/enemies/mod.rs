@@ -1,136 +1,73 @@
-use crate::{
-    game::GameStage,
-    loading::assets::EnemyTextureHandles,
-    utilities::game::{PhysicsLayers, PLAYER_SIZE, TILE_SIZE},
-};
-use bevy::prelude::{App, Plugin, SystemSet, *};
-use big_brain::{prelude::FirstToScore, thinker::Thinker, BigBrainPlugin};
-use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
-use rand::prelude::*;
+use bevy::prelude::{App, Plugin, SystemSet};
 
-use crate::actors::{
-    components::{Aggroable, Enemy},
-    enemies::skeleton::SkeletonBundle,
-    RigidBodyBundle,
-};
+use big_brain::BigBrainPlugin;
+// use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
 
-use self::{
-    shaman_ai::ShamanAiPlugin,
-    skeleton::{actions::on_shoot, utilities::update_skeleton_graphics},
-};
+use crate::{actors::enemies::skeleton::actions::on_shoot, game::GameStage};
 
-use super::{
-    animation::AnimationSheet,
-    components::{Aggroed, AttackPlayer, Attacking},
-};
-
-pub mod shaman_ai;
+pub mod simple_ai;
 pub mod skeleton;
 
-const MAX_ENEMIES: i32 = 10;
-
-fn on_enter(mut commands: Commands, enemyassets: Res<EnemyTextureHandles>) {
-    let mut rng = rand::thread_rng();
-
-    commands
-        .spawn()
-        .insert(Name::new("EnemyContainer")) //this "EntityContainer" should eventually be expanded too choose enemies and spawn them in and too setup hp and ai.
-        .insert_bundle(SpatialBundle {
-            visibility: Visibility::visible(),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            ..default()
-        })
-        .with_children(|parent| {
-            for _ in 0..MAX_ENEMIES {
-                parent
-                    .spawn_bundle(SkeletonBundle {
-                        name: Name::new("Skeleton"),
-                        actortype: Enemy,
-                        actorstate: super::ActorState {
-                            speed: 100.0,
-                            sprint_available: false,
-                            facing: super::animation::FacingDirection::Idle,
-                            just_moved: false,
-                        },
-                        animation_state: crate::actors::animation::AnimState {
-                            timer: Timer::from_seconds(0.2, true),
-                            current_frames: vec![0, 1, 2, 3, 4],
-                            current_frame: 0,
-                        },
-                        available_animations: AnimationSheet {
-                            handle: enemyassets.skele_full_sheet.clone(),
-                            idle_animation: [0, 1, 2, 3, 4],
-                            down_animation: [5, 6, 7, 8, 9],
-                            up_animation: [10, 11, 12, 13, 14],
-                            right_animation: [15, 16, 17, 18, 19],
-                        },
-                        sprite: SpriteSheetBundle {
-                            sprite: TextureAtlasSprite {
-                                custom_size: Some(PLAYER_SIZE), //character is 1 tile wide by 2 tiles wide
-                                ..default()
-                            },
-                            texture_atlas: enemyassets.skele_full_sheet.clone(),
-                            transform: Transform::from_xyz(
-                                rng.gen_range(-470.0..520.0),
-                                rng.gen_range(2818.0..3805.0),
-                                8.0,
-                            ),
-                            ..default()
-                        },
-                        rigidbody: RigidBodyBundle {
-                            rigidbody: heron::RigidBody::Dynamic,
-                            velocity: Velocity::default(),
-                            rconstraints: RotationConstraints::lock(),
-                            collision_layers: PhysicsLayers::Enemy.layers(),
-                            physicsmat: PhysicMaterial {
-                                restitution: 0.1,
-                                density: 1.0,
-                                friction: 0.5,
-                            },
-                        },
-                        aggroable: Aggroable { distance: 200.0 },
-                    })
-                    .insert(Attacking {
-                        timer: Timer::from_seconds(2., true),
-                        is_attacking: false,
-                    })
-                    .insert(
-                        Thinker::build()
-                            .picker(FirstToScore { threshold: 1.0 })
-                            .when(Aggroed, AttackPlayer), // .otherwise(IsMeandering),
-                    )
-                    .with_children(|skele_parent| {
-                        skele_parent
-                            .spawn()
-                            .insert(CollisionShape::Cuboid {
-                                half_extends: Vec3::new(TILE_SIZE.x / 2.0, TILE_SIZE.y / 2.0, 0.0),
-                                border_radius: None,
-                            })
-                            .insert(Transform::from_translation(Vec3::new(0., -24., 0.)));
-                    });
-            }
-        });
-    info!("this only runs when switching to gamestage::playing, setup enemys here")
-}
+pub const MAX_ENEMIES: i32 = 10;
 
 fn on_update() {
     // info!("this runs every frame in gamestage::playing \"sorta\" ");
 }
 
+fn on_enter() {}
+
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        // app.add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter))
         app.add_plugin(BigBrainPlugin)
-            .add_plugin(ShamanAiPlugin)
+            .add_plugin(simple_ai::SimpleAIPlugin)
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
                     .with_system(on_update)
-                    .with_system(skeleton::utilities::spawn_skeleton_button)
                     .with_system(on_shoot)
-                    .with_system(update_skeleton_graphics),
+                    .with_system(update_enemy_graphics),
             )
             .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter));
+    }
+}
+
+use bevy::{
+    prelude::{Entity, Query, ResMut, Vec2, With},
+    sprite::TextureAtlasSprite,
+};
+use bevy_rapier2d::prelude::*;
+
+use crate::{
+    components::actors::{ai::AIEnemy, animation::FacingDirection, general::ActorState},
+    game::TimeInfo,
+};
+
+pub fn update_enemy_graphics(
+    timeinfo: ResMut<TimeInfo>,
+    mut enemy_query: Query<(
+        &mut Velocity,
+        &mut ActorState,
+        &mut TextureAtlasSprite,
+        Entity,
+        With<AIEnemy>,
+    )>,
+) {
+    if !timeinfo.game_paused {
+        enemy_query.for_each_mut(|(velocity, mut enemystate, mut sprite, _ent, _)| {
+            if velocity.linvel == Vec2::ZERO {
+                enemystate.facing = FacingDirection::Idle;
+            } else if velocity.linvel.x > 5.0 {
+                sprite.flip_x = false;
+                enemystate.facing = FacingDirection::Right;
+            } else if velocity.linvel.x < -5.0 {
+                sprite.flip_x = true;
+                enemystate.facing = FacingDirection::Left;
+            } else if velocity.linvel.y < -5.0 {
+                enemystate.facing = FacingDirection::Down;
+            } else if velocity.linvel.y > 2.0 {
+                enemystate.facing = FacingDirection::Up;
+            }
+        })
     }
 }
