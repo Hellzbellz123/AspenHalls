@@ -3,3 +3,4 @@
 /crates
 /statistics/*
 *.pdb
+.vscode/settings.json
