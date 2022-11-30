@@ -215,8 +215,8 @@ pub fn catch_spawn_event(
                         });
                 }
             }
-            EnemyType::Slime => {
-                info!("not implemented yet")
+            _ => {
+                warn!("not implemented yet")
             }
         }
     }

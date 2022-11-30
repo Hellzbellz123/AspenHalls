@@ -95,7 +95,7 @@ pub fn on_shoot(
                     });
             }
         } else {
-            info!("cant attack, game paused")
+            warn!("cant attack, game paused")
         }
     }
 }

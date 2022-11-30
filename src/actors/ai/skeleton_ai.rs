@@ -56,10 +56,6 @@ fn aggro_score_system(
                         }
                     }
                 };
-                // info!(
-                //     "[AggroScore] for Entity: {:?} set to value {:?}",
-                //     actor, score
-                // );
             }
         }
     }
@@ -113,7 +109,7 @@ fn chase_action(
                 {
                     match *state {
                         ActionState::Cancelled => {
-                            // info!("action chase: cancelled");
+                            debug!("action chase: cancelled");
                             *state = ActionState::Failure;
                             *velocity = Velocity::linear(Vec2::ZERO);
                             enemystate.facing = FacingDirection::Idle;
@@ -195,27 +191,28 @@ fn random_wander_system(
                 let cur_pos = enemy_transform.translation;
                 let mut rng = thread_rng();
                 match *state {
+                    ActionState::Init => {
+
+                    }
                     ActionState::Cancelled => {
                         // clear target, set velocity to None
-                        *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
+                        can_meander_tag.wander_target = None;
+                        *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.6));
                         *state = ActionState::Failure;
-                    }
-                    ActionState::Init => {
-                        info!("action meander: init")
+                        debug!("action meander: failure")
                     }
                     ActionState::Requested => {
                         // pick a random target within range of home and current position
                         let t_deviation = rng.gen_range(-50.0..=50.0);
                         if target_pos.is_some() {
-                            let c_target_pos: Vec3 = target_pos.expect("");
+                            let c_target_pos: Vec3 = target_pos.expect("target should always be Some(Vec3) here");
                             let distance = c_target_pos - cur_pos;
-                            info!("{:#?}", can_meander_tag.wander_target);
                             if distance.length().abs() <= t_deviation {
-                                info!("enemy roughly at wander target");
                                 can_meander_tag.wander_target = None;
                                 *state = ActionState::Success;
                             } else {
-                                info!("we arent at the target position yet");
+                                debug!("entity: {:?} not finished wandering too {:#?}", can_meander_tag.wander_target, actor);
+                                // info!("we arent at the target position yet");
                                 *state = ActionState::Executing;
                             }
                         } else if target_pos.is_none() {
@@ -226,34 +223,35 @@ fn random_wander_system(
                             });
                             *state = ActionState::Executing;
                         }
-                        info!("action meander: requested");
-                        *state = ActionState::Executing;
                     }
                     ActionState::Executing => {
                         if target_pos.is_some() {
                             let c_target_pos: Vec3 = target_pos.expect("");
                             let distance = c_target_pos - cur_pos;
-                            info!("{:#?}", can_meander_tag.wander_target);
                             if distance.length().abs() <= 60.0 {
+                                debug!("executing wander but target is already at wander target, retargetting");
                                 can_meander_tag.wander_target = None;
                                 *state = ActionState::Requested;
                             } else {
+                                debug!("entity: {:?} wandering too {:#?}", can_meander_tag.wander_target, actor);
                                 *velocity = Velocity::linear(
                                     distance.normalize_or_zero().truncate() * 100.,
                                 );
                             }
-                            info!("action meander: executing");
                         }
                     }
                     ActionState::Success => {
                         // clear target, set velocity to None  // we actually dont want too succeed at this action because then the ai will just do nothing. if i set it too not be last resort action i bet it would work
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
-                        info!("action meander: success")
+                        can_meander_tag.wander_target = None;
+                        *state = ActionState::Requested;
                     }
                     ActionState::Failure => {
                         // clear target, set velocity to None
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
-                        info!("action meander: failure")
+                        can_meander_tag.wander_target = None;
+                        *state = ActionState::Requested;
+                        debug!("action meander: failure")
                     }
                 }
             }
@@ -261,18 +259,3 @@ fn random_wander_system(
     }
 }
 
-// let allowed_x_difference =
-//     (cur_pos.x + t_deviation)..(cur_pos.x + t_deviation);
-// let allowed_y_difference =
-//     (cur_pos.y + t_deviation)..(cur_pos.y + t_deviation);
-
-// if allowed_x_difference.contains(&c_target_pos.x)
-//     && allowed_y_difference.contains(&c_target_pos.y)
-// {
-//     info!("entity roughly at target position");
-//     can_meander_tag.wander_target = None;
-//     *state = ActionState::Success;
-// } else {
-//     *state = ActionState::Executing;
-//     info!("we arent at the target position yet");
-// }

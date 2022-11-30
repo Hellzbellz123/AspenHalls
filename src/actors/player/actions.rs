@@ -19,7 +19,7 @@ pub fn spawn_skeleton_button(
         let actions = query_action_state.get_single().expect("no ents?");
 
         if actions.just_released(PlayerBindables::DebugF1) {
-            info!("pressed spawn_skeleton_button: Spawning Skeleton near player");
+            debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
             let player_transform = player_query.single().0;
             let _direction: Vec3 = player_transform.translation.normalize_or_zero();
 

@@ -30,7 +30,8 @@ serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.27.5"
 bevy_prototype_lyon = "0.7.1"
-bevy_quickmenu = "0.1.1"
+# kayak_font = "0.1.0"
+# bevy_quickmenu = "0.1.1"
 
 [dependencies.big-brain]
 # git = "https://github.com/zkat/big-brain"
@@ -102,7 +103,11 @@ features = [
 
 
 [dependencies.kayak_ui]
-git = "https://github.com/StarArawn/kayak_ui.git"
+path = "crates/kayak_ui"
+# git = "https://github.com/StarArawn/kayak_ui.git"
+
+[dependencies.kayak_font]
+path = "crates/kayak_ui/kayak_font"
 
 [dependencies.leafwing-input-manager]
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"

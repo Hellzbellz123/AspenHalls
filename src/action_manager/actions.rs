@@ -11,7 +11,6 @@ pub enum PlayerBindables {
     Move,
     Climb,
     Sprint,
-    Sprint,
     Pause,
     Heal,
     Shoot,

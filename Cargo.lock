@@ -830,15 +830,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c36f4d3af0cda50c07e2010d0351ab79594681116edd280592ca394db73ef32b"
 
 [[package]]
-name = "bevy_quickmenu"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d295dcc06d923a2151abb141ff351d37185b55128c958f51de96dab63c5b24f"
-dependencies = [
- "bevy",
-]
-
-[[package]]
 name = "bevy_rapier2d"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2696,7 +2687,6 @@ dependencies = [
 [[package]]
 name = "kayak_font"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui.git#220694d12a5aeffe680fdaf2a8e5ac3ed9d81ae7"
 dependencies = [
  "anyhow",
  "bevy",
@@ -2713,7 +2703,6 @@ dependencies = [
 [[package]]
 name = "kayak_ui"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui.git#220694d12a5aeffe680fdaf2a8e5ac3ed9d81ae7"
 dependencies = [
  "bevy",
  "bitflags",
@@ -2731,7 +2720,6 @@ dependencies = [
 [[package]]
 name = "kayak_ui_macros"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui.git#220694d12a5aeffe680fdaf2a8e5ac3ed9d81ae7"
 dependencies = [
  "find-crate",
  "proc-macro-crate",
@@ -4897,11 +4885,11 @@ dependencies = [
  "bevy_kindly",
  "bevy_kira_audio",
  "bevy_prototype_lyon",
- "bevy_quickmenu",
  "bevy_rapier2d",
  "big-brain",
  "embed-resource",
  "image 0.24.5",
+ "kayak_font",
  "kayak_ui",
  "leafwing-input-manager",
  "rand",

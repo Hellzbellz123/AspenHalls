@@ -53,7 +53,7 @@ impl AnimationPlugin {
             animation.timer.tick(time.delta());
             if !timeinfo.game_paused && animation.timer.just_finished() {
                 if animation.current_frames.is_empty() {
-                    info!("no animations available ?");
+                    warn!("no animations available ?");
                 } else {
                     animation.current_frame =
                         (animation.current_frame + 1) % animation.current_frames.len();

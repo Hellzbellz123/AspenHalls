@@ -7,13 +7,13 @@ pub struct FontHandles {
     #[asset(path = "fonts/FiraSans-Bold.ttf")]
     pub fira_sans_ttf: Handle<Font>,
 
-    #[asset(path = "fonts/FantasqueSansMono NF.ttf")]
+    #[asset(path = "fonts/FantasqueSansMonoNF.ttf")]
     pub fantasque_sans_ttf: Handle<Font>,
-    // #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
-    // pub fira_sans_msdf: Handle<kayak_ui::font::KayakFont>,
+    // #[asset(path = "fonts/kttf/FiraSans-Bold.kayak_font")]
+    // pub fira_sans_msdf: Handle<KayakFont>,
 
-    // #[asset(path = "fonts/FantasqueSansMonoNF.kayak_font")]
-    // pub fantasque_sans_msdf: Handle<kayak_ui::font::KayakFont>,
+    // #[asset(path = "fonts/kttf/FantasqueSansMonoNF.kayak_font")]
+    // pub fantasque_sans_msdf: Handle<KayakFont>,
 }
 
 #[derive(AssetCollection, Resource, Debug)]
@@ -27,17 +27,17 @@ pub struct AudioHandles {
 #[derive(AssetCollection, Resource, Clone)]
 pub struct PlayerTextureHandles {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "characters/heroes/rex-sheet.png")]
+    #[asset(path = "images/characters/heroes/rex-sheet.png")]
     pub rex_full_sheet: Handle<TextureAtlas>,
 
-    #[asset(path = "textures/bevy.png")]
+    #[asset(path = "images/textures/bevy.png")]
     pub rex_attack: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource, Clone)]
 pub struct EnemyTextureHandles {
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "characters/enemies/skele-sheet.png")]
+    #[asset(path = "images/characters/enemies/skele-sheet.png")]
     pub skele_full_sheet: Handle<TextureAtlas>,
 }
 
@@ -45,13 +45,13 @@ pub struct EnemyTextureHandles {
 pub struct UiTextureHandles {
     // #[asset(path = "textures/splashscreen.png")]
     // pub splash_image: Handle<Image>,
-    #[asset(path = "kenny/panel_brown.png")]
+    #[asset(path = "ui/panel_brown.png")]
     pub panel_brown_png: Handle<Image>,
 
-    #[asset(path = "kenny/buttonSquare_blue_pressed.png")]
+    #[asset(path = "ui/buttonSquare_blue_pressed.png")]
     pub button_blue_pressed_png: Handle<Image>,
 
-    #[asset(path = "kenny/buttonSquare_blue.png")]
+    #[asset(path = "ui/buttonSquare_blue.png")]
     pub button_blue_png: Handle<Image>,
 }
 

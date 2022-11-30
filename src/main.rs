@@ -7,6 +7,7 @@
 
 // #![allow(dead_code)]
 use audio::{Ambience, Music, Sound};
+use bevy::log::LogPlugin;
 use bevy::prelude::{
     default, Camera2d, ClearColor, Color, ImagePlugin, OrthographicProjection, PluginGroup, Vec2,
 };
@@ -39,7 +40,7 @@ mod dev_tools;
 pub mod game;
 pub mod game_world;
 pub mod loading;
-pub mod ui_bevy;
+pub mod ui;
 pub mod utilities;
 
 pub fn main() {
@@ -75,6 +76,12 @@ pub fn main() {
                     },
                     ..default()
                 })
+                .set(ImagePlugin::default_nearest())
+                .set(LogPlugin {
+                    filter: "naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
+                    level: bevy::log::Level::DEBUG,                                            // default log level to capture
+                    ..default()
+                })
                 .set(ImagePlugin::default_nearest()),
         )
         .insert_resource(ClearColor(Color::Hsla {
@@ -85,7 +92,7 @@ pub fn main() {
         }))
         .add_plugin(loading::AssetLoadPlugin)
         .add_state(game::GameStage::Loading)
-        .add_plugin(ui_bevy::MainMenuPlugin)
+        .add_plugin(ui::UIPlugin)
         .add_plugin(ShapePlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
         .add_plugin(utilities::UtilitiesPlugin)

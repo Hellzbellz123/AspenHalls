@@ -7,7 +7,7 @@ pub mod debug_plugin {
         prelude::{EventReader, *},
     };
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
-    use bevy_inspector_egui::{InspectorPlugin, RegisterInspectable, WorldInspectorPlugin};
+    use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
     use bevy_inspector_egui_rapier::InspectableRapierPlugin;
     use bevy_prototype_lyon::{
         prelude::{DrawMode, FillMode, GeometryBuilder},
@@ -37,7 +37,6 @@ pub mod debug_plugin {
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
         utilities::game::SystemLabels,
-        AppSettings,
     };
 
     pub struct DebugPlugin;
@@ -102,7 +101,7 @@ pub mod debug_plugin {
         mut collision_events: EventReader<CollisionEvent>,
         mut contact_force_events: EventReader<ContactForceEvent>,
     ) {
-        // info!("Logging Collision Events");
+
         for collision_event in collision_events.iter() {
             info!("Received collision event: {:?}", collision_event);
         }
