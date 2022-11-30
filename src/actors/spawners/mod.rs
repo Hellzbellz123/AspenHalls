@@ -27,56 +27,44 @@
 //
 //not sure how to deal with enemys being spawned in colliders. can possible scan in each direction and move to whichever direction has the least amount of colliders? maybe check spawning positon for collider first, if no collider then spawn?
 
-pub mod test;
-
 use bevy::{prelude::*, time::Timer};
 use bevy_rapier2d::prelude::{
     Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution, Velocity,
 };
-use big_brain::{
-    prelude::FirstToScore,
-    thinker::{Thinker, ThinkerBuilder},
-};
+use big_brain::thinker::Thinker;
 
 use crate::{
     actors::enemies::skeleton::SkeletonBundle,
     components::actors::{
         ai::{
-            AIAggroDistance, AIAttackAction, AIAttackTimer, AIEnemy, AIIsAggroed, AIMeanderAction,
-            ActorType, TypeEnum,
+            AIAttackTimer, AICanChase, AICanWander, AIChaseAction, AIEnemy, AIWanderAction,
+            ActorType, AggroScore, TypeEnum,
         },
         animation::{AnimState, AnimationSheet, FacingDirection},
-        bundles::{ActorColliderBundle, BigBrainBundle, RigidBodyBundle},
+        bundles::{ActorColliderBundle, RigidBodyBundle, SkeletonAiBundle},
         general::ActorState,
         spawners::{EnemyContainerTag, EnemyType, SpawnEvent, Spawner, SpawnerTimer},
     },
     game::GameStage,
     loading::assets::EnemyTextureHandles,
-    utilities::game::{SystemLabels, ACTOR_PHYSICS_LAYER, ACTOR_SIZE},
+    utilities::game::{SystemLabels, ACTOR_PHYSICS_LAYER, ACTOR_SIZE, MAX_ENEMIES},
 };
 
-// commands
-//     .spawn((
-//         Name::new("EnemyContainer"),
-//         SpatialBundle {
-//             visibility: Visibility::VISIBLE,
-//             transform: Transform::from_xyz(0.0, 0.0, 0.0),
-//             ..default()
-//         },
-//     ))
-//     .with_children(|parent| {
-//         }
-//     });
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEvent>().add_system_set(
-            SystemSet::on_enter(GameStage::Playing)
-                .with_system(on_enter)
-                .with_system(catch_spawn_event)
-                .label(SystemLabels::Spawn),
-        );
+        app.add_event::<SpawnEvent>()
+            .add_system_set(
+                SystemSet::on_enter(GameStage::Playing)
+                    .with_system(on_enter)
+                    .label(SystemLabels::Spawn),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameStage::Playing)
+                    .with_system(catch_spawn_event)
+                    .with_system(spawn_timer_system),
+            );
     }
 }
 
@@ -110,6 +98,24 @@ pub fn on_enter(mut cmds: Commands) {
     ));
 }
 
+pub fn spawn_timer_system(
+    _ew: EventWriter<SpawnEvent>,
+    spawner_query: Query<(&Transform, &Spawner), With<Spawner>>,
+    enemy_count: Query<(Entity,), With<AIEnemy>>,
+) {
+    if enemy_count.iter().len() < MAX_ENEMIES {
+        for (_transform, spawner) in spawner_query.iter() {
+            for _spawn_to_send in 0..spawner.max_enemies {
+                // ew.send(SpawnEvent {
+                //     enemy_to_spawn: EnemyType::Skeleton,
+                //     spawn_position: (transform.translation),
+                //     spawn_count: 1,
+                // });
+            }
+        }
+    }
+}
+
 pub fn catch_spawn_event(
     entity_container: Query<Entity, With<EnemyContainerTag>>,
     mut events: EventReader<SpawnEvent>,
@@ -117,6 +123,7 @@ pub fn catch_spawn_event(
     enemyassets: Res<EnemyTextureHandles>,
 ) {
     for event in events.iter() {
+        info!("recieved event: {:#?}", event);
         match event.enemy_to_spawn {
             EnemyType::Skeleton => {
                 for _ in 0..event.spawn_count {
@@ -170,9 +177,10 @@ pub fn catch_spawn_event(
                                                 angular_damping: 1.0,
                                             },
                                         },
-                                        brain: BigBrainBundle {
+                                        brain: SkeletonAiBundle {
                                             actortype: ActorType(TypeEnum::Enemy),
-                                            aggrodistance: AIAggroDistance { distance: 200.0 },
+                                            aggrodistance: AICanChase { aggro_distance: 200.0 },
+                                            canmeander: AICanWander { wander_target: None, spawn_position: Some(event.spawn_position) },
                                             aiattacktimer: AIAttackTimer {
                                                 timer: Timer::from_seconds(
                                                     9.5,
@@ -181,20 +189,12 @@ pub fn catch_spawn_event(
                                                 is_attacking: false,
                                                 is_near: false,
                                             },
-                                            thinker: ThinkerBuilder::default(),
+                                            thinker: Thinker::build()
+                                                .picker(big_brain::pickers::Highest)
+                                                .when(AggroScore, AIChaseAction)
+                                                .otherwise(AIWanderAction),
                                         },
                                     },
-                                    //ai components
-                                    AIAggroDistance { distance: 200.0 },
-                                    AIAttackTimer {
-                                        timer: Timer::from_seconds(2., TimerMode::Repeating),
-                                        is_attacking: false,
-                                        is_near: false,
-                                    },
-                                    Thinker::build()
-                                        .picker(FirstToScore { threshold: 1.0 })
-                                        .when(AIIsAggroed, AIAttackAction)
-                                        .otherwise(AIMeanderAction), // .otherwise(IsMeandering),
                                 ))
                                 .with_children(|child| {
                                     child.spawn(ActorColliderBundle {
@@ -212,7 +212,7 @@ pub fn catch_spawn_event(
                                         collider: Collider::capsule_y(10.4, 13.12),
                                     });
                                 });
-                        })
+                        });
                 }
             }
             EnemyType::Slime => {

@@ -17,11 +17,12 @@ use bevy::{
     prelude::{info, App, Query, Res, ResMut, With},
     window::{WindowDescriptor, Windows},
 };
+use bevy_inspector_egui::InspectorPlugin;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::RapierPhysicsPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
-use components::MainCamera;
+use components::MainCameraTag;
 
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
@@ -38,7 +39,7 @@ mod dev_tools;
 pub mod game;
 pub mod game_world;
 pub mod loading;
-pub mod ui;
+pub mod ui_bevy;
 pub mod utilities;
 
 pub fn main() {
@@ -84,10 +85,11 @@ pub fn main() {
         }))
         .add_plugin(loading::AssetLoadPlugin)
         .add_state(game::GameStage::Loading)
-        .add_plugin(ui::MainMenuPlugin)
+        .add_plugin(ui_bevy::MainMenuPlugin)
         .add_plugin(ShapePlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
         .add_plugin(utilities::UtilitiesPlugin)
+        .add_plugin(InspectorPlugin::<AppSettings>::new())
         .insert_resource(RapierConfiguration {
             gravity: Vec2::ZERO,
             ..default()
@@ -117,7 +119,7 @@ fn update_settings(
     bgm: Res<AudioChannel<Music>>,
     bga: Res<AudioChannel<Ambience>>,
     bgs: Res<AudioChannel<Sound>>,
-    mut camera: Query<(&mut OrthographicProjection, &Camera2d, With<MainCamera>)>,
+    mut camera: Query<(&mut OrthographicProjection, &Camera2d, With<MainCameraTag>)>,
 ) {
     let window = windows.primary_mut();
 

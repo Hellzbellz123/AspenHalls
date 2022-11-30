@@ -6,7 +6,7 @@ use bevy::{
 use crate::components::actors::{
     ai::AIEnemy,
     animation::{AnimState, AnimationSheet},
-    bundles::{BigBrainBundle, RigidBodyBundle},
+    bundles::{RigidBodyBundle, SkeletonAiBundle},
     general::ActorState,
 };
 
@@ -18,7 +18,7 @@ pub struct SkeletonBundle {
     pub animation_state: AnimState,
     pub available_animations: AnimationSheet,
     #[bundle]
-    pub brain: BigBrainBundle,
+    pub brain: SkeletonAiBundle,
     #[bundle]
     pub sprite: SpriteSheetBundle,
     #[bundle]

@@ -64,7 +64,8 @@ impl Plugin for PlayerPlugin {
             SystemSet::on_update(GameStage::Playing)
                 .with_system(player_movement_system)
                 .with_system(camera_movement_system)
-                .with_system(player_sprint).with_system(spawn_skeleton_button)
+                .with_system(player_sprint)
+                .with_system(spawn_skeleton_button),
         );
     }
 }

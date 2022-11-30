@@ -174,11 +174,11 @@ dependencies = [
 
 [[package]]
 name = "async-channel"
-version = "1.7.1"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e14485364214912d3b19cc3435dde4df66065127f05fa0d75c712f36f12c2f28"
+checksum = "cf46fee83e5ccffc220104713af3292ff9bc7c64c7de289f66dae8e38d826833"
 dependencies = [
- "concurrent-queue 1.2.4",
+ "concurrent-queue 2.0.0",
  "event-listener",
  "futures-core",
 ]
@@ -500,7 +500,7 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_ldtk"
 version = "0.5.0"
-source = "git+https://github.com/Trouv/bevy_ecs_ldtk.git#cafba57e0e0fcf35927497693efcc38985658374"
+source = "git+https://github.com/Trouv/bevy_ecs_ldtk.git#1a7a8a177f20b717fbaa08832a1c47d07527f67e"
 dependencies = [
  "anyhow",
  "bevy",
@@ -516,7 +516,7 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_ldtk_macros"
 version = "0.5.0"
-source = "git+https://github.com/Trouv/bevy_ecs_ldtk.git#cafba57e0e0fcf35927497693efcc38985658374"
+source = "git+https://github.com/Trouv/bevy_ecs_ldtk.git#1a7a8a177f20b717fbaa08832a1c47d07527f67e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -828,6 +828,15 @@ name = "bevy_ptr"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c36f4d3af0cda50c07e2010d0351ab79594681116edd280592ca394db73ef32b"
+
+[[package]]
+name = "bevy_quickmenu"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d295dcc06d923a2151abb141ff351d37185b55128c958f51de96dab63c5b24f"
+dependencies = [
+ "bevy",
+]
 
 [[package]]
 name = "bevy_rapier2d"
@@ -1185,10 +1194,9 @@ dependencies = [
 [[package]]
 name = "big-brain"
 version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9b71b1b0fda97b3e5021da6982afc74f8e6f61c8c7042e240a9de63baafec40"
 dependencies = [
  "bevy",
+ "bevy-inspector-egui",
 ]
 
 [[package]]
@@ -1473,9 +1481,9 @@ dependencies = [
 
 [[package]]
 name = "const_panic"
-version = "0.2.6"
+version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ed2b28323eee4fb66bb824401daa3e46bd445b9a9298a3d382b320710ba69dd"
+checksum = "58baae561b85ca19b3122a9ddd35c8ec40c3bcd14fe89921824eae73f7baffbf"
 
 [[package]]
 name = "core-foundation"
@@ -1761,7 +1769,7 @@ dependencies = [
  "hashbrown",
  "lock_api",
  "once_cell",
- "parking_lot_core 0.9.4",
+ "parking_lot_core 0.9.5",
 ]
 
 [[package]]
@@ -2688,7 +2696,7 @@ dependencies = [
 [[package]]
 name = "kayak_font"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui.git#41c63963d4d75d9eb999bcc33c84a2e3bd7690e1"
+source = "git+https://github.com/StarArawn/kayak_ui.git#220694d12a5aeffe680fdaf2a8e5ac3ed9d81ae7"
 dependencies = [
  "anyhow",
  "bevy",
@@ -2705,7 +2713,7 @@ dependencies = [
 [[package]]
 name = "kayak_ui"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui.git#41c63963d4d75d9eb999bcc33c84a2e3bd7690e1"
+source = "git+https://github.com/StarArawn/kayak_ui.git#220694d12a5aeffe680fdaf2a8e5ac3ed9d81ae7"
 dependencies = [
  "bevy",
  "bitflags",
@@ -2723,7 +2731,7 @@ dependencies = [
 [[package]]
 name = "kayak_ui_macros"
 version = "0.1.0"
-source = "git+https://github.com/StarArawn/kayak_ui.git#41c63963d4d75d9eb999bcc33c84a2e3bd7690e1"
+source = "git+https://github.com/StarArawn/kayak_ui.git#220694d12a5aeffe680fdaf2a8e5ac3ed9d81ae7"
 dependencies = [
  "find-crate",
  "proc-macro-crate",
@@ -3585,7 +3593,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f"
 dependencies = [
  "lock_api",
- "parking_lot_core 0.9.4",
+ "parking_lot_core 0.9.5",
 ]
 
 [[package]]
@@ -3604,9 +3612,9 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
-version = "0.9.4"
+version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dc9e0dc2adc1c69d09143aff38d3d30c5c3f0df0dad82e6d25547af174ebec0"
+checksum = "7ff9f3fef3968a3ec5945535ed654cb38ff72d7495a25619e2247fb15a2ed9ba"
 dependencies = [
  "cfg-if",
  "libc",
@@ -4202,18 +4210,18 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
-version = "1.0.147"
+version = "1.0.148"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d193d69bae983fc11a79df82342761dfbf28a99fc8d203dca4c3c1b590948965"
+checksum = "e53f64bb4ba0191d6d0676e1b141ca55047d83b74f5607e6d8eb88126c52c2dc"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.147"
+version = "1.0.148"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f1d362ca8fc9c3e3a7484440752472d68a6caa98f1ab81d99b5dfe517cec852"
+checksum = "a55492425aa53521babf6137309e7d34c20bbfbbfcfe2c7f3a047fd1f6b92c0c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4479,20 +4487,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17033fe05e4f7f10a6ad602c272bafd2520b2e5cdd9feb61494d9cdce08e002f"
 dependencies = [
  "lazy_static",
- "symphonia-codec-pcm",
+ "symphonia-codec-vorbis",
  "symphonia-core",
- "symphonia-format-wav",
+ "symphonia-format-ogg",
  "symphonia-metadata",
 ]
 
 [[package]]
-name = "symphonia-codec-pcm"
+name = "symphonia-codec-vorbis"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17cca412c954abda6ab62b5e51223568eb604ed8266ec777d99e1d63c608443c"
+checksum = "323b94435a1a807e1001e29490aeaef2660fb72b145d47497e8429a6cb1d67c3"
 dependencies = [
  "log",
  "symphonia-core",
+ "symphonia-utils-xiph",
 ]
 
 [[package]]
@@ -4509,14 +4518,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "symphonia-format-wav"
+name = "symphonia-format-ogg"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f9d771aa6889f05b771e629110f6a60b5e1c0ad580fc41da574bc490fbe2822"
+checksum = "8d2f741469a0f103607ed1f2605f7f00b13ba044ea9ddc616764558c6d3d9b7d"
 dependencies = [
  "log",
  "symphonia-core",
  "symphonia-metadata",
+ "symphonia-utils-xiph",
 ]
 
 [[package]]
@@ -4532,10 +4542,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "syn"
-version = "1.0.103"
+name = "symphonia-utils-xiph"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a864042229133ada95abf3b54fdc62ef5ccabe9515b64717bcb9a1919e59445d"
+checksum = "73cbb0766ce77a8aef535f9438db645e7b6f1b2c4cf3be9bf246b4e11a7d5531"
+dependencies = [
+ "symphonia-core",
+ "symphonia-metadata",
+]
+
+[[package]]
+name = "syn"
+version = "1.0.104"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ae548ec36cf198c0ef7710d3c230987c2d6d7bd98ad6edc0274462724c585ce"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4877,6 +4897,7 @@ dependencies = [
  "bevy_kindly",
  "bevy_kira_audio",
  "bevy_prototype_lyon",
+ "bevy_quickmenu",
  "bevy_rapier2d",
  "big-brain",
  "embed-resource",

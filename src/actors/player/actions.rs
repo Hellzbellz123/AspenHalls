@@ -18,24 +18,21 @@ pub fn spawn_skeleton_button(
     if !query_action_state.is_empty() {
         let actions = query_action_state.get_single().expect("no ents?");
 
-        if actions.just_released(PlayerBindables::Heal) {
-            info!("Pressed devtest button");
+        if actions.just_released(PlayerBindables::DebugF1) {
+            info!("pressed spawn_skeleton_button: Spawning Skeleton near player");
+            let player_transform = player_query.single().0;
+            let _direction: Vec3 = player_transform.translation.normalize_or_zero();
 
-            if !player_query.is_empty() {
-                let player_transform = player_query.single().0;
-                let _direction: Vec3 = player_transform.translation.normalize_or_zero();
-
-                eventwriter.send(SpawnEvent {
-                    enemy_to_spawn: EnemyType::Skeleton,
-                    spawn_position: (player_transform.translation
-                        + Vec3 {
-                            x: 36.0,
-                            y: 36.0,
-                            z: 0.0,
-                        }),
-                    spawn_count: 1,
-                })
-            };
-        }
+            eventwriter.send(SpawnEvent {
+                enemy_to_spawn: EnemyType::Skeleton,
+                spawn_position: (player_transform.translation
+                    + Vec3 {
+                        x: 36.0,
+                        y: 36.0,
+                        z: 0.0,
+                    }),
+                spawn_count: 1,
+            })
+        };
     }
 }

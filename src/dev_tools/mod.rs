@@ -24,12 +24,15 @@ pub mod debug_plugin {
         action_manager::actions::PlayerBindables,
         components::{
             actors::{
-                ai::{AIAggroDistance, AIAttackAction, AIAttackTimer, AIIsAggroed},
+                ai::{
+                    AIAttackTimer, AICanChase, AICanWander, AIChaseAction, AIEnemy, AIWanderAction,
+                    ActorType, AggroScore, TypeEnum,
+                },
                 animation::{AnimState, AnimationSheet, FacingDirection},
-                general::{ActorState, Player, TimeToLive},
+                general::{ActorState, CombatStats, DefenseStats, Player, TimeToLive},
                 spawners::Spawner,
             },
-            DebugTimer,
+            DebugTimer, MainCameraTag,
         },
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
@@ -42,11 +45,7 @@ pub mod debug_plugin {
     impl Plugin for DebugPlugin {
         fn build(&self, app: &mut App) {
             debugdir();
-            let _registry = app
-                .world
-                .get_resource_or_insert_with(bevy_inspector_egui::InspectableRegistry::default);
-
-            app.add_plugin(InspectorPlugin::<AppSettings>::new())
+            app
                 // .add_plugin()
                 .add_plugin(WorldInspectorPlugin::new())
                 .add_plugin(FrameTimeDiagnosticsPlugin::default())
@@ -62,24 +61,30 @@ pub mod debug_plugin {
                 //custom inspectables not from plugins
                 .register_inspectable::<Spawner>()
                 .register_inspectable::<ActorState>()
+                .register_inspectable::<CombatStats>()
+                .register_inspectable::<DefenseStats>()
                 .register_inspectable::<Player>()
-                .register_type::<TimeInfo>()
-                .register_type::<AnimState>()
+                .register_inspectable::<AIEnemy>()
+                .register_inspectable::<TypeEnum>()
                 .register_inspectable::<AnimationSheet>()
-                .register_inspectable::<FacingDirection>() // tells bevy-inspector-egui how to display the struct in the world inspector
+                .register_inspectable::<FacingDirection>()
+                .register_inspectable::<TimeInfo>()
+                .register_inspectable::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
                 .register_type::<PlayerBindables>()
-                // .register_inspectable::<Collides>()
+                .register_type::<AnimState>()
+                .register_type::<AIAttackTimer>()
+                .register_type::<TimeToLive>()
                 // LDTK debug data
                 .register_type::<LayerMetadata>()
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
                 // bigbrain AI
-                .register_inspectable::<AIAggroDistance>()
-                .register_inspectable::<AIIsAggroed>()
-                .register_type::<AIAttackTimer>()
-                // .register_type::<Path>()
-                .register_inspectable::<AIAttackAction>()
-                .register_type::<TimeToLive>()
+                .register_inspectable::<AggroScore>()
+                .register_inspectable::<AICanWander>()
+                .register_inspectable::<AICanChase>()
+                .register_inspectable::<AIChaseAction>()
+                .register_inspectable::<AIWanderAction>()
+                .register_inspectable::<ActorType>()
                 .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
                 .add_system_set(
                     SystemSet::on_update(GameStage::Playing)
@@ -112,9 +117,9 @@ pub mod debug_plugin {
 
     fn debug_visualize_spawner(
         mut cmds: Commands,
-        spawner_query: Query<((Entity, &Transform, &Spawner), Without<Shape>)>,
+        spawner_query: Query<(Entity, &Transform, &Spawner), Without<Shape>>,
     ) {
-        for ((entity, transform, spawner), _query) in &spawner_query {
+        for (entity, transform, spawner) in &spawner_query {
             let spawner_box_visual = shapes::Rectangle {
                 extents: Vec2 { x: 40.0, y: 40.0 },
                 origin: shapes::RectangleOrigin::Center,

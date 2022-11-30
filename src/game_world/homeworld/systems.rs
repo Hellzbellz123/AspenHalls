@@ -13,14 +13,19 @@ use crate::{
         PlayerTeleportEvent,
     },
     loading::assets::MapAssetHandles,
+    // loading::assets::MapAssetHandles,
 };
 
-pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
+pub fn spawn_mapbundle(
+    mut commands: Commands,
+    _asset_server: ResMut<AssetServer>,
+    maps: Res<MapAssetHandles>,
+) {
     info!("spawning ldtkworldbundle");
 
     commands.spawn((
         LdtkWorldBundle {
-            ldtk_handle: maps.homeworld.clone(),
+            ldtk_handle: maps.homeworld.clone(), //asset_server.load("levels/homeworld.ldtk"), //maps.homeworld.clone(),
             transform: Transform {
                 translation: Vec3 {
                     x: 0.0,

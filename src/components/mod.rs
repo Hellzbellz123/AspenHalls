@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_inspector_egui::Inspectable;
 
 pub mod actors {
     pub mod spawners {
@@ -14,7 +15,7 @@ pub mod actors {
         #[derive(Debug, Component, DerefMut, Deref)]
         pub struct SpawnerTimer(pub Timer);
 
-        #[derive(Component, Inspectable)]
+        #[derive(Component, Inspectable, Debug)]
         pub enum EnemyType {
             Skeleton,
             Slime,
@@ -27,7 +28,7 @@ pub mod actors {
             pub max_enemies: i32,
         }
 
-        #[derive(Component)]
+        #[derive(Component, Debug, Inspectable)]
         pub struct SpawnEvent {
             pub enemy_to_spawn: EnemyType,
             pub spawn_position: Vec3,
@@ -36,19 +37,18 @@ pub mod actors {
     }
     pub mod bundles {
         use crate::components::actors::{
-            ai::{AIAggroDistance, AIAttackTimer},
+            ai::{AIAttackTimer, AICanChase, AICanWander, ActorType},
             general::TimeToLive,
         };
         use bevy::prelude::*;
         use bevy_rapier2d::prelude::*;
         use big_brain::thinker::ThinkerBuilder;
 
-        use super::ai::ActorType;
-
         #[derive(Bundle)]
-        pub struct BigBrainBundle {
+        pub struct SkeletonAiBundle {
             pub actortype: ActorType,
-            pub aggrodistance: AIAggroDistance,
+            pub aggrodistance: AICanChase,
+            pub canmeander: AICanWander,
             pub aiattacktimer: AIAttackTimer,
             pub thinker: ThinkerBuilder,
         }
@@ -86,6 +86,7 @@ pub mod actors {
         use bevy::prelude::*;
         use bevy_inspector_egui::Inspectable;
 
+        #[derive(Inspectable)]
         pub enum TypeEnum {
             Enemy,
             Neutral,
@@ -93,22 +94,40 @@ pub mod actors {
             Player,
         }
 
-        #[derive(Component, Deref, DerefMut)]
+        #[derive(Component, Deref, DerefMut, Inspectable)]
         pub struct ActorType(pub TypeEnum);
 
         #[derive(Component, Inspectable)]
         pub struct AIEnemy;
 
+        /// enemies that can chase
         #[derive(Component, Default, Clone, Debug, Inspectable)]
-        pub struct AIAggroDistance {
-            pub distance: f32,
+        pub struct AICanChase {
+            pub aggro_distance: f32,
         }
 
+        /// enemies that can wander
         #[derive(Component, Default, Clone, Debug, Inspectable)]
-        pub struct AIIsAggroed;
+        pub struct AICanWander {
+            pub wander_target: Option<Vec3>,
+            pub spawn_position: Option<Vec3>,
+        }
 
+        /// enemeies that can chase scorer
         #[derive(Component, Default, Clone, Debug, Inspectable)]
-        pub struct AIAttackAction;
+        pub struct AggroScore;
+
+        /// enemies that wander scorer
+        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        pub struct WanderScore;
+
+        /// enemies with this tag are chasing a target
+        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        pub struct AIChaseAction;
+
+        /// enemies with this tag are wandering
+        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        pub struct AIWanderAction;
 
         #[derive(Component, Default, Clone, Debug, Reflect)]
         #[reflect(Component)]
@@ -117,14 +136,6 @@ pub mod actors {
             pub is_attacking: bool,
             pub is_near: bool,
         }
-
-        #[derive(Component, Default, Clone, Debug, Reflect)]
-        #[reflect(Component)]
-        pub struct AICanMeander;
-
-        #[derive(Component, Default, Clone, Debug, Reflect)]
-        #[reflect(Component)]
-        pub struct AIMeanderAction;
     }
 
     pub mod animation {
@@ -206,12 +217,11 @@ pub mod actors {
             pub shield: f64,
         }
 
-        #[derive(Component, Default, Reflect, Inspectable)]
-        #[reflect(Component)]
+        #[derive(Component, Default, Inspectable)]
         pub struct ActorState {
             //stores actor information, all actors have this
-            pub speed: f32,
-            pub sprint_available: bool,
+            pub speed: f32,             //TODO: Refactor into stats
+            pub sprint_available: bool, // refactor these into the movment system? facing direction too the graphics plugin somewhere maybe
             pub facing: FacingDirection,
             pub just_moved: bool,
         }
@@ -221,8 +231,8 @@ pub mod actors {
 #[derive(Component)]
 pub struct OnSplashScreen;
 
-#[derive(Component)]
-pub struct MainCamera {
+#[derive(Component, Inspectable)]
+pub struct MainCameraTag {
     pub is_active: bool,
 }
 

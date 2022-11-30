@@ -1,34 +1,18 @@
+use crate::{actors::enemies::skeleton::actions::on_shoot, game::GameStage};
 use bevy::prelude::{App, Plugin, SystemSet};
 
-use big_brain::BigBrainPlugin;
-// use heron::{CollisionShape, PhysicMaterial, RotationConstraints, Velocity};
-
-use crate::{actors::enemies::skeleton::actions::on_shoot, game::GameStage};
-
-pub mod simple_ai;
 pub mod skeleton;
-
-pub const MAX_ENEMIES: i32 = 10;
-
-fn on_update() {
-    // info!("this runs every frame in gamestage::playing \"sorta\" ");
-}
-
-fn on_enter() {}
 
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(BigBrainPlugin)
-            .add_plugin(simple_ai::SimpleAIPlugin)
-            .add_system_set(
-                SystemSet::on_update(GameStage::Playing)
-                    .with_system(on_update)
-                    .with_system(on_shoot)
-                    .with_system(update_enemy_graphics),
-            )
-            .add_system_set(SystemSet::on_enter(GameStage::Playing).with_system(on_enter));
+        app.add_system_set(
+            SystemSet::on_update(GameStage::Playing)
+                .with_system(on_shoot)
+                .with_system(update_enemy_graphics),
+        )
+        .add_system_set(SystemSet::on_enter(GameStage::Playing));
     }
 }
 

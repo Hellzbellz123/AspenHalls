@@ -6,6 +6,9 @@ use bevy_ecs_ldtk::LdtkAsset;
 pub struct FontHandles {
     #[asset(path = "fonts/FiraSans-Bold.ttf")]
     pub fira_sans_ttf: Handle<Font>,
+
+    #[asset(path = "fonts/FantasqueSansMono NF.ttf")]
+    pub fantasque_sans_ttf: Handle<Font>,
     // #[asset(path = "fonts/FiraSans-Bold.kayak_font")]
     // pub fira_sans_msdf: Handle<kayak_ui::font::KayakFont>,
 
@@ -15,7 +18,7 @@ pub struct FontHandles {
 
 #[derive(AssetCollection, Resource, Debug)]
 pub struct AudioHandles {
-    #[asset(path = "audio/ost/expansion.wav")]
+    #[asset(path = "audio/ost/expansion.ogg")]
     pub gamesoundtrack: Handle<bevy_kira_audio::AudioSource>,
     #[asset(path = "audio/footstep", collection(typed))]
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,

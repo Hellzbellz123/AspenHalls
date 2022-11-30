@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 // use rust_embed::RustEmbed;
 use crate::{
-    components::{MainCamera, OnSplashScreen, SplashTimer},
+    components::{MainCameraTag, OnSplashScreen, SplashTimer},
     game::GameStage,
     utilities::game::SystemLabels,
 };
@@ -21,7 +21,17 @@ impl Plugin for SplashPlugin {
                         .before(SystemLabels::UpdateSettings),
                 )
                 .with_system(splash_setup.label(SystemLabels::UpdateSettings)),
+        )
+        .add_system_set(
+            SystemSet::on_enter(GameStage::Playing).with_system(despawn_screen::<OnSplashScreen>),
         );
+    }
+}
+
+fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+    for entity in to_despawn.iter() {
+        info!("despawning entity: {:#?}", entity);
+        commands.entity(entity).despawn_recursive();
     }
 }
 
@@ -37,7 +47,7 @@ fn spawn_main_camera(mut commands: Commands) {
             ..default()
         })
         .insert(Name::new("Main Camera"))
-        .insert(MainCamera { is_active: true });
+        .insert(MainCameraTag { is_active: true });
     info!("Main Camera Spawned");
 }
 

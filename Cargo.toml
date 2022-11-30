@@ -12,9 +12,9 @@ repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 license-file = "LICENSE"
 
 [features]
-trace = ["dev", "bevy/trace_tracy", "big-brain/trace"]
+trace = ["dev", "bevy/trace_tracy"]
 dev_linux = ["bevy/dynamic", "dev"]
-dev = ["bevy_rapier2d/debug-render"]
+dev = ["bevy_rapier2d/debug-render", "big-brain/trace"]
 
 [workspace]
 exclude = ["crates"]
@@ -30,11 +30,12 @@ serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.27.5"
 bevy_prototype_lyon = "0.7.1"
+bevy_quickmenu = "0.1.1"
 
 [dependencies.big-brain]
 # git = "https://github.com/zkat/big-brain"
-version = "0.15.0"
-
+# version = "0.15.0"
+path = "crates/big-brain"
 
 [dependencies.bevy_kindly]
 # git = https://github.com/Zeenobit/bevy_kindly
@@ -44,6 +45,8 @@ version = "0.3.1"
 [dependencies.rust-embed]
 version = "6.4.2"
 features = ["debug-embed", "include-exclude"]
+
+
 [dependencies.bevy]
 version = "0.9.0"
 default-features = false
@@ -78,7 +81,7 @@ features = ["2d"]
 # git = "https://github.com/NiklasEi/bevy_kira_audio.git"
 version = "0.13.0"
 default-features = false
-features = ["wav"]
+features = ["ogg"]
 
 [dependencies.bevy-inspector-egui]
 version = "0.14.0"
