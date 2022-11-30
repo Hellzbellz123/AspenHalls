@@ -23,8 +23,8 @@ pub struct PlayerInput {
 impl Default for PlayerInput {
     fn default() -> Self {
         use PlayerBindables::Move;
-
         let mut input_map = InputMap::default();
+        input_map.set_gamepad(Gamepad { id: 0 });
 
         // movement
         input_map.insert(
@@ -49,18 +49,19 @@ impl Default for PlayerInput {
 
         input_map.insert(KeyCode::F, PlayerBindables::Melee);
 
-        input_map.insert(KeyCode::LShift, PlayerBindables::Dash);
-        input_map.insert(GamepadButtonType::West, PlayerBindables::Dash);
+        input_map.insert(KeyCode::LShift, PlayerBindables::Sprint);
+        input_map.insert(GamepadButtonType::West, PlayerBindables::Sprint);
 
         input_map.insert(KeyCode::Escape, PlayerBindables::Pause);
         input_map.insert(GamepadButtonType::Start, PlayerBindables::Pause);
 
         input_map.insert(KeyCode::Q, PlayerBindables::Heal);
 
+        //debug and misc
+        input_map.insert(KeyCode::F1, PlayerBindables::DebugF1);
         input_map.insert(KeyCode::NumpadAdd, PlayerBindables::ZoomIn);
         input_map.insert(KeyCode::NumpadSubtract, PlayerBindables::ZoomOut);
 
-        input_map.set_gamepad(Gamepad { id: 0 });
         Self {
             input: InputManagerBundle::<PlayerBindables> {
                 input_map,

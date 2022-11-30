@@ -13,8 +13,7 @@ use crate::{
     utilities::game::AppSettings,
 };
 
-#[derive(Debug, Clone, Component, Default, Reflect, Resource)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Component, Default, Resource, Inspectable)]
 pub struct TimeInfo {
     pub time_step: f32,
     pub game_paused: bool,
@@ -27,8 +26,11 @@ pub enum GameStage {
     Loading,
     /// Here the menu is drawn and waiting for player interaction
     Menu,
+    /// settings state for menu
+    Settings,
     /// During this State the actual game logic is executed
     Playing,
+    /// game failed to load an asset
     FailedLoading,
 }
 

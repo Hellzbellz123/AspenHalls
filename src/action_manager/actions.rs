@@ -10,7 +10,7 @@ pub enum PlayerBindables {
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
     Move,
     Climb,
-    Dash,
+    Sprint,
     Sprint,
     Pause,
     Heal,
@@ -19,5 +19,6 @@ pub enum PlayerBindables {
 
     ZoomIn,
     ZoomOut,
+    DebugF1,
     // Menus,
 }

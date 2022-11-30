@@ -1,5 +1,7 @@
 use bevy::prelude::{App, Plugin};
+use big_brain::BigBrainPlugin;
 
+pub mod ai;
 /// holds animation plugin
 pub mod animation;
 /// holds enemies
@@ -14,9 +16,11 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(spawners::SpawnerPlugin)
+        app.add_plugin(BigBrainPlugin)
+            .add_plugin(spawners::SpawnerPlugin)
             .add_plugin(animation::AnimationPlugin)
             .add_plugin(player::PlayerPlugin)
-            .add_plugin(enemies::EnemyPlugin);
+            .add_plugin(enemies::EnemyPlugin)
+            .add_plugin(ai::AIPlugin);
     }
 }

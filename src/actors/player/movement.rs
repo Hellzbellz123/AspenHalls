@@ -70,12 +70,12 @@ pub fn player_sprint(
     let mut animation = anim_query.single_mut();
     let mut player = player_query.single_mut();
 
-    if action_state.pressed(PlayerBindables::Dash) {
+    if action_state.pressed(PlayerBindables::Sprint) {
         animation.timer.set_duration(Duration::from_millis(100));
         player.sprint_available = true;
     }
 
-    if action_state.released(PlayerBindables::Dash) {
+    if action_state.released(PlayerBindables::Sprint) {
         animation.timer.set_duration(Duration::from_millis(200));
         player.sprint_available = false;
     }
