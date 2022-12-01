@@ -1,6 +1,7 @@
 use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::LdtkAsset;
+use kayak_font::KayakFont;
 
 #[derive(AssetCollection, Resource)]
 pub struct FontHandles {
@@ -11,9 +12,8 @@ pub struct FontHandles {
     pub fantasque_sans_ttf: Handle<Font>,
     // #[asset(path = "fonts/kttf/FiraSans-Bold.kayak_font")]
     // pub fira_sans_msdf: Handle<KayakFont>,
-
-    // #[asset(path = "fonts/kttf/FantasqueSansMonoNF.kayak_font")]
-    // pub fantasque_sans_msdf: Handle<KayakFont>,
+    #[asset(path = "fonts/kttf/FantasqueSansMonoNF.kayak_font")]
+    pub fantasque_sans_msdf: Handle<KayakFont>,
 }
 
 #[derive(AssetCollection, Resource, Debug)]
@@ -46,13 +46,13 @@ pub struct UiTextureHandles {
     // #[asset(path = "textures/splashscreen.png")]
     // pub splash_image: Handle<Image>,
     #[asset(path = "ui/panel_brown.png")]
-    pub panel_brown_png: Handle<Image>,
+    pub panel_brown: Handle<Image>,
 
     #[asset(path = "ui/buttonSquare_blue_pressed.png")]
-    pub button_blue_pressed_png: Handle<Image>,
+    pub button_blue_pressed: Handle<Image>,
 
     #[asset(path = "ui/buttonSquare_blue.png")]
-    pub button_blue_png: Handle<Image>,
+    pub button_blue: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]

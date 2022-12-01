@@ -191,9 +191,7 @@ fn random_wander_system(
                 let cur_pos = enemy_transform.translation;
                 let mut rng = thread_rng();
                 match *state {
-                    ActionState::Init => {
-
-                    }
+                    ActionState::Init => {}
                     ActionState::Cancelled => {
                         // clear target, set velocity to None
                         can_meander_tag.wander_target = None;
@@ -205,13 +203,17 @@ fn random_wander_system(
                         // pick a random target within range of home and current position
                         let t_deviation = rng.gen_range(-50.0..=50.0);
                         if target_pos.is_some() {
-                            let c_target_pos: Vec3 = target_pos.expect("target should always be Some(Vec3) here");
+                            let c_target_pos: Vec3 =
+                                target_pos.expect("target should always be Some(Vec3) here");
                             let distance = c_target_pos - cur_pos;
                             if distance.length().abs() <= t_deviation {
                                 can_meander_tag.wander_target = None;
                                 *state = ActionState::Success;
                             } else {
-                                debug!("entity: {:?} not finished wandering too {:#?}", can_meander_tag.wander_target, actor);
+                                debug!(
+                                    "entity: {:?} not finished wandering too {:#?}",
+                                    can_meander_tag.wander_target, actor
+                                );
                                 // info!("we arent at the target position yet");
                                 *state = ActionState::Executing;
                             }
@@ -233,7 +235,10 @@ fn random_wander_system(
                                 can_meander_tag.wander_target = None;
                                 *state = ActionState::Requested;
                             } else {
-                                debug!("entity: {:?} wandering too {:#?}", can_meander_tag.wander_target, actor);
+                                debug!(
+                                    "entity: {:?} wandering too {:#?}",
+                                    can_meander_tag.wander_target, actor
+                                );
                                 *velocity = Velocity::linear(
                                     distance.normalize_or_zero().truncate() * 100.,
                                 );
@@ -258,4 +263,3 @@ fn random_wander_system(
         }
     }
 }
-

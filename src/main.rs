@@ -79,8 +79,7 @@ pub fn main() {
                 .set(ImagePlugin::default_nearest())
                 .set(LogPlugin {
                     filter: "naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
-                    level: bevy::log::Level::DEBUG,                                            // default log level to capture
-                    ..default()
+                    level: bevy::log::Level::DEBUG, // default log level to capture
                 })
                 .set(ImagePlugin::default_nearest()),
         )

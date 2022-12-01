@@ -101,7 +101,6 @@ pub mod debug_plugin {
         mut collision_events: EventReader<CollisionEvent>,
         mut contact_force_events: EventReader<ContactForceEvent>,
     ) {
-
         for collision_event in collision_events.iter() {
             info!("Received collision event: {:?}", collision_event);
         }

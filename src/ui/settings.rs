@@ -1,26 +1,5 @@
 use bevy::prelude::{Res, ResMut, World};
-use kayak_ui::{
-    bevy::ImageManager,
-    core::{
-        rsx,
-        styles::{
-            Corner, Edge, LayoutType, Style, StyleProp,
-            Units,
-        },
-        widget, Binding, Bound, Color, EventType, Handler,
-        OnEvent, WidgetProps,
-    },
-    widgets::{Element, NinePatch, Text},
-};
-
-use super::button;
-use crate::{
-    assets::ImageAssets,
-    settings::{AudioSettings, GameSettings},
-    ui::{
-        checkbox::Checkbox, snake_selector::SnakeSelector,
-    },
-};
+use kayak_ui::prelude::*;
 
 #[derive(WidgetProps, Clone, Debug, Default, PartialEq)]
 pub struct SettingsMenuProps {
@@ -36,9 +15,7 @@ pub fn SettingsMenu(props: SettingsMenuProps) {
         height: StyleProp::Value(Units::Pixels(500.0)),
         layout_type: StyleProp::Value(LayoutType::Column),
         left: StyleProp::Value(Units::Stretch(1.0)),
-        padding: StyleProp::Value(Edge::all(
-            Units::Stretch(1.0),
-        )),
+        padding: StyleProp::Value(Edge::all(Units::Stretch(1.0))),
         right: StyleProp::Value(Units::Stretch(1.0)),
         row_between: StyleProp::Value(Units::Pixels(20.0)),
         top: StyleProp::Value(Units::Stretch(1.0)),
@@ -51,10 +28,8 @@ pub fn SettingsMenu(props: SettingsMenuProps) {
         ..Default::default()
     };
 
-    let green_panel = context
-        .query_world::<Res<ImageAssets>, _, _>(|assets| {
-            assets.green_panel.clone()
-        });
+    let green_panel =
+        context.query_world::<Res<ImageAssets>, _, _>(|assets| assets.green_panel.clone());
 
     let container = context
         .get_global_mut::<World>()
@@ -68,38 +43,30 @@ pub fn SettingsMenu(props: SettingsMenuProps) {
 
     let settings = {
         let settings = context
-                .query_world::<Res<Binding<GameSettings>>, _, _>(
-                    move |settings| settings.clone(),
-                );
+            .query_world::<Res<Binding<GameSettings>>, _, _>(move |settings| settings.clone());
 
         context.bind(&settings);
         settings.get()
     };
     let back = props.back.clone();
-    let on_click_back = OnEvent::new(move |_, event| {
-        match event.event_type {
-            EventType::Click(..) => {
-                back.call(());
-            }
-            _ => {}
+    let on_click_back = OnEvent::new(move |_, event| match event.event_type {
+        EventType::Click(..) => {
+            back.call(());
         }
+        _ => {}
     });
 
-    let on_click_audio = OnEvent::new(
-        move |context, event| match event.event_type {
-            EventType::Click(..) => {
-                context.query_world::<ResMut<GameSettings>, _, _>(
-            |mut settings| {
+    let on_click_audio = OnEvent::new(move |context, event| match event.event_type {
+        EventType::Click(..) => {
+            context.query_world::<ResMut<GameSettings>, _, _>(|mut settings| {
                 settings.audio = match settings.audio {
                     AudioSettings::ON => AudioSettings::OFF,
                     AudioSettings::OFF => AudioSettings::ON,
                 };
-            },
-        );
-            }
-            _ => {}
-        },
-    );
+            });
+        }
+        _ => {}
+    });
 
     let audio_checked = match settings.audio {
         AudioSettings::ON => true,

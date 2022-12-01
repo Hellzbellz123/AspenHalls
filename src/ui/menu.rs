@@ -1,46 +1,24 @@
-use std::time::Duration;
-
 use bevy::{app::AppExit, prelude::*};
-use iyes_loopless::state::{CurrentState, NextState};
 use kayak_ui::prelude::{widgets::*, *};
 
 use crate::{
-    assets::ImageAssets,
-    scoring::{HighScore, Score, Timer},
-    ui::button::{
-        block_breaker_menu_button_render,
-        BlockBreakerMenuButton,
-    },
-    // settings::GameSettings,
-    GameState,
-    STARTING_GAME_STATE,
+    game::GameStage,
+    loading::assets::{FontHandles, UiTextureHandles},
+    ui::button::{self, menu_button_render, MenuButton},
 };
 
-mod button;
-
-pub struct UiPlugin;
-
-impl Plugin for UiPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugin(KayakContextPlugin)
-            .add_plugin(KayakWidgets)
-            .add_startup_system(game_ui)
-            .add_system(on_game_state_change);
-    }
-}
+const STARTING_GAME_STATE: GameStage = GameStage::Menu;
 
 // THIS ONLY RUNS ONCE. VERY IMPORTANT FACT.
-fn game_ui(
+pub fn game_ui(
     mut commands: Commands,
     mut font_mapping: ResMut<FontMapping>,
-    asset_server: Res<AssetServer>,
+    fonts: Res<FontHandles>,
 ) {
-    commands.spawn(UICameraBundle::new());
-    font_mapping.set_default(
-        asset_server.load("roboto.kayak_font"),
-    );
+    font_mapping.set_default(fonts.fantasque_sans_msdf.clone());
 
     let mut widget_context = KayakRootContext::new();
+    widget_context.add_plugin(KayakWidgetsContextPlugin);
 
     let parent_id = None;
 
@@ -64,12 +42,11 @@ fn game_ui(
         game_menu_render,
     );
 
-    widget_context
-        .add_widget_data::<BlockBreakerMenuButton, ButtonState>();
+    widget_context.add_widget_data::<MenuButton, ButtonState>();
     widget_context.add_widget_system(
-        BlockBreakerMenuButton::default().get_name(),
-        widget_update::<BlockBreakerMenuButton, ButtonState>,
-        block_breaker_menu_button_render,
+        MenuButton::default().get_name(),
+        widget_update::<MenuButton, ButtonState>,
+        menu_button_render,
     );
 
     rsx! {
@@ -77,8 +54,9 @@ fn game_ui(
             <GameMenuBundle/>
         </KayakAppBundle>
     }
-
-    commands.insert_resource(widget_context);
+    commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));
+    // commands.insert_resource(widget_context);
+    // commands.spawn((UICameraBundle::default(), Name::new("Ui Camera")));
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Component)]
@@ -87,16 +65,13 @@ pub enum Menu {
     Settings,
 }
 
-fn on_game_state_change(
-    game_state: Res<CurrentState<GameState>>,
-    mut game_menu: Query<
-        &mut GameMenuProps,
-        Without<PreviousWidget>,
-    >,
+pub fn on_game_state_change(
+    game_state: Res<State<GameStage>>,
+    mut game_menu: Query<&mut GameMenuProps, Without<PreviousWidget>>,
 ) {
     if game_state.is_changed() {
         for mut game_menu in game_menu.iter_mut() {
-            game_menu.game_state = game_state.0;
+            game_menu.game_state = game_state.current().clone();
         }
     }
 }
@@ -108,7 +83,7 @@ impl Default for Menu {
 }
 #[derive(Component, Clone, PartialEq)]
 pub struct GameMenuProps {
-    game_state: GameState,
+    game_state: GameStage,
 }
 
 impl Default for GameMenuProps {
@@ -126,6 +101,7 @@ impl Widget for GameMenuProps {}
 
 #[derive(Bundle)]
 pub struct GameMenuBundle {
+    pub name: Name,
     pub props: GameMenuProps,
     pub styles: KStyle,
     pub children: KChildren,
@@ -137,6 +113,7 @@ pub struct GameMenuBundle {
 impl Default for GameMenuBundle {
     fn default() -> Self {
         Self {
+            name: Name::new("GameMenuProps"),
             props: GameMenuProps::default(),
             styles: KStyle::default(),
             children: KChildren::default(),
@@ -145,8 +122,7 @@ impl Default for GameMenuBundle {
             // information about your widget.
             // This is done because bevy does not have the
             // ability to query traits.
-            widget_name: GameMenuProps::default()
-                .get_name(),
+            widget_name: GameMenuProps::default().get_name(),
         }
     }
 }
@@ -155,16 +131,14 @@ pub fn game_menu_render(
     // parameters to be passed into a system.
     // In this case Kayak UI gives the system a
     // `KayakWidgetContext` and an `Entity`.
-    In((widget_context, entity)): In<(
-        KayakWidgetContext,
-        Entity,
-    )>,
+    In((widget_context, entity)): In<(KayakWidgetContext, Entity)>,
     // The rest of the parameters are just like those found
     // in a bevy system! In fact you can add whatever
     // you would like here including more queries or
     // lookups to resources within bevy's ECS.
+    _game_state: ResMut<State<GameStage>>,
     mut commands: Commands,
-    images: Res<ImageAssets>,
+    images: Res<UiTextureHandles>,
     // In this case we really only care about our buttons
     // children! Let's query for them.
     state: Query<&Menu>,
@@ -180,10 +154,7 @@ pub fn game_menu_render(
         height: StyleProp::Value(Units::Pixels(500.0)),
         layout_type: StyleProp::Value(LayoutType::Column),
         left: StyleProp::Value(Units::Stretch(1.0)),
-        padding: StyleProp::Value(Edge::axis(
-            Units::Stretch(1.0),
-            Units::Stretch(0.0),
-        )),
+        padding: StyleProp::Value(Edge::axis(Units::Stretch(1.0), Units::Stretch(0.0))),
         right: StyleProp::Value(Units::Stretch(1.0)),
         row_between: StyleProp::Value(Units::Pixels(20.0)),
         top: StyleProp::Value(Units::Stretch(1.0)),
@@ -201,9 +172,7 @@ pub fn game_menu_render(
     let row_styles = KStyle {
         layout_type: StyleProp::Value(LayoutType::Row),
         padding_top: StyleProp::Value(Units::Stretch(1.0)),
-        padding_bottom: StyleProp::Value(Units::Stretch(
-            1.0,
-        )),
+        padding_bottom: StyleProp::Value(Units::Stretch(1.0)),
         ..Default::default()
     };
     let left_styles = KStyle {
@@ -222,41 +191,28 @@ pub fn game_menu_render(
         ..Default::default()
     };
 
-    let state_entity = widget_context.use_state(
-        &mut commands,
-        entity,
-        Menu::default(),
-    );
+    let state_entity = widget_context.use_state(&mut commands, entity, Menu::default());
 
-    let menu_state = if let Ok(current_menu_state) =
-        state.get(state_entity)
-    {
+    let menu_state = if let Ok(current_menu_state) = state.get(state_entity) {
         current_menu_state
     } else {
         &Menu::Main
     };
 
-    let container = images.panel.clone();
+    let container = images.panel_brown.clone();
 
     let on_click_new_game = OnEvent::new(
-        move |In((
-            event_dispatcher_context,
-            _,
-            event,
-            _entity,
-        )): In<(
+        move |In((event_dispatcher_context, _, event, _entity)): In<(
             EventDispatcherContext,
             WidgetState,
             Event,
             Entity,
         )>,
-              mut commands: Commands| {
+              mut game_state: ResMut<State<GameStage>>| {
             match event.event_type {
-                EventType::Click(..) => {
-                    commands.insert_resource(NextState(
-                        GameState::Playing,
-                    ));
-                }
+                EventType::Click(..) => game_state
+                    .push(GameStage::Playing)
+                    .expect("cant push state for some reason"),
                 _ => {}
             }
             (event_dispatcher_context, event)
@@ -264,12 +220,7 @@ pub fn game_menu_render(
     );
 
     let on_click_settings = OnEvent::new(
-        move |In((
-            event_dispatcher_context,
-            _,
-            mut event,
-            _entity,
-        )): In<(
+        move |In((event_dispatcher_context, _, mut event, _entity)): In<(
             EventDispatcherContext,
             WidgetState,
             Event,
@@ -280,9 +231,7 @@ pub fn game_menu_render(
                 EventType::Click(..) => {
                     event.prevent_default();
                     event.stop_propagation();
-                    if let Ok(mut current_menu) =
-                        state.get_mut(state_entity)
-                    {
+                    if let Ok(mut current_menu) = state.get_mut(state_entity) {
                         *current_menu = Menu::Settings;
                     }
                 }
@@ -293,12 +242,7 @@ pub fn game_menu_render(
     );
 
     let on_click_exit = OnEvent::new(
-        move |In((
-            event_dispatcher_context,
-            _,
-            event,
-            _entity,
-        )): In<(
+        move |In((event_dispatcher_context, _, event, _entity)): In<(
             EventDispatcherContext,
             WidgetState,
             Event,
@@ -318,36 +262,36 @@ pub fn game_menu_render(
     let show_main_menu = *menu_state == Menu::Main;
     // let show_settings_menu = *menu_state ==
     // Menu::Settings;
-
+    info!("show main menu is {:?}", show_main_menu);
     rsx! {
     <ElementBundle styles={row_styles}>
-      <ElementBundle styles={left_styles}></ElementBundle>
-      <ElementBundle styles={gameboard_spacer_styles}>
-        {if props.game_state == GameState::Menu && show_main_menu {
-          constructor! {
-            <NinePatchBundle
-              styles={container_styles}
-              nine_patch={NinePatch {
-                  handle: container,
-                  border:{Edge::all(10.0)}
-              }}
-              >
-              <button::BlockBreakerMenuButtonBundle
-                button={BlockBreakerMenuButton { text: "New Game".into() }}
-                on_event={on_click_new_game}
-              />
-              <button::BlockBreakerMenuButtonBundle
-              button={BlockBreakerMenuButton { text: "Settings".into() }}
-              on_event={on_click_settings}
+        <ElementBundle styles={left_styles}></ElementBundle>
+        <ElementBundle styles={gameboard_spacer_styles}>
+            {if props.game_state == GameStage::Menu && show_main_menu {
+            constructor! {
+                <NinePatchBundle
+                styles={container_styles}
+                nine_patch={NinePatch {
+                    handle: container,
+                    border:{Edge::all(10.0)}
+                }}
+                >
+                <button::MenuButtonBundle
+                    button={MenuButton { text: "New Game".into() }}
+                    on_event={on_click_new_game}
+                />
+                <button::MenuButtonBundle
+                button={MenuButton { text: "Settings".into() }}
+                on_event={on_click_settings}
+                />
+                <button::MenuButtonBundle
+                button={MenuButton { text: "Exit".into() }}
+                on_event={on_click_exit}
             />
-            <button::BlockBreakerMenuButtonBundle
-            button={BlockBreakerMenuButton { text: "Exit".into() }}
-            on_event={on_click_exit}
-          />
-            </NinePatchBundle>
-          }}}
-      </ElementBundle>
-      <ElementBundle styles={right_styles}></ElementBundle>
+                </NinePatchBundle>
+            }}}
+        </ElementBundle>
+        <ElementBundle styles={right_styles}></ElementBundle>
     </ElementBundle>
         }
     true
