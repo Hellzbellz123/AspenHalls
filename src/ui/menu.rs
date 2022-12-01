@@ -55,8 +55,6 @@ pub fn game_ui(
         </KayakAppBundle>
     }
     commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));
-    // commands.insert_resource(widget_context);
-    // commands.spawn((UICameraBundle::default(), Name::new("Ui Camera")));
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Component)]
