@@ -137,14 +137,18 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                         local: (Transform {
                             translation: (Vec3 {
                                 x: 0.,
-                                y: -5.,
+                                y: -2.,
                                 z: ACTOR_PHYSICS_LAYER,
                             }),
                             ..default()
                         }),
                         ..default()
                     },
-                    collider: Collider::capsule_y(10.4, 13.12),
+                    collider: Collider::capsule(
+                        Vec2 { x: 0.0, y: -12.0 },
+                        Vec2 { x: 0.0, y: 18.8 },
+                        13.12,
+                    ), //Collider::capsule_y(11.4, 13.12),
                 },
                 PlayerColliderTag,
                 Name::new("PlayerCollider"), // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.

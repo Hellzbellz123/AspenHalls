@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::components::actors::general::Player;
 
 /// find closest entity too (arg1: Entity) With<Player>.
+#[allow(dead_code)]
 fn find_closest_player(
     player: &Query<&Transform, With<Player>>,
     actor_position: &Transform,

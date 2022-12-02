@@ -38,11 +38,10 @@ xwin
  ]
 ```
 
-
 This crate is a bit redundant now since Bevy 0.8 as sending events using World is very easy. With commands.add you can queue a closure to dispatch an event like so:
 
 ```rust
-commands.add(|world: &mut World| 
+commands.add(|world: &mut World|
     world.send_event(MyEvent)
 );
 ```

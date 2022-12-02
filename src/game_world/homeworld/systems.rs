@@ -9,7 +9,7 @@ use crate::{
     actors::player::PlayerColliderTag,
     components::actors::general::Player,
     game_world::homeworld::{
-        components::{HomeWorldTeleportSensor, TeleportTimer},
+        map_components::{HomeWorldTeleportSensor, TeleportTimer},
         PlayerTeleportEvent,
     },
     loading::assets::MapAssetHandles,
@@ -46,12 +46,9 @@ pub fn spawn_mapbundle(
 }
 
 pub fn spawn_level_0(mut commands: Commands) {
-    commands.spawn((
-        TeleportTimer {
-            timer: Timer::from_seconds(1.0, TimerMode::Once),
-        },
-        Name::new("TeleportSensor"),
-    ));
+    commands.insert_resource(TeleportTimer {
+        timer: Timer::from_seconds(2.0, TimerMode::Once),
+    });
 
     commands.insert_resource(LevelSelection::Index(1));
     commands.insert_resource(LdtkSettings {
@@ -94,7 +91,7 @@ pub fn homeworld_teleport(
                         info!("player and sensor are colliding, sending teleport event");
                         player_query
                             .get_single_mut()
-                            .expect("alwayas a player, especially here, see above")
+                            .expect("always a player, especially here, see above")
                             .wants_to_teleport = true;
                     }
                 }
@@ -106,28 +103,24 @@ pub fn homeworld_teleport(
 
 pub fn enter_the_dungeon(
     time: Res<Time>,
-    mut t_timer_query: Query<&mut TeleportTimer>,
+    mut teleport_timer: ResMut<TeleportTimer>,
     mut player_query: Query<(&mut Transform, &mut Player)>,
 ) {
     let (mut ptransform, mut player) = player_query
         .get_single_mut()
         .expect("should always be a player if we are getting the event");
-    let timer = &mut t_timer_query.get_single_mut().unwrap().timer;
 
-    if !timer.finished() & player.wants_to_teleport {
+    if !teleport_timer.finished() & player.wants_to_teleport {
         info!("timer not done, ticking timer");
-        timer.tick(time.delta());
-    }
-
-    if timer.finished() && !player.just_teleported {
-        *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
-        info!("player teleport/next playing sub-phase");
-        player.just_teleported = true;
-    }
-
-    if player.just_teleported {
+        teleport_timer.tick(time.delta());
+        if teleport_timer.finished() && !player.just_teleported {
+            *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
+            info!("player teleport/next playing sub-phase");
+            player.just_teleported = true;
+        }
+    } else if player.just_teleported {
         player.wants_to_teleport = false;
         player.just_teleported = false;
-        timer.reset();
+        teleport_timer.reset();
     }
 }
