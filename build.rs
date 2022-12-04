@@ -22,31 +22,25 @@ use std::path::PathBuf;
 // }
 
 fn main() {
-    println!("cargo:warning=Hello from build.rs");
+    println!("Hello from build.rs");
 
     println!(
-        "cargo:warning=CARGO_MANIFEST_DIR is {:?}",
+        "CARGO_MANIFEST_DIR is {:?}",
         env::var("CARGO_MANIFEST_DIR").unwrap()
     );
 
-    println!(
-        "cargo:warning=PROFILE is {:?}",
-        env::var("PROFILE").unwrap()
-    );
+    println!("PROFILE is {:?}", env::var("PROFILE").unwrap());
     compilewindowicons();
     copyassets();
 }
 
 fn copyassets() {
     let output_path = get_output_path();
-    println!(
-        "cargo:warning=Calculated build path: {}",
-        output_path.to_str().unwrap()
-    );
+    println!("Calculated build path: {}", output_path.to_str().unwrap());
 
     let out_dir = env::var("OUT_DIR").unwrap();
 
-    println!("cargo:warning=Cargo out dir: {out_dir}");
+    println!("Cargo out dir: {out_dir}");
 
     let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/");
     let output_path = Path::new(&output_path).join("assets/");
@@ -56,14 +50,14 @@ fn copyassets() {
 fn compilewindowicons() {
     let target = env::var("TARGET").unwrap();
     if target.contains("windows") {
-        println!("cargo:warning=embedding icon.rc ");
+        println!("embedding icon.rc ");
         embed_resource::compile("assets/images/icons/windows/icon.rc");
     }
 }
 
 fn get_output_path() -> PathBuf {
     let target = env::var("TARGET").unwrap();
-    println!("cargo:warning=target is: {target}");
+    println!("target is: {target}");
 
     //<root or manifest path>/target/<profile>/
     let currentworkingdirectory = env::var("CARGO_MANIFEST_DIR").unwrap();

@@ -20,11 +20,12 @@ pub struct TimeInfo {
     pub pause_menu: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable, Resource)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Inspectable, Resource, Default)]
 pub enum GameStage {
     /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
     Loading,
     /// Here the menu is drawn and waiting for player interaction
+    #[default]
     Menu,
     /// settings state for menu
     Settings,
