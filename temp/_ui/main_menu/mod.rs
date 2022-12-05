@@ -104,15 +104,15 @@ pub fn main_menu_render(
     };
 
     info!("updating main menu widget");
-        if props.game_state == GameStage::Menu && props.menu_state == MenuState::Main {
+    if props.game_state == GameStage::Menu && props.menu_state == MenuState::Main {
         rsx!(
-                <StartMenuBundle/>
-            );
-        } else if props.menu_state == MenuState::Settings {
+            <StartMenuBundle/>
+        );
+    } else if props.menu_state == MenuState::Settings {
         rsx!(
-                <SettingsMenuBundle/>
-            );
-        }
+            <SettingsMenuBundle/>
+        );
+    }
     true
 }
 

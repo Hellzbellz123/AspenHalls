@@ -119,19 +119,19 @@ pub fn settings_menu_render(
     if props.menu_state == MenuState::Settings {
         info!("wtf");
         rsx! {
-                        <NinePatchBundle
-                        styles={container_styles}
-                        nine_patch={NinePatch {
-                            handle: container,
-                            border:{Edge::all(10.0)}
-                        }}
-                        >
-                        <MenuButtonBundle
-                            button={MenuButton { text: "back to main menu".into() }}
-                            on_event={on_click_back_to_main}
-                        />
-                        </NinePatchBundle>
-                }
+                <NinePatchBundle
+                styles={container_styles}
+                nine_patch={NinePatch {
+                    handle: container,
+                    border:{Edge::all(10.0)}
+                }}
+                >
+                <MenuButtonBundle
+                    button={MenuButton { text: "back to main menu".into() }}
+                    on_event={on_click_back_to_main}
+                />
+                </NinePatchBundle>
+        }
     }
     true
 }

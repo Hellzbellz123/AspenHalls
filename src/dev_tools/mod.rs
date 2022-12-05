@@ -36,7 +36,7 @@ pub mod debug_plugin {
         },
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
-        utilities::game::SystemLabels,
+        utilities::game::SystemLabels, ui::main_menu::MenuState,
     };
 
     pub struct DebugPlugin;
@@ -58,6 +58,7 @@ pub mod debug_plugin {
                 .add_plugin(InspectableRapierPlugin)
                 .add_plugin(RapierDebugRenderPlugin::default())
                 //custom inspectables not from plugins
+                .register_inspectable::<MenuState>()
                 .register_inspectable::<Spawner>()
                 .register_inspectable::<ActorState>()
                 .register_inspectable::<CombatStats>()
