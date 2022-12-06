@@ -14,6 +14,7 @@ impl Widget for MenuButton {}
 pub struct MenuButtonBundle {
     pub button: MenuButton,
     pub on_event: OnEvent,
+    pub style: KStyle,
     pub widget_name: WidgetName,
 }
 
@@ -23,6 +24,7 @@ impl Default for MenuButtonBundle {
             button: MenuButton::default(),
             on_event: OnEvent::default(),
             widget_name: MenuButton::default().get_name(),
+            style: KStyle::default(),
         }
     }
 }

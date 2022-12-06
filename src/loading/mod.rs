@@ -33,7 +33,7 @@ impl Plugin for AssetLoadPlugin {
             .with_collection::<EnemyTextureHandles>()
             .with_collection::<UiTextureHandles>()
             .with_collection::<MapAssetHandles>()
-            // .on_failure_continue_to_state(GameStage::FailedLoading)
+            .on_failure_continue_to_state(GameStage::FailedLoading)
             .continue_to_state(GameStage::Menu)
             .build(app);
     }

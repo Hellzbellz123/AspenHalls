@@ -36,7 +36,8 @@ pub mod debug_plugin {
         },
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
-        utilities::game::SystemLabels, ui::main_menu::MenuState,
+        ui::main_menu::MenuState,
+        utilities::game::SystemLabels,
     };
 
     pub struct DebugPlugin;

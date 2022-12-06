@@ -21,17 +21,7 @@ impl Plugin for SplashPlugin {
                         .before(SystemLabels::UpdateSettings),
                 )
                 .with_system(splash_setup.label(SystemLabels::UpdateSettings)),
-        )
-        .add_system_set(
-            SystemSet::on_enter(GameStage::Playing).with_system(despawn_screen::<OnSplashScreen>),
         );
-    }
-}
-
-fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in to_despawn.iter() {
-        info!("despawning entity: {:#?}", entity);
-        commands.entity(entity).despawn_recursive();
     }
 }
 
