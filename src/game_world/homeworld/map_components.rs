@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::{EntityInstance, IntGridCell, LdtkEntity, LdtkIntCell};
 use bevy_inspector_egui::reflect::ReflectedUI;
 use bevy_inspector_egui::Inspectable;
+
 use bevy_rapier2d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Group, RigidBody, Rot, Sensor, Vect,
 };

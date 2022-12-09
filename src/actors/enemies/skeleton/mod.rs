@@ -1,6 +1,6 @@
 use bevy::{
-    prelude::{Bundle, Name},
-    sprite::SpriteSheetBundle,
+    prelude::{Bundle, Handle, Name, SpatialBundle},
+    sprite::{TextureAtlas, TextureAtlasSprite},
 };
 
 use crate::components::actors::{
@@ -17,10 +17,12 @@ pub struct SkeletonBundle {
     pub actorstate: MovementState,
     pub animation_state: AnimState,
     pub available_animations: AnimationSheet,
+    pub sprite: TextureAtlasSprite,
+    pub texture_atlas: Handle<TextureAtlas>,
     #[bundle]
     pub brain: SkeletonAiBundle,
     #[bundle]
-    pub sprite: SpriteSheetBundle,
+    pub spatial: SpatialBundle,
     #[bundle]
     pub rigidbody: RigidBodyBundle,
 }
@@ -110,7 +112,8 @@ pub mod actions {
                         .with_children(|child| {
                             child.spawn((
                                 ActorColliderBundle {
-                                    transform_bundle: TransformBundle {
+                                    name: Name::new("EnemyProjectileCollider"),
+                                    transformbundle: TransformBundle {
                                         local: (Transform {
                                             translation: (Vec3 {
                                                 x: 0.,
@@ -125,7 +128,6 @@ pub mod actions {
                                 },
                                 TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
                                 ActiveEvents::COLLISION_EVENTS,
-                                Name::new("EnemyProjectileCollider"),
                             ));
                         });
                 }

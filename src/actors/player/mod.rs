@@ -11,7 +11,7 @@ use crate::{
     },
     game::GameStage,
     loading::assets::GameTextureHandles,
-    utilities::game::SystemLabels,
+    utilities::game::{SystemLabels, ACTOR_LAYER},
     utilities::game::{ACTOR_PHYSICS_LAYER, ACTOR_SIZE},
 };
 
@@ -67,24 +67,26 @@ pub struct PlayerBundle {
     pub movement_state: MovementState,
     pub player_animationstate: AnimState,
     pub available_animations: AnimationSheet,
+    pub sprite: TextureAtlasSprite,
+    pub texture_atlas: Handle<TextureAtlas>,
     pub weapon_socket: WeaponSocket,
     pub combat_stats: CombatStats,
     pub defense_stats: DefenseStats,
-    #[bundle]
-    rigidbody: RigidBodyBundle,
-    #[bundle]
-    pub player_sprite_sheet: SpriteSheetBundle,
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
     #[bundle]
     pub player_input_map: PlayerInput,
+    #[bundle]
+    spatial: SpatialBundle,
+    #[bundle]
+    rigidbody: RigidBodyBundle,
 }
 
 pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHandles>) {
     info!("spawning player");
     commands
         .spawn((PlayerBundle {
-            name: Name::new("player"),
+            name: Name::new("Player"),
             player: Player {
                 wants_to_teleport: false,
                 just_teleported: false,
@@ -129,13 +131,22 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHand
                     angular_damping: 1.0,
                 },
             },
-            player_sprite_sheet: SpriteSheetBundle {
-                sprite: TextureAtlasSprite {
-                    custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-                    ..default()
-                },
-                texture_atlas: selected_player.rex_full_sheet.clone(),
-                transform: Transform::from_xyz(-60.0, 1090.0, 9.0),
+            sprite: TextureAtlasSprite {
+                custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
+                ..default()
+            },
+            texture_atlas: selected_player.rex_full_sheet.clone(),
+            spatial: SpatialBundle {
+                transform: (Transform {
+                    translation: Vec3 {
+                        x: -60.0,
+                        y: 1090.0,
+                        z: ACTOR_LAYER,
+                    },
+                    rotation: Quat::default(),
+                    scale: Vec3::ONE,
+                }),
+                visibility: Visibility::VISIBLE,
                 ..default()
             },
             player_input_map: PlayerInput::default(),
@@ -148,7 +159,8 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHand
         .with_children(|child| {
             child.spawn((
                 ActorColliderBundle {
-                    transform_bundle: TransformBundle {
+                    name: Name::new("PlayerCollider"),
+                    transformbundle: TransformBundle {
                         local: (Transform {
                             // transform relative to parent
                             translation: (Vec3 {
@@ -164,11 +176,10 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHand
                         Vec2 { x: 0.0, y: -12.0 },
                         Vec2 { x: 0.0, y: 18.8 },
                         13.12,
-                    ), //Collider::capsule_y(11.4, 13.12),
+                    ),
                 },
                 CollisionGroups::new(Group::ALL, Group::GROUP_30),
-                PlayerColliderTag,
-                Name::new("PlayerCollider"), // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.
+                PlayerColliderTag, // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.
             ));
         });
 }

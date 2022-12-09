@@ -9,6 +9,7 @@ pub mod debug_plugin {
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
     use bevy_inspector_egui_rapier::InspectableRapierPlugin;
+
     use bevy_prototype_lyon::{
         prelude::{DrawMode, FillMode, GeometryBuilder},
         render::Shape,
@@ -165,8 +166,8 @@ pub mod debug_plugin {
             if actions.just_released(PlayerBindables::DebugF2) {
                 debug!("debug f2 action requested: spawn smg");
 
-                cmds.spawn(WeaponBundle {
-                    name: Name::new("Small SMG"),
+                cmds.spawn((WeaponBundle {
+                    name: Name::new("SmallSMG"),
                     tag: WeaponTag {
                         parent: None,
                         stored_weapon_slot: None,
@@ -197,20 +198,21 @@ pub mod debug_plugin {
                         transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
                         ..default()
                     },
-                })
-                .with_children(|child| {
-                    child.spawn((
-                        ActorColliderBundle {
-                            transform_bundle: TransformBundle::default(),
-                            collider: Collider::capsule(
-                                Vec2 { x: 0.0, y: -32.1 },
-                                Vec2 { x: 0.0, y: 17.0 },
-                                4.0,
-                            ),
-                        },
-                        CollisionGroups::new(Group::NONE, Group::GROUP_30),
-                    ));
-                });
+                },))
+                    .with_children(|child| {
+                        child.spawn((
+                            ActorColliderBundle {
+                                name: Name::new("SMGCollider"),
+                                transformbundle: TransformBundle::default(),
+                                collider: Collider::capsule(
+                                    Vec2 { x: 0.0, y: -32.1 },
+                                    Vec2 { x: 0.0, y: 17.0 },
+                                    4.0,
+                                ),
+                            },
+                            CollisionGroups::new(Group::NONE, Group::GROUP_30),
+                        ));
+                    });
             }
         }
     }

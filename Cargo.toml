@@ -71,6 +71,10 @@ features = [
   "jpeg",
 ]
 
+# [dependencies.bevy_mod_transform2d]
+# version = "0.3"
+# features = ["bevy_rapier2d"]
+
 [dependencies.bevy_ecs_ldtk]
 git = "https://github.com/Trouv/bevy_ecs_ldtk.git"
 # version = "0.4.0"
@@ -112,7 +116,7 @@ path = "crates/kayak_ui"
 
 [dependencies.leafwing-input-manager]
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
-version = "0.7.0"
+version = "0.7.1"
 # path = "crates/leafwing-input-manager"
 
 [dependencies.image]

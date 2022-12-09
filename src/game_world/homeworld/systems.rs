@@ -41,7 +41,7 @@ pub fn spawn_mapbundle(
             },
             ..default()
         },
-        Name::new("Map Container"),
+        Name::new("MapContainer"),
     ));
 }
 

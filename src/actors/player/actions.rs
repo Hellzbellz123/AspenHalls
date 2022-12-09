@@ -30,7 +30,9 @@ pub fn spawn_skeleton_button(
 
             eventwriter.send(SpawnEvent {
                 enemy_to_spawn: EnemyType::Skeleton,
-                spawn_position: (player_transform + (direction)).extend(ACTOR_LAYER),
+                spawn_position: Transform::from_translation(
+                    (player_transform + (direction)).extend(ACTOR_LAYER),
+                ),
                 spawn_count: 1,
             })
         };

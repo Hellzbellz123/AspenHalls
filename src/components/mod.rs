@@ -4,7 +4,8 @@ use bevy_inspector_egui::Inspectable;
 pub mod actors {
     pub mod spawners {
         use bevy::{
-            prelude::{Component, Deref, DerefMut, Vec3},
+            prelude::{Component, Deref, DerefMut, ReflectComponent, Transform},
+            reflect::Reflect,
             time::Timer,
         };
         use bevy_inspector_egui::Inspectable;
@@ -15,8 +16,9 @@ pub mod actors {
         #[derive(Debug, Component, DerefMut, Deref)]
         pub struct SpawnerTimer(pub Timer);
 
-        #[derive(Component, Inspectable, Debug)]
+        #[derive(Component, Inspectable, Debug, Reflect, Default)]
         pub enum EnemyType {
+            #[default]
             Skeleton,
             Slime,
         }
@@ -28,10 +30,11 @@ pub mod actors {
             pub max_enemies: i32,
         }
 
-        #[derive(Component, Debug, Inspectable)]
+        #[derive(Component, Debug, Reflect, Default)]
+        #[reflect(Component)]
         pub struct SpawnEvent {
             pub enemy_to_spawn: EnemyType,
-            pub spawn_position: Vec3,
+            pub spawn_position: Transform,
             pub spawn_count: i32,
         }
     }
@@ -77,7 +80,8 @@ pub mod actors {
 
         #[derive(Bundle)]
         pub struct ActorColliderBundle {
-            pub transform_bundle: TransformBundle,
+            pub name: Name,
+            pub transformbundle: TransformBundle,
             pub collider: Collider,
         }
     }

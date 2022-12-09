@@ -84,7 +84,7 @@ pub fn on_enter(mut cmds: Commands) {
     // spawn spawner at x: 47, y: 3293, z: 8.0
     info!("spawning entity spawners");
     cmds.spawn((
-        Name::new("Spawner_Outside"),
+        Name::new("SpawnerOutside"),
         Spawner {
             enemy_to_spawn: EnemyType::Skeleton,
             spawn_radius: 300.0,
@@ -99,18 +99,18 @@ pub fn on_enter(mut cmds: Commands) {
 }
 
 pub fn spawn_timer_system(
-    mut ew: EventWriter<SpawnEvent>,
+    _ew: EventWriter<SpawnEvent>,
     spawner_query: Query<(&Transform, &Spawner), With<Spawner>>,
     enemy_count: Query<(Entity,), With<AIEnemy>>,
 ) {
     if enemy_count.iter().len() < MAX_ENEMIES {
-        for (transform, spawner) in spawner_query.iter() {
+        for (_transform, spawner) in spawner_query.iter() {
             for _spawn_to_send in 0..spawner.max_enemies {
-                ew.send(SpawnEvent {
-                    enemy_to_spawn: EnemyType::Skeleton,
-                    spawn_position: (transform.translation),
-                    spawn_count: 1,
-                });
+                // ew.send(SpawnEvent {
+                //     enemy_to_spawn: EnemyType::Skeleton,
+                //     spawn_position: (transform.translation),
+                //     spawn_count: 1,
+                // });
             }
         }
     }
@@ -126,7 +126,7 @@ pub fn catch_spawn_event(
         info!("recieved event: {:#?}", event);
         match event.enemy_to_spawn {
             EnemyType::Skeleton => {
-                for _ in 0..event.spawn_count {
+                for _eventnum in 0..event.spawn_count {
                     commands
                         .get_entity(entity_container.single())
                         .expect("should always be atleast one entity container. if this panics we probably made more than 1")
@@ -134,7 +134,7 @@ pub fn catch_spawn_event(
                             parent
                                 .spawn((
                                     SkeletonBundle {
-                                        name: Name::new("Skeleton"),
+                                        name: Name::new("SkeletonfromSpawner"),
                                         actortype: AIEnemy,
                                         actorstate: MovementState {
                                             speed: 100.0,
@@ -154,17 +154,11 @@ pub fn catch_spawn_event(
                                             up_animation: [10, 11, 12, 13, 14],
                                             right_animation: [15, 16, 17, 18, 19],
                                         },
-                                        sprite: SpriteSheetBundle {
-                                            sprite: TextureAtlasSprite {
-                                                custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-                                                ..default()
-                                            },
-                                            texture_atlas: enemyassets.skele_full_sheet.clone(),
-                                            transform: Transform::from_translation(
-                                                event.spawn_position,
-                                            ),
+                                        sprite: TextureAtlasSprite {
+                                            custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
                                             ..default()
                                         },
+                                        texture_atlas: enemyassets.skele_full_sheet.clone(),
                                         rigidbody: RigidBodyBundle {
                                             rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
                                             velocity: Velocity::zero(),
@@ -180,7 +174,7 @@ pub fn catch_spawn_event(
                                         brain: SkeletonAiBundle {
                                             actortype: ActorType(TypeEnum::Enemy),
                                             aggrodistance: AICanChase { aggro_distance: 200.0 },
-                                            canmeander: AICanWander { wander_target: None, spawn_position: Some(event.spawn_position) },
+                                            canmeander: AICanWander { wander_target: None, spawn_position: Some(event.spawn_position.translation) },
                                             aiattacktimer: AIAttackTimer {
                                                 timer: Timer::from_seconds(
                                                     9.5,
@@ -194,17 +188,27 @@ pub fn catch_spawn_event(
                                                 .when(AggroScore, AIChaseAction)
                                                 .otherwise(AIWanderAction),
                                         },
+                                        spatial: SpatialBundle {
+                                            transform: Transform {
+                                                translation: event.spawn_position.translation,
+                                                rotation: Quat::default(),
+                                                scale: Vec3::ONE,
+                                            },
+                                            ..default()
+                                        },
                                     },
                                 ))
                                 .with_children(|child| {
                                     child.spawn(ActorColliderBundle {
-                                        transform_bundle: TransformBundle {
-                                            local: (Transform {
+                                        name: Name::new("SkeletonCollider"),
+                                        transformbundle: TransformBundle {
+                                            local: (
+                                                Transform {
                                                 translation: (Vec3 {
-                                                    x: 0.,
+                                                x: 0.,
                                                     y: -5.,
                                                     z: ACTOR_PHYSICS_LAYER,
-                                                }),
+                                            }),
                                                 ..default()
                                             }),
                                             ..default()

@@ -182,5 +182,5 @@ pub fn game_ui(
             <SettingsMenuBundle/>
         </KayakAppBundle>
     };
-    commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));
+    commands.spawn((UICameraBundle::new(widget_context), Name::new("UICamera")));
 }

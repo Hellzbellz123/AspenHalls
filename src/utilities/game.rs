@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::audio::SoundSettings;
 
+/// timestep for game / physics
+pub const TIMESTEP: f32 = 1. / 144.;
 /// Z axis for physics interactions
 pub const ACTOR_PHYSICS_LAYER: f32 = 5.0;
 /// Z axis for sprites/entities to be positioned on

@@ -104,14 +104,13 @@ pub fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
-        .add_plugin(loading::AssetLoadPlugin)
-        .add_state(game::GameStage::Loading)
-        .add_plugin(ui::UIPlugin)
         .add_plugin(ShapePlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
+        .add_plugin(loading::AssetLoadPlugin)
+        .add_plugin(ui::UIPlugin)
         .add_plugin(utilities::UtilitiesPlugin)
-        // .add_plugin(InspectorPlugin::<AppSettings>::new())
         .add_plugin(game::GamePlugin)
+        .add_state(game::GameStage::Loading)
         .add_system(update_settings);
 
     #[cfg(feature = "dev")]

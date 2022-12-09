@@ -28,20 +28,21 @@ impl Plugin for SplashPlugin {
 
 fn spawn_main_camera(mut commands: Commands) {
     commands
-        .spawn(Camera2dBundle {
-            camera: Camera {
-                priority: 1,
-                is_active: true,
+        .spawn((
+            Camera2dBundle {
+                camera: Camera {
+                    priority: 1,
+                    is_active: true,
+                    ..default()
+                },
                 ..default()
             },
-            transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
-            ..default()
-        })
+            Name::new("MainCamera"),
+            MainCameraTag { is_active: true },
+            MainCamera,
+        ))
         .add_mouse_tracking()
-        .add_world_tracking()
-        .insert(Name::new("Main Camera"))
-        .insert(MainCameraTag { is_active: true })
-        .insert(MainCamera);
+        .add_world_tracking();
     info!("Main Camera Spawned");
 }
 

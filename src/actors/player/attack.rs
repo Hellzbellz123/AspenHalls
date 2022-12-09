@@ -100,7 +100,8 @@ pub fn player_shoot(
         .with_children(|child| {
             child.spawn((
                 ActorColliderBundle {
-                    transform_bundle: TransformBundle {
+                    name: Name::new("PlayerProjectileCollider"),
+                    transformbundle: TransformBundle {
                         local: (Transform {
                             translation: (Vec3 {
                                 x: 0.,
@@ -115,7 +116,6 @@ pub fn player_shoot(
                 },
                 TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
                 ActiveEvents::COLLISION_EVENTS,
-                Name::new("EnemyProjectileCollider"),
                 CollisionGroups::new(Group::GROUP_30, Group::NONE),
             ));
         });

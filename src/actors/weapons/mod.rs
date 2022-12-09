@@ -1,10 +1,10 @@
-use bevy::prelude::*;
+use bevy::{math::vec2, prelude::*};
 use bevy_mouse_tracking_plugin::MousePosWorld;
 
 use crate::{
     components::actors::{bundles::RigidBodyBundle, general::Player},
     game::GameStage,
-    utilities::game::{SystemLabels, ACTOR_LAYER},
+    utilities::game::SystemLabels,
 };
 
 pub struct WeaponPlugin;
@@ -34,7 +34,7 @@ pub struct WeaponBundle {
 pub struct WeaponTag {
     /// weapon slot weapon is currently in, None if not attached to player
     pub stored_weapon_slot: Option<i8>,
-    /// weapons target parent
+    /// weapons parent
     pub parent: Option<Entity>,
 }
 
@@ -80,14 +80,12 @@ fn setup_weapon_sockets(
                     cmds.entity(playerentity).push_children(&[weapon]);
                     weapontag.parent = Some(playerentity);
                     weaponsocket_on_player.attached_weapon = Some(weapon);
-                    wtransform.translation = Vec2::ZERO.extend(ACTOR_LAYER);
+                    wtransform.translation = Vec3::ZERO;
                     cmds.entity(weapon).insert(CurrentEquippedWeapon);
                 } else {
                     info!("no weapon in range");
                 };
             }
-        } else {
-            info!("player already has weapon attached")
         }
     }
 }
@@ -96,17 +94,27 @@ fn rotate_player_weapon(
     mouse: Res<MousePosWorld>,
     // mut player_query: Query<&mut Transform, With<Player>>,
     mut weapon_query: Query<
-        (&mut WeaponTag, &mut Transform),
+        (&mut WeaponTag, &GlobalTransform, &mut Transform),
         (With<Parent>, With<CurrentEquippedWeapon>, Without<Player>),
     >, // query weapon with a parent.
 ) {
-    let mousepos = Vec2::new(mouse.x, mouse.y);
+    // mousepos is already worldspace
     if !weapon_query.is_empty() {
-        // && !player_query.is_empty() {
-        // let ptransform = player_query.single_mut();
-        for (_wtag, mut wtransform) in weapon_query.iter_mut() {
-            let to_target = (wtransform.translation - mousepos.extend(0.0)).normalize();
-            wtransform.rotation = Quat::from_rotation_arc(Vec3::Y, to_target);
+        for (wtag, wgtransform, mut wtransform) in weapon_query.iter_mut() {
+            if wtag.parent.is_some() {
+                let mousepos = vec2(mouse.x, mouse.y);
+                let weaponpos: Vec2 = wtransform.translation.truncate();
+
+                let aimdirection: Vec2 = (mousepos - weaponpos).normalize_or_zero();
+
+                let aimangle = aimdirection.x.atan2(aimdirection.y);
+
+                let global_wtrans = wgtransform.compute_transform().translation.truncate();
+                let anglerad = global_wtrans.angle_between(mousepos);
+                info!("{anglerad}");
+                let rotation = Quat::from_rotation_z(aimangle);
+                wtransform.rotation = rotation //rotation * PI; // = wtransform.rotation.lerp(rotation, 0.5);
+            }
         }
     }
 }
