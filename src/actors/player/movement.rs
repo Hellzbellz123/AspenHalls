@@ -10,7 +10,7 @@ use crate::{
     components::{
         actors::{
             animation::{AnimState, FacingDirection},
-            general::{ActorState, Player},
+            general::{MovementState, Player},
         },
         MainCameraTag,
     },
@@ -22,7 +22,7 @@ pub fn player_movement_system(
     query_action_state: Query<&ActionState<PlayerBindables>, With<Player>>,
     mut player_query: Query<(
         &mut Velocity,
-        &mut ActorState,
+        &mut MovementState,
         &mut TextureAtlasSprite,
         With<Player>,
     )>,
@@ -65,8 +65,8 @@ pub fn player_movement_system(
 }
 
 pub fn player_sprint(
-    mut input_query: Query<&ActionState<PlayerBindables>, With<ActorState>>,
-    mut player_query: Query<&mut ActorState, With<Player>>,
+    mut input_query: Query<&ActionState<PlayerBindables>, With<MovementState>>,
+    mut player_query: Query<&mut MovementState, With<Player>>,
     mut anim_query: Query<&mut AnimState, With<Player>>,
 ) {
     let action_state = input_query.single_mut();

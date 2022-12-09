@@ -7,20 +7,25 @@ use crate::{
     components::actors::{
         animation::{AnimState, AnimationSheet},
         bundles::RigidBodyBundle,
-        general::{ActorState, CombatStats, DefenseStats, Player},
+        general::{CombatStats, DefenseStats, MovementState, Player},
     },
     game::GameStage,
-    loading::assets::PlayerTextureHandles,
+    loading::assets::GameTextureHandles,
     utilities::game::SystemLabels,
     utilities::game::{ACTOR_PHYSICS_LAYER, ACTOR_SIZE},
 };
 
 use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution, RigidBody,
-    Velocity,
+    Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, Group, LockedAxes,
+    Restitution, RigidBody, Velocity,
 };
 
-use self::actions::spawn_skeleton_button;
+use self::{
+    actions::spawn_skeleton_button,
+    attack::{player_attack_sender, player_melee, player_shoot, PlayerAttackEvent},
+};
+
+use super::weapons::WeaponSocket;
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
@@ -32,13 +37,37 @@ pub mod actions;
 pub mod attack;
 mod movement;
 
+pub struct PlayerPlugin;
+/// This plugin handles player related stuff like movement
+/// Player logic is only active during the State `GameState::Playing`
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<PlayerAttackEvent>()
+            .add_system_set(
+                SystemSet::on_enter(GameStage::Playing)
+                    .with_system(spawn_player.label(SystemLabels::Spawn)),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameStage::Playing)
+                    .with_system(player_movement_system)
+                    .with_system(camera_movement_system)
+                    .with_system(player_sprint)
+                    .with_system(spawn_skeleton_button)
+                    .with_system(player_attack_sender)
+                    .with_system(player_melee)
+                    .with_system(player_shoot),
+            );
+    }
+}
+
 #[derive(Bundle)]
 pub struct PlayerBundle {
     name: Name,
     pub player: Player,
-    pub player_state: ActorState,
+    pub movement_state: MovementState,
     pub player_animationstate: AnimState,
     pub available_animations: AnimationSheet,
+    pub weapon_socket: WeaponSocket,
     pub combat_stats: CombatStats,
     pub defense_stats: DefenseStats,
     #[bundle]
@@ -51,26 +80,8 @@ pub struct PlayerBundle {
     pub player_input_map: PlayerInput,
 }
 
-pub struct PlayerPlugin;
-/// This plugin handles player related stuff like movement
-/// Player logic is only active during the State `GameState::Playing`
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(GameStage::Playing)
-                .with_system(spawn_player.label(SystemLabels::Spawn)),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameStage::Playing)
-                .with_system(player_movement_system)
-                .with_system(camera_movement_system)
-                .with_system(player_sprint)
-                .with_system(spawn_skeleton_button),
-        );
-    }
-}
-
-pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHandles>) {
+pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHandles>) {
+    info!("spawning player");
     commands
         .spawn((PlayerBundle {
             name: Name::new("player"),
@@ -78,7 +89,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 wants_to_teleport: false,
                 just_teleported: false,
             },
-            player_state: ActorState {
+            movement_state: MovementState {
                 speed: 150.0,
                 sprint_available: false,
                 facing: FacingDirection::Idle,
@@ -103,8 +114,8 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                 armor: 10.0,
             },
             defense_stats: DefenseStats {
-                health: 1.0,
-                shield: 1.0,
+                health: 100.0,
+                shield: 50.0,
             },
             rigidbody: RigidBodyBundle {
                 rigidbody: RigidBody::Dynamic,
@@ -124,17 +135,22 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                     ..default()
                 },
                 texture_atlas: selected_player.rex_full_sheet.clone(),
-                transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
-                // global_transform:  , // Vec3::new(0.0, 0.0, 8.0)
+                transform: Transform::from_xyz(-60.0, 1090.0, 9.0),
                 ..default()
             },
             player_input_map: PlayerInput::default(),
+            weapon_socket: WeaponSocket {
+                weapon_slots: 4,
+                attached_weapon: None, // entity id of currently equipped weapon
+                currently_equipped: None, // weapon slot thats currently active out of total weapon slots
+            },
         },))
         .with_children(|child| {
             child.spawn((
                 ActorColliderBundle {
                     transform_bundle: TransformBundle {
                         local: (Transform {
+                            // transform relative to parent
                             translation: (Vec3 {
                                 x: 0.,
                                 y: -2.,
@@ -150,6 +166,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<PlayerTextureHa
                         13.12,
                     ), //Collider::capsule_y(11.4, 13.12),
                 },
+                CollisionGroups::new(Group::ALL, Group::GROUP_30),
                 PlayerColliderTag,
                 Name::new("PlayerCollider"), // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.
             ));

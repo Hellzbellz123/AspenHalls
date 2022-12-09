@@ -4,11 +4,11 @@ use kayak_ui::prelude::{widgets::*, *};
 use crate::{
     game::GameStage,
     loading::assets::UiTextureHandles,
-    ui::{widgets::button::{self, MenuButton}, MenuState},
+    ui::{
+        widgets::button::{self, MenuButton},
+        MenuState,
+    },
 };
-
-
-
 
 pub fn update_main_menu_props(
     menu_state: Res<State<MenuState>>,
@@ -93,9 +93,12 @@ pub fn main_menu_render(
             Event,
             Entity,
         )>,
-              mut game_state: ResMut<State<GameStage>>, mut menu_state_r: ResMut<State<MenuState>>| {
+              mut game_state: ResMut<State<GameStage>>,
+              mut menu_state_r: ResMut<State<MenuState>>| {
             if let EventType::Click(..) = event.event_type {
-                menu_state_r.set(MenuState::HideMenu).expect("couldnt set menustate to hideMenu");
+                menu_state_r
+                    .set(MenuState::HideMenu)
+                    .expect("couldnt set menustate to hideMenu");
                 game_state
                     .push(GameStage::Playing)
                     .expect("cant push state for some reason")
@@ -111,13 +114,16 @@ pub fn main_menu_render(
             Event,
             Entity,
         )>,
-              mut state: Query<&mut MenuState>, mut menu_state_r: ResMut<State<MenuState>>| {
+              mut state: Query<&mut MenuState>,
+              mut menu_state_r: ResMut<State<MenuState>>| {
             if let EventType::Click(..) = event.event_type {
                 event.prevent_default();
                 event.stop_propagation();
                 if let Ok(mut current_menu) = state.get_mut(state_entity) {
                     *current_menu = MenuState::Settings;
-                    menu_state_r.push(MenuState::Settings).expect("couldnt push menustate")
+                    menu_state_r
+                        .push(MenuState::Settings)
+                        .expect("couldnt push menustate")
                 }
             }
             (event_dispatcher_context, event)

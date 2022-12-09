@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use bevy_mouse_tracking_plugin::prelude::MousePosPlugin;
 use leafwing_input_manager::prelude::*;
 
 use super::actions::PlayerBindables;
@@ -10,7 +11,8 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(InputManagerPlugin::<PlayerBindables>::default());
+        app.add_plugin(InputManagerPlugin::<PlayerBindables>::default())
+            .add_plugin(MousePosPlugin);
     }
 }
 
@@ -45,8 +47,13 @@ impl Default for PlayerInput {
             Move,
         );
 
-        input_map.insert(KeyCode::Space, PlayerBindables::Shoot);
+        // equip slot []
+        input_map.insert(KeyCode::Key1, PlayerBindables::EquipSlot1);
+        input_map.insert(KeyCode::Key2, PlayerBindables::EquipSlot2);
+        input_map.insert(KeyCode::Key3, PlayerBindables::EquipSlot3);
+        input_map.insert(KeyCode::Key4, PlayerBindables::EquipSlot4);
 
+        input_map.insert(KeyCode::Space, PlayerBindables::Shoot);
         input_map.insert(KeyCode::F, PlayerBindables::Melee);
 
         input_map.insert(KeyCode::LShift, PlayerBindables::Sprint);

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+use bevy_mouse_tracking_plugin::MousePosWorld;
 use leafwing_input_manager::prelude::ActionState as leafwingActionState;
 
 use crate::{
@@ -8,10 +9,12 @@ use crate::{
         general::Player,
         spawners::{EnemyType, SpawnEvent},
     },
+    utilities::game::ACTOR_LAYER,
 };
 
 pub fn spawn_skeleton_button(
     mut eventwriter: EventWriter<SpawnEvent>,
+    mouse: Res<MousePosWorld>,
     query_action_state: Query<&leafwingActionState<PlayerBindables>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
@@ -20,17 +23,14 @@ pub fn spawn_skeleton_button(
 
         if actions.just_released(PlayerBindables::DebugF1) {
             debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
-            let player_transform = player_query.single().0;
-            let _direction: Vec3 = player_transform.translation.normalize_or_zero();
+            let player_transform = player_query.single().0.translation.truncate();
+            let direction: Vec2 = (player_transform - Vec2::new(mouse.x, mouse.y))
+                .abs()
+                .normalize_or_zero();
 
             eventwriter.send(SpawnEvent {
                 enemy_to_spawn: EnemyType::Skeleton,
-                spawn_position: (player_transform.translation
-                    + Vec3 {
-                        x: 36.0,
-                        y: 36.0,
-                        z: 0.0,
-                    }),
+                spawn_position: (player_transform + (direction)).extend(ACTOR_LAYER),
                 spawn_count: 1,
             })
         };

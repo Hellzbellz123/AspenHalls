@@ -722,6 +722,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_mouse_tracking_plugin"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fa5b30cfb070ea4adf679b047f38281575d9569140a89eaeb2e65186d0930ee"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_pbr"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4844,6 +4853,7 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_ecs_ldtk",
  "bevy_kira_audio",
+ "bevy_mouse_tracking_plugin",
  "bevy_prototype_lyon",
  "bevy_rapier2d",
  "big-brain",

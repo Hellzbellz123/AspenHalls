@@ -1,18 +1,15 @@
 pub mod events_handlers;
 mod widgets;
+pub mod zfailed_load_menu;
 pub mod zmain_menu;
 mod zpause_menu;
 pub mod zsettings_menu;
 
-
-use bevy::{app::AppExit, prelude::*};
+use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use kayak_ui::{
     prelude::{widget_update, FontMapping, KayakRootContext, *},
-    widgets::{
-        ButtonState, ElementBundle, KayakAppBundle, KayakWidgets, KayakWidgetsContextPlugin,
-        NinePatch, NinePatchBundle, TextProps, TextWidgetBundle,
-    },
+    widgets::{ButtonState, KayakAppBundle, KayakWidgets, KayakWidgetsContextPlugin},
     CameraUIKayak,
 };
 use leafwing_input_manager::prelude::ActionState;
@@ -23,7 +20,7 @@ use crate::{
     game::{GameStage, TimeInfo},
     loading::assets::FontHandles,
     ui::{
-        widgets::button::{self, menu_button_render, MenuButton},
+        widgets::button::{menu_button_render, MenuButton},
         zmain_menu::{main_menu_render, MainMenuBundle, MainMenuProps},
         zpause_menu::{pause_menu_render, PauseMenuBundle, PauseMenuProps},
         zsettings_menu::{settings_menu_render, SettingsMenuBundle, SettingsMenuProps},
@@ -32,8 +29,9 @@ use crate::{
 };
 
 use self::{
-    events_handlers::PlayButtonEvent, zmain_menu::update_main_menu_props,
-    zpause_menu::update_pause_menu_props, zsettings_menu::update_settings_menu_props,
+    events_handlers::PlayButtonEvent, zfailed_load_menu::failed_load_ui,
+    zmain_menu::update_main_menu_props, zpause_menu::update_pause_menu_props,
+    zsettings_menu::update_settings_menu_props,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Component, Reflect, Inspectable, Hash)]
@@ -61,21 +59,19 @@ impl Plugin for UIPlugin {
             .add_system_set(
                 SystemSet::on_exit(GameStage::Loading)
                     .with_system(despawn_with::<OnSplashScreen>)
-                    .with_system(game_ui)
-                    .with_system(trace_ui),
+                    .with_system(game_ui),
             )
             .add_system_set(
                 SystemSet::on_enter(GameStage::FailedLoading).with_system(failed_load_ui),
             )
-            .add_system_set(SystemSet::on_update(GameStage::Playing))
-            .add_system(show_pause_menu)
+            .add_system_set(SystemSet::on_update(GameStage::Playing).with_system(toggle_pause_menu))
             .add_system(update_main_menu_props)
             .add_system(update_pause_menu_props)
             .add_system(update_settings_menu_props);
     }
 }
 
-pub fn show_pause_menu(
+pub fn toggle_pause_menu(
     mut timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<PlayerBindables>>,
     mut menu_state: ResMut<State<MenuState>>,
@@ -114,10 +110,6 @@ pub fn show_pause_menu(
     }
 }
 
-fn trace_ui() {
-    info!("setting up UI");
-}
-
 pub fn despawn_ui(
     mut commands: Commands,
     to_despawn: Query<Entity, With<CameraUIKayak>>,
@@ -138,6 +130,7 @@ pub fn game_ui(
     mut font_mapping: ResMut<FontMapping>,
     fonts: Res<FontHandles>,
 ) {
+    info!("setting up UI");
     font_mapping.set_default(fonts.fantasque_sans_msdf.clone());
 
     let mut widget_context = KayakRootContext::new();
@@ -187,102 +180,6 @@ pub fn game_ui(
             <MainMenuBundle/>
             <PauseMenuBundle/>
             <SettingsMenuBundle/>
-        </KayakAppBundle>
-    };
-    commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));
-}
-
-pub fn failed_load_ui(
-    mut commands: Commands,
-    mut font_mapping: ResMut<FontMapping>,
-    fonts: Res<FontHandles>,
-) {
-    font_mapping.set_default(fonts.fantasque_sans_msdf.clone());
-
-    let mut widget_context = KayakRootContext::new();
-    widget_context.add_plugin(KayakWidgetsContextPlugin);
-
-    let parent_id = None;
-
-    // We need to register the prop and state types.
-    // if State is empty you can use the `EmptyState`
-    // component!
-    widget_context.add_widget_data::<MainMenuProps, MenuState>();
-    widget_context.add_widget_data::<PauseMenuProps, MenuState>();
-
-    // Next we need to add the systems
-    widget_context.add_widget_system(
-        // We are registering these systems with a specific
-        // WidgetName.
-        MainMenuProps::default().get_name(),
-        // widget_update auto diffs props and state.
-        // Optionally if you have context you can use:
-        // widget_update_with_context otherwise you
-        // will need to create your own widget update
-        // system!
-        widget_update::<MainMenuProps, MenuState>,
-        // Add our render system!
-        main_menu_render,
-    );
-
-    widget_context.add_widget_system(
-        // We are registering these systems with a specific
-        // WidgetName.
-        PauseMenuProps::default().get_name(),
-        // widget_update auto diffs props and state.
-        // Optionally if you have context you can use:
-        // widget_update_with_context otherwise you
-        // will need to create your own widget update
-        // system!
-        widget_update::<PauseMenuProps, EmptyState>,
-        // Add our render system!
-        pause_menu_render,
-    );
-
-    widget_context.add_widget_data::<MenuButton, ButtonState>();
-    widget_context.add_widget_system(
-        MenuButton::default().get_name(),
-        widget_update::<MenuButton, ButtonState>,
-        menu_button_render,
-    );
-
-    let on_click_exit = OnEvent::new(
-        move |In((event_dispatcher_context, _, event, _entity)): In<(
-            EventDispatcherContext,
-            WidgetState,
-            Event,
-            Entity,
-        )>,
-              mut exit: EventWriter<AppExit>| {
-            if let EventType::Click(..) = event.event_type {
-                exit.send(AppExit);
-            }
-            (event_dispatcher_context, event)
-        },
-    );
-
-    let ninepatch_style = KStyle {
-        border_radius: StyleProp::Value(Corner::all(15.0)),
-        background_color: StyleProp::Value(Color::WHITE),
-        bottom: StyleProp::Value(Units::Percentage(70.0)),
-        top: StyleProp::Value(Units::Percentage(30.0)),
-        left: StyleProp::Value(Units::Percentage(50.0)),
-        right: StyleProp::Value(Units::Percentage(50.0)),
-        layout_type: StyleProp::Value(LayoutType::Column),
-        row_between: StyleProp::Value(Units::Pixels(50.0)),
-        padding: StyleProp::Value(Edge::axis(Units::Stretch(20.0), Units::Stretch(0.0))),
-        height: StyleProp::Value(Units::Pixels(500.0)),
-        width: StyleProp::Value(Units::Pixels(460.0)),
-        ..Default::default()
-    };
-
-    rsx! {
-        <KayakAppBundle>
-                    <NinePatchBundle styles={ninepatch_style} nine_patch={NinePatch {border:{Edge::all(1.0)}, ..default()}}>
-                    <TextWidgetBundle text={TextProps { content: "loading game failed. there was missing assets".to_string(), size: 32.0, alignment: Alignment::Middle, ..default()}}/>
-                    <ElementBundle/>
-                    <button::MenuButtonBundle button={ MenuButton { text: "exit game".into()}} on_event={on_click_exit}/>
-                    </NinePatchBundle>
         </KayakAppBundle>
     };
     commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));

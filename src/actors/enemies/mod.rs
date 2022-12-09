@@ -23,7 +23,7 @@ use bevy::{
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::actors::{ai::AIEnemy, animation::FacingDirection, general::ActorState},
+    components::actors::{ai::AIEnemy, animation::FacingDirection, general::MovementState},
     game::TimeInfo,
 };
 
@@ -31,7 +31,7 @@ pub fn update_enemy_graphics(
     timeinfo: ResMut<TimeInfo>,
     mut enemy_query: Query<(
         &mut Velocity,
-        &mut ActorState,
+        &mut MovementState,
         &mut TextureAtlasSprite,
         Entity,
         With<AIEnemy>,

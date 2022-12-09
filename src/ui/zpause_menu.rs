@@ -6,7 +6,7 @@ use crate::{
     ui::{
         events_handlers::PlayButtonEvent,
         widgets::button::{self, MenuButton},
-        MenuState
+        MenuState,
     },
 };
 

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     components::actors::{
         animation::{AnimState, AnimationSheet, FacingDirection},
-        general::ActorState,
+        general::MovementState,
     },
     game::{GameStage, TimeInfo},
 };
@@ -24,8 +24,8 @@ impl Plugin for AnimationPlugin {
 impl AnimationPlugin {
     fn update_current_animation(
         mut sprites_query: Query<
-            (&ActorState, &mut AnimState, &AnimationSheet),
-            Changed<ActorState>,
+            (&MovementState, &mut AnimState, &AnimationSheet),
+            Changed<MovementState>,
         >,
     ) {
         for (player_compontent, mut animation, anim_sheet) in sprites_query.iter_mut() {

@@ -16,6 +16,12 @@ pub enum PlayerBindables {
     Shoot,
     Melee,
 
+    //equip weapons
+    EquipSlot1,
+    EquipSlot2,
+    EquipSlot3,
+    EquipSlot4,
+
     ZoomIn,
     ZoomOut,
     // debug

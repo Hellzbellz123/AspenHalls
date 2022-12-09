@@ -9,7 +9,7 @@ use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin
 use crate::{
     components::actors::{
         animation::FacingDirection,
-        general::{ActorState, Player},
+        general::{MovementState, Player},
     },
     game::GameStage,
     loading::assets::AudioHandles,
@@ -84,7 +84,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
 
 fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
-    mut player_query: Query<&mut ActorState, With<Player>>,
+    mut player_query: Query<&mut MovementState, With<Player>>,
     mut walksound_res: ResMut<WalkingSound>,
     audio: Res<AudioChannel<Sound>>,
     time: Res<Time>,

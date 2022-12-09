@@ -3,12 +3,11 @@ use kayak_ui::prelude::{widgets::*, *};
 
 use crate::{
     loading::assets::UiTextureHandles,
-    ui::{widgets::button::{self, MenuButton}, MenuState},
+    ui::{
+        widgets::button::{self, MenuButton},
+        MenuState,
+    },
 };
-
-
-
-
 
 pub fn update_settings_menu_props(
     menu_state: ResMut<State<MenuState>>,
@@ -94,14 +93,17 @@ pub fn settings_menu_render(
             Event,
             Entity,
         )>,
-            mut menu_state_r: ResMut<State<MenuState>>, mut state: Query<&mut MenuState>| {
+              mut menu_state_r: ResMut<State<MenuState>>,
+              mut state: Query<&mut MenuState>| {
             if let EventType::Click(..) = event.event_type {
                 event.prevent_default();
                 event.stop_propagation();
                 if let Ok(mut current_menu) = state.get_mut(state_entity) {
                     *current_menu = MenuState::Main;
                 }
-                menu_state_r.pop().expect("should always be able to pop state?");
+                menu_state_r
+                    .pop()
+                    .expect("should always be able to pop state?");
             }
             (event_dispatcher_context, event)
         },
@@ -185,8 +187,6 @@ pub fn settings_menu_render(
     }
     true
 }
-
-
 
 // <ScrollContextProviderBundle>
 //     <ScrollBoxBundle>

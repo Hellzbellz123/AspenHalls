@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_mouse_tracking_plugin::{prelude::InsertExt, MainCamera};
 // use rust_embed::RustEmbed;
 use crate::{
     components::{MainCameraTag, OnSplashScreen, SplashTimer},
@@ -36,8 +37,11 @@ fn spawn_main_camera(mut commands: Commands) {
             transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
             ..default()
         })
+        .add_mouse_tracking()
+        .add_world_tracking()
         .insert(Name::new("Main Camera"))
-        .insert(MainCameraTag { is_active: true });
+        .insert(MainCameraTag { is_active: true })
+        .insert(MainCamera);
     info!("Main Camera Spawned");
 }
 

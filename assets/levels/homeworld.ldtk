@@ -10,7 +10,7 @@
 	},
 	"jsonVersion": "1.1.3",
 	"appBuildId": 458364,
-	"nextUid": 73,
+	"nextUid": 74,
 	"identifierStyle": "Capitalize",
 	"worldLayout": "Free",
 	"worldGridWidth": 256,
@@ -269,6 +269,34 @@
 					"tilesetUid": null
 				}
 			]
+		},
+		{
+			"identifier": "Player",
+			"uid": 73,
+			"tags": [],
+			"width": 16,
+			"height": 16,
+			"resizableX": false,
+			"resizableY": false,
+			"keepAspectRatio": false,
+			"tileOpacity": 1,
+			"fillOpacity": 0.08,
+			"lineOpacity": 0,
+			"hollow": false,
+			"color": "#9E0000",
+			"renderMode": "Tile",
+			"showName": true,
+			"tilesetId": 7,
+			"tileId": 240,
+			"tileRenderMode": "FitInside",
+			"tileRect": { "tilesetUid": 7, "x": 0, "y": 240, "w": 16, "h": 16 },
+			"nineSliceBorders": [],
+			"maxCount": 0,
+			"limitScope": "PerLevel",
+			"limitBehavior": "MoveLastOne",
+			"pivotX": 0.5,
+			"pivotY": 0.5,
+			"fieldDefs": []
 		}
 	], "tilesets": [
 		{
@@ -425,6 +453,20 @@
 							"defUid": 67,
 							"px": [440,360],
 							"fieldInstances": [{ "__identifier": "Teleport_Target", "__value": [46,2900,8], "__type": "Array<Float>", "__tile": null, "defUid": 72, "realEditorValues": [ { "id": "V_Float", "params": [46] }, { "id": "V_Float", "params": [2900] }, { "id": "V_Float", "params": [8] } ] }]
+						},
+						{
+							"__identifier": "Player",
+							"__grid": [25,33],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 7, "x": 0, "y": 240, "w": 16, "h": 16 },
+							"__smartColor": "#9E0000",
+							"iid": "d9293ce0-5110-11ed-9d74-67105c18d7c2",
+							"width": 16,
+							"height": 16,
+							"defUid": 73,
+							"px": [408,536],
+							"fieldInstances": []
 						}
 					]
 				},

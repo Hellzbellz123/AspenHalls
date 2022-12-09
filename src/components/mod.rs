@@ -197,13 +197,13 @@ pub mod actors {
         #[reflect(Component)]
         pub struct TimeToLive(pub Timer);
 
-        #[derive(Component, Inspectable, Clone, Copy)]
+        #[derive(Component, Inspectable, Clone, Copy, Default)]
         pub struct Player {
             pub wants_to_teleport: bool,
             pub just_teleported: bool,
         }
 
-        #[derive(Component, Inspectable, Clone, Copy)]
+        #[derive(Component, Inspectable, Clone, Copy, Default)]
         pub struct CombatStats {
             pub stamina: f64,  // gives health per point
             pub agility: f64,  // gives speed per point
@@ -211,14 +211,14 @@ pub mod actors {
             pub armor: f64,    // gives damage reduction % + shield points
         }
 
-        #[derive(Component, Inspectable, Clone, Copy)]
+        #[derive(Component, Inspectable, Clone, Copy, Default)]
         pub struct DefenseStats {
             pub health: f64,
             pub shield: f64,
         }
 
         #[derive(Component, Default, Inspectable)]
-        pub struct ActorState {
+        pub struct MovementState {
             //stores actor information, all actors have this
             pub speed: f32,             //TODO: Refactor into stats
             pub sprint_available: bool, // refactor these into the movment system? facing direction too the graphics plugin somewhere maybe

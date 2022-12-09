@@ -42,11 +42,11 @@ use crate::{
         },
         animation::{AnimState, AnimationSheet, FacingDirection},
         bundles::{ActorColliderBundle, RigidBodyBundle, SkeletonAiBundle},
-        general::ActorState,
+        general::MovementState,
         spawners::{EnemyContainerTag, EnemyType, SpawnEvent, Spawner, SpawnerTimer},
     },
     game::GameStage,
-    loading::assets::EnemyTextureHandles,
+    loading::assets::GameTextureHandles,
     utilities::game::{SystemLabels, ACTOR_PHYSICS_LAYER, ACTOR_SIZE, MAX_ENEMIES},
 };
 
@@ -99,18 +99,18 @@ pub fn on_enter(mut cmds: Commands) {
 }
 
 pub fn spawn_timer_system(
-    _ew: EventWriter<SpawnEvent>,
+    mut ew: EventWriter<SpawnEvent>,
     spawner_query: Query<(&Transform, &Spawner), With<Spawner>>,
     enemy_count: Query<(Entity,), With<AIEnemy>>,
 ) {
     if enemy_count.iter().len() < MAX_ENEMIES {
-        for (_transform, spawner) in spawner_query.iter() {
+        for (transform, spawner) in spawner_query.iter() {
             for _spawn_to_send in 0..spawner.max_enemies {
-                // ew.send(SpawnEvent {
-                //     enemy_to_spawn: EnemyType::Skeleton,
-                //     spawn_position: (transform.translation),
-                //     spawn_count: 1,
-                // });
+                ew.send(SpawnEvent {
+                    enemy_to_spawn: EnemyType::Skeleton,
+                    spawn_position: (transform.translation),
+                    spawn_count: 1,
+                });
             }
         }
     }
@@ -120,7 +120,7 @@ pub fn catch_spawn_event(
     entity_container: Query<Entity, With<EnemyContainerTag>>,
     mut events: EventReader<SpawnEvent>,
     mut commands: Commands,
-    enemyassets: Res<EnemyTextureHandles>,
+    enemyassets: Res<GameTextureHandles>,
 ) {
     for event in events.iter() {
         info!("recieved event: {:#?}", event);
@@ -136,7 +136,7 @@ pub fn catch_spawn_event(
                                     SkeletonBundle {
                                         name: Name::new("Skeleton"),
                                         actortype: AIEnemy,
-                                        actorstate: ActorState {
+                                        actorstate: MovementState {
                                             speed: 100.0,
                                             sprint_available: false,
                                             facing: FacingDirection::Idle,

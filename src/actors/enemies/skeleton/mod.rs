@@ -7,14 +7,14 @@ use crate::components::actors::{
     ai::AIEnemy,
     animation::{AnimState, AnimationSheet},
     bundles::{RigidBodyBundle, SkeletonAiBundle},
-    general::ActorState,
+    general::MovementState,
 };
 
 #[derive(Bundle)]
 pub struct SkeletonBundle {
     pub name: Name,
     pub actortype: AIEnemy,
-    pub actorstate: ActorState,
+    pub actorstate: MovementState,
     pub animation_state: AnimState,
     pub available_animations: AnimationSheet,
     #[bundle]
@@ -39,7 +39,7 @@ pub mod actions {
             general::{Player, TimeToLive},
         },
         game::TimeInfo,
-        loading::assets::PlayerTextureHandles,
+        loading::assets::GameTextureHandles,
         utilities::game::{ACTOR_LAYER, ACTOR_PHYSICS_LAYER},
     };
 
@@ -47,7 +47,7 @@ pub mod actions {
         mut commands: Commands,
         timeinfo: Res<TimeInfo>,
         time: Res<Time>,
-        assets: ResMut<PlayerTextureHandles>,
+        assets: ResMut<GameTextureHandles>,
         player_query: Query<&Transform, With<Player>>,
         mut query: Query<(&Transform, &mut AIAttackTimer), With<AIEnemy>>,
     ) {
@@ -76,7 +76,7 @@ pub mod actions {
                             ProjectileBundle {
                                 name: Name::new("EnemyProjectile"),
                                 sprite_bundle: SpriteBundle {
-                                    texture: assets.rex_attack.clone(),
+                                    texture: assets.bevy_icon.clone(),
                                     transform: Transform {
                                         translation: new_transform
                                             .translation

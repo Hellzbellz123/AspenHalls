@@ -32,6 +32,7 @@ winit = "0.27.5"
 bevy_prototype_lyon = "0.7.1"
 toml = "0.5.8"
 chrono = "0.4.23"
+bevy_mouse_tracking_plugin = "0.5.0"
 # kayak_font = "0.1.0"
 # bevy_quickmenu = "0.1.1"
 

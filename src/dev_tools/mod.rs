@@ -15,15 +15,16 @@ pub mod debug_plugin {
         shapes,
     };
     use bevy_rapier2d::{
-        prelude::{CollisionEvent, ContactForceEvent},
+        prelude::{CollisionEvent, ContactForceEvent, *},
         render::RapierDebugRenderPlugin,
     };
-    use kayak_ui::{prelude::KStyle, CameraUIKayak};
+
     use leafwing_input_manager::prelude::ActionState;
     use std::time::Duration;
 
     use crate::{
         action_manager::actions::PlayerBindables,
+        actors::weapons::{DamageType, WeaponStats, WeaponTag},
         components::{
             actors::{
                 ai::{
@@ -31,16 +32,19 @@ pub mod debug_plugin {
                     ActorType, AggroScore, TypeEnum,
                 },
                 animation::{AnimState, AnimationSheet, FacingDirection},
-                general::{ActorState, CombatStats, DefenseStats, Player, TimeToLive},
+                bundles::RigidBodyBundle,
+                general::{CombatStats, DefenseStats, MovementState, Player, TimeToLive},
                 spawners::Spawner,
             },
             DebugTimer, MainCameraTag,
         },
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
-        utilities::game::SystemLabels, ui::MenuState,
+        loading::assets::GameTextureHandles,
+        ui::MenuState,
+        utilities::game::{SystemLabels, ACTOR_SIZE},
     };
-    use crate::ui::{despawn_ui, };
+    use crate::{actors::weapons::WeaponBundle, components::actors::bundles::ActorColliderBundle};
 
     pub struct DebugPlugin;
 
@@ -63,7 +67,7 @@ pub mod debug_plugin {
                 //custom inspectables not from plugins
                 .register_inspectable::<MenuState>()
                 .register_inspectable::<Spawner>()
-                .register_inspectable::<ActorState>()
+                .register_inspectable::<MovementState>()
                 .register_inspectable::<CombatStats>()
                 .register_inspectable::<DefenseStats>()
                 .register_inspectable::<Player>()
@@ -91,7 +95,7 @@ pub mod debug_plugin {
                 .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
                 .add_system_set(
                     SystemSet::on_update(GameStage::Playing)
-                        .with_system(debug_ui_despawn)
+                        .with_system(debug_f2_action)
                         .with_system(debug_visualize_spawner)
                         .after(SystemLabels::Spawn),
                 )
@@ -150,19 +154,64 @@ pub mod debug_plugin {
         }
     }
 
-    pub fn debug_ui_despawn(
+    pub fn debug_f2_action(
+        selected_player: Res<GameTextureHandles>,
         query_action_state: Query<&ActionState<PlayerBindables>>,
-        to_despawn: Query<Entity, With<CameraUIKayak>>,
-        widts: Query<Entity, With<KStyle>>,
-        cmds: Commands,
+        mut cmds: Commands,
     ) {
         if !query_action_state.is_empty() {
             let actions = query_action_state.get_single().expect("no ents?");
 
             if actions.just_released(PlayerBindables::DebugF2) {
-                debug!("debug kill ui action requested");
-                despawn_ui(cmds, to_despawn, widts);
-            };
+                debug!("debug f2 action requested: spawn smg");
+
+                cmds.spawn(WeaponBundle {
+                    name: Name::new("Small SMG"),
+                    tag: WeaponTag {
+                        parent: None,
+                        stored_weapon_slot: None,
+                    },
+                    weaponstats: WeaponStats {
+                        damage: 2.0,
+                        speed: 0.2,
+                    },
+                    damagetype: DamageType::KineticRanged,
+                    rigidbodybundle: RigidBodyBundle {
+                        rigidbody: RigidBody::Dynamic,
+                        velocity: Velocity::default(),
+                        friction: Friction::coefficient(0.7),
+                        howbouncy: Restitution::coefficient(0.3),
+                        massprop: ColliderMassProperties::Density(0.3),
+                        rotationlocks: LockedAxes::empty(),
+                        dampingprop: Damping {
+                            linear_damping: 1.0,
+                            angular_damping: 1.0,
+                        },
+                    },
+                    spritesheetbundle: SpriteSheetBundle {
+                        sprite: TextureAtlasSprite {
+                            custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
+                            ..default()
+                        },
+                        texture_atlas: selected_player.small_smg.clone(),
+                        transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
+                        ..default()
+                    },
+                })
+                .with_children(|child| {
+                    child.spawn((
+                        ActorColliderBundle {
+                            transform_bundle: TransformBundle::default(),
+                            collider: Collider::capsule(
+                                Vec2 { x: 0.0, y: -32.1 },
+                                Vec2 { x: 0.0, y: 17.0 },
+                                4.0,
+                            ),
+                        },
+                        CollisionGroups::new(Group::NONE, Group::GROUP_30),
+                    ));
+                });
+            }
         }
     }
 }
