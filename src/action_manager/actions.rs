@@ -18,6 +18,7 @@ pub enum PlayerBindables {
 
     ZoomIn,
     ZoomOut,
+    // debug
     DebugF1,
-    // Menus,
+    DebugF2,
 }

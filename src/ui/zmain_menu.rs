@@ -1,53 +1,37 @@
 use bevy::{app::AppExit, prelude::*};
-use bevy_inspector_egui::Inspectable;
 use kayak_ui::prelude::{widgets::*, *};
 
 use crate::{
     game::GameStage,
     loading::assets::UiTextureHandles,
-    ui::widgets::button::{self, MenuButton},
+    ui::{widgets::button::{self, MenuButton}, MenuState},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Component, Reflect, Inspectable, Hash)]
-pub enum MenuState {
-    HideMenu,
-    Main,
-    Pause,
-    Settings,
-}
 
-pub fn on_game_state_change(
-    game_state: Res<State<GameStage>>,
-    mut game_menu_props: Query<&mut GameMenuProps, Without<PreviousWidget>>,
+
+
+pub fn update_main_menu_props(
+    menu_state: Res<State<MenuState>>,
+    mut main_menu_props: Query<&mut MainMenuProps, Without<PreviousWidget>>,
 ) {
-    if game_state.is_changed() {
-        for mut game_menu in game_menu_props.iter_mut() {
-            game_menu.game_state = game_state.current().clone()
+    if menu_state.is_changed() {
+        for mut main_menu in main_menu_props.iter_mut() {
+            main_menu.menu_state = menu_state.current().clone()
         }
     }
-    // if menu_state.is_changed() {
-    //     for mut props in game_menu_props.iter_mut() {
-    //         props.menu_state = menu_state.current().clone()
-    //     }
-    // }
 }
 
-impl Default for MenuState {
-    fn default() -> Self {
-        MenuState::Main
-    }
-}
 #[derive(Component, Clone, PartialEq)]
-pub struct GameMenuProps {
-    pub game_state: GameStage,
-    // menu_state: MenuState,
+pub struct MainMenuProps {
+    // pub game_state: GameStage,
+    menu_state: MenuState,
 }
 
-impl Default for GameMenuProps {
+impl Default for MainMenuProps {
     fn default() -> Self {
         Self {
-            game_state: GameStage::Menu,
-            // menu_state: MenuState::Main,
+            // game_state: GameStage::Menu,
+            menu_state: MenuState::Main,
         }
     }
 }
@@ -55,12 +39,12 @@ impl Default for GameMenuProps {
 // In the future this will tell Kayak that these
 // Props belongs to a widget. For now it's use to
 // get the `WidgetName` component.
-impl Widget for GameMenuProps {}
+impl Widget for MainMenuProps {}
 
 #[derive(Bundle)]
-pub struct GameMenuBundle {
+pub struct MainMenuBundle {
     pub name: Name,
-    pub props: GameMenuProps,
+    pub props: MainMenuProps,
     pub styles: KStyle,
     pub children: KChildren,
     // This allows us to hook into on click events!
@@ -68,11 +52,11 @@ pub struct GameMenuBundle {
     // Widget name is required by Kayak UI!
     pub widget_name: WidgetName,
 }
-impl Default for GameMenuBundle {
+impl Default for MainMenuBundle {
     fn default() -> Self {
         Self {
-            name: Name::new("GameMenuProps"),
-            props: GameMenuProps::default(),
+            name: Name::new("MainMenuProps"),
+            props: MainMenuProps::default(),
             styles: KStyle::default(),
             children: KChildren::default(),
             on_event: OnEvent::default(),
@@ -80,11 +64,11 @@ impl Default for GameMenuBundle {
             // information about your widget.
             // This is done because bevy does not have the
             // ability to query traits.
-            widget_name: GameMenuProps::default().get_name(),
+            widget_name: MainMenuProps::default().get_name(),
         }
     }
 }
-pub fn game_menu_render(
+pub fn main_menu_render(
     // This is a bevy feature which allows custom
     // parameters to be passed into a system.
     // In this case Kayak UI gives the system a
@@ -96,20 +80,10 @@ pub fn game_menu_render(
     // lookups to resources within bevy's ECS.
     mut commands: Commands,
     images: Res<UiTextureHandles>,
-    state: Query<&MenuState>,
-    props: Query<&GameMenuProps>,
+    menu_state: ResMut<State<MenuState>>,
 ) -> bool {
-    let props = props.get(entity).unwrap();
     let parent_id = Some(entity);
-
     let state_entity = widget_context.use_state(&mut commands, entity, MenuState::default());
-
-    let propmenu_state = if let Ok(current_menu_state) = state.get(state_entity) {
-        current_menu_state
-    } else {
-        &MenuState::Main
-    };
-
     let container = images.panel_brown.clone();
 
     let on_click_new_game = OnEvent::new(
@@ -119,8 +93,9 @@ pub fn game_menu_render(
             Event,
             Entity,
         )>,
-              mut game_state: ResMut<State<GameStage>>| {
+              mut game_state: ResMut<State<GameStage>>, mut menu_state_r: ResMut<State<MenuState>>| {
             if let EventType::Click(..) = event.event_type {
+                menu_state_r.set(MenuState::HideMenu).expect("couldnt set menustate to hideMenu");
                 game_state
                     .push(GameStage::Playing)
                     .expect("cant push state for some reason")
@@ -136,31 +111,13 @@ pub fn game_menu_render(
             Event,
             Entity,
         )>,
-              mut state: Query<&mut MenuState>| {
+              mut state: Query<&mut MenuState>, mut menu_state_r: ResMut<State<MenuState>>| {
             if let EventType::Click(..) = event.event_type {
                 event.prevent_default();
                 event.stop_propagation();
                 if let Ok(mut current_menu) = state.get_mut(state_entity) {
                     *current_menu = MenuState::Settings;
-                }
-            }
-            (event_dispatcher_context, event)
-        },
-    );
-
-    let on_click_back_to_main = OnEvent::new(
-        move |In((event_dispatcher_context, _, mut event, _entity)): In<(
-            EventDispatcherContext,
-            WidgetState,
-            Event,
-            Entity,
-        )>,
-              mut state: Query<&mut MenuState>| {
-            if let EventType::Click(..) = event.event_type {
-                event.prevent_default();
-                event.stop_propagation();
-                if let Ok(mut current_menu) = state.get_mut(state_entity) {
-                    *current_menu = MenuState::Main;
+                    menu_state_r.push(MenuState::Settings).expect("couldnt push menustate")
                 }
             }
             (event_dispatcher_context, event)
@@ -182,9 +139,7 @@ pub fn game_menu_render(
         },
     );
 
-    let hide_menu = !(props.game_state == GameStage::Menu);
-    let show_main_menu = *propmenu_state == MenuState::Main;
-    let show_settings_menu = *propmenu_state == MenuState::Settings;
+    let show_main_menu = *menu_state.current() == MenuState::Main;
 
     let row_styles = KStyle {
         layout_type: StyleProp::Value(LayoutType::Row),
@@ -214,37 +169,20 @@ pub fn game_menu_render(
         ..Default::default()
     };
 
-    // <ElementBundle styles={left_styles = Kstyle{....}}></ElementBundle>
-    // <ElementBundle styles={right_styles = Kstyle{....}}></ElementBundle>
-
-    rsx! {
-        <ElementBundle styles={row_styles}>
-        <ElementBundle styles={middle_style}>
-        {
-        if !hide_menu {
-            if show_main_menu {
-                constructor! { // TODO: the logic for the menu showing SEEMS to be correct. refactor these into thier own widgets so we can try to make it look nice
+    if show_main_menu {
+        rsx! {
+            <ElementBundle styles={row_styles}>
+            <ElementBundle styles={middle_style}>
                     <NinePatchBundle styles={ninepatch_style} nine_patch={ NinePatch { handle: container, border:{ Edge::all(5.0)}}}>
                     <TextWidgetBundle text={TextProps { content: "Vanilla Coffee".to_string(), size: 52.0, alignment: Alignment::Middle, ..default()}}/>
                     <ElementBundle/>
-                    <button::MenuButtonBundle button={ MenuButton { text: "New Game".into(), ..default()}} on_event={on_click_new_game} />
-                    <button::MenuButtonBundle button={ MenuButton { text: "Settings".into(), ..default() }} on_event={on_click_settings} />
-                    <button::MenuButtonBundle button={ MenuButton { text: "Exit".into(), ..default() }} on_event={on_click_exit} />
+                    <button::MenuButtonBundle button={ MenuButton { text: "New Game".into()}} on_event={on_click_new_game} />
+                    <button::MenuButtonBundle button={ MenuButton { text: "Settings".into()}} on_event={on_click_settings} />
+                    <button::MenuButtonBundle button={ MenuButton { text: "Exit".into()}} on_event={on_click_exit} />
                     </NinePatchBundle>
-                }
-            } else if show_settings_menu {
-                constructor! {
-                    <NinePatchBundle styles={ninepatch_style} nine_patch={NinePatch { handle: container, border:{Edge::all(1.0)}}}>
-                    <TextWidgetBundle text={TextProps { content: "Settings Menu".to_string(), size: 32.0, alignment: Alignment::Middle, ..default()}}/>
-                    <ElementBundle/>
-                    <button::MenuButtonBundle button={ MenuButton { text: "go back".into(), ..default() }} on_event={on_click_back_to_main}/>
-                    </NinePatchBundle>
-                }
-            }
-        }
-        }
-        </ElementBundle>
-        </ElementBundle>
+            </ElementBundle>
+            </ElementBundle>
+        };
     }
 
     true

@@ -18,6 +18,8 @@ pub mod debug_plugin {
         prelude::{CollisionEvent, ContactForceEvent},
         render::RapierDebugRenderPlugin,
     };
+    use kayak_ui::{prelude::KStyle, CameraUIKayak};
+    use leafwing_input_manager::prelude::ActionState;
     use std::time::Duration;
 
     use crate::{
@@ -36,9 +38,9 @@ pub mod debug_plugin {
         },
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
-        ui::main_menu::MenuState,
-        utilities::game::SystemLabels,
+        utilities::game::SystemLabels, ui::MenuState,
     };
+    use crate::ui::{despawn_ui, };
 
     pub struct DebugPlugin;
 
@@ -89,6 +91,7 @@ pub mod debug_plugin {
                 .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
                 .add_system_set(
                     SystemSet::on_update(GameStage::Playing)
+                        .with_system(debug_ui_despawn)
                         .with_system(debug_visualize_spawner)
                         .after(SystemLabels::Spawn),
                 )
@@ -144,6 +147,22 @@ pub mod debug_plugin {
                     *transform,
                 );
             cmds.entity(entity).insert(spawner_visual_bundle);
+        }
+    }
+
+    pub fn debug_ui_despawn(
+        query_action_state: Query<&ActionState<PlayerBindables>>,
+        to_despawn: Query<Entity, With<CameraUIKayak>>,
+        widts: Query<Entity, With<KStyle>>,
+        cmds: Commands,
+    ) {
+        if !query_action_state.is_empty() {
+            let actions = query_action_state.get_single().expect("no ents?");
+
+            if actions.just_released(PlayerBindables::DebugF2) {
+                debug!("debug kill ui action requested");
+                despawn_ui(cmds, to_despawn, widts);
+            };
         }
     }
 }

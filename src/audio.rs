@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 use rand::seq::SliceRandom;
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
@@ -31,7 +32,7 @@ pub struct WalkingSound {
 }
 //TODO: make this serialize into a settings.toml file in a saves folder
 /// modify to change sound volume settings
-#[derive(Inspectable, Debug)]
+#[derive(Inspectable, Debug, Serialize, Deserialize)]
 pub struct SoundSettings {
     #[inspectable(min = 0.0, max = 1.0)]
     pub mastervolume: f64,

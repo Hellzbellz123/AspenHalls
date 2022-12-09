@@ -1,15 +1,19 @@
 pub mod events_handlers;
-pub mod main_menu;
-mod pause_menu;
 mod widgets;
+pub mod zmain_menu;
+mod zpause_menu;
+pub mod zsettings_menu;
+
 
 use bevy::{app::AppExit, prelude::*};
+use bevy_inspector_egui::Inspectable;
 use kayak_ui::{
     prelude::{widget_update, FontMapping, KayakRootContext, *},
     widgets::{
         ButtonState, ElementBundle, KayakAppBundle, KayakWidgets, KayakWidgetsContextPlugin,
         NinePatch, NinePatchBundle, TextProps, TextWidgetBundle,
     },
+    CameraUIKayak,
 };
 use leafwing_input_manager::prelude::ActionState;
 
@@ -19,29 +23,44 @@ use crate::{
     game::{GameStage, TimeInfo},
     loading::assets::FontHandles,
     ui::{
-        main_menu::{game_menu_render, GameMenuBundle, GameMenuProps, MenuState},
-        pause_menu::{pause_menu_render, PauseMenuBundle, PauseMenuProps},
         widgets::button::{self, menu_button_render, MenuButton},
+        zmain_menu::{main_menu_render, MainMenuBundle, MainMenuProps},
+        zpause_menu::{pause_menu_render, PauseMenuBundle, PauseMenuProps},
+        zsettings_menu::{settings_menu_render, SettingsMenuBundle, SettingsMenuProps},
     },
+    utilities::despawn_with,
 };
 
 use self::{
-    events_handlers::PlayButtonEvent, main_menu::on_game_state_change,
-    pause_menu::update_pause_menu_props,
+    events_handlers::PlayButtonEvent, zmain_menu::update_main_menu_props,
+    zpause_menu::update_pause_menu_props, zsettings_menu::update_settings_menu_props,
 };
+
+#[derive(Debug, Clone, PartialEq, Eq, Component, Reflect, Inspectable, Hash)]
+pub enum MenuState {
+    HideMenu,
+    Main,
+    Pause,
+    Settings,
+}
+
+impl Default for MenuState {
+    fn default() -> Self {
+        MenuState::Main
+    }
+}
 
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_event::<PlayButtonEvent>()
-            .add_state(MenuState::HideMenu)
+        app.add_event::<PlayButtonEvent>()
+            .add_state(MenuState::Main)
             .add_plugin(KayakContextPlugin)
             .add_plugin(KayakWidgets)
             .add_system_set(
-                SystemSet::on_enter(GameStage::Menu)
-                    .with_system(despawn_screen::<OnSplashScreen>)
+                SystemSet::on_exit(GameStage::Loading)
+                    .with_system(despawn_with::<OnSplashScreen>)
                     .with_system(game_ui)
                     .with_system(trace_ui),
             )
@@ -50,8 +69,9 @@ impl Plugin for UIPlugin {
             )
             .add_system_set(SystemSet::on_update(GameStage::Playing))
             .add_system(show_pause_menu)
-            .add_system(on_game_state_change)
-            .add_system(update_pause_menu_props);
+            .add_system(update_main_menu_props)
+            .add_system(update_pause_menu_props)
+            .add_system(update_settings_menu_props);
     }
 }
 
@@ -78,6 +98,7 @@ pub fn show_pause_menu(
             menu_state
                 .set(MenuState::HideMenu)
                 .expect("couldnt push hidemenu state");
+            info!("no pause menu should be shown and game should be playing");
             event_reader.clear();
         } else if menu_state.current() == &MenuState::HideMenu {
             //if calling this function and MenuState is HideMenu we want too set menustate too pause and freeze time. kayak will listen for the menustate.
@@ -88,12 +109,7 @@ pub fn show_pause_menu(
                 .set(MenuState::Pause)
                 .expect("couldnt push pausemenu state");
             event_reader.clear();
-        }
-
-        if timeinfo.pause_menu {
             info!("pause menu should be shown and game should be paused")
-        } else {
-            info!("no pause menu should be shown and game should be playing")
         }
     }
 }
@@ -102,10 +118,17 @@ fn trace_ui() {
     info!("setting up UI");
 }
 
-fn despawn_screen<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+pub fn despawn_ui(
+    mut commands: Commands,
+    to_despawn: Query<Entity, With<CameraUIKayak>>,
+    widts: Query<Entity, With<KStyle>>,
+) {
     for entity in to_despawn.iter() {
-        info!("despawning entity: {:#?}", entity);
+        info!("despawning kayak_root_context: {:#?}", entity);
         commands.entity(entity).despawn_recursive();
+        for widget in widts.iter() {
+            commands.entity(widget).despawn_recursive();
+        }
     }
 }
 
@@ -125,36 +148,31 @@ pub fn game_ui(
     // We need to register the prop and state types.
     // if State is empty you can use the `EmptyState`
     // component!
-    widget_context.add_widget_data::<GameMenuProps, MenuState>();
+    widget_context.add_widget_data::<MainMenuProps, MenuState>();
     widget_context.add_widget_data::<PauseMenuProps, MenuState>();
+    widget_context.add_widget_data::<SettingsMenuProps, MenuState>();
 
     // Next we need to add the systems
     widget_context.add_widget_system(
-        // We are registering these systems with a specific
-        // WidgetName.
-        GameMenuProps::default().get_name(),
-        // widget_update auto diffs props and state.
-        // Optionally if you have context you can use:
-        // widget_update_with_context otherwise you
-        // will need to create your own widget update
-        // system!
-        widget_update::<GameMenuProps, MenuState>,
+        // We are registering these systems with a specific WidgetName.
+        MainMenuProps::default().get_name(),
+        // widget_update auto diffs props and state. Optionally if you have context you can use:
+        // widget_update_with_context otherwise you will need to create your own widget update system!
+        widget_update::<MainMenuProps, MenuState>,
         // Add our render system!
-        game_menu_render,
+        main_menu_render,
     );
 
     widget_context.add_widget_system(
-        // We are registering these systems with a specific
-        // WidgetName.
         PauseMenuProps::default().get_name(),
-        // widget_update auto diffs props and state.
-        // Optionally if you have context you can use:
-        // widget_update_with_context otherwise you
-        // will need to create your own widget update
-        // system!
         widget_update::<PauseMenuProps, EmptyState>,
-        // Add our render system!
         pause_menu_render,
+    );
+
+    widget_context.add_widget_system(
+        SettingsMenuProps::default().get_name(),
+        widget_update::<SettingsMenuProps, EmptyState>,
+        settings_menu_render,
     );
 
     widget_context.add_widget_data::<MenuButton, ButtonState>();
@@ -166,10 +184,11 @@ pub fn game_ui(
 
     rsx! {
         <KayakAppBundle>
-            <GameMenuBundle/>
+            <MainMenuBundle/>
             <PauseMenuBundle/>
+            <SettingsMenuBundle/>
         </KayakAppBundle>
-    }
+    };
     commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));
 }
 
@@ -188,22 +207,22 @@ pub fn failed_load_ui(
     // We need to register the prop and state types.
     // if State is empty you can use the `EmptyState`
     // component!
-    widget_context.add_widget_data::<GameMenuProps, MenuState>();
+    widget_context.add_widget_data::<MainMenuProps, MenuState>();
     widget_context.add_widget_data::<PauseMenuProps, MenuState>();
 
     // Next we need to add the systems
     widget_context.add_widget_system(
         // We are registering these systems with a specific
         // WidgetName.
-        GameMenuProps::default().get_name(),
+        MainMenuProps::default().get_name(),
         // widget_update auto diffs props and state.
         // Optionally if you have context you can use:
         // widget_update_with_context otherwise you
         // will need to create your own widget update
         // system!
-        widget_update::<GameMenuProps, MenuState>,
+        widget_update::<MainMenuProps, MenuState>,
         // Add our render system!
-        game_menu_render,
+        main_menu_render,
     );
 
     widget_context.add_widget_system(
@@ -262,9 +281,9 @@ pub fn failed_load_ui(
                     <NinePatchBundle styles={ninepatch_style} nine_patch={NinePatch {border:{Edge::all(1.0)}, ..default()}}>
                     <TextWidgetBundle text={TextProps { content: "loading game failed. there was missing assets".to_string(), size: 32.0, alignment: Alignment::Middle, ..default()}}/>
                     <ElementBundle/>
-                    <button::MenuButtonBundle button={ MenuButton { text: "exit game".into(), ..default() }} on_event={on_click_exit}/>
+                    <button::MenuButtonBundle button={ MenuButton { text: "exit game".into()}} on_event={on_click_exit}/>
                     </NinePatchBundle>
         </KayakAppBundle>
-    }
+    };
     commands.spawn((UICameraBundle::new(widget_context), Name::new("UI Camera")));
 }

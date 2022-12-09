@@ -18,16 +18,17 @@ use bevy::{
     prelude::{info, App, Query, Res, ResMut, With},
     window::{WindowDescriptor, Windows},
 };
-use bevy_inspector_egui::InspectorPlugin;
+
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::RapierPhysicsPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
-use components::MainCameraTag;
 
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
+use crate::utilities::append_info;
 
+use components::MainCameraTag;
 use game::TimeInfo;
 
 use utilities::game::AppSettings;
@@ -44,11 +45,31 @@ pub mod ui;
 pub mod utilities;
 
 pub fn main() {
+    println!("{}", append_info("vanillacoffee::main: Starting Game"));
     let mut vanillacoffee = App::new();
+
+    println!("{}", append_info("loading and inserting settings"));
+    let settings: AppSettings = utilities::load_settings();
+    vanillacoffee.world.insert_resource(settings);
 
     vanillacoffee
         //TODO: break all settings out into plugin that loads settings from disk, if settings dont exist create them
         // use commmands from args too insert windowdescriptor with default if no file exists but use whats in file if its thier.
+        .insert_resource(ClearColor(Color::Hsla {
+            hue: 294.0,
+            saturation: 0.71,
+            lightness: 0.08,
+            alpha: 1.0,
+        }))
+        .insert_resource(RapierConfiguration {
+            gravity: Vec2::ZERO,
+            ..default()
+        })
+        .insert_resource(TimeInfo {
+            time_step: 1.0, //TODO: change this back too false and 0.0 when we get the mainmenu back
+            game_paused: false,
+            pause_menu: false,
+        })
         .add_plugins(
             bevy::DefaultPlugins
                 .set(WindowPlugin {
@@ -83,36 +104,18 @@ pub fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
-        .insert_resource(ClearColor(Color::Hsla {
-            hue: 294.0,
-            saturation: 0.71,
-            lightness: 0.08,
-            alpha: 1.0,
-        }))
         .add_plugin(loading::AssetLoadPlugin)
         .add_state(game::GameStage::Loading)
         .add_plugin(ui::UIPlugin)
         .add_plugin(ShapePlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
         .add_plugin(utilities::UtilitiesPlugin)
-        .add_plugin(InspectorPlugin::<AppSettings>::new())
-        .insert_resource(RapierConfiguration {
-            gravity: Vec2::ZERO,
-            ..default()
-        })
-        .insert_resource(TimeInfo {
-            time_step: 1.0, //TODO: change this back too false and 0.0 when we get the mainmenu back
-            game_paused: false,
-            pause_menu: false,
-        })
+        // .add_plugin(InspectorPlugin::<AppSettings>::new())
         .add_plugin(game::GamePlugin)
         .add_system(update_settings);
 
     #[cfg(feature = "dev")]
     vanillacoffee.add_plugin(DebugPlugin);
-
-    #[cfg(not(feature = "dev"))]
-    vanillacoffee.init_resource::<AppSettings>();
 
     vanillacoffee.run()
 }

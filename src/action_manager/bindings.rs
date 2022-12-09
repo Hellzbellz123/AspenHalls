@@ -59,6 +59,7 @@ impl Default for PlayerInput {
 
         //debug and misc
         input_map.insert(KeyCode::F1, PlayerBindables::DebugF1);
+        input_map.insert(KeyCode::F2, PlayerBindables::DebugF2);
         input_map.insert(KeyCode::NumpadAdd, PlayerBindables::ZoomIn);
         input_map.insert(KeyCode::NumpadSubtract, PlayerBindables::ZoomOut);
 

@@ -1,7 +1,7 @@
 use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::LdtkAsset;
-use kayak_font::KayakFont;
+use kayak_ui::prelude::KayakFont;
 
 #[derive(AssetCollection, Resource)]
 pub struct FontHandles {

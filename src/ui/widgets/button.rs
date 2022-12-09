@@ -96,7 +96,7 @@ pub fn menu_button_render(
                     }}
                 />
             </NinePatchBundle>
-        }
+        };
     }
     true
 }

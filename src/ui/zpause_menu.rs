@@ -1,5 +1,4 @@
 use bevy::{app::AppExit, prelude::*};
-
 use kayak_ui::prelude::{widgets::*, *};
 
 use crate::{
@@ -7,10 +6,9 @@ use crate::{
     ui::{
         events_handlers::PlayButtonEvent,
         widgets::button::{self, MenuButton},
+        MenuState
     },
 };
-
-use super::main_menu::MenuState;
 
 pub fn update_pause_menu_props(
     menu_state: ResMut<State<MenuState>>,
@@ -52,6 +50,7 @@ pub struct PauseMenuBundle {
     // Widget name is required by Kayak UI!
     pub widget_name: WidgetName,
 }
+
 impl Default for PauseMenuBundle {
     fn default() -> Self {
         Self {
@@ -68,6 +67,7 @@ impl Default for PauseMenuBundle {
         }
     }
 }
+
 pub fn pause_menu_render(
     // This is a bevy feature which allows custom
     // parameters to be passed into a system.
@@ -85,28 +85,9 @@ pub fn pause_menu_render(
     let props = props.get(entity).unwrap();
     let parent_id = Some(entity);
 
-    let state_entity = widget_context.use_state(&mut commands, entity, MenuState::default());
+    let _state_entity = widget_context.use_state(&mut commands, entity, MenuState::default());
 
     let container = images.panel_brown.clone();
-
-    let on_click_back_to_main = OnEvent::new(
-        move |In((event_dispatcher_context, _, mut event, _entity)): In<(
-            EventDispatcherContext,
-            WidgetState,
-            Event,
-            Entity,
-        )>,
-              mut state: Query<&mut MenuState>| {
-            if let EventType::Click(..) = event.event_type {
-                event.prevent_default();
-                event.stop_propagation();
-                if let Ok(mut current_menu) = state.get_mut(state_entity) {
-                    *current_menu = MenuState::Main;
-                }
-            }
-            (event_dispatcher_context, event)
-        },
-    );
 
     let on_click_exit = OnEvent::new(
         move |In((event_dispatcher_context, _, event, _entity)): In<(
@@ -143,86 +124,70 @@ pub fn pause_menu_render(
         props.pause_menu_state == MenuState::Pause
     );
 
-    
-    let button_style = KStyle {
-        ..Default::default()
-    };
-    
-    let bg_style = KStyle {
-        // background_color: StyleProp::Value(Color::BLUE),
-        // height: StyleProp::Value(Units::Percentage(100.0)),
-        // width: StyleProp::Value(Units::Percentage(100.0)),
-        // left: StyleProp::Value(Units::Pixels(0.0)),
-        // right: StyleProp::Value(Units::Pixels(0.0)),
-        // top: StyleProp::Value(Units::Pixels(0.0)),
-        // bottom: StyleProp::Value(Units::Percentage(0.0)),
-        // padding_bottom: StyleProp::Value(Units::Percentage(30.0)),
-        // padding_left: StyleProp::Value(Units::Percentage(60.0)),
-        // padding_right: StyleProp::Value(Units::Percentage(10.0)),
-        // padding_top: StyleProp::Value(Units::Percentage(10.0)),
-        ..Default::default()
-    };
-
-    
-    let row_style = KStyle {
+    let row_styles = KStyle {
         layout_type: StyleProp::Value(LayoutType::Row),
-        padding_top: StyleProp::Value(Units::Percentage(20.0)),
-        padding_bottom: StyleProp::Value(Units::Percentage(30.0)),
-        padding_left: StyleProp::Value(Units::Percentage(45.0)),
+        padding_left: StyleProp::Value(Units::Stretch(50.0)),
         padding_right: StyleProp::Value(Units::Percentage(5.0)),
-        ..Default::default()
-    };
-    
-    let button_style = KStyle {
-        height: StyleProp::Value(Units::Pixels(20.0)),
-        width: StyleProp::Value(Units::Pixels(90.0)),
-        // left: StyleProp::Value(Units::Percentage(20.0)),
-        // right: StyleProp::Value(Units::Percentage(20.0)),
-        // top: StyleProp::Value(Units::Percentage(20.0)),
-        // bottom: StyleProp::Value(Units::Percentage(20.0)),
+        padding_top: StyleProp::Value(Units::Stretch(50.0)),
+        padding_bottom: StyleProp::Value(Units::Percentage(20.0)),
         ..Default::default()
     };
 
     let pause_container_style = KStyle {
         border_radius: StyleProp::Value(Corner::all(15.0)),
-        top: StyleProp::Value(Units::Percentage(50.0)),
-        bottom: StyleProp::Value(Units::Percentage(50.0)),
-        left: StyleProp::Value(Units::Percentage(50.0)),
-        right: StyleProp::Value(Units::Percentage(50.0)),
-        height: StyleProp::Value(Units::Pixels(500.0)),
-        width: StyleProp::Value(Units::Pixels(460.0)),
-        layout_type: StyleProp::Value(LayoutType::Column),
-        row_between: StyleProp::Value(Units::Pixels(20.0)),
-        ..Default::default()
-    };
-    let row_styles = KStyle {
-        layout_type: StyleProp::Value(LayoutType::Row),
-        padding_top: StyleProp::Value(Units::Stretch(20.0)),
-        padding_bottom: StyleProp::Value(Units::Stretch(20.0)),
-        ..Default::default()
-    };
-    let middle_style = KStyle {
-        // width: StyleProp::Value(Units::Pixels(600.0)),
-        layout_type: StyleProp::Value(LayoutType::Column),
-        bottom: StyleProp::Value(Units::Auto),
         top: StyleProp::Value(Units::Auto),
+        bottom: StyleProp::Value(Units::Auto),
+        left: StyleProp::Value(Units::Auto),
+        right: StyleProp::Value(Units::Auto),
+        padding: StyleProp::Value(Edge::axis(Units::Stretch(1.0), Units::Stretch(1.0))),
+        layout_type: StyleProp::Value(LayoutType::Column),
+        row_between: StyleProp::Value(Units::Pixels(25.0)),
+        min_height: StyleProp::Value(Units::Pixels(440.0)),
+        min_width: StyleProp::Value(Units::Pixels(360.0)),
+        max_height: StyleProp::Value(Units::Pixels(600.0)),
+        max_width: StyleProp::Value(Units::Pixels(360.0)),
+        ..Default::default()
+    };
+
+    let div_style = KStyle {
+        padding: StyleProp::Value(Edge::axis(Units::Stretch(1.0), Units::Stretch(1.0))),
+        top: StyleProp::Value(Units::Percentage(10.0)),
+        row_between: StyleProp::Value(Units::Pixels(30.0)),
+        ..Default::default()
+    };
+
+    let title_style = KStyle {
+        left: StyleProp::Value(Units::Stretch(1.0)),
+        right: StyleProp::Value(Units::Stretch(1.0)),
+        ..Default::default()
+    };
+
+    let button_style = KStyle {
+        top: StyleProp::Value(Units::Auto),
+        background_color: StyleProp::Value(Color::WHITE),
+        border_color: StyleProp::Value(Color::RED),
+        border_radius: StyleProp::Value(Corner::all(15.0)),
+        border: StyleProp::Value(Edge::all(5.0)),
+        color: StyleProp::Value(Color::RED),
+        left: StyleProp::Value(Units::Stretch(20.0)),
+        right: StyleProp::Value(Units::Stretch(20.0)),
+        height: StyleProp::Value(Units::Stretch(10.0)),
+        width: StyleProp::Value(Units::Stretch(10.0)),
         ..Default::default()
     };
 
     if props.pause_menu_state == MenuState::Pause {
         rsx! {
-            <ElementBundle styles={row_styles}>
-                <ElementBundle styles={middle_style}>
+        <ElementBundle styles={row_styles}>
                     <NinePatchBundle styles={pause_container_style} nine_patch={NinePatch { handle: container, border:{Edge::all(10.0)}}}>
-                        <TextWidgetBundle text={TextProps { content: "Pause Menu".to_string(), size: 32.0, alignment: Alignment::Middle, ..default()}}/>
-                        <ElementBundle/>
-                        <button::MenuButtonBundle button={ MenuButton { text: "Resume Game".into()}} on_event={on_click_resume} />
-                        <button::MenuButtonBundle button={ MenuButton { text: "Back To Main Menu".into()}} on_event={on_click_back_to_main}/>
-                        <button::MenuButtonBundle button={ MenuButton { text: "Exit".into()}} on_event={on_click_exit} />
+                        <TextWidgetBundle styles={title_style} text={TextProps { content: "Pause Menu".to_string(), size: 32.0, alignment: Alignment::Start, ..default()}}/>
+                        <ElementBundle styles={div_style}>
+                            <button::MenuButtonBundle style={button_style.clone()} button={ MenuButton { text: "Resume Game".into()}} on_event={on_click_resume}/>
+                            <button::MenuButtonBundle style={button_style} button={ MenuButton { text: "Exit".into()}} on_event={on_click_exit} />
+                        </ElementBundle>
                     </NinePatchBundle>
-                </ElementBundle>
-            </ElementBundle>
-        }
+        </ElementBundle>
+        };
     }
     true
 }

@@ -1,5 +1,6 @@
 use bevy::prelude::{FromWorld, Resource, SystemLabel, Vec2, World};
 use bevy_inspector_egui::Inspectable;
+use serde::{Deserialize, Serialize};
 
 use crate::audio::SoundSettings;
 
@@ -34,20 +35,20 @@ pub enum SystemLabels {
 }
 
 /// all game settings in metastruct
-#[derive(Inspectable, Resource)]
+/// make sure tables are AFTER single fields
+#[derive(Inspectable, Resource, Serialize, Deserialize)]
 pub struct AppSettings {
-    /// volume settings
-    pub sound_settings: SoundSettings,
-    /// display resolution
-    pub resolution: Vec2,
     /// camera zooom
     pub camera_zoom: f32,
-    // control_settings: PlayerInput,
+    /// display resolution
+    pub resolution: Vec2,
+    /// volume settings
+    pub sound_settings: SoundSettings, //this last for now ig
 }
 
 //TODO: default app settings if its a setting it goes here, move this too settings plugin
 impl FromWorld for AppSettings {
-    fn from_world(_: &mut World) -> Self {
+    fn from_world(_w: &mut World) -> Self {
         AppSettings {
             sound_settings: SoundSettings {
                 mastervolume: 0.2,

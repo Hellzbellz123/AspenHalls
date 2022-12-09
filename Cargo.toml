@@ -30,17 +30,19 @@ serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.27.5"
 bevy_prototype_lyon = "0.7.1"
+toml = "0.5.8"
+chrono = "0.4.23"
 # kayak_font = "0.1.0"
 # bevy_quickmenu = "0.1.1"
 
 [dependencies.big-brain]
-# git = "https://github.com/zkat/big-brain"
+git = "https://github.com/zkat/big-brain"
 # version = "0.15.0"
-path = "crates/big-brain"
+# path = "crates/big-brain"
 
-[dependencies.bevy_kindly]
-# git = https://github.com/Zeenobit/bevy_kindly
-version = "0.3.1"
+# [dependencies.bevy_kindly]
+# # git = https://github.com/Zeenobit/bevy_kindly
+# version = "0.3.1"
 
 
 [dependencies.rust-embed]
@@ -106,8 +108,6 @@ features = [
 path = "crates/kayak_ui"
 # git = "https://github.com/StarArawn/kayak_ui.git"
 
-[dependencies.kayak_font]
-path = "crates/kayak_ui/kayak_font"
 
 [dependencies.leafwing-input-manager]
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
@@ -122,15 +122,15 @@ features = ["png"]
 [target.x86_64-pc-windows-msvc.dependencies]
 winapi = "0.3.9"
 
-# [package.metadata.bundle]
-# name = "Vanilla Coffee"
-# identifier = "io.github.hellzbellz123.vanillacoffee"
-# icon = ["assets/textures/stonercaticon.png"]
-# copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
-# description = "Vanilla Coffee game: in progress"
-# long_description = """
-# Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-# eiusmod tempor incididunt ut labore et dolore magna aliqua.  Ut
-# enim ad minim veniam, quis nostrud exercitation ullamco laboris
-# nisi ut aliquip ex ea commodo consequat.
-# """
+[package.metadata.bundle]
+name = "Vanilla Coffee"
+identifier = "io.github.hellzbellz123.vanillacoffee"
+icon = ["assets/textures/stonercaticon.png"]
+copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
+description = "Vanilla Coffee: a game in progress"
+long_description = """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+eiusmod tempor incididunt ut labore et dolore magna aliqua.  Ut
+enim ad minim veniam, quis nostrud exercitation ullamco laboris
+nisi ut aliquip ex ea commodo consequat.
+"""
