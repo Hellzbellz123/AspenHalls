@@ -96,10 +96,10 @@ pub fn camera_movement_system(
 ) {
     let (mut camera_trans, tag) = camera_transform.single_mut();
     let player_trans = player_transform.single();
+    let ctt = camera_trans.translation.truncate();
+    let ptt = player_trans.translation.truncate();
 
     if tag.is_active {
-        camera_trans.translation = camera_trans
-            .translation
-            .lerp(player_trans.translation, 0.05);
+        camera_trans.translation = (ctt.lerp(ptt, 0.05)).extend(999.0);
     }
 }

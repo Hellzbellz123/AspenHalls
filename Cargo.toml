@@ -29,12 +29,13 @@ rand = "0.8.5"
 serde = "1.0.144"
 serde_derive = "1.0.144"
 winit = "0.27.5"
-bevy_prototype_lyon = "0.7.1"
 toml = "0.5.8"
 chrono = "0.4.23"
+bevy_prototype_lyon = "0.7.1"
 bevy_mouse_tracking_plugin = "0.5.0"
-# kayak_font = "0.1.0"
-# bevy_quickmenu = "0.1.1"
+
+[dependencies.bevy-console]
+git = "https://github.com/RichoDemus/bevy_console.git"
 
 [dependencies.big-brain]
 git = "https://github.com/zkat/big-brain"
@@ -93,7 +94,7 @@ features = ["ogg"]
 
 [dependencies.bevy-inspector-egui]
 version = "0.14.0"
-default-features = false
+
 # features = ["bevy_render", "bevy_sprite", "bevy_text"]
 
 [dependencies.bevy-inspector-egui-rapier]
@@ -102,11 +103,7 @@ features = ["rapier2d"]
 
 [dependencies.bevy_rapier2d]
 version = "0.19.0"
-features = [
-  "simd-nightly",
-  "parallel",
-  # "serde-serialize"
-]
+features = ["simd-nightly", "parallel"]
 
 
 [dependencies.kayak_ui]

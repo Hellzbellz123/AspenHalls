@@ -38,7 +38,12 @@ fn aggro_score_system(
     player_query: Query<&Transform, With<Player>>, //player
     enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, //enemys that can aggro
     mut aggro_scorer_query: Query<(&Actor, &mut Score), With<AggroScore>>, //enemy brain?
-    mut wanderscore_query: Query<(&Actor, &mut Score), (With<WanderScore>, Without<AggroScore>)>,
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    mut wanderscore_query: Query<
+        (&Actor, &mut Score),
+        (With<WanderScore>, Without<AggroScore>),
+    >,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (Actor(actor), mut aggro_score) in aggro_scorer_query.iter_mut() {
@@ -64,7 +69,12 @@ fn aggro_score_system(
 fn wander_score_system(
     player_query: Query<&Transform, With<Player>>, //player
     enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, //enemys that can aggro
-    mut wanderscore_query: Query<(&Actor, &mut Score), (With<WanderScore>, Without<AggroScore>)>,
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    mut wanderscore_query: Query<
+        (&Actor, &mut Score),
+        (With<WanderScore>, Without<AggroScore>),
+    >,
 ) {
     if let Ok(player_transform) = player_query.get_single() {
         for (Actor(actor), mut wander_score) in wanderscore_query.iter_mut() {
@@ -84,7 +94,9 @@ fn wander_score_system(
 fn chase_action(
     timeinfo: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
-    #[allow(clippy::type_complexity)] mut enemy_query: Query<(
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
         &AICanChase,
@@ -163,7 +175,9 @@ fn chase_action(
 fn random_wander_system(
     timeinfo: ResMut<TimeInfo>,
     _player_query: Query<&Transform, With<Player>>,
-    #[allow(clippy::type_complexity)] mut enemy_query: Query<(
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
         &mut MovementState,
@@ -202,48 +216,57 @@ fn random_wander_system(
                     ActionState::Requested => {
                         // pick a random target within range of home and current position
                         let t_deviation = rng.gen_range(-50.0..=50.0);
-                        if target_pos.is_some() {
-                            let c_target_pos: Vec3 =
-                                target_pos.expect("target should always be Some(Vec3) here");
-                            let distance = c_target_pos - cur_pos;
-                            if distance.length().abs() <= t_deviation {
-                                can_meander_tag.wander_target = None;
-                                *state = ActionState::Success;
-                            } else {
-                                debug!(
-                                    "entity: {:?} not finished wandering too {:#?}",
-                                    can_meander_tag.wander_target, actor
-                                );
-                                // info!("we arent at the target position yet");
-                                *state = ActionState::Executing;
+                        match target_pos {
+                            Some(target_pos) => {
+                                let c_target_pos: Vec3 = target_pos;
+                                let distance = c_target_pos - cur_pos;
+                                if distance.length().abs() <= t_deviation {
+                                    can_meander_tag.wander_target = None;
+                                    *state = ActionState::Success;
+                                } else {
+                                    debug!(
+                                        "entity: {:?} not finished wandering too {:#?}",
+                                        can_meander_tag.wander_target, actor
+                                    );
+                                    // info!("we arent at the target position yet");
+                                    *state = ActionState::Executing;
+                                }
                             }
-                        } else if target_pos.is_none() {
-                            can_meander_tag.wander_target = Some(Vec3 {
-                                x: (spawn_pos.x + rng.gen_range(-300.0..=300.0)), //Rng::gen_range(&mut )),
-                                y: (spawn_pos.y + rng.gen_range(-300.0..=300.0)),
-                                z: ACTOR_LAYER,
-                            });
-                            *state = ActionState::Executing;
+                            None => {
+                                can_meander_tag.wander_target = Some(Vec3 {
+                                    x: (spawn_pos.x + rng.gen_range(-300.0..=300.0)), //Rng::gen_range(&mut )),
+                                    y: (spawn_pos.y + rng.gen_range(-300.0..=300.0)),
+                                    z: ACTOR_LAYER,
+                                });
+                                *state = ActionState::Executing;
+                                info!("no target pos")
+                            }
                         }
                     }
                     ActionState::Executing => {
-                        if target_pos.is_some() {
-                            let c_target_pos: Vec3 = target_pos.expect("");
-                            let distance = c_target_pos - cur_pos;
-                            if distance.length().abs() <= 60.0 {
-                                debug!("executing wander but target is already at wander target, retargetting");
-                                can_meander_tag.wander_target = None;
-                                *state = ActionState::Requested;
-                            } else {
-                                debug!(
-                                    "entity: {:?} wandering too {:#?}",
-                                    can_meander_tag.wander_target, actor
-                                );
-                                *velocity = Velocity::linear(
-                                    distance.normalize_or_zero().truncate() * 100.,
-                                );
+                        match target_pos {
+                            Some(target_pos) => {
+                                let c_target_pos: Vec3 = target_pos;
+                                let distance = c_target_pos - cur_pos;
+                                if distance.length().abs() <= 60.0 {
+                                    debug!("executing wander but target is already at wander target, retargetting");
+                                    can_meander_tag.wander_target = None;
+                                    *state = ActionState::Requested;
+                                } else {
+                                    debug!(
+                                        "entity: {:?} wandering too {:#?}",
+                                        can_meander_tag.wander_target, actor
+                                    );
+                                    *velocity = Velocity::linear(
+                                        distance.normalize_or_zero().truncate() * 100.,
+                                    );
+                                }
+                            }
+                            None => {
+                                info!("no target in executing actionstate")
                             }
                         }
+                        if target_pos.is_some() {}
                     }
                     ActionState::Success => {
                         // clear target, set velocity to None  // we actually dont want too succeed at this action because then the ai will just do nothing. if i set it too not be last resort action i bet it would work

@@ -22,10 +22,10 @@ use bevy_rapier2d::prelude::{
 
 use self::{
     actions::spawn_skeleton_button,
-    attack::{player_attack_sender, player_melee, player_shoot, PlayerAttackEvent},
+    attack::{player_melee, player_shoot_sender, PlayerShootEvent},
 };
 
-use super::weapons::WeaponSocket;
+use super::weapons::components::WeaponSocket;
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
@@ -42,7 +42,7 @@ pub struct PlayerPlugin;
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerAttackEvent>()
+        app.add_event::<PlayerShootEvent>()
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)
                     .with_system(spawn_player.label(SystemLabels::Spawn)),
@@ -53,9 +53,8 @@ impl Plugin for PlayerPlugin {
                     .with_system(camera_movement_system)
                     .with_system(player_sprint)
                     .with_system(spawn_skeleton_button)
-                    .with_system(player_attack_sender)
-                    .with_system(player_melee)
-                    .with_system(player_shoot),
+                    .with_system(player_shoot_sender)
+                    .with_system(player_melee),
             );
     }
 }

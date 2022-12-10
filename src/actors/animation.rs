@@ -8,6 +8,9 @@ use crate::{
     game::{GameStage, TimeInfo},
 };
 
+// TODO: redo player animations to be based on where the mouse cursor is pointing, not player velocity
+// this will probably look better and makes the player animations look a bit less funky
+
 /// plays animations for all actors with ([`ActorState`], [`AnimState`], [`AnimationSheet`], [`TextureAtlasSprite`])
 pub struct AnimationPlugin;
 

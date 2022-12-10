@@ -68,6 +68,7 @@ impl Default for MainMenuBundle {
         }
     }
 }
+
 pub fn main_menu_render(
     // This is a bevy feature which allows custom
     // parameters to be passed into a system.

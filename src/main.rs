@@ -9,7 +9,8 @@
 use audio::{Ambience, Music, Sound};
 use bevy::log::LogPlugin;
 use bevy::prelude::{
-    default, Camera2d, ClearColor, Color, ImagePlugin, OrthographicProjection, PluginGroup, Vec2,
+    default, Camera2d, ClearColor, Color, DetectChanges, ImagePlugin, OrthographicProjection,
+    PluginGroup, Vec2,
 };
 use bevy::window::{
     MonitorSelection, PresentMode, WindowPlugin, WindowPosition, WindowResizeConstraints,
@@ -44,7 +45,7 @@ pub mod loading;
 pub mod ui;
 pub mod utilities;
 
-pub fn main() {
+fn main() {
     println!("{}", append_info("vanillacoffee::main: Starting Game"));
     let mut vanillacoffee = App::new();
 

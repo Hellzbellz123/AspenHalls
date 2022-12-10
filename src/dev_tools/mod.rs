@@ -16,16 +16,14 @@ pub mod debug_plugin {
         shapes,
     };
     use bevy_rapier2d::{
-        prelude::{CollisionEvent, ContactForceEvent, *},
+        prelude::{CollisionEvent, ContactForceEvent},
         render::RapierDebugRenderPlugin,
     };
 
-    use leafwing_input_manager::prelude::ActionState;
     use std::time::Duration;
 
     use crate::{
         action_manager::actions::PlayerBindables,
-        actors::weapons::{DamageType, WeaponStats, WeaponTag},
         components::{
             actors::{
                 ai::{
@@ -33,7 +31,6 @@ pub mod debug_plugin {
                     ActorType, AggroScore, TypeEnum,
                 },
                 animation::{AnimState, AnimationSheet, FacingDirection},
-                bundles::RigidBodyBundle,
                 general::{CombatStats, DefenseStats, MovementState, Player, TimeToLive},
                 spawners::Spawner,
             },
@@ -41,11 +38,9 @@ pub mod debug_plugin {
         },
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
-        loading::assets::GameTextureHandles,
         ui::MenuState,
-        utilities::game::{SystemLabels, ACTOR_SIZE},
+        utilities::game::SystemLabels,
     };
-    use crate::{actors::weapons::WeaponBundle, components::actors::bundles::ActorColliderBundle};
 
     pub struct DebugPlugin;
 
@@ -96,7 +91,6 @@ pub mod debug_plugin {
                 .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
                 .add_system_set(
                     SystemSet::on_update(GameStage::Playing)
-                        .with_system(debug_f2_action)
                         .with_system(debug_visualize_spawner)
                         .after(SystemLabels::Spawn),
                 )
@@ -152,68 +146,6 @@ pub mod debug_plugin {
                     *transform,
                 );
             cmds.entity(entity).insert(spawner_visual_bundle);
-        }
-    }
-
-    pub fn debug_f2_action(
-        selected_player: Res<GameTextureHandles>,
-        query_action_state: Query<&ActionState<PlayerBindables>>,
-        mut cmds: Commands,
-    ) {
-        if !query_action_state.is_empty() {
-            let actions = query_action_state.get_single().expect("no ents?");
-
-            if actions.just_released(PlayerBindables::DebugF2) {
-                debug!("debug f2 action requested: spawn smg");
-
-                cmds.spawn((WeaponBundle {
-                    name: Name::new("SmallSMG"),
-                    tag: WeaponTag {
-                        parent: None,
-                        stored_weapon_slot: None,
-                    },
-                    weaponstats: WeaponStats {
-                        damage: 2.0,
-                        speed: 0.2,
-                    },
-                    damagetype: DamageType::KineticRanged,
-                    rigidbodybundle: RigidBodyBundle {
-                        rigidbody: RigidBody::Dynamic,
-                        velocity: Velocity::default(),
-                        friction: Friction::coefficient(0.7),
-                        howbouncy: Restitution::coefficient(0.3),
-                        massprop: ColliderMassProperties::Density(0.3),
-                        rotationlocks: LockedAxes::empty(),
-                        dampingprop: Damping {
-                            linear_damping: 1.0,
-                            angular_damping: 1.0,
-                        },
-                    },
-                    spritesheetbundle: SpriteSheetBundle {
-                        sprite: TextureAtlasSprite {
-                            custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-                            ..default()
-                        },
-                        texture_atlas: selected_player.small_smg.clone(),
-                        transform: Transform::from_xyz(-60.0, 1090.0, 8.0),
-                        ..default()
-                    },
-                },))
-                    .with_children(|child| {
-                        child.spawn((
-                            ActorColliderBundle {
-                                name: Name::new("SMGCollider"),
-                                transformbundle: TransformBundle::default(),
-                                collider: Collider::capsule(
-                                    Vec2 { x: 0.0, y: -32.1 },
-                                    Vec2 { x: 0.0, y: 17.0 },
-                                    4.0,
-                                ),
-                            },
-                            CollisionGroups::new(Group::NONE, Group::GROUP_30),
-                        ));
-                    });
-            }
         }
     }
 }
