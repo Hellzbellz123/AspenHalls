@@ -1,13 +1,16 @@
 use bevy::{prelude::*, render::camera::RenderTarget};
 use bevy_mouse_tracking_plugin::MainCamera;
 use chrono::Utc;
-use std::path::Path;
+
+use std::{path::Path, thread};
 
 pub mod game;
+pub mod log_to_file;
+mod vc_console;
 pub mod window;
 
 use self::game::AppSettings;
-use crate::audio::SoundSettings;
+use crate::{audio::SoundSettings, APP_SETTINGS_PATH};
 
 /// holds general game utilities
 /// not particularly related to gameplay
@@ -18,7 +21,8 @@ impl Plugin for UtilitiesPlugin {
         #[cfg(feature = "dev")]
         app.add_system(window::set_debug_title);
 
-        app.add_startup_system(window::set_window_icon)
+        app.add_plugin(vc_console::VCConsolePlugin)
+            .add_startup_system(window::set_window_icon)
             .insert_resource(EagerMousePos {
                 world: Vec2::ZERO,
                 window: Vec2::ZERO,
@@ -73,11 +77,11 @@ fn eager_cursor_pos(
             let world_pos: Vec2 = world_pos.truncate();
             fastmousepos.world = world_pos;
             fastmousepos.window = screen_pos;
-            info!("eager mouse update {}", world_pos);
+            // info!("eager mouse update {}", world_pos);
         } else {
             fastmousepos.world = Vec2::ZERO;
             fastmousepos.window = Vec2::ZERO;
-            info!("eager mouse not in window");
+            // info!("eager mouse not in window");
         }
     }
 }
@@ -91,27 +95,49 @@ pub fn despawn_with<T: Component>(to_despawn: Query<Entity, With<T>>, mut comman
 
 #[must_use]
 pub fn load_settings() -> AppSettings {
-    let settings_path = Path::new("./config.toml");
-    let target_settings = std::fs::read_to_string(settings_path); //File::open(settings_path);
+    let settings_path = Path::new(APP_SETTINGS_PATH);
+    let settings_file_path = std::fs::read_to_string(settings_path); //File::open(settings_path);
 
-    match target_settings {
-        Ok(_) => {
-            println!("{}", append_info("Game Settings loaded succesfully"));
-            let toml_cfg: AppSettings = toml::from_str(target_settings.unwrap().as_str())
-                .expect("error parsing config file");
-            AppSettings {
-                sound_settings: toml_cfg.sound_settings,
-                resolution: toml_cfg.resolution,
-                camera_zoom: toml_cfg.camera_zoom,
-            }
+    match settings_file_path {
+        // if settings file can be read
+        Ok(target_settings) => {
+            let toml_cfg: AppSettings =
+            match toml::from_str::<AppSettings>(target_settings.as_str()) {
+                Ok(toml_cfg) => {
+                    info!("Game Settings loaded from file succesfully");
+                    AppSettings {
+                        vsync: toml_cfg.vsync,
+                        frame_rate_target: toml_cfg.frame_rate_target,
+                        camera_zoom: toml_cfg.camera_zoom,
+                        resolution: toml_cfg.resolution,
+                        sound_settings: toml_cfg.sound_settings,
+                    }
+                },
+                    Err(toml_cfg) => {
+                        info!("There was an error deserializing `AppSettings`: {} at {}", toml_cfg, settings_path.display());
+                        save_default_settings();
+                        AppSettings {
+                            vsync: true,
+                            frame_rate_target: 60.0,
+                            camera_zoom: 1.0,
+                            resolution: Vec2 {
+                                x: 1200.0,
+                                y: 900.0,
+                            },
+                            sound_settings: SoundSettings {
+                                mastervolume: 1.0,
+                                ambiencevolume: 1.0,
+                                musicvolume: 1.0,
+                                soundvolume: 1.0,
+                            },
+                        }
+                    }
+                };
+            toml_cfg
         }
-        Err(_) => {
-            println!(
-                "{} {:?}, target file: {:?}",
-                append_info("there was an error reading app settings:"),
-                target_settings,
-                settings_path,
-            );
+        // if settings file cant be read cause it doesnt exit, no permissions, or other
+        Err(target_settings) => {
+            info!("there was an error: {} acessing settings file as: {}", target_settings, settings_path.display());
 
             let app_settings = AppSettings {
                 camera_zoom: 1.0,
@@ -125,21 +151,43 @@ pub fn load_settings() -> AppSettings {
                     musicvolume: 1.0,
                     soundvolume: 1.0,
                 },
+                vsync: true,
+                frame_rate_target: 60.0,
             };
-
-            let serial_cfg =
-                toml::to_string(&app_settings).expect("error converting config to string");
-            std::fs::write(settings_path, serial_cfg).expect("couldnt write file");
+            save_default_settings();
 
             app_settings
         }
     }
 }
 
-/// custom wrapper over format that outputs current time in rfc2822 and a green INFO tag
-// #[allow(unused_variables)]
-#[must_use]
-pub fn append_info(content: &str) -> String {
-    let time = Utc::now();
-    format!("{} \x1b[32mINFO\x1b[0m {content}", time.to_rfc2822())
+fn save_default_settings() {
+    let settings_path = Path::new(APP_SETTINGS_PATH);
+    let app_settings = AppSettings {
+        camera_zoom: 1.0,
+        resolution: Vec2 {
+            x: 1200.0,
+            y: 900.0,
+        },
+        sound_settings: SoundSettings {
+            mastervolume: 1.0,
+            ambiencevolume: 1.0,
+            musicvolume: 1.0,
+            soundvolume: 1.0,
+        },
+        vsync: true,
+        frame_rate_target: 60.0,
+    };
+    let thread_one = thread::spawn(move || save_settings(app_settings, settings_path));
+
+    if thread_one.is_finished() {
+        thread_one.join().expect("coulddnt join thread");
+        info!("MultiThreaded save complete");
+    }
+}
+
+fn save_settings(app_settings: AppSettings, settings_path: &Path) {
+    info!("Saving AppSettings, this overwrites current settings");
+    let serd_cfg = toml::to_string(&app_settings).expect("error converting config to string");
+    std::fs::write(settings_path, serd_cfg).expect("couldnt write file");
 }

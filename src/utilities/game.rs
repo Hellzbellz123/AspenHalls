@@ -38,8 +38,12 @@ pub enum SystemLabels {
 
 /// all game settings in metastruct
 /// make sure tables are AFTER single fields
-#[derive(Inspectable, Resource, Serialize, Deserialize)]
+#[derive(Inspectable, Resource, Serialize, Deserialize, Copy, Clone)]
 pub struct AppSettings {
+    /// enable vsync if true
+    pub vsync: bool,
+    /// framerate
+    pub frame_rate_target: f64,
     /// camera zooom
     pub camera_zoom: f32,
     /// display resolution
@@ -50,7 +54,7 @@ pub struct AppSettings {
 
 //TODO: default app settings if its a setting it goes here, move this too settings plugin
 impl FromWorld for AppSettings {
-    fn from_world(_w: &mut World) -> Self {
+    fn from_world(_: &mut World) -> Self {
         AppSettings {
             sound_settings: SoundSettings {
                 mastervolume: 0.2,
@@ -63,6 +67,8 @@ impl FromWorld for AppSettings {
                 y: 800.0,
             },
             camera_zoom: 1.0,
+            vsync: true,
+            frame_rate_target: 144.0,
         }
     }
 }

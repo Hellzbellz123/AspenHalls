@@ -1,15 +1,15 @@
 mod debug_dirs;
-
 // #[cfg(feature = "dev")]
 pub mod debug_plugin {
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-        prelude::{EventReader, *},
+        prelude::{App, EventReader, *},
     };
+    use bevy_debug_text_overlay::OverlayPlugin;
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
     use bevy_inspector_egui_rapier::InspectableRapierPlugin;
-
+    use bevy_mod_debugdump::{get_render_graph, get_render_schedule, get_schedule};
     use bevy_prototype_lyon::{
         prelude::{DrawMode, FillMode, GeometryBuilder},
         render::Shape,
@@ -19,8 +19,7 @@ pub mod debug_plugin {
         prelude::{CollisionEvent, ContactForceEvent},
         render::RapierDebugRenderPlugin,
     };
-
-    use std::time::Duration;
+    use std::{fs, time::Duration};
 
     use crate::{
         action_manager::actions::PlayerBindables,
@@ -49,6 +48,10 @@ pub mod debug_plugin {
             debugdir();
             app
                 // .add_plugin()
+                .add_plugin(OverlayPlugin {
+                    font_size: 32.0,
+                    ..Default::default()
+                })
                 .add_plugin(WorldInspectorPlugin::new())
                 .add_plugin(FrameTimeDiagnosticsPlugin::default())
                 .add_plugin(LogDiagnosticsPlugin {
@@ -95,6 +98,8 @@ pub mod debug_plugin {
                         .after(SystemLabels::Spawn),
                 )
                 .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)));
+            // .add_system(show_fps)
+            // .add_system(show_cursor_position);
         }
     }
 
@@ -148,7 +153,69 @@ pub mod debug_plugin {
             cmds.entity(entity).insert(spawner_visual_bundle);
         }
     }
+
+    // trunk-ignore(clippy/dead_code)
+    pub fn debug_dump_graphs(app: &mut App) {
+        let rsched = get_render_schedule(app);
+        let rgraph = get_render_graph(app);
+        let appsched = get_schedule(app);
+        fs::write("zrenderschedule.dot", rsched).expect("couldnt write render schedule to file");
+        fs::write("zrendergraph.dot", rgraph).expect("couldnt write render schedule to file");
+        fs::write("zappschedule.dot", appsched).expect("couldnt write render schedule to file");
+    }
 }
+
+// fn show_fps(time: Res<Time>, mut deltas: Local<Vec<f32>>, mut ring_ptr: Local<usize>) {
+//     let delta = time.delta_seconds_f64();
+//     let current_time = time.elapsed_seconds_f64();
+//     let at_interval = |t: f64| current_time % t < delta;
+//     if *ring_ptr >= 4096 {
+//         *ring_ptr = 0;
+//     }
+//     if deltas.len() <= *ring_ptr {
+//         deltas.push(time.delta_seconds());
+//     } else {
+//         deltas.insert(*ring_ptr, time.delta_seconds());
+//     }
+//     *ring_ptr += 1;
+//     if at_interval(2.0) {
+//         let fps = deltas.len() as f32 / deltas.iter().sum::<f32>();
+//         let last_fps = 1.0 / time.delta_seconds();
+//         screen_print!(col: Color::GREEN, "fps: {fps:.0}");
+//         screen_print!(col: Color::CYAN, "last: {last_fps:.0}");
+//     }
+// }
+
+// fn show_cursor_position(
+//     windows: Res<Windows>,
+//     time: Res<Time>,
+//     camera: Query<(
+//         &Camera,
+//         &GlobalTransform,
+//         (With<MainCamera>, With<MainCameraTag>),
+//     )>,
+// ) {
+//     let delta = time.delta_seconds_f64();
+//     let current_time = time.elapsed_seconds_f64();
+//     let at_interval = |t: f64| current_time % t < delta;
+//     if at_interval(0.5) {
+//         let (camera, camera_transform, _) = camera.single();
+//         if let RenderTarget::Window(window) = camera.target {
+//             let window = windows.get(window).unwrap();
+//             if let Some(screen_pos) = window.cursor_position() {
+//                 let window_size = Vec2::new(window.width(), window.height());
+//                 let ndc = (screen_pos / window_size) * 2.0 - Vec2::ONE;
+//                 let ndc_to_world =
+//                     camera_transform.compute_matrix() * camera.projection_matrix().inverse();
+//                 let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
+//                 let world_pos: Vec2 = world_pos.truncate();
+
+//                 screen_print!("World coords: {:.3}/{:.3}", world_pos.x, world_pos.y);
+//                 screen_print!("Window coords: {:.3}/{:.3}", screen_pos.x, screen_pos.y);
+//             }
+//         }
+//     }
+// }
 
 // fn log_collisions(mut events: EventReader<CollisionEvent>) {
 //     for event in events.iter() {

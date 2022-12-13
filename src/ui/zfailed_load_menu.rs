@@ -14,10 +14,10 @@ use crate::{
 
 pub fn failed_load_ui(
     mut commands: Commands,
+    assetserver: Res<AssetServer>,
     mut font_mapping: ResMut<FontMapping>,
-    fonts: Res<FontHandles>,
 ) {
-    font_mapping.set_default(fonts.fantasque_sans_msdf.clone());
+    font_mapping.set_default(assetserver.load("fonts/kttf/FantasqueSansMonoNF.kayak_font"));
 
     let mut widget_context = KayakRootContext::new();
     widget_context.add_plugin(KayakWidgetsContextPlugin);

@@ -13,6 +13,7 @@ use crate::{
     },
     game::GameStage,
     loading::assets::AudioHandles,
+    utilities::game::AppSettings,
 };
 
 /// music is played in this channel
@@ -26,13 +27,13 @@ pub struct Ambience;
 pub struct Sound;
 
 #[derive(Resource)]
-pub struct WalkingSound {
+pub struct WalkingSoundTimer {
     pub timer: Timer,
     pub is_first_time: bool,
 }
 //TODO: make this serialize into a settings.toml file in a saves folder
 /// modify to change sound volume settings
-#[derive(Inspectable, Debug, Serialize, Deserialize)]
+#[derive(Inspectable, Debug, Serialize, Deserialize, Copy, Clone)]
 pub struct SoundSettings {
     #[inspectable(min = 0.0, max = 1.0)]
     pub mastervolume: f64,
@@ -65,17 +66,30 @@ impl Plugin for InternalAudioPlugin {
             .add_audio_channel::<Music>()
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()
-            .insert_resource(WalkingSound {
+            .insert_resource(WalkingSoundTimer {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
             .add_system_set(
-                SystemSet::on_exit(GameStage::Loading).with_system(play_background_audio),
+                SystemSet::on_enter(GameStage::Menu).with_system(play_background_audio),
             )
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing).with_system(player_walking_sound_system),
-            );
+            )
+            .add_startup_system(setup_sound_volume);
     }
+}
+
+fn setup_sound_volume(
+    settings: ResMut<AppSettings>,
+    bgm: Res<AudioChannel<Music>>,
+    bga: Res<AudioChannel<Ambience>>,
+    bgs: Res<AudioChannel<Sound>>,
+) {
+    let mastervolume = &settings.sound_settings.mastervolume;
+    bgm.set_volume(settings.sound_settings.musicvolume * mastervolume);
+    bga.set_volume(settings.sound_settings.ambiencevolume * mastervolume);
+    bgs.set_volume(settings.sound_settings.soundvolume * mastervolume);
 }
 
 fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<Music>>) {
@@ -85,7 +99,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
 fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
     mut player_query: Query<&mut MovementState, With<Player>>,
-    mut walksound_res: ResMut<WalkingSound>,
+    mut walksound_res: ResMut<WalkingSoundTimer>,
     audio: Res<AudioChannel<Sound>>,
     time: Res<Time>,
 ) {

@@ -22,24 +22,33 @@ pub struct AudioHandles {
 }
 
 #[derive(AssetCollection, Resource, Clone)]
-pub struct GameTextureHandles {
+pub struct ActorTextureHandles {
     /// player character 1 texture handle
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "images/characters/heroes/rex-sheet.png")]
-    pub rex_full_sheet: Handle<TextureAtlas>,
-
-    /// first weapon, small smg
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 1, rows = 1))]
-    #[asset(path = "images/textures/sub_machine_gun.png")]
-    pub small_smg: Handle<TextureAtlas>,
+    #[asset(path = "textures/actors/heroes/rex-sheet.png")]
+    pub rex_sheet: Handle<TextureAtlas>,
 
     /// skeleton enermy icon
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "images/characters/enemies/skele-sheet.png")]
-    pub skele_full_sheet: Handle<TextureAtlas>,
+    #[asset(path = "textures/actors/enemies/skeleton-sheet.png")]
+    pub skeleton_sheet: Handle<TextureAtlas>,
+
+    /// skeleton enermy icon
+    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
+    #[asset(path = "textures/actors/enemies/slime-sheet.png")]
+    pub slime_sheet: Handle<TextureAtlas>,
+
+    /// first weapon, small smg
+    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 1, rows = 1))]
+    #[asset(path = "textures/actors/weapons/smallsmg.png")]
+    pub small_smg: Handle<TextureAtlas>,
+
+    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 1, rows = 1))]
+    #[asset(path = "textures/actors/weapons/smallpistol.png")]
+    pub small_pistol: Handle<TextureAtlas>,
 
     /// bevy icon
-    #[asset(path = "images/textures/bevy.png")]
+    #[asset(path = "textures/bevy.png")]
     pub bevy_icon: Handle<Image>,
 }
 

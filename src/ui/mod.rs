@@ -57,7 +57,7 @@ impl Plugin for UIPlugin {
             .add_plugin(KayakContextPlugin)
             .add_plugin(KayakWidgets)
             .add_system_set(
-                SystemSet::on_exit(GameStage::Loading)
+                SystemSet::on_enter(GameStage::Menu)
                     .with_system(despawn_with::<OnSplashScreen>)
                     .with_system(game_ui),
             )

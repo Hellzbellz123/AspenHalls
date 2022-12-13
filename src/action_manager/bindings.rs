@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-
 use bevy_mouse_tracking_plugin::prelude::MousePosPlugin;
 use leafwing_input_manager::prelude::*;
 

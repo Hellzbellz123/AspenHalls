@@ -64,14 +64,16 @@ pub fn zoom_control(
     mut settings: ResMut<AppSettings>,
     query_action_state: Query<&ActionState<PlayerBindables>>,
 ) {
-    if !query_action_state.is_empty() {
-        let actions = query_action_state.get_single().expect("no ents?");
+    if query_action_state.is_empty() {
+        return;
+    }
 
-        if actions.pressed(PlayerBindables::ZoomIn) {
-            settings.camera_zoom += 0.01;
-        } else if actions.pressed(PlayerBindables::ZoomOut) {
-            settings.camera_zoom -= 0.01;
-        }
+    let actions = query_action_state.get_single().expect("no player?");
+
+    if actions.pressed(PlayerBindables::ZoomIn) {
+        settings.camera_zoom += 0.01;
+    } else if actions.pressed(PlayerBindables::ZoomOut) {
+        settings.camera_zoom -= 0.01;
     }
 }
 

@@ -7,13 +7,13 @@ use crate::{
     action_manager::actions::PlayerBindables,
     components::actors::{
         general::Player,
-        spawners::{EnemyType, SpawnEvent},
+        spawners::{EnemyType, SpawnEnemyEvent},
     },
     utilities::game::ACTOR_LAYER,
 };
 
 pub fn spawn_skeleton_button(
-    mut eventwriter: EventWriter<SpawnEvent>,
+    mut eventwriter: EventWriter<SpawnEnemyEvent>,
     mouse: Res<MousePosWorld>,
     query_action_state: Query<&leafwingActionState<PlayerBindables>>,
     player_query: Query<(&Transform, With<Player>)>,
@@ -28,11 +28,9 @@ pub fn spawn_skeleton_button(
                 .abs()
                 .normalize_or_zero();
 
-            eventwriter.send(SpawnEvent {
+            eventwriter.send(SpawnEnemyEvent {
                 enemy_to_spawn: EnemyType::Skeleton,
-                spawn_position: Transform::from_translation(
-                    (player_transform + (direction)).extend(ACTOR_LAYER),
-                ),
+                spawn_position: (player_transform + (direction)).extend(ACTOR_LAYER),
                 spawn_count: 1,
             })
         };

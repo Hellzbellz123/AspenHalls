@@ -6,7 +6,7 @@ use bevy::{
 use crate::components::actors::{
     ai::AIEnemy,
     animation::{AnimState, AnimationSheet},
-    bundles::{RigidBodyBundle, SkeletonAiBundle},
+    bundles::{RigidBodyBundle, StupidAiBundle},
     general::MovementState,
 };
 
@@ -20,7 +20,24 @@ pub struct SkeletonBundle {
     pub sprite: TextureAtlasSprite,
     pub texture_atlas: Handle<TextureAtlas>,
     #[bundle]
-    pub brain: SkeletonAiBundle,
+    pub brain: StupidAiBundle,
+    #[bundle]
+    pub spatial: SpatialBundle,
+    #[bundle]
+    pub rigidbody: RigidBodyBundle,
+}
+
+#[derive(Bundle)]
+pub struct SlimeBundle {
+    pub name: Name,
+    pub actortype: AIEnemy,
+    pub actorstate: MovementState,
+    pub animation_state: AnimState,
+    pub available_animations: AnimationSheet,
+    pub sprite: TextureAtlasSprite,
+    pub texture_atlas: Handle<TextureAtlas>,
+    #[bundle]
+    pub brain: StupidAiBundle,
     #[bundle]
     pub spatial: SpatialBundle,
     #[bundle]
@@ -41,7 +58,7 @@ pub mod actions {
             general::{Player, TimeToLive},
         },
         game::TimeInfo,
-        loading::assets::GameTextureHandles,
+        loading::assets::ActorTextureHandles,
         utilities::game::{ACTOR_LAYER, ACTOR_PHYSICS_LAYER},
     };
 
@@ -49,7 +66,7 @@ pub mod actions {
         mut commands: Commands,
         timeinfo: Res<TimeInfo>,
         time: Res<Time>,
-        assets: ResMut<GameTextureHandles>,
+        assets: ResMut<ActorTextureHandles>,
         player_query: Query<&Transform, With<Player>>,
         mut query: Query<(&Transform, &mut AIAttackTimer), With<AIEnemy>>,
     ) {

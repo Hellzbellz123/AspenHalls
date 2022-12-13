@@ -1,60 +1,33 @@
-//TODO: refactor enemy spawning into events.
-// event should look kinda like
-//
-// struct SpawnSkeletonEvent {
-//     position_to_spawn: Vec3
-// }
-//
-// enemy spawner entity with position
-//struct SpawnerEntityBundle {
-//  transform: <>
-//  spawner: {
-//      Spawner {
-//          enemy_to_spawn: <>
-//          spawn_radius: <>
-//          max_enemy_in_area: <>
-//          spawn_timer: <>
-//  }
-//}
-//}
-// or possibly just a catch all event with what type of enemy to spawn along with position, amount to spawn should also be added, along with a radius, select random vector3 from within the radius and spawn 1 enemy at that point.
-//
-// Transform::from_xyz(
-//     rng.gen_range(-470.0..520.0),
-//     rng.gen_range(2818.0..3805.0),
-//     8.0,
-// ),
-//
-//not sure how to deal with enemys being spawned in colliders. can possible scan in each direction and move to whichever direction has the least amount of colliders? maybe check spawning positon for collider first, if no collider then spawn?
+//TODO: not sure how to deal with enemys being spawned in colliders. can possibly scan in each direction and move to
+//whichever direction has the least amount of colliders? maybe check spawning positon for collider first, if no collider then spawn?
 
+// after some more digging bevy_rapier has a raycast shape function, i think what i will do is raycast down on the position and check if it
+// collides, if collideshape doesnt collide then spawn, if does collide pick new positon 40 or so pixels in any direction
 use bevy::{prelude::*, time::Timer};
-use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution, Velocity,
-};
-use big_brain::thinker::Thinker;
 
 use crate::{
-    actors::enemies::skeleton::SkeletonBundle,
+    actors::spawners::{zenemy_spawners::{spawn_skeleton, spawn_slime}, zweapon_spawner::spawn_smallsmg},
     components::actors::{
-        ai::{
-            AIAttackTimer, AICanChase, AICanWander, AIChaseAction, AIEnemy, AIWanderAction,
-            ActorType, AggroScore, TypeEnum,
+        ai::AIEnemy,
+        spawners::{
+            EnemyContainerTag, EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, Spawner, SpawnerTimer,
+            WeaponType,
         },
-        animation::{AnimState, AnimationSheet, FacingDirection},
-        bundles::{ActorColliderBundle, RigidBodyBundle, SkeletonAiBundle},
-        general::MovementState,
-        spawners::{EnemyContainerTag, EnemyType, SpawnEvent, Spawner, SpawnerTimer},
     },
     game::GameStage,
-    loading::assets::GameTextureHandles,
-    utilities::game::{SystemLabels, ACTOR_PHYSICS_LAYER, ACTOR_SIZE, MAX_ENEMIES},
+    loading::assets::ActorTextureHandles,
+    utilities::game::{SystemLabels, MAX_ENEMIES},
 };
+
+mod zenemy_spawners;
+mod zweapon_spawner;
 
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEvent>()
+        app.add_event::<SpawnWeaponEvent>()
+            .add_event::<SpawnEnemyEvent>()
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)
                     .with_system(on_enter)
@@ -62,12 +35,81 @@ impl Plugin for SpawnerPlugin {
             )
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
-                    .with_system(catch_spawn_event)
+                    .with_system(recieve_enemy_spawns)
+                    .with_system(recieve_weapon_spawns)
                     .with_system(spawn_timer_system),
             );
     }
 }
 
+
+///TODO: can cause panick if spawncount is larger than 100
+fn recieve_enemy_spawns(
+    entity_container: Query<Entity, With<EnemyContainerTag>>,
+    mut events: EventReader<SpawnEnemyEvent>,
+    mut commands: Commands,
+    enemyassets: Res<ActorTextureHandles>,
+) {
+    for event in events.iter() {
+        info!("recieved event: {:#?}", event);
+        if event.spawn_count > 100 {
+            warn!("too many spawns, will likely panick, aborting");
+            return;
+        }
+        match event.enemy_to_spawn {
+            EnemyType::Skeleton => {
+                for _eventnum in 0..event.spawn_count {
+                    spawn_skeleton(
+                        entity_container.single(),
+                        &mut commands,
+                        enemyassets.to_owned(),
+                        event,
+                    )
+                }
+            }
+            EnemyType::Slime => {
+                for _eventnum in 0..event.spawn_count {
+                    spawn_slime(
+                        entity_container.single(),
+                        &mut commands,
+                        enemyassets.to_owned(),
+                        event,
+                    )
+                }
+            },
+            _ => {
+                warn!("not implemented yet")
+            }
+        }
+    }
+}
+
+///TODO: can cause panick if spawncount is larger than 100
+fn recieve_weapon_spawns(
+    mut events: EventReader<SpawnWeaponEvent>,
+    mut commands: Commands,
+    enemyassets: Res<ActorTextureHandles>,
+) {
+    for event in events.iter() {
+        info!("recieved event: {:#?}", event);
+        match event.weapon_to_spawn {
+            WeaponType::SmallSMG => {
+                for _spawncount in 0..event.spawn_count {
+                                        if event.spawn_count > 100 {
+                        warn!("too many spawns, will likely panick, aborting");
+                        return;
+                    }
+                    spawn_smallsmg(enemyassets.to_owned(), &mut commands, event)
+                }
+            }
+            _ => {
+                warn!("not implemented yet")
+            }
+        }
+    }
+}
+
+/// creates enemy container entity, all enemys are parented to this container
 pub fn on_enter(mut cmds: Commands) {
     info!("spawning enemy container");
     cmds.spawn((
@@ -80,13 +122,12 @@ pub fn on_enter(mut cmds: Commands) {
         },
     ));
 
-    // spawn spawner at x: -644.16, y: 2342, z: 9.0
-    // spawn spawner at x: 47, y: 3293, z: 8.0
-    info!("spawning entity spawners");
+    //TODO: make this an entity thats placed in ldtk.
+    info!("spawning enemy spawners");
     cmds.spawn((
         Name::new("SpawnerOutside"),
         Spawner {
-            enemy_to_spawn: EnemyType::Skeleton,
+            enemytype: EnemyType::Skeleton,
             spawn_radius: 300.0,
             max_enemies: 7,
         },
@@ -99,129 +140,20 @@ pub fn on_enter(mut cmds: Commands) {
 }
 
 pub fn spawn_timer_system(
-    _ew: EventWriter<SpawnEvent>,
+    mut ew: EventWriter<SpawnEnemyEvent>,
     spawner_query: Query<(&Transform, &Spawner), With<Spawner>>,
     enemy_count: Query<(Entity,), With<AIEnemy>>,
 ) {
-    if enemy_count.iter().len() < MAX_ENEMIES {
-        for (_transform, spawner) in spawner_query.iter() {
-            for _spawn_to_send in 0..spawner.max_enemies {
-                // ew.send(SpawnEvent {
-                //     enemy_to_spawn: EnemyType::Skeleton,
-                //     spawn_position: (transform.translation),
-                //     spawn_count: 1,
-                // });
-            }
-        }
+    if enemy_count.iter().len() >= MAX_ENEMIES {
+        return;
     }
-}
-
-pub fn catch_spawn_event(
-    entity_container: Query<Entity, With<EnemyContainerTag>>,
-    mut events: EventReader<SpawnEvent>,
-    mut commands: Commands,
-    enemyassets: Res<GameTextureHandles>,
-) {
-    for event in events.iter() {
-        info!("recieved event: {:#?}", event);
-        match event.enemy_to_spawn {
-            EnemyType::Skeleton => {
-                for _eventnum in 0..event.spawn_count {
-                    commands
-                        .get_entity(entity_container.single())
-                        .expect("should always be atleast one entity container. if this panics we probably made more than 1")
-                        .add_children(|parent| {
-                            parent
-                                .spawn((
-                                    SkeletonBundle {
-                                        name: Name::new("SkeletonfromSpawner"),
-                                        actortype: AIEnemy,
-                                        actorstate: MovementState {
-                                            speed: 100.0,
-                                            sprint_available: false,
-                                            facing: FacingDirection::Idle,
-                                            just_moved: false,
-                                        },
-                                        animation_state: AnimState {
-                                            timer: Timer::from_seconds(0.2, TimerMode::Repeating),
-                                            current_frames: vec![0, 1, 2, 3, 4],
-                                            current_frame: 0,
-                                        },
-                                        available_animations: AnimationSheet {
-                                            handle: enemyassets.skele_full_sheet.clone(),
-                                            idle_animation: [0, 1, 2, 3, 4],
-                                            down_animation: [5, 6, 7, 8, 9],
-                                            up_animation: [10, 11, 12, 13, 14],
-                                            right_animation: [15, 16, 17, 18, 19],
-                                        },
-                                        sprite: TextureAtlasSprite {
-                                            custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-                                            ..default()
-                                        },
-                                        texture_atlas: enemyassets.skele_full_sheet.clone(),
-                                        rigidbody: RigidBodyBundle {
-                                            rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
-                                            velocity: Velocity::zero(),
-                                            friction: Friction::coefficient(0.7),
-                                            howbouncy: Restitution::coefficient(0.3),
-                                            massprop: ColliderMassProperties::Density(0.3),
-                                            rotationlocks: LockedAxes::ROTATION_LOCKED,
-                                            dampingprop: Damping {
-                                                linear_damping: 1.0,
-                                                angular_damping: 1.0,
-                                            },
-                                        },
-                                        brain: SkeletonAiBundle {
-                                            actortype: ActorType(TypeEnum::Enemy),
-                                            aggrodistance: AICanChase { aggro_distance: 200.0 },
-                                            canmeander: AICanWander { wander_target: None, spawn_position: Some(event.spawn_position.translation) },
-                                            aiattacktimer: AIAttackTimer {
-                                                timer: Timer::from_seconds(
-                                                    9.5,
-                                                    TimerMode::Repeating,
-                                                ),
-                                                is_attacking: false,
-                                                is_near: false,
-                                            },
-                                            thinker: Thinker::build()
-                                                .picker(big_brain::pickers::Highest)
-                                                .when(AggroScore, AIChaseAction)
-                                                .otherwise(AIWanderAction),
-                                        },
-                                        spatial: SpatialBundle {
-                                            transform: Transform {
-                                                translation: event.spawn_position.translation,
-                                                rotation: Quat::default(),
-                                                scale: Vec3::ONE,
-                                            },
-                                            ..default()
-                                        },
-                                    },
-                                ))
-                                .with_children(|child| {
-                                    child.spawn(ActorColliderBundle {
-                                        name: Name::new("SkeletonCollider"),
-                                        transformbundle: TransformBundle {
-                                            local: (
-                                                Transform {
-                                                translation: (Vec3 {
-                                                x: 0.,
-                                                    y: -5.,
-                                                    z: ACTOR_PHYSICS_LAYER,
-                                            }),
-                                                ..default()
-                                            }),
-                                            ..default()
-                                        },
-                                        collider: Collider::capsule_y(10.4, 13.12),
-                                    });
-                                });
-                        });
-                }
-            }
-            _ => {
-                warn!("not implemented yet")
-            }
+    for (transform, spawner) in spawner_query.iter() {
+        for _enemy_to_spawn in 0..spawner.max_enemies {
+            ew.send(SpawnEnemyEvent {
+                enemy_to_spawn: spawner.enemytype,
+                spawn_position: (transform.translation),
+                spawn_count: 1,
+            });
         }
     }
 }

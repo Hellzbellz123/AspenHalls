@@ -10,7 +10,7 @@ use crate::{
         general::{CombatStats, DefenseStats, MovementState, Player},
     },
     game::GameStage,
-    loading::assets::GameTextureHandles,
+    loading::assets::ActorTextureHandles,
     utilities::game::{SystemLabels, ACTOR_LAYER},
     utilities::game::{ACTOR_PHYSICS_LAYER, ACTOR_SIZE},
 };
@@ -22,7 +22,7 @@ use bevy_rapier2d::prelude::{
 
 use self::{
     actions::spawn_skeleton_button,
-    attack::{player_melee, player_shoot_sender, PlayerShootEvent},
+    attack::{player_attack_sender, PlayerMeleeEvent, PlayerShootEvent},
 };
 
 use super::weapons::components::WeaponSocket;
@@ -42,7 +42,8 @@ pub struct PlayerPlugin;
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerShootEvent>()
+        app.add_event::<PlayerMeleeEvent>()
+            .add_event::<PlayerShootEvent>()
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)
                     .with_system(spawn_player.label(SystemLabels::Spawn)),
@@ -53,8 +54,7 @@ impl Plugin for PlayerPlugin {
                     .with_system(camera_movement_system)
                     .with_system(player_sprint)
                     .with_system(spawn_skeleton_button)
-                    .with_system(player_shoot_sender)
-                    .with_system(player_melee),
+                    .with_system(player_attack_sender),
             );
     }
 }
@@ -81,7 +81,7 @@ pub struct PlayerBundle {
     rigidbody: RigidBodyBundle,
 }
 
-pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHandles>) {
+pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
     info!("spawning player");
     commands
         .spawn((PlayerBundle {
@@ -102,7 +102,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHand
                 current_frame: 0,
             },
             available_animations: AnimationSheet {
-                handle: selected_player.rex_full_sheet.clone(),
+                handle: selected_player.rex_sheet.clone(),
                 idle_animation: [0, 1, 2, 3, 4],
                 down_animation: [5, 6, 7, 8, 9],
                 up_animation: [10, 11, 12, 13, 14],
@@ -134,7 +134,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<GameTextureHand
                 custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
                 ..default()
             },
-            texture_atlas: selected_player.rex_full_sheet.clone(),
+            texture_atlas: selected_player.rex_sheet.clone(),
             spatial: SpatialBundle {
                 transform: (Transform {
                     translation: Vec3 {

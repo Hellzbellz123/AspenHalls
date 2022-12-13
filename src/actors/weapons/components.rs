@@ -5,25 +5,26 @@ use bevy::{
 };
 use bevy_rapier2d::prelude::{Collider, CollisionGroups};
 
-use crate::components::actors::bundles::RigidBodyBundle;
+use crate::components::actors::{bundles::RigidBodyBundle, spawners::WeaponType};
 
 #[derive(Bundle)]
 pub struct WeaponBundle {
     pub name: Name,
     pub tag: WeaponTag,
+    pub weapontype: WeaponType,
     pub weaponstats: WeaponStats,
     pub damagetype: DamageType,
     pub sprite: TextureAtlasSprite,
     pub texture: Handle<TextureAtlas>,
     pub spatial: SpatialBundle,
+    pub rigidbodybundle: RigidBodyBundle,
 }
 
 #[derive(Bundle)]
-pub struct WeaponPhysicsBundle {
+pub struct WeaponColliderBundle {
     pub name: Name,
     pub collider: Collider,
     pub cgroups: CollisionGroups,
-    pub rigidbodybundle: RigidBodyBundle,
     pub transformbundle: TransformBundle,
 }
 

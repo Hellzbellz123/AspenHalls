@@ -1,14 +1,21 @@
+pub mod error;
+
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 pub mod actors {
     pub mod spawners {
+
+        use std::str::FromStr;
+
         use bevy::{
-            prelude::{Component, Deref, DerefMut, ReflectComponent, Transform},
+            prelude::{Component, Deref, DerefMut, ReflectComponent, Vec3},
             reflect::Reflect,
             time::Timer,
         };
         use bevy_inspector_egui::Inspectable;
+
+        use crate::components::error::ParseEnemyTypeError;
 
         #[derive(Component)]
         pub struct EnemyContainerTag;
@@ -16,25 +23,69 @@ pub mod actors {
         #[derive(Debug, Component, DerefMut, Deref)]
         pub struct SpawnerTimer(pub Timer);
 
-        #[derive(Component, Inspectable, Debug, Reflect, Default)]
+        #[derive(Component, Inspectable, Debug, Reflect, Default, Clone, Copy)]
         pub enum EnemyType {
             #[default]
             Skeleton,
             Slime,
         }
 
+        impl FromStr for EnemyType {
+            type Err = ParseEnemyTypeError;
+            fn from_str(input: &str) -> Result<EnemyType, Self::Err> {
+                match input.to_lowercase().as_str() {
+                    "skeleton" => Ok(EnemyType::Skeleton),
+                    "slime" => Ok(EnemyType::Slime),
+                    _ => Err(ParseEnemyTypeError),
+                }
+            }
+        }
+
+        #[derive(Component, Inspectable, Debug, Reflect, Default, Clone, Copy)]
+        pub enum WeaponType {
+            #[default]
+            SmallSMG,
+            Pistol,
+        }
+
+        impl FromStr for WeaponType {
+            type Err = ParseEnemyTypeError;
+            fn from_str(input: &str) -> Result<WeaponType, Self::Err> {
+                match input {
+                    "pistol" => Ok(WeaponType::Pistol),
+                    "smallsmg" => Ok(WeaponType::SmallSMG),
+                    _ => Err(ParseEnemyTypeError),
+                }
+            }
+        }
+
+        #[derive(Component, Inspectable, Debug, Reflect)]
+        pub enum SpawnType {
+            Item,
+            Weapon,
+            EnemyType,
+        }
+
         #[derive(Component, Inspectable)]
         pub struct Spawner {
-            pub enemy_to_spawn: EnemyType,
+            pub enemytype: EnemyType,
             pub spawn_radius: f32,
             pub max_enemies: i32,
         }
 
         #[derive(Component, Debug, Reflect, Default)]
         #[reflect(Component)]
-        pub struct SpawnEvent {
+        pub struct SpawnEnemyEvent {
             pub enemy_to_spawn: EnemyType,
-            pub spawn_position: Transform,
+            pub spawn_position: Vec3,
+            pub spawn_count: i32,
+        }
+
+        #[derive(Component, Debug, Reflect, Default)]
+        #[reflect(Component)]
+        pub struct SpawnWeaponEvent {
+            pub weapon_to_spawn: WeaponType,
+            pub spawn_position: Vec3,
             pub spawn_count: i32,
         }
     }
@@ -48,7 +99,7 @@ pub mod actors {
         use big_brain::thinker::ThinkerBuilder;
 
         #[derive(Bundle)]
-        pub struct SkeletonAiBundle {
+        pub struct StupidAiBundle {
             pub actortype: ActorType,
             pub aggrodistance: AICanChase,
             pub canmeander: AICanWander,
@@ -102,7 +153,10 @@ pub mod actors {
         pub struct ActorType(pub TypeEnum);
 
         #[derive(Component, Inspectable)]
-        pub struct AIEnemy;
+        pub enum AIEnemy {
+            Skeleton,
+            Slime,
+        }
 
         /// enemies that can chase
         #[derive(Component, Default, Clone, Debug, Inspectable)]
