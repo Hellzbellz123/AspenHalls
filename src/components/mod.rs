@@ -45,14 +45,14 @@ pub mod actors {
         pub enum WeaponType {
             #[default]
             SmallSMG,
-            Pistol,
+            SmallPistol,
         }
 
         impl FromStr for WeaponType {
             type Err = ParseEnemyTypeError;
             fn from_str(input: &str) -> Result<WeaponType, Self::Err> {
                 match input {
-                    "pistol" => Ok(WeaponType::Pistol),
+                    "smallpistol" => Ok(WeaponType::SmallPistol),
                     "smallsmg" => Ok(WeaponType::SmallSMG),
                     _ => Err(ParseEnemyTypeError),
                 }

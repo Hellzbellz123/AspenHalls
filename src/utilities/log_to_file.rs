@@ -66,7 +66,7 @@ impl Default for VCLogPlugin {
     fn default() -> Self {
         Self {
             filter: "wgpu=error".to_string(),
-            level: Level::INFO,
+            level: Level::TRACE,
         }
     }
 }
@@ -84,7 +84,7 @@ impl Plugin for VCLogPlugin {
         let subscriber = Registry::default()
             .with(filter_layer)
             .with(tracing_error::ErrorLayer::default());
-        let stdout_log = tracing_subscriber::fmt::layer().pretty();
+        let stdout_log = tracing_subscriber::fmt::layer();
 
         #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android")))]
         {
@@ -92,7 +92,7 @@ impl Plugin for VCLogPlugin {
             let file = File::create("debug.log");
             let file = match file {
                 Ok(file) => file,
-                Err(error) => panic!("Error: {:?}", error),
+                Err(error) => panic!("Error: {error:?}"),
             };
             let debug_log = tracing_subscriber::fmt::layer()
                 .pretty()

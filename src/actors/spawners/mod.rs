@@ -6,7 +6,10 @@
 use bevy::{prelude::*, time::Timer};
 
 use crate::{
-    actors::spawners::{zenemy_spawners::{spawn_skeleton, spawn_slime}, zweapon_spawner::spawn_smallsmg},
+    actors::spawners::{
+        zenemy_spawners::{spawn_skeleton, spawn_slime},
+        zweapon_spawner::{spawn_smallpistol, spawn_smallsmg},
+    },
     components::actors::{
         ai::AIEnemy,
         spawners::{
@@ -42,7 +45,6 @@ impl Plugin for SpawnerPlugin {
     }
 }
 
-
 ///TODO: can cause panick if spawncount is larger than 100
 fn recieve_enemy_spawns(
     entity_container: Query<Entity, With<EnemyContainerTag>>,
@@ -62,7 +64,7 @@ fn recieve_enemy_spawns(
                     spawn_skeleton(
                         entity_container.single(),
                         &mut commands,
-                        enemyassets.to_owned(),
+                        enemyassets.as_ref(),
                         event,
                     )
                 }
@@ -72,11 +74,12 @@ fn recieve_enemy_spawns(
                     spawn_slime(
                         entity_container.single(),
                         &mut commands,
-                        enemyassets.to_owned(),
+                        enemyassets.as_ref(),
                         event,
                     )
                 }
-            },
+            }
+            #[allow(unreachable_patterns)]
             _ => {
                 warn!("not implemented yet")
             }
@@ -95,13 +98,23 @@ fn recieve_weapon_spawns(
         match event.weapon_to_spawn {
             WeaponType::SmallSMG => {
                 for _spawncount in 0..event.spawn_count {
-                                        if event.spawn_count > 100 {
+                    if event.spawn_count > 100 {
                         warn!("too many spawns, will likely panick, aborting");
                         return;
                     }
                     spawn_smallsmg(enemyassets.to_owned(), &mut commands, event)
                 }
             }
+            WeaponType::SmallPistol => {
+                for _spawncount in 0..event.spawn_count {
+                    if event.spawn_count > 100 {
+                        warn!("too many spawns, will likely panick, aborting");
+                        return;
+                    }
+                    spawn_smallpistol(enemyassets.to_owned(), &mut commands, event)
+                }
+            }
+            #[allow(unreachable_patterns)]
             _ => {
                 warn!("not implemented yet")
             }
@@ -140,20 +153,20 @@ pub fn on_enter(mut cmds: Commands) {
 }
 
 pub fn spawn_timer_system(
-    mut ew: EventWriter<SpawnEnemyEvent>,
+    _ew: EventWriter<SpawnEnemyEvent>,
     spawner_query: Query<(&Transform, &Spawner), With<Spawner>>,
     enemy_count: Query<(Entity,), With<AIEnemy>>,
 ) {
     if enemy_count.iter().len() >= MAX_ENEMIES {
         return;
     }
-    for (transform, spawner) in spawner_query.iter() {
+    for (_transform, spawner) in spawner_query.iter() {
         for _enemy_to_spawn in 0..spawner.max_enemies {
-            ew.send(SpawnEnemyEvent {
-                enemy_to_spawn: spawner.enemytype,
-                spawn_position: (transform.translation),
-                spawn_count: 1,
-            });
+            // ew.send(SpawnEnemyEvent {
+            //     enemy_to_spawn: spawner.enemytype,
+            //     spawn_position: (transform.translation),
+            //     spawn_count: 1,
+            // });
         }
     }
 }

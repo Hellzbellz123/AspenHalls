@@ -27,6 +27,7 @@ impl Plugin for VCConsolePlugin {
     }
 }
 
+// TODO: make this a macro or just a simple oneshot, is tricky to do events.
 fn write_to_console(mut console_line: EventWriter<PrintConsoleLine>) {
     console_line.send(PrintConsoleLine::new("Hello".to_string()));
 }

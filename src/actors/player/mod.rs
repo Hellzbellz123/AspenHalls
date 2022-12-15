@@ -1,8 +1,11 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::hashbrown::HashMap};
 
 use crate::{
     action_manager::bindings::PlayerInput,
-    actors::player::movement::{camera_movement_system, player_movement_system, player_sprint},
+    actors::{
+        player::movement::{camera_movement_system, player_movement_system, player_sprint},
+        weapons::components::WeaponSlots,
+    },
     components::actors::{animation::FacingDirection, bundles::ActorColliderBundle},
     components::actors::{
         animation::{AnimState, AnimationSheet},
@@ -21,7 +24,7 @@ use bevy_rapier2d::prelude::{
 };
 
 use self::{
-    actions::spawn_skeleton_button,
+    actions::{equip_closest_weapon, spawn_skeleton_button},
     attack::{player_attack_sender, PlayerMeleeEvent, PlayerShootEvent},
 };
 
@@ -54,7 +57,8 @@ impl Plugin for PlayerPlugin {
                     .with_system(camera_movement_system)
                     .with_system(player_sprint)
                     .with_system(spawn_skeleton_button)
-                    .with_system(player_attack_sender),
+                    .with_system(player_attack_sender)
+                    .with_system(equip_closest_weapon),
             );
     }
 }
@@ -150,9 +154,8 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             },
             player_input_map: PlayerInput::default(),
             weapon_socket: WeaponSocket {
-                weapon_slots: 4,
-                attached_weapon: None, // entity id of currently equipped weapon
-                currently_equipped: None, // weapon slot thats currently active out of total weapon slots
+                drawn_slot: WeaponSlots::Slot1, // entity id of currently equipped weapon
+                weapon_slots: init_weapon_slots(),
             },
         },))
         .with_children(|child| {
@@ -181,4 +184,14 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                 PlayerColliderTag, // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.
             ));
         });
+}
+
+pub fn init_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
+    let mut weaponslots = HashMap::new();
+    weaponslots.insert(WeaponSlots::Slot1, None::<Entity>);
+    weaponslots.insert(WeaponSlots::Slot2, None::<Entity>);
+    weaponslots.insert(WeaponSlots::Slot3, None::<Entity>);
+    weaponslots.insert(WeaponSlots::Slot4, None::<Entity>);
+    warn!("{:#?}", weaponslots);
+    weaponslots
 }

@@ -8,8 +8,10 @@ use bevy_rapier2d::prelude::{
     ActiveEvents, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, Group,
     LockedAxes, Restitution, RigidBody, Sensor, Velocity,
 };
+use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
+    action_manager::actions::PlayerActions,
     actors::weapons::components::CurrentlyDrawnWeapon,
     components::actors::{
         animation::FacingDirection,
@@ -24,7 +26,7 @@ use crate::{
     },
 };
 
-use self::components::{WeaponSocket, WeaponTag};
+use self::components::{WeaponSlots, WeaponSocket, WeaponTag};
 
 use super::player::attack::PlayerShootEvent;
 
@@ -34,49 +36,13 @@ impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_update(GameStage::Playing)
-                .with_system(manage_weapon_sockets)
                 .with_system(rotate_player_weapon)
+                .with_system(weapon_visiblity_system)
+                .with_system(update_equipped_weapon)
+                .with_system(keep_player_weapons_centered)
                 .with_system(shoot_weapon)
                 .after(SystemLabels::Spawn),
         );
-    }
-}
-
-fn manage_weapon_sockets(
-    mut cmds: Commands,
-    mut player_query: Query<(Entity, &mut WeaponSocket, &mut Transform), With<Player>>,
-    #[allow(clippy::type_complexity)] mut weapon_query: Query<
-        (Entity, &mut WeaponTag, &mut Transform),
-        Without<Player>,
-    >,
-) {
-    if !player_query.is_empty() {
-        let (playerentity, mut weaponsocket_on_player, ptransform) = player_query.single_mut();
-        if weaponsocket_on_player.attached_weapon.is_none() {
-            for (weapon, mut weapontag, mut wtransform) in weapon_query.iter_mut() {
-                let distance = (ptransform.translation - wtransform.translation)
-                    .length()
-                    .abs();
-                if distance < 50.0 {
-                    info!("parenting weapon: {:?} to player", weapon);
-                    cmds.entity(playerentity).push_children(&[weapon]);
-                    weapontag.parent = Some(playerentity);
-                    weaponsocket_on_player.attached_weapon = Some(weapon);
-                    wtransform.translation = Vec3::ZERO
-                        + Vec3 {
-                            x: 0.0,
-                            y: 1.5,
-                            z: 1.0,
-                        };
-                    cmds.entity(weapon)
-                        .insert(CurrentlyDrawnWeapon)
-                        .despawn_descendants()
-                    // cmds.entity(weapon).remove_children();
-                } else {
-                    info!("no weapon in range");
-                };
-            }
-        }
     }
 }
 
@@ -100,7 +66,7 @@ fn rotate_player_weapon(
 
     for (wtag, wgtransform, mut wtransform) in weapon_query.iter_mut() {
         if wtag.parent.is_some() {
-            let (playerstate, _) = player_query.single_mut();
+            let (_playerstate, _) = player_query.single_mut();
             let gmousepos = vec2(gmouse.x, gmouse.y);
             let gweaponpos: Vec2 = wgtransform.compute_transform().translation.truncate();
             let lookdir: Vec2 = (gmousepos - gweaponpos).normalize_or_zero();
@@ -112,7 +78,29 @@ fn rotate_player_weapon(
             } else {
                 wtransform.scale.x = 1.0
             }
+            *wtransform.rotation = *(Quat::from_euler(EulerRot::ZYX, aimangle, 0.0, 0.0));
+        }
+    }
+}
 
+fn keep_player_weapons_centered(
+    mut player_query: Query<(&mut MovementState, With<Player>)>,
+
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    mut weapon_query: Query<
+        // this is equivelent to if player has a weapon equipped and out
+        (&mut WeaponTag, &mut Transform),
+        (With<Parent>, Without<Player>),
+    >,
+) {
+    if weapon_query.is_empty() {
+        return;
+    }
+
+    for (wtag, mut wtransform) in weapon_query.iter_mut() {
+        if wtag.parent.is_some() {
+            let (playerstate, _) = player_query.single_mut();
             // modify weapon sprite to be below player when facing up, this still looks strange but looks better than a back mounted smg
             if playerstate.facing == FacingDirection::Up {
                 wtransform.translation = Vec3 {
@@ -127,8 +115,116 @@ fn rotate_player_weapon(
                     z: ACTOR_LAYER,
                 }
             }
+        }
+    }
+}
 
-            *wtransform.rotation = *(Quat::from_euler(EulerRot::ZYX, aimangle, 0.0, 0.0));
+// check if the weapon is supposed to be visible
+fn weapon_visiblity_system(
+    player_query: Query<(&WeaponSocket, &Transform), With<Player>>,
+    mut weapon_query: Query<(&WeaponTag, &mut Visibility), With<Parent>>, // query weapons parented to entitys
+) {
+    let (p_weaponsocket, _ptransform) = player_query.single();
+    for (wtag, mut wvisiblity) in weapon_query.iter_mut() {
+        if wtag.stored_weapon_slot == Some(p_weaponsocket.drawn_slot) {
+            wvisiblity.is_visible = true;
+        } else {
+            wvisiblity.is_visible = false;
+        }
+    }
+}
+
+fn update_equipped_weapon(
+    mut cmds: Commands,
+    query_action_state: Query<&ActionState<PlayerActions>>,
+    mut player_query: Query<(Entity, &mut WeaponSocket, &mut Transform), With<Player>>,
+
+    drawn_weapon: Query<&CurrentlyDrawnWeapon>,
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    weapon_query: Query<
+        (Entity, &mut WeaponTag, &mut Transform),
+        (With<Parent>, Without<Player>),
+    >,
+) {
+    if player_query.is_empty() | weapon_query.is_empty() | query_action_state.is_empty() {
+        return;
+    }
+
+    let (_ent, mut wsocket, _transform) = player_query.single_mut();
+    let actions = query_action_state.single();
+
+    // TODO: this mostly works, but we need to have a system that checks if the current equippped weapon has a CurrentlyDrawnWeapon and adds it if it doesnt
+    // a default is basically what we need, so a weapon is always out if available i guess
+    if actions.just_pressed(PlayerActions::EquipSlot1) {
+        // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove CurrentlyDrawnWeapon from old weapon
+        wsocket.drawn_slot = WeaponSlots::Slot1;
+        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
+        let newwep = currently_equipped_from_hashmap(current_weapon_slots, &wsocket, &drawn_weapon, &mut cmds);
+
+        if let Some(ent) = newwep {
+            cmds.entity(ent).insert(CurrentlyDrawnWeapon);
+            info!("equipping slot 1")
+        }
+    } else if actions.just_pressed(PlayerActions::EquipSlot2) {
+        wsocket.drawn_slot = WeaponSlots::Slot2;
+        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
+        let newwep = currently_equipped_from_hashmap(current_weapon_slots, &wsocket, &drawn_weapon, &mut cmds);
+
+        if let Some(ent) = newwep {
+            cmds.entity(ent).insert(CurrentlyDrawnWeapon);
+            info!("equipping slot 2")
+        }
+    } else if actions.just_pressed(PlayerActions::EquipSlot3) {
+        wsocket.drawn_slot = WeaponSlots::Slot3;
+        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
+        let newwep = currently_equipped_from_hashmap(current_weapon_slots, &wsocket, &drawn_weapon, &mut cmds);
+
+        if let Some(ent) = newwep {
+            cmds.entity(ent).insert(CurrentlyDrawnWeapon);
+            info!("equipping slot 3")
+        }
+    } else if actions.just_pressed(PlayerActions::EquipSlot4) {
+        wsocket.drawn_slot = WeaponSlots::Slot4;
+        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
+        let newwep = currently_equipped_from_hashmap(current_weapon_slots, &wsocket, &drawn_weapon, &mut cmds);
+
+        if let Some(ent) = newwep {
+            cmds.entity(ent).insert(CurrentlyDrawnWeapon);
+            info!("equipping slot 4")
+        }
+    }
+}
+
+fn currently_equipped_from_hashmap(
+    weaponslots: &mut bevy::utils::hashbrown::HashMap<WeaponSlots, Option<Entity>>,
+    wsocket: &Mut<WeaponSocket>,
+    drawn_weapon: &Query<&CurrentlyDrawnWeapon>,
+    cmds: &mut Commands,
+) -> Option<Entity> {
+    let entity_in_drawn_slot = weaponslots.entry(wsocket.drawn_slot).or_insert(None);
+    let currently_equipped_from_hashmap: Option<Entity> = if let Some(current_equiped_weapon) = entity_in_drawn_slot {
+        let result = drawn_weapon.get(*current_equiped_weapon);
+        info!("get equiped from hasmap: {:?}", result);
+        match result {
+            Ok(_a) => {
+                info!("huh current equipped weapon match result OK")
+            },
+            Err(_a) => {
+                info!("huh current equipped weapon match result Err, make it ok");
+                cmds.entity(*current_equiped_weapon).insert(CurrentlyDrawnWeapon);
+            },
+        }
+        Some(*current_equiped_weapon)
+    } else {
+        None
+    };
+
+    match currently_equipped_from_hashmap {
+        Some(weapon) => Some(weapon),
+        None => {
+            warn!("no currently equipped weapon");
+            None
         }
     }
 }
@@ -202,37 +298,4 @@ pub fn shoot_weapon(
             ));
         });
     }
-}
-
-// check if if the weapon is supposed to be visible
-fn weapon_visiblity_system(
-    _cmds: Commands,
-    mut player_query: Query<(Entity, &mut WeaponSocket, &mut Transform), With<Player>>,
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
-    mut weapon_query: Query<
-        (Entity, &mut WeaponTag, &mut Transform, &mut Visibility),
-        (With<Parent>, Without<Player>),
-    >, // query weapons
-) {
-    let (_pent, pweaponsocket, _ptransform) = player_query.single_mut();
-    for (_wentity, wtag, _wtransform, mut wvisiblity) in weapon_query.iter_mut() {
-        if wtag.stored_weapon_slot == pweaponsocket.currently_equipped {
-            wvisiblity.is_visible = true;
-        } else {
-            wvisiblity.is_visible = false;
-        }
-    }
-}
-
-fn update_equipped_weapon(
-    _cmds: Commands,
-    _player_query: Query<(Entity, &mut WeaponSocket, &mut Transform), With<Player>>,
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
-    _weapon_query: Query<
-        (Entity, &mut WeaponTag, &mut Transform),
-        (Without<Parent>, Without<Player>),
-    >,
-) {
 }

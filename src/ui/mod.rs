@@ -15,7 +15,7 @@ use kayak_ui::{
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerBindables,
+    action_manager::actions::PlayerActions,
     components::OnSplashScreen,
     game::{GameStage, TimeInfo},
     loading::assets::FontHandles,
@@ -73,7 +73,7 @@ impl Plugin for UIPlugin {
 
 pub fn toggle_pause_menu(
     mut timeinfo: ResMut<TimeInfo>,
-    query_action_state: Query<&ActionState<PlayerBindables>>,
+    query_action_state: Query<&ActionState<PlayerActions>>,
     mut menu_state: ResMut<State<MenuState>>,
     event_reader: EventReader<PlayButtonEvent>,
 ) {
@@ -81,7 +81,7 @@ pub fn toggle_pause_menu(
         && (query_action_state
             .get_single()
             .expect("should always only ever be one")
-            .just_pressed(PlayerBindables::Pause)
+            .just_pressed(PlayerActions::Pause)
             || !event_reader.is_empty())
     {
         let mut timeinfo = timeinfo.as_mut();

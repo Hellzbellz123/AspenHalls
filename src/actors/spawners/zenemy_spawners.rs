@@ -21,7 +21,7 @@ use crate::{
 pub fn spawn_skeleton(
     enemycontainer: Entity,
     commands: &mut Commands,
-    enemyassets: ActorTextureHandles,
+    enemyassets: &ActorTextureHandles,
     event: &SpawnEnemyEvent,
 ) {
     commands
@@ -31,7 +31,7 @@ pub fn spawn_skeleton(
                             parent
                                 .spawn((
                                     SkeletonBundle {
-                                        name: Name::new("SkeletonfromSpawner"),
+                                        name: Name::new("Skeleton"),
                                         actortype: AIEnemy::Skeleton,
                                         actorstate: MovementState {
                                             speed: 100.0,
@@ -102,7 +102,7 @@ pub fn spawn_skeleton(
                                             local: (
                                                 Transform {
                                                 translation: (Vec3 {
-                                                x: 0.,
+                                                    x: 0.,
                                                     y: -5.,
                                                     z: ACTOR_PHYSICS_LAYER,
                                             }),
@@ -119,7 +119,7 @@ pub fn spawn_skeleton(
 pub fn spawn_slime(
     enemycontainer: Entity,
     commands: &mut Commands,
-    enemyassets: ActorTextureHandles,
+    enemyassets: &ActorTextureHandles,
     event: &SpawnEnemyEvent,
 ) {
     commands
@@ -129,7 +129,7 @@ pub fn spawn_slime(
                             parent
                                 .spawn((
                                     SlimeBundle {
-                                        name: Name::new("SlimeEnemy"),
+                                        name: Name::new("Slime"),
                                         actortype: AIEnemy::Slime,
                                         actorstate: MovementState {
                                             speed: 50.0,
@@ -158,8 +158,8 @@ pub fn spawn_slime(
                                             rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
                                             velocity: Velocity::zero(),
                                             friction: Friction::coefficient(0.7),
-                                            howbouncy: Restitution::coefficient(0.3),
-                                            massprop: ColliderMassProperties::Density(0.3),
+                                            howbouncy: Restitution::coefficient(1.3),
+                                            massprop: ColliderMassProperties::Density(0.6),
                                             rotationlocks: LockedAxes::ROTATION_LOCKED,
                                             dampingprop: Damping {
                                                 linear_damping: 1.0,
@@ -208,7 +208,7 @@ pub fn spawn_slime(
                                             }),
                                             ..default()
                                         },
-                                        collider: Collider::capsule_y(10.4, 13.12),
+                                        collider: Collider::capsule(Vec2::new(0.0, -10.6), Vec2::new(0.0, -12.6), 16.5),
                                     });
                                 });
                         });

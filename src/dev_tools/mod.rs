@@ -22,7 +22,10 @@ pub mod debug_plugin {
     use std::{fs, time::Duration};
 
     use crate::{
-        action_manager::actions::PlayerBindables,
+        action_manager::actions::PlayerActions,
+        actors::weapons::components::{
+            CurrentlyDrawnWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
+        },
         components::{
             actors::{
                 ai::{
@@ -76,10 +79,17 @@ pub mod debug_plugin {
                 .register_inspectable::<FacingDirection>()
                 .register_inspectable::<TimeInfo>()
                 .register_inspectable::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
-                .register_type::<PlayerBindables>()
+                .register_type::<PlayerActions>()
                 .register_type::<AnimState>()
                 .register_type::<AIAttackTimer>()
                 .register_type::<TimeToLive>()
+                .register_type::<WeaponTag>()
+                // weapon stuff
+                .register_type::<CurrentlyDrawnWeapon>()
+                .register_type::<DamageType>()
+                .register_type::<WeaponStats>()
+                .register_type::<WeaponSlots>()
+                .register_type::<WeaponSocket>()
                 // LDTK debug data
                 .register_type::<LayerMetadata>()
                 .register_type::<IntGridCell>()

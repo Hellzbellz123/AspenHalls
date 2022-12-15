@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_mouse_tracking_plugin::prelude::MousePosPlugin;
 use leafwing_input_manager::prelude::*;
 
-use super::actions::PlayerBindables;
+use super::actions::PlayerActions;
 
 pub struct ActionsPlugin;
 
@@ -10,7 +10,7 @@ pub struct ActionsPlugin;
 
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(InputManagerPlugin::<PlayerBindables>::default())
+        app.add_plugin(InputManagerPlugin::<PlayerActions>::default())
             .add_plugin(MousePosPlugin);
     }
 }
@@ -18,12 +18,12 @@ impl Plugin for ActionsPlugin {
 #[derive(Bundle)]
 pub struct PlayerInput {
     #[bundle]
-    input: InputManagerBundle<PlayerBindables>,
+    input: InputManagerBundle<PlayerActions>,
 }
 
 impl Default for PlayerInput {
     fn default() -> Self {
-        use PlayerBindables::Move;
+        use PlayerActions::Move;
         let mut input_map = InputMap::default();
         input_map.set_gamepad(Gamepad { id: 0 });
 
@@ -47,30 +47,31 @@ impl Default for PlayerInput {
         );
 
         // equip slot []
-        input_map.insert(KeyCode::Key1, PlayerBindables::EquipSlot1);
-        input_map.insert(KeyCode::Key2, PlayerBindables::EquipSlot2);
-        input_map.insert(KeyCode::Key3, PlayerBindables::EquipSlot3);
-        input_map.insert(KeyCode::Key4, PlayerBindables::EquipSlot4);
+        input_map.insert(KeyCode::Key1, PlayerActions::EquipSlot1);
+        input_map.insert(KeyCode::Key2, PlayerActions::EquipSlot2);
+        input_map.insert(KeyCode::Key3, PlayerActions::EquipSlot3);
+        input_map.insert(KeyCode::Key4, PlayerActions::EquipSlot4);
 
-        input_map.insert(KeyCode::Space, PlayerBindables::Shoot);
-        input_map.insert(KeyCode::F, PlayerBindables::Melee);
+        input_map.insert(KeyCode::Space, PlayerActions::Shoot);
+        input_map.insert(KeyCode::F, PlayerActions::Melee);
 
-        input_map.insert(KeyCode::LShift, PlayerBindables::Sprint);
-        input_map.insert(GamepadButtonType::West, PlayerBindables::Sprint);
+        input_map.insert(KeyCode::LShift, PlayerActions::Sprint);
+        input_map.insert(GamepadButtonType::West, PlayerActions::Sprint);
 
-        input_map.insert(KeyCode::Escape, PlayerBindables::Pause);
-        input_map.insert(GamepadButtonType::Start, PlayerBindables::Pause);
+        input_map.insert(KeyCode::Escape, PlayerActions::Pause);
+        input_map.insert(GamepadButtonType::Start, PlayerActions::Pause);
 
-        input_map.insert(KeyCode::Q, PlayerBindables::Heal);
+        input_map.insert(KeyCode::Q, PlayerActions::Heal);
+        input_map.insert(KeyCode::E, PlayerActions::Interact);
 
         //debug and misc
-        input_map.insert(KeyCode::F1, PlayerBindables::DebugF1);
-        input_map.insert(KeyCode::F2, PlayerBindables::DebugF2);
-        input_map.insert(KeyCode::NumpadAdd, PlayerBindables::ZoomIn);
-        input_map.insert(KeyCode::NumpadSubtract, PlayerBindables::ZoomOut);
+        input_map.insert(KeyCode::F1, PlayerActions::DebugF1);
+        input_map.insert(KeyCode::F2, PlayerActions::DebugF2);
+        input_map.insert(KeyCode::NumpadAdd, PlayerActions::ZoomIn);
+        input_map.insert(KeyCode::NumpadSubtract, PlayerActions::ZoomOut);
 
         Self {
-            input: InputManagerBundle::<PlayerBindables> {
+            input: InputManagerBundle::<PlayerActions> {
                 input_map,
                 ..Default::default()
             },

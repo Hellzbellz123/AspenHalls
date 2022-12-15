@@ -10,7 +10,7 @@ rlt = "build --target=x86_64-unknown-linux-gnu -Zunstable-options --keep-going -
 
 [profile.dev]
 incremental = true
-codegen-units = 128
+codegen-units = 512
 # lto = "thin"
 opt-level = 1
 debug = true
@@ -19,7 +19,7 @@ debug = true
 opt-level = 1
 
 [profile.release]
-codegen-units = 32
+codegen-units = 128
 lto = "fat"
-debug = true       #disable for published builds
+debug = true        #disable for published builds
 opt-level = 3

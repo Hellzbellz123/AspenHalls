@@ -26,6 +26,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
+use crate::console::VCConsolePlugin;
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::{debug_dump_graphs, DebugPlugin};
 
@@ -41,6 +42,7 @@ pub mod actors;
 /// module for all game audio, internal audio plugin handles all sound
 pub mod audio;
 pub mod components;
+pub mod console;
 mod dev_tools;
 pub mod game;
 pub mod game_world;
@@ -130,6 +132,7 @@ fn main() {
         })
         .add_plugin(loading::AssetLoadPlugin)
         .add_plugin(ui::UIPlugin)
+        .add_plugin(VCConsolePlugin)
         .add_plugin(utilities::UtilitiesPlugin)
         .add_plugin(game::GamePlugin)
         .add_system(update_settings)

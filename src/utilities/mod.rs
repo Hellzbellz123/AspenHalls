@@ -1,12 +1,10 @@
 use bevy::{prelude::*, render::camera::RenderTarget};
 use bevy_mouse_tracking_plugin::MainCamera;
-use chrono::Utc;
 
 use std::{path::Path, thread};
 
 pub mod game;
 pub mod log_to_file;
-mod vc_console;
 pub mod window;
 
 use self::game::AppSettings;
@@ -21,8 +19,7 @@ impl Plugin for UtilitiesPlugin {
         #[cfg(feature = "dev")]
         app.add_system(window::set_debug_title);
 
-        app.add_plugin(vc_console::VCConsolePlugin)
-            .add_startup_system(window::set_window_icon)
+        app.add_startup_system(window::set_window_icon)
             .insert_resource(EagerMousePos {
                 world: Vec2::ZERO,
                 window: Vec2::ZERO,
@@ -102,19 +99,23 @@ pub fn load_settings() -> AppSettings {
         // if settings file can be read
         Ok(target_settings) => {
             let toml_cfg: AppSettings =
-            match toml::from_str::<AppSettings>(target_settings.as_str()) {
-                Ok(toml_cfg) => {
-                    info!("Game Settings loaded from file succesfully");
-                    AppSettings {
-                        vsync: toml_cfg.vsync,
-                        frame_rate_target: toml_cfg.frame_rate_target,
-                        camera_zoom: toml_cfg.camera_zoom,
-                        resolution: toml_cfg.resolution,
-                        sound_settings: toml_cfg.sound_settings,
+                match toml::from_str::<AppSettings>(target_settings.as_str()) {
+                    Ok(toml_cfg) => {
+                        info!("Game Settings loaded from file succesfully");
+                        AppSettings {
+                            vsync: toml_cfg.vsync,
+                            frame_rate_target: toml_cfg.frame_rate_target,
+                            camera_zoom: toml_cfg.camera_zoom,
+                            resolution: toml_cfg.resolution,
+                            sound_settings: toml_cfg.sound_settings,
+                        }
                     }
-                },
                     Err(toml_cfg) => {
-                        info!("There was an error deserializing `AppSettings`: {} at {}", toml_cfg, settings_path.display());
+                        info!(
+                            "There was an error deserializing `AppSettings`: {} at {}",
+                            toml_cfg,
+                            settings_path.display()
+                        );
                         save_default_settings();
                         AppSettings {
                             vsync: true,
@@ -137,7 +138,11 @@ pub fn load_settings() -> AppSettings {
         }
         // if settings file cant be read cause it doesnt exit, no permissions, or other
         Err(target_settings) => {
-            info!("there was an error: {} acessing settings file as: {}", target_settings, settings_path.display());
+            info!(
+                "there was an error: {} acessing settings file as: {}",
+                target_settings,
+                settings_path.display()
+            );
 
             let app_settings = AppSettings {
                 camera_zoom: 1.0,

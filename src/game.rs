@@ -4,7 +4,7 @@ use bevy_inspector_egui::Inspectable;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::{actions::PlayerBindables, bindings::ActionsPlugin},
+    action_manager::{actions::PlayerActions, bindings::ActionsPlugin},
     actors::ActorPlugin,
     audio::InternalAudioPlugin,
     components::actors::general::TimeToLive,
@@ -62,7 +62,7 @@ pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
 
 pub fn zoom_control(
     mut settings: ResMut<AppSettings>,
-    query_action_state: Query<&ActionState<PlayerBindables>>,
+    query_action_state: Query<&ActionState<PlayerActions>>,
 ) {
     if query_action_state.is_empty() {
         return;
@@ -70,9 +70,9 @@ pub fn zoom_control(
 
     let actions = query_action_state.get_single().expect("no player?");
 
-    if actions.pressed(PlayerBindables::ZoomIn) {
+    if actions.pressed(PlayerActions::ZoomIn) {
         settings.camera_zoom += 0.01;
-    } else if actions.pressed(PlayerBindables::ZoomOut) {
+    } else if actions.pressed(PlayerActions::ZoomOut) {
         settings.camera_zoom -= 0.01;
     }
 }

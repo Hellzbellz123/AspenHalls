@@ -28,12 +28,12 @@ pub struct ActorTextureHandles {
     #[asset(path = "textures/actors/heroes/rex-sheet.png")]
     pub rex_sheet: Handle<TextureAtlas>,
 
-    /// skeleton enermy icon
+    /// skeleton enemy asset
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
     #[asset(path = "textures/actors/enemies/skeleton-sheet.png")]
     pub skeleton_sheet: Handle<TextureAtlas>,
 
-    /// skeleton enermy icon
+    /// slime enemy asset
     #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
     #[asset(path = "textures/actors/enemies/slime-sheet.png")]
     pub slime_sheet: Handle<TextureAtlas>,
@@ -58,13 +58,13 @@ pub struct UiTextureHandles {
     #[asset(path = "ui/panel_brown.png")]
     pub panel_brown: Handle<Image>,
 
-    /// blue button darkend for pressing
-    #[asset(path = "ui/buttonSquare_blue_pressed.png")]
-    pub button_blue_pressed: Handle<Image>,
-
     /// blue button texture
     #[asset(path = "ui/buttonSquare_blue.png")]
     pub button_blue: Handle<Image>,
+
+    /// blue button darkend for pressing
+    #[asset(path = "ui/buttonSquare_blue_pressed.png")]
+    pub button_blue_pressed: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]

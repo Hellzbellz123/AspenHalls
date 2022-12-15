@@ -70,9 +70,7 @@ impl Plugin for InternalAudioPlugin {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
-            .add_system_set(
-                SystemSet::on_enter(GameStage::Menu).with_system(play_background_audio),
-            )
+            .add_system_set(SystemSet::on_enter(GameStage::Menu).with_system(play_background_audio))
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing).with_system(player_walking_sound_system),
             )

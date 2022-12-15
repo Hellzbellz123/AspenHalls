@@ -48,7 +48,7 @@ fn spawn_main_camera(mut commands: Commands) {
 
 fn splash_setup(mut commands: Commands, assetserver: ResMut<AssetServer>) {
     info!("loading splash");
-    let img = assetserver.load("images/splash/splashL.png");
+    let img = assetserver.load("textures/splash/splashL.png");
 
     // Display the logo
     info!("spawning splash ImageBundle");
