@@ -6,8 +6,7 @@ use bevy_ecs_ldtk::{
 use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
-    actors::player::PlayerColliderTag,
-    components::actors::general::Player,
+    components::actors::{bundles::PlayerColliderTag, general::Player},
     game_world::homeworld::{
         map_components::{HomeWorldTeleportSensor, TeleportTimer},
         PlayerTeleportEvent,
@@ -75,7 +74,6 @@ pub fn homeworld_teleport(
 
     for event in collision_events.iter() {
         if let CollisionEvent::Started(a, b, _flags) = event {
-            //| CollisionEvent::Stopped(a, b, _flags)
             if *a == player_collider_query.single() || *b == player_collider_query.single() {
                 let mut colliding_sensor: Option<Entity>;
                 for sensor in world_sensors.iter() {
@@ -97,6 +95,29 @@ pub fn homeworld_teleport(
                 }
             }
         }
+        if let CollisionEvent::Stopped(a, b, _flags) = event {
+            //| CollisionEvent::Stopped(a, b, _flags)
+            if *a == player_collider_query.single() || *b == player_collider_query.single() {
+                let mut colliding_sensor: Option<Entity>;
+                for sensor in world_sensors.iter() {
+                    if sensor == *a {
+                        colliding_sensor = Some(*a);
+                    } else if sensor == *b {
+                        colliding_sensor = Some(*b);
+                    } else {
+                        colliding_sensor = None;
+                    }
+
+                    if colliding_sensor.is_some() {
+                        info!("player and sensor are colliding, sending teleport event");
+                        player_query
+                            .get_single_mut()
+                            .expect("always a player, especially here, see above")
+                            .wants_to_teleport = false;
+                    }
+                }
+            }
+        }
     }
     collision_events.clear();
 }
@@ -109,6 +130,11 @@ pub fn enter_the_dungeon(
     let (mut ptransform, mut player) = player_query
         .get_single_mut()
         .expect("should always be a player if we are getting the event");
+
+    if !player.wants_to_teleport {
+        teleport_timer.reset();
+        player.just_teleported = false;
+    }
 
     if !teleport_timer.finished() & player.wants_to_teleport {
         info!("timer not done, ticking timer");

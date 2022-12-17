@@ -1,14 +1,13 @@
+use crate::{
+    audio::SoundSettings, components::MainCameraTag, utilities::game::AppSettings,
+    APP_SETTINGS_PATH,
+};
 use bevy::{prelude::*, render::camera::RenderTarget};
-use bevy_mouse_tracking_plugin::MainCamera;
-
 use std::{path::Path, thread};
 
 pub mod game;
-pub mod log_to_file;
+pub mod logging;
 pub mod window;
-
-use self::game::AppSettings;
-use crate::{audio::SoundSettings, APP_SETTINGS_PATH};
 
 /// holds general game utilities
 /// not particularly related to gameplay
@@ -39,7 +38,7 @@ pub struct EagerMousePos {
 /// updates `EagerMousePos` resource with current mouse positon and mouse pos translated to worldspace. no change detection, always runs
 fn eager_cursor_pos(
     mut fastmousepos: ResMut<EagerMousePos>,
-    q_camera: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    q_camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
     windows: Res<Windows>,
 ) {
     if !q_camera.is_empty() {
@@ -195,4 +194,13 @@ fn save_settings(app_settings: AppSettings, settings_path: &Path) {
     info!("Saving AppSettings, this overwrites current settings");
     let serd_cfg = toml::to_string(&app_settings).expect("error converting config to string");
     std::fs::write(settings_path, serd_cfg).expect("couldnt write file");
+}
+
+/// Performs a linear interpolation between `from` and `to` based on the value `s`.
+///
+/// When `s` is `0.0`, the result will be equal to `self`.  When `s` is `1.0`, the result
+/// will be equal to `rhs`. When `s` is outside of range `[0, 1]`, the result is linearly
+/// extrapolated.
+pub fn lerp(from: f32, to: f32, s: f32) -> f32 {
+    from + ((to - from) * s)
 }

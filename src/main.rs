@@ -30,7 +30,7 @@ use crate::console::VCConsolePlugin;
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::{debug_dump_graphs, DebugPlugin};
 
-use crate::utilities::log_to_file::VCLogPlugin;
+use crate::utilities::logging::VCLogPlugin;
 use components::MainCameraTag;
 use game::TimeInfo;
 use utilities::game::AppSettings;
@@ -56,7 +56,7 @@ pub const APP_SETTINGS_PATH: &str = "./config.toml";
 fn main() {
     let mut vanillacoffee = App::new();
     vanillacoffee.add_plugin(VCLogPlugin {
-        filter: "naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
+        filter: "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
         level: bevy::log::Level::DEBUG,
     });
     info!("Starting Game");

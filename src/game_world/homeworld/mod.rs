@@ -1,12 +1,17 @@
-use bevy::prelude::{info, Plugin, SystemSet};
+use bevy::{
+    math::vec3,
+    prelude::{info, EventWriter, Plugin, SystemSet},
+};
 use bevy_ecs_ldtk::prelude::RegisterLdtkObjects;
 
 use crate::{
+    components::actors::spawners::{SpawnWeaponEvent, WeaponType},
     game::GameStage,
     game_world::homeworld::{
         map_components::{LdtkCollisionBundle, LdtkSensorBundle},
         systems::{enter_the_dungeon, homeworld_teleport},
     },
+    utilities::game::ACTOR_Z_INDEX,
 };
 
 pub mod map_components;
@@ -29,7 +34,8 @@ impl Plugin for HomeWorldPlugin {
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)
                     .with_system(systems::spawn_mapbundle) //TODO: Change back to menu when kayakui new menu is done
-                    .with_system(systems::spawn_level_0),
+                    .with_system(systems::spawn_level_0)
+                    .with_system(spawn_initial_stuff),
             )
             .add_system_set(
                 SystemSet::on_update(GameStage::Playing)
@@ -37,4 +43,30 @@ impl Plugin for HomeWorldPlugin {
                     .with_system(enter_the_dungeon),
             );
     }
+}
+
+fn spawn_initial_stuff(mut ew: EventWriter<SpawnWeaponEvent>) {
+    ew.send(SpawnWeaponEvent {
+        weapon_to_spawn: WeaponType::SmallSMG,
+        spawn_position: vec3(-833.0, 1270.0, ACTOR_Z_INDEX),
+        spawn_count: 1,
+    });
+
+    ew.send(SpawnWeaponEvent {
+        weapon_to_spawn: WeaponType::SmallPistol,
+        spawn_position: vec3(-606.0, 1290.0, ACTOR_Z_INDEX),
+        spawn_count: 1,
+    });
+
+    ew.send(SpawnWeaponEvent {
+        weapon_to_spawn: WeaponType::SmallSMG,
+        spawn_position: vec3(-611.0, 1637.0, ACTOR_Z_INDEX),
+        spawn_count: 1,
+    });
+
+    ew.send(SpawnWeaponEvent {
+        weapon_to_spawn: WeaponType::SmallPistol,
+        spawn_position: vec3(-881.0, 1637.0, ACTOR_Z_INDEX),
+        spawn_count: 1,
+    });
 }

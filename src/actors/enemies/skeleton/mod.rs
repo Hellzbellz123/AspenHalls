@@ -7,13 +7,14 @@ use crate::components::actors::{
     ai::AIEnemy,
     animation::{AnimState, AnimationSheet},
     bundles::{RigidBodyBundle, StupidAiBundle},
-    general::MovementState,
+    general::{DefenseStats, MovementState},
 };
 
 #[derive(Bundle)]
 pub struct SkeletonBundle {
     pub name: Name,
     pub actortype: AIEnemy,
+    pub defensestats: DefenseStats,
     pub actorstate: MovementState,
     pub animation_state: AnimState,
     pub available_animations: AnimationSheet,
@@ -31,6 +32,7 @@ pub struct SkeletonBundle {
 pub struct SlimeBundle {
     pub name: Name,
     pub actortype: AIEnemy,
+    pub defensestats: DefenseStats,
     pub actorstate: MovementState,
     pub animation_state: AnimState,
     pub available_animations: AnimationSheet,
@@ -47,19 +49,22 @@ pub struct SlimeBundle {
 pub mod actions {
     use bevy::prelude::*;
     use bevy_rapier2d::prelude::{
-        ActiveEvents, Collider, ColliderMassProperties, Damping, Friction, LockedAxes, Restitution,
-        RigidBody, Sensor, Velocity,
+        ActiveEvents, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, Group,
+        LockedAxes, Restitution, RigidBody, Sensor, Velocity,
     };
 
     use crate::{
         components::actors::{
             ai::{AIAttackTimer, AIEnemy},
-            bundles::{ActorColliderBundle, ProjectileBundle, RigidBodyBundle},
-            general::{Player, TimeToLive},
+            bundles::{
+                EnemyColliderBundle, EnemyColliderTag, EnemyProjectileBundle, EnemyProjectileTag,
+                RigidBodyBundle,
+            },
+            general::{Player, ProjectileStats, TimeToLive},
         },
         game::TimeInfo,
         loading::assets::ActorTextureHandles,
-        utilities::game::{ACTOR_LAYER, ACTOR_PHYSICS_LAYER},
+        utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
     };
 
     pub fn on_shoot(
@@ -92,7 +97,7 @@ pub mod actions {
 
                     commands
                         .spawn((
-                            ProjectileBundle {
+                            EnemyProjectileBundle {
                                 name: Name::new("EnemyProjectile"),
                                 sprite_bundle: SpriteBundle {
                                     texture: assets.bevy_icon.clone(),
@@ -100,7 +105,7 @@ pub mod actions {
                                         translation: new_transform
                                             .translation
                                             .truncate()
-                                            .extend(ACTOR_LAYER),
+                                            .extend(ACTOR_Z_INDEX),
                                         ..default()
                                     }, //new_transform,
                                     sprite: Sprite {
@@ -123,25 +128,36 @@ pub mod actions {
                                     },
                                 },
                                 ttl: TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
+                                projectile_stats: ProjectileStats {
+                                    damage: 0.0,
+                                    speed: 0.0,
+                                    size: 8.0,
+                                },
+                                tag: EnemyProjectileTag,
                             },
                             Sensor,
                         ))
                         .with_children(|child| {
                             child.spawn((
-                                ActorColliderBundle {
+                                EnemyColliderBundle {
                                     name: Name::new("EnemyProjectileCollider"),
                                     transformbundle: TransformBundle {
                                         local: (Transform {
                                             translation: (Vec3 {
                                                 x: 0.,
                                                 y: 0.,
-                                                z: ACTOR_PHYSICS_LAYER,
+                                                z: ACTOR_PHYSICS_Z_INDEX,
                                             }),
                                             ..default()
                                         }),
                                         ..default()
                                     },
                                     collider: Collider::ball(10.0),
+                                    tag: EnemyColliderTag,
+                                    collisiongroups: CollisionGroups::new(
+                                        Group::ALL,
+                                        Group::GROUP_30,
+                                    ),
                                 },
                                 TimeToLive(Timer::from_seconds(5.0, TimerMode::Repeating)),
                                 ActiveEvents::COLLISION_EVENTS,

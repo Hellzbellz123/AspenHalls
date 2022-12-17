@@ -6,16 +6,14 @@ use bevy_inspector_egui::Inspectable;
 pub mod actors {
     pub mod spawners {
 
-        use std::str::FromStr;
-
+        use crate::components::error::ParseEnemyTypeError;
         use bevy::{
             prelude::{Component, Deref, DerefMut, ReflectComponent, Vec3},
             reflect::Reflect,
             time::Timer,
         };
         use bevy_inspector_egui::Inspectable;
-
-        use crate::components::error::ParseEnemyTypeError;
+        use std::str::FromStr;
 
         #[derive(Component)]
         pub struct EnemyContainerTag;
@@ -92,7 +90,7 @@ pub mod actors {
     pub mod bundles {
         use crate::components::actors::{
             ai::{AIAttackTimer, AICanChase, AICanWander, ActorType},
-            general::TimeToLive,
+            general::{ProjectileStats, TimeToLive},
         };
         use bevy::prelude::*;
         use bevy_rapier2d::prelude::*;
@@ -107,17 +105,6 @@ pub mod actors {
             pub thinker: ThinkerBuilder,
         }
 
-        #[derive(Bundle)]
-        pub struct ProjectileBundle {
-            pub name: Name,
-            pub ttl: TimeToLive,
-            #[bundle]
-            pub sprite_bundle: SpriteBundle,
-
-            #[bundle]
-            pub rigidbody_bundle: RigidBodyBundle,
-        }
-
         #[derive(Bundle)] //bundle for ease of use
         pub struct RigidBodyBundle {
             pub rigidbody: RigidBody,
@@ -129,11 +116,84 @@ pub mod actors {
             pub dampingprop: Damping,
         }
 
+        #[derive(Component)]
+        pub struct PlayerColliderTag;
+
+        #[derive(Component)]
+        pub struct EnemyColliderTag;
+
+        #[derive(Component)]
+        pub struct EnemyProjectileTag;
+
+        #[derive(Component)]
+        pub struct PlayerProjectileTag;
+
+        #[derive(Component)]
+        pub struct EnemyProjectileColliderTag;
+
+        #[derive(Component)]
+        pub struct PlayerProjectileColliderTag;
+
         #[derive(Bundle)]
-        pub struct ActorColliderBundle {
+        pub struct PlayerProjectileBundle {
             pub name: Name,
+            pub tag: PlayerProjectileTag,
+            pub projectile_stats: ProjectileStats,
+            pub ttl: TimeToLive,
+            #[bundle]
+            pub sprite_bundle: SpriteBundle,
+            #[bundle]
+            pub rigidbody_bundle: RigidBodyBundle,
+        }
+
+        #[derive(Bundle)]
+        pub struct EnemyProjectileBundle {
+            pub name: Name,
+            pub tag: EnemyProjectileTag,
+            pub projectile_stats: ProjectileStats,
+            pub ttl: TimeToLive,
+            #[bundle]
+            pub sprite_bundle: SpriteBundle,
+            #[bundle]
+            pub rigidbody_bundle: RigidBodyBundle,
+        }
+
+        #[derive(Bundle)]
+        pub struct EnemyColliderBundle {
+            pub name: Name,
+            pub tag: EnemyColliderTag,
             pub transformbundle: TransformBundle,
             pub collider: Collider,
+            pub collisiongroups: CollisionGroups,
+        }
+
+        #[derive(Bundle)]
+        pub struct PlayerColliderBundle {
+            pub name: Name,
+            pub tag: PlayerColliderTag,
+            pub transformbundle: TransformBundle,
+            pub collider: Collider,
+            pub collisiongroups: CollisionGroups,
+        }
+
+        #[derive(Bundle)]
+        pub struct EnemyProjectileColliderBundle {
+            pub name: Name,
+            pub tag: EnemyProjectileColliderTag,
+            pub ttl: TimeToLive,
+            pub transformbundle: TransformBundle,
+            pub collider: Collider,
+            pub collisiongroups: CollisionGroups,
+        }
+
+        #[derive(Bundle)]
+        pub struct PlayerProjectileColliderBundle {
+            pub name: Name,
+            pub tag: PlayerProjectileColliderTag,
+            pub ttl: TimeToLive,
+            pub transformbundle: TransformBundle,
+            pub collider: Collider,
+            pub collisiongroups: CollisionGroups,
         }
     }
 
@@ -262,6 +322,13 @@ pub mod actors {
         }
 
         #[derive(Component, Inspectable, Clone, Copy, Default)]
+        pub struct ProjectileStats {
+            pub damage: f32,
+            pub speed: f32,
+            pub size: f32,
+        }
+
+        #[derive(Component, Inspectable, Clone, Copy, Default)]
         pub struct CombatStats {
             pub stamina: f64,  // gives health per point
             pub agility: f64,  // gives speed per point
@@ -271,8 +338,8 @@ pub mod actors {
 
         #[derive(Component, Inspectable, Clone, Copy, Default)]
         pub struct DefenseStats {
-            pub health: f64,
-            pub shield: f64,
+            pub health: f32,
+            pub shield: f32,
         }
 
         #[derive(Component, Default, Inspectable)]

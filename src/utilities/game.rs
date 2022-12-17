@@ -1,5 +1,6 @@
 use bevy::prelude::{FromWorld, Resource, SystemLabel, Vec2, World};
 use bevy_inspector_egui::Inspectable;
+use bevy_rapier2d::prelude::Group;
 use serde::{Deserialize, Serialize};
 
 use crate::audio::SoundSettings;
@@ -7,15 +8,24 @@ use crate::audio::SoundSettings;
 /// timestep for game / physics
 pub const TIMESTEP: f32 = 1. / 144.;
 /// Z axis for physics interactions
-pub const ACTOR_PHYSICS_LAYER: f32 = 5.0;
+pub const ACTOR_PHYSICS_Z_INDEX: f32 = 5.0;
 /// Z axis for sprites/entities to be positioned on
-pub const ACTOR_LAYER: f32 = 8.0;
+pub const ACTOR_Z_INDEX: f32 = 8.0;
 /// games tile size as const for easy use
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
 /// actor size
 pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
 /// max amount of enemy actors
 pub const MAX_ENEMIES: usize = 20;
+/// bullet speed
+pub const BULLET_SPEED_MODIFIER: f32 = 100.0;
+
+/// const for easier usage
+pub const PLAYER_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP_32;
+/// const
+pub const PLAYER_PROJECTILE_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP_30;
+/// const
+pub const WORLD_COLLIDER_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP_32;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
 ///labels for system ordering

@@ -11,7 +11,7 @@ use crate::{
         general::Player,
         spawners::{EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, WeaponType},
     },
-    utilities::game::ACTOR_LAYER,
+    utilities::game::ACTOR_Z_INDEX,
 };
 
 /// spawn weapon [WeaponType] x amount of times using `SpawnWeaponEvent`
@@ -65,7 +65,7 @@ pub fn spawnweapon_command(
         let mut cspawn_location = Vec3::new(
             loc_x.unwrap_or(0) as f32,
             loc_y.unwrap_or(0) as f32,
-            ACTOR_LAYER,
+            ACTOR_Z_INDEX,
         );
         let cspawn_count = amount.unwrap_or(1);
         let cspawn_type = WeaponType::from_str(&weapon_type);
@@ -118,7 +118,7 @@ pub fn spawnenemy_command(
         let mut cspawn_location = Vec3::new(
             loc_x.unwrap_or(0) as f32,
             loc_y.unwrap_or(0) as f32,
-            ACTOR_LAYER,
+            ACTOR_Z_INDEX,
         );
         let cspawn_type = EnemyType::from_str(&enemy_type);
 

@@ -1,7 +1,7 @@
 use bevy::{
-    prelude::{Bundle, Component, Entity, Handle, Name, ReflectComponent, SpatialBundle, Vec2},
+    prelude::{Bundle, Component, Entity, Handle, Name, ReflectComponent, SpatialBundle, Vec3},
     reflect::{FromReflect, Reflect},
-    sprite::{TextureAtlas, TextureAtlasSprite},
+    sprite::{SpriteBundle, TextureAtlas, TextureAtlasSprite},
     transform::TransformBundle,
     utils::hashbrown::HashMap,
 };
@@ -23,12 +23,26 @@ pub struct WeaponBundle {
     pub rigidbodybundle: RigidBodyBundle,
 }
 
+#[derive(Debug, Component)]
+pub struct WeaponColliderTag;
+
 #[derive(Bundle)]
 pub struct WeaponColliderBundle {
     pub name: Name,
+    pub tag: WeaponColliderTag,
     pub collider: Collider,
     pub cgroups: CollisionGroups,
     pub transformbundle: TransformBundle,
+}
+
+#[derive(Debug, Component)]
+pub struct BarrelPointTag;
+
+#[derive(Bundle)]
+pub struct WeaponBarrelEndPoint {
+    pub name: Name,
+    pub tag: BarrelPointTag,
+    pub sprite: SpriteBundle,
 }
 
 #[derive(Debug, Clone, Copy, Component, Default, Reflect)]
@@ -43,7 +57,7 @@ pub struct WeaponTag {
 /// inserted to currently drawn weapon
 #[derive(Debug, Clone, Copy, Component, Reflect, Default)]
 #[reflect(Component)]
-pub struct CurrentlyDrawnWeapon;
+pub struct CurrentlySelectedWeapon;
 
 #[derive(Debug, Clone, Copy, Component, Reflect, Default)]
 #[reflect(Component)]
@@ -56,9 +70,11 @@ pub enum DamageType {
 #[derive(Debug, Clone, Copy, Component, Reflect, Default)]
 #[reflect(Component)]
 pub struct WeaponStats {
-    pub barreloffset: Vec2,
+    pub barreloffset: Vec3,
     pub damage: f32,
-    pub speed: f32,
+    pub firing_speed: f32,
+    pub bullet_speed: f32,
+    pub projectile_size: f32,
 }
 
 #[derive(Debug, Clone, Copy, Component, Hash, PartialEq, Eq, Reflect, FromReflect, Default)]

@@ -20,7 +20,7 @@ use crate::{
         general::{MovementState, Player},
     },
     game::TimeInfo,
-    utilities::game::ACTOR_LAYER,
+    utilities::game::ACTOR_Z_INDEX,
 };
 
 pub struct SkeletonAiPlugin;
@@ -211,7 +211,6 @@ fn random_wander_system(
                         can_meander_tag.wander_target = None;
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.6));
                         *state = ActionState::Failure;
-                        debug!("action meander: failure")
                     }
                     ActionState::Requested => {
                         // pick a random target within range of home and current position
@@ -224,11 +223,6 @@ fn random_wander_system(
                                     can_meander_tag.wander_target = None;
                                     *state = ActionState::Success;
                                 } else {
-                                    debug!(
-                                        "entity: {:?} not finished wandering too {:#?}",
-                                        can_meander_tag.wander_target, actor
-                                    );
-                                    // info!("we arent at the target position yet");
                                     *state = ActionState::Executing;
                                 }
                             }
@@ -236,10 +230,9 @@ fn random_wander_system(
                                 can_meander_tag.wander_target = Some(Vec3 {
                                     x: (spawn_pos.x + rng.gen_range(-300.0..=300.0)), //Rng::gen_range(&mut )),
                                     y: (spawn_pos.y + rng.gen_range(-300.0..=300.0)),
-                                    z: ACTOR_LAYER,
+                                    z: ACTOR_Z_INDEX,
                                 });
                                 *state = ActionState::Executing;
-                                info!("no target pos")
                             }
                         }
                     }
@@ -249,21 +242,16 @@ fn random_wander_system(
                                 let c_target_pos: Vec3 = target_pos;
                                 let distance = c_target_pos - cur_pos;
                                 if distance.length().abs() <= 60.0 {
-                                    debug!("executing wander but target is already at wander target, retargetting");
                                     can_meander_tag.wander_target = None;
                                     *state = ActionState::Requested;
                                 } else {
-                                    debug!(
-                                        "entity: {:?} wandering too {:#?}",
-                                        can_meander_tag.wander_target, actor
-                                    );
                                     *velocity = Velocity::linear(
                                         distance.normalize_or_zero().truncate() * 100.,
                                     );
                                 }
                             }
                             None => {
-                                info!("no target in executing actionstate")
+                                *state = ActionState::Requested;
                             }
                         }
                         if target_pos.is_some() {}
@@ -279,7 +267,6 @@ fn random_wander_system(
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
                         can_meander_tag.wander_target = None;
                         *state = ActionState::Requested;
-                        debug!("action meander: failure")
                     }
                 }
             }

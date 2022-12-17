@@ -73,7 +73,7 @@ digraph "schedule" {
 		"label"="RenderStage::Prepare";
 		node ["style"="filled", "color"="#eff1f3", "bgcolor"="#eff1f3"];
 		"MARKER_schedule_RenderStage::Prepare" ["style"="invis"]
-		"schedule_bevy_pbr::render::light::prepare_lights_0" ["label"=<prepare_lights<BR /><FONT COLOR="red" POINT-SIZE="11">Exclusive at start</FONT>>, "tooltip"="Components [ExtractedView, ExtractedPointLight, ExtractedClusterConfig, ExtractedDirectionalLight]\nRes [RenderDevice, RenderQueue, AmbientLight, PointLightShadowMap, DirectionalLightShadowMap]\nResMut [TextureCache, LightMeta, GlobalLightMeta]\n"]
+		"schedule_bevy_pbr::render::light::prepare_lights_0" ["label"=<prepare_lights<BR /><FONT COLOR="red" POINT-SIZE="11">Exclusive at start</FONT>>, "tooltip"="Components [ExtractedView, ExtractedClusterConfig, ExtractedPointLight, ExtractedDirectionalLight]\nRes [RenderDevice, RenderQueue, AmbientLight, PointLightShadowMap, DirectionalLightShadowMap]\nResMut [TextureCache, LightMeta, GlobalLightMeta]\n"]
 		"schedule_bevy_core_pipeline::bloom::prepare_bloom_textures_0" ["label"="prepare_bloom_textures", "tooltip"="Components [ExtractedCamera]\nRes [RenderDevice]\nResMut [TextureCache]\n"]
 		"schedule_bevy_core_pipeline::bloom::prepare_bloom_uniforms_1" ["label"="prepare_bloom_uniforms", "tooltip"="Components [ExtractedCamera, BloomSettings]\nRes [RenderDevice, RenderQueue]\nResMut [BloomUniforms]\n"]
 		"schedule_bevy_core_pipeline::core_3d::prepare_core_3d_depth_textures_2" ["label"="prepare_core_3d_depth_textures", "tooltip"="Components [ExtractedCamera]\nRes [RenderDevice, Msaa]\nResMut [TextureCache]\n"]

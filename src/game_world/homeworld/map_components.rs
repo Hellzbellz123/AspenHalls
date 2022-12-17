@@ -7,6 +7,8 @@ use bevy_rapier2d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Group, RigidBody, Rot, Sensor, Vect,
 };
 
+use crate::utilities::game::WORLD_COLLIDER_LAYER;
+
 #[derive(Inspectable, Default, Debug, Resource)]
 pub struct InspectableData {
     // and for most of bevy's types
@@ -51,7 +53,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -64,7 +66,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -77,7 +79,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -90,7 +92,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -104,7 +106,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -117,7 +119,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -130,7 +132,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -143,7 +145,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -156,7 +158,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -171,7 +173,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -186,7 +188,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -201,7 +203,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }
@@ -216,7 +218,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: Group::GROUP_32,
+                        filters: WORLD_COLLIDER_LAYER,
                     },
                 }
             }

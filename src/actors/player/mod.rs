@@ -6,7 +6,10 @@ use crate::{
         player::movement::{camera_movement_system, player_movement_system, player_sprint},
         weapons::components::WeaponSlots,
     },
-    components::actors::{animation::FacingDirection, bundles::ActorColliderBundle},
+    components::actors::{
+        animation::FacingDirection,
+        bundles::{PlayerColliderBundle, PlayerColliderTag},
+    },
     components::actors::{
         animation::{AnimState, AnimationSheet},
         bundles::RigidBodyBundle,
@@ -14,8 +17,8 @@ use crate::{
     },
     game::GameStage,
     loading::assets::ActorTextureHandles,
-    utilities::game::{SystemLabels, ACTOR_LAYER},
-    utilities::game::{ACTOR_PHYSICS_LAYER, ACTOR_SIZE},
+    utilities::game::{SystemLabels, ACTOR_Z_INDEX},
+    utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE},
 };
 
 use bevy_rapier2d::prelude::{
@@ -25,7 +28,7 @@ use bevy_rapier2d::prelude::{
 
 use self::{
     actions::{equip_closest_weapon, spawn_skeleton_button},
-    attack::{player_attack_sender, PlayerMeleeEvent, PlayerShootEvent},
+    actions::{player_attack_sender, PlayerMeleeEvent, PlayerShootEvent},
 };
 
 use super::weapons::components::WeaponSocket;
@@ -33,11 +36,7 @@ use super::weapons::components::WeaponSocket;
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
-#[derive(Component)]
-pub struct PlayerColliderTag;
-
 pub mod actions;
-pub mod attack;
 mod movement;
 
 pub struct PlayerPlugin;
@@ -119,7 +118,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                 armor: 10.0,
             },
             defense_stats: DefenseStats {
-                health: 100.0,
+                health: 150.0,
                 shield: 50.0,
             },
             rigidbody: RigidBodyBundle {
@@ -144,7 +143,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                     translation: Vec3 {
                         x: -60.0,
                         y: 1090.0,
-                        z: ACTOR_LAYER,
+                        z: ACTOR_Z_INDEX,
                     },
                     rotation: Quat::default(),
                     scale: Vec3::ONE,
@@ -159,30 +158,28 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             },
         },))
         .with_children(|child| {
-            child.spawn((
-                ActorColliderBundle {
-                    name: Name::new("PlayerCollider"),
-                    transformbundle: TransformBundle {
-                        local: (Transform {
-                            // transform relative to parent
-                            translation: (Vec3 {
-                                x: 0.,
-                                y: -2.,
-                                z: ACTOR_PHYSICS_LAYER,
-                            }),
-                            ..default()
+            child.spawn(PlayerColliderBundle {
+                name: Name::new("PlayerCollider"),
+                transformbundle: TransformBundle {
+                    local: (Transform {
+                        // transform relative to parent
+                        translation: (Vec3 {
+                            x: 0.,
+                            y: -2.,
+                            z: ACTOR_PHYSICS_Z_INDEX,
                         }),
                         ..default()
-                    },
-                    collider: Collider::capsule(
-                        Vec2 { x: 0.0, y: -12.0 },
-                        Vec2 { x: 0.0, y: 18.8 },
-                        13.12,
-                    ),
+                    }),
+                    ..default()
                 },
-                CollisionGroups::new(Group::ALL, Group::GROUP_30),
-                PlayerColliderTag, // ActiveEvents::COLLISION_EVENTS, //adding this causes all player collisions to be listed.
-            ));
+                collider: Collider::capsule(
+                    Vec2 { x: 0.0, y: -12.0 },
+                    Vec2 { x: 0.0, y: 18.8 },
+                    13.12,
+                ),
+                tag: PlayerColliderTag,
+                collisiongroups: CollisionGroups::new(Group::ALL, Group::GROUP_30),
+            });
         });
 }
 

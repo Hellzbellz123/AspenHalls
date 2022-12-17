@@ -10,12 +10,12 @@ use crate::{
             ActorType, AggroScore, TypeEnum,
         },
         animation::{AnimState, AnimationSheet, FacingDirection},
-        bundles::{ActorColliderBundle, RigidBodyBundle, StupidAiBundle},
-        general::MovementState,
+        bundles::{EnemyColliderBundle, EnemyColliderTag, RigidBodyBundle, StupidAiBundle},
+        general::{DefenseStats, MovementState},
         spawners::SpawnEnemyEvent,
     },
     loading::assets::ActorTextureHandles,
-    utilities::game::{ACTOR_PHYSICS_LAYER, ACTOR_SIZE},
+    utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
 };
 
 pub fn spawn_skeleton(
@@ -33,6 +33,7 @@ pub fn spawn_skeleton(
                                     SkeletonBundle {
                                         name: Name::new("Skeleton"),
                                         actortype: AIEnemy::Skeleton,
+                                        defensestats: DefenseStats { health: 150.0, shield: 0.0 },
                                         actorstate: MovementState {
                                             speed: 100.0,
                                             sprint_available: false,
@@ -56,18 +57,6 @@ pub fn spawn_skeleton(
                                             ..default()
                                         },
                                         texture_atlas: enemyassets.skeleton_sheet.clone(),
-                                        rigidbody: RigidBodyBundle {
-                                            rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
-                                            velocity: Velocity::zero(),
-                                            friction: Friction::coefficient(0.7),
-                                            howbouncy: Restitution::coefficient(0.3),
-                                            massprop: ColliderMassProperties::Density(0.3),
-                                            rotationlocks: LockedAxes::ROTATION_LOCKED,
-                                            dampingprop: Damping {
-                                                linear_damping: 1.0,
-                                                angular_damping: 1.0,
-                                            },
-                                        },
                                         brain: StupidAiBundle {
                                             actortype: ActorType(TypeEnum::Enemy),
                                             aggrodistance: AICanChase { aggro_distance: 200.0 },
@@ -93,10 +82,22 @@ pub fn spawn_skeleton(
                                             },
                                             ..default()
                                         },
+                                        rigidbody: RigidBodyBundle {
+                                            rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
+                                            velocity: Velocity::zero(),
+                                            friction: Friction::coefficient(0.7),
+                                            howbouncy: Restitution::coefficient(0.3),
+                                            massprop: ColliderMassProperties::Density(0.3),
+                                            rotationlocks: LockedAxes::ROTATION_LOCKED,
+                                            dampingprop: Damping {
+                                                linear_damping: 1.0,
+                                                angular_damping: 1.0,
+                                            },
+                                        },
                                     },
                                 ))
                                 .with_children(|child| {
-                                    child.spawn(ActorColliderBundle {
+                                    child.spawn(EnemyColliderBundle {
                                         name: Name::new("SkeletonCollider"),
                                         transformbundle: TransformBundle {
                                             local: (
@@ -104,13 +105,15 @@ pub fn spawn_skeleton(
                                                 translation: (Vec3 {
                                                     x: 0.,
                                                     y: -5.,
-                                                    z: ACTOR_PHYSICS_LAYER,
+                                                    z: ACTOR_PHYSICS_Z_INDEX,
                                             }),
                                                 ..default()
                                             }),
                                             ..default()
                                         },
                                         collider: Collider::capsule_y(10.4, 13.12),
+                                        tag: EnemyColliderTag,
+                                        collisiongroups: CollisionGroups { memberships: Group::all(), filters: PLAYER_PROJECTILE_LAYER },
                                     });
                                 });
                         });
@@ -131,6 +134,7 @@ pub fn spawn_slime(
                                     SlimeBundle {
                                         name: Name::new("Slime"),
                                         actortype: AIEnemy::Slime,
+                                        defensestats: DefenseStats { health: 100.0, shield: 0.0 },
                                         actorstate: MovementState {
                                             speed: 50.0,
                                             sprint_available: false,
@@ -154,18 +158,6 @@ pub fn spawn_slime(
                                             ..default()
                                         },
                                         texture_atlas: enemyassets.slime_sheet.clone(),
-                                        rigidbody: RigidBodyBundle {
-                                            rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
-                                            velocity: Velocity::zero(),
-                                            friction: Friction::coefficient(0.7),
-                                            howbouncy: Restitution::coefficient(1.3),
-                                            massprop: ColliderMassProperties::Density(0.6),
-                                            rotationlocks: LockedAxes::ROTATION_LOCKED,
-                                            dampingprop: Damping {
-                                                linear_damping: 1.0,
-                                                angular_damping: 1.0,
-                                            },
-                                        },
                                         brain: StupidAiBundle {
                                             actortype: ActorType(TypeEnum::Enemy),
                                             aggrodistance: AICanChase { aggro_distance: 200.0 },
@@ -191,10 +183,22 @@ pub fn spawn_slime(
                                             },
                                             ..default()
                                         },
+                                        rigidbody: RigidBodyBundle {
+                                            rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
+                                            velocity: Velocity::zero(),
+                                            friction: Friction::coefficient(0.7),
+                                            howbouncy: Restitution::coefficient(1.3),
+                                            massprop: ColliderMassProperties::Density(0.6),
+                                            rotationlocks: LockedAxes::ROTATION_LOCKED,
+                                            dampingprop: Damping {
+                                                linear_damping: 1.0,
+                                                angular_damping: 1.0,
+                                            },
+                                        },
                                     },
                                 ))
                                 .with_children(|child| {
-                                    child.spawn(ActorColliderBundle {
+                                    child.spawn(EnemyColliderBundle {
                                         name: Name::new("SlimeCollider"),
                                         transformbundle: TransformBundle {
                                             local: (
@@ -202,13 +206,15 @@ pub fn spawn_slime(
                                                 translation: (Vec3 {
                                                 x: 0.,
                                                     y: -5.,
-                                                    z: ACTOR_PHYSICS_LAYER,
+                                                    z: ACTOR_PHYSICS_Z_INDEX,
                                             }),
                                                 ..default()
                                             }),
                                             ..default()
                                         },
                                         collider: Collider::capsule(Vec2::new(0.0, -10.6), Vec2::new(0.0, -12.6), 16.5),
+                                        tag: EnemyColliderTag,
+                                        collisiongroups: CollisionGroups { memberships: Group::all(), filters: PLAYER_PROJECTILE_LAYER},
                                     });
                                 });
                         });

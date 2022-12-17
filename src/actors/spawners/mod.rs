@@ -153,20 +153,20 @@ pub fn on_enter(mut cmds: Commands) {
 }
 
 pub fn spawn_timer_system(
-    _ew: EventWriter<SpawnEnemyEvent>,
+    mut ew: EventWriter<SpawnEnemyEvent>,
     spawner_query: Query<(&Transform, &Spawner), With<Spawner>>,
     enemy_count: Query<(Entity,), With<AIEnemy>>,
 ) {
     if enemy_count.iter().len() >= MAX_ENEMIES {
         return;
     }
-    for (_transform, spawner) in spawner_query.iter() {
+    for (transform, spawner) in spawner_query.iter() {
         for _enemy_to_spawn in 0..spawner.max_enemies {
-            // ew.send(SpawnEnemyEvent {
-            //     enemy_to_spawn: spawner.enemytype,
-            //     spawn_position: (transform.translation),
-            //     spawn_count: 1,
-            // });
+            ew.send(SpawnEnemyEvent {
+                enemy_to_spawn: spawner.enemytype,
+                spawn_position: (transform.translation),
+                spawn_count: 1,
+            });
         }
     }
 }

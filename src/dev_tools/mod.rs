@@ -24,7 +24,7 @@ pub mod debug_plugin {
     use crate::{
         action_manager::actions::PlayerActions,
         actors::weapons::components::{
-            CurrentlyDrawnWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
+            CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
         },
         components::{
             actors::{
@@ -85,7 +85,7 @@ pub mod debug_plugin {
                 .register_type::<TimeToLive>()
                 .register_type::<WeaponTag>()
                 // weapon stuff
-                .register_type::<CurrentlyDrawnWeapon>()
+                .register_type::<CurrentlySelectedWeapon>()
                 .register_type::<DamageType>()
                 .register_type::<WeaponStats>()
                 .register_type::<WeaponSlots>()
@@ -101,10 +101,11 @@ pub mod debug_plugin {
                 .register_inspectable::<AIChaseAction>()
                 .register_inspectable::<AIWanderAction>()
                 .register_inspectable::<ActorType>()
-                .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
+                // .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
                 .add_system_set(
                     SystemSet::on_update(GameStage::Playing)
                         .with_system(debug_visualize_spawner)
+                        // .with_system(debug_visualize_weapon_spawn_point)
                         .after(SystemLabels::Spawn),
                 )
                 .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)));
@@ -161,6 +162,41 @@ pub mod debug_plugin {
                     *transform,
                 );
             cmds.entity(entity).insert(spawner_visual_bundle);
+        }
+    }
+
+    fn debug_visualize_weapon_spawn_point(
+        mut cmds: Commands,
+        #[allow(clippy::type_complexity)]
+        // trunk-ignore(clippy/type_complexity)
+        _weapon_query: Query<
+            // this is equivelent to if player has a weapon equipped and out
+            (Entity, &WeaponStats, &Transform),
+            (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
+        >,
+    ) {
+        for (ent, _wstats, trans) in &_weapon_query {
+            let spawner_box_visual = shapes::Rectangle {
+                extents: Vec2 { x: 2.0, y: 2.0 },
+                origin: shapes::RectangleOrigin::Center,
+            };
+
+            info!("adding visual too weapon {:?}", ent);
+            let spawner_visual_bundle = GeometryBuilder::new()
+                .add(&spawner_box_visual)
+                // .add(&spawner_radius_visual)
+                .build(
+                    DrawMode::Fill(FillMode::color(Color::Hsla {
+                        hue: 334.0,
+                        saturation: 0.83,
+                        lightness: 0.3,
+                        alpha: 0.25,
+                    })),
+                    *trans,
+                );
+            cmds.entity(ent).add_children(|parent| {
+                parent.spawn(spawner_visual_bundle);
+            });
         }
     }
 
