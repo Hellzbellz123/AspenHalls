@@ -114,25 +114,6 @@ pub mod debug_plugin {
         }
     }
 
-    fn debug_logging(
-        time: Res<Time>,
-        mut timer: ResMut<DebugTimer>,
-        current_gamestate: Res<State<GameStage>>,
-        mut collision_events: EventReader<CollisionEvent>,
-        mut contact_force_events: EventReader<ContactForceEvent>,
-    ) {
-        for collision_event in collision_events.iter() {
-            info!("Received collision event: {:?}", collision_event);
-        }
-        for contact_force_event in contact_force_events.iter() {
-            info!("Received contact force event: {:?}", contact_force_event);
-        }
-
-        if timer.tick(time.delta()).finished() {
-            info!("CURRENT GAMESTATE: {:?}", current_gamestate)
-        }
-    }
-
     fn debug_visualize_spawner(
         mut cmds: Commands,
         spawner_query: Query<(Entity, &Transform, &Spawner), Without<Shape>>,
@@ -163,6 +144,15 @@ pub mod debug_plugin {
                 );
             cmds.entity(entity).insert(spawner_visual_bundle);
         }
+    }
+
+    pub fn debug_dump_graphs(app: &mut App) {
+        let rsched = get_render_schedule(app);
+        let rgraph = get_render_graph(app);
+        let appsched = get_schedule(app);
+        fs::write("zrenderschedule.dot", rsched).expect("couldnt write render schedule to file");
+        fs::write("zrendergraph.dot", rgraph).expect("couldnt write render schedule to file");
+        fs::write("zappschedule.dot", appsched).expect("couldnt write render schedule to file");
     }
 
     fn debug_visualize_weapon_spawn_point(
@@ -200,103 +190,22 @@ pub mod debug_plugin {
         }
     }
 
-    // trunk-ignore(clippy/dead_code)
-    pub fn debug_dump_graphs(app: &mut App) {
-        let rsched = get_render_schedule(app);
-        let rgraph = get_render_graph(app);
-        let appsched = get_schedule(app);
-        fs::write("zrenderschedule.dot", rsched).expect("couldnt write render schedule to file");
-        fs::write("zrendergraph.dot", rgraph).expect("couldnt write render schedule to file");
-        fs::write("zappschedule.dot", appsched).expect("couldnt write render schedule to file");
+    fn debug_logging(
+        time: Res<Time>,
+        mut timer: ResMut<DebugTimer>,
+        current_gamestate: Res<State<GameStage>>,
+        mut collision_events: EventReader<CollisionEvent>,
+        mut contact_force_events: EventReader<ContactForceEvent>,
+    ) {
+        for collision_event in collision_events.iter() {
+            info!("Received collision event: {:?}", collision_event);
+        }
+        for contact_force_event in contact_force_events.iter() {
+            info!("Received contact force event: {:?}", contact_force_event);
+        }
+
+        if timer.tick(time.delta()).finished() {
+            info!("CURRENT GAMESTATE: {:?}", current_gamestate)
+        }
     }
 }
-
-// fn show_fps(time: Res<Time>, mut deltas: Local<Vec<f32>>, mut ring_ptr: Local<usize>) {
-//     let delta = time.delta_seconds_f64();
-//     let current_time = time.elapsed_seconds_f64();
-//     let at_interval = |t: f64| current_time % t < delta;
-//     if *ring_ptr >= 4096 {
-//         *ring_ptr = 0;
-//     }
-//     if deltas.len() <= *ring_ptr {
-//         deltas.push(time.delta_seconds());
-//     } else {
-//         deltas.insert(*ring_ptr, time.delta_seconds());
-//     }
-//     *ring_ptr += 1;
-//     if at_interval(2.0) {
-//         let fps = deltas.len() as f32 / deltas.iter().sum::<f32>();
-//         let last_fps = 1.0 / time.delta_seconds();
-//         screen_print!(col: Color::GREEN, "fps: {fps:.0}");
-//         screen_print!(col: Color::CYAN, "last: {last_fps:.0}");
-//     }
-// }
-
-// fn show_cursor_position(
-//     windows: Res<Windows>,
-//     time: Res<Time>,
-//     camera: Query<(
-//         &Camera,
-//         &GlobalTransform,
-//         (With<MainCamera>, With<MainCameraTag>),
-//     )>,
-// ) {
-//     let delta = time.delta_seconds_f64();
-//     let current_time = time.elapsed_seconds_f64();
-//     let at_interval = |t: f64| current_time % t < delta;
-//     if at_interval(0.5) {
-//         let (camera, camera_transform, _) = camera.single();
-//         if let RenderTarget::Window(window) = camera.target {
-//             let window = windows.get(window).unwrap();
-//             if let Some(screen_pos) = window.cursor_position() {
-//                 let window_size = Vec2::new(window.width(), window.height());
-//                 let ndc = (screen_pos / window_size) * 2.0 - Vec2::ONE;
-//                 let ndc_to_world =
-//                     camera_transform.compute_matrix() * camera.projection_matrix().inverse();
-//                 let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
-//                 let world_pos: Vec2 = world_pos.truncate();
-
-//                 screen_print!("World coords: {:.3}/{:.3}", world_pos.x, world_pos.y);
-//                 screen_print!("Window coords: {:.3}/{:.3}", screen_pos.x, screen_pos.y);
-//             }
-//         }
-//     }
-// }
-
-// fn log_collisions(mut events: EventReader<CollisionEvent>) {
-//     for event in events.iter() {
-//         if event.is_started() {
-//             info!("{:?}", event);
-//         }
-//     }
-// }
-
-// fn debug_collision_events(mut commands: Commands, mut events: EventReader<CollisionEvent>) {
-//     events
-//         .iter()
-//         // We care about when the entities "start" to collide
-//         .filter(|e| e.is_started())
-//         .filter_map(|event| {
-//             let (entity_1, entity_2) = event.rigid_body_entities();
-//             let (layers_1, layers_2) = event.collision_layers();
-//             if is_player(layers_1) && is_enemy(layers_2) | is_player(layers_2) && is_enemy(layers_1)
-//             {
-//                 info!("player and enemy collided");
-//                 Some(entity_1)
-//             } else if is_player(layers_2) && is_sensor(layers_1)
-//                 || is_player(layers_1) && is_sensor(layers_2)
-//             {
-//                 info!("player and sensor collided");
-//                 layers_1.groups_bits();
-//                 Some(entity_1)
-//             } else {
-//                 info!("not player or enemy or sensor, we can ignore");
-//                 // This event is not the collision between an enemy and the player. We can ignore it.
-//                 None
-//             }
-//         })
-//         .for_each(|entity| {
-//             // let player = entity.id();
-//             info!("{}", entity.id());
-//         })
-// }
