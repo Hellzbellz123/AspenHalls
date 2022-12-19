@@ -163,7 +163,7 @@ pub fn spawn_timer_system(
     for (transform, spawner) in spawner_query.iter() {
         for _enemy_to_spawn in 0..spawner.max_enemies {
             ew.send(SpawnEnemyEvent {
-                enemy_to_spawn: spawner.enemytype,
+                enemy_to_spawn: spawner.enemytype.clone(),
                 spawn_position: (transform.translation),
                 spawn_count: 1,
             });

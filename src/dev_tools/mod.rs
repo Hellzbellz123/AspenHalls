@@ -68,7 +68,6 @@ pub mod debug_plugin {
                 .add_plugin(RapierDebugRenderPlugin::default())
                 //custom inspectables not from plugins
                 .register_inspectable::<MenuState>()
-                .register_inspectable::<Spawner>()
                 .register_inspectable::<MovementState>()
                 .register_inspectable::<CombatStats>()
                 .register_inspectable::<DefenseStats>()
@@ -79,6 +78,7 @@ pub mod debug_plugin {
                 .register_inspectable::<FacingDirection>()
                 .register_inspectable::<TimeInfo>()
                 .register_inspectable::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
+                .register_type::<Spawner>()
                 .register_type::<PlayerActions>()
                 .register_type::<AnimState>()
                 .register_type::<AIAttackTimer>()

@@ -4,6 +4,7 @@ use bevy::{
 };
 use bevy_console::{reply, ConsoleCommand};
 use rand::{thread_rng, Rng};
+use strum::VariantNames;
 use std::str::FromStr;
 
 use crate::{
@@ -79,7 +80,7 @@ pub fn spawnweapon_command(
                     }
 
                     ew.send(SpawnWeaponEvent {
-                        weapon_to_spawn: cspawn_type,
+                        weapon_to_spawn: cspawn_type.clone(),
                         spawn_position: cspawn_location,
                         spawn_count: 1,
                     })
@@ -91,7 +92,7 @@ pub fn spawnweapon_command(
                 spawn.ok();
             }
             Err(err) => {
-                reply!(spawn, "invalid weapon: {}", err);
+                reply!(spawn, "{}, possible values are {:?}", err, WeaponType::VARIANTS );
             }
         }
     }
@@ -131,7 +132,7 @@ pub fn spawnenemy_command(
                     }
 
                     ew.send(SpawnEnemyEvent {
-                        enemy_to_spawn: cspawn_type,
+                        enemy_to_spawn: cspawn_type.clone(),
                         spawn_position: cspawn_location,
                         spawn_count: 1,
                     })
@@ -143,7 +144,7 @@ pub fn spawnenemy_command(
                 spawn.ok();
             }
             Err(err) => {
-                reply!(spawn, "invalid enemy: {}", err);
+                reply!(spawn, "{}, possible values are {:?}", err, EnemyType::VARIANTS);
             }
         }
     }

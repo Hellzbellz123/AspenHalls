@@ -1,13 +1,6 @@
 use std::{fs::File, sync::Arc};
 use tracing_subscriber::{prelude::*, EnvFilter, Registry};
 
-// A layer that logs events to stdout using the human-readable "pretty"
-// format.
-pub fn init_log_to_file() {}
-
-#[cfg(target_os = "android")]
-mod android_tracing;
-
 pub mod prelude {
     //! The Bevy Log Prelude.
     #[doc(hidden)]
@@ -84,6 +77,7 @@ impl Plugin for VCLogPlugin {
         let subscriber = Registry::default()
             .with(filter_layer)
             .with(tracing_error::ErrorLayer::default());
+
         let stdout_log = tracing_subscriber::fmt::layer();
 
         #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android")))]

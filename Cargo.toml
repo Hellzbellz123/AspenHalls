@@ -1,5 +1,7 @@
 [package]
-authors = ["Hellzbellz123 (Taylor Smith)"]
+authors = [
+  "Hellzbellz123 (Taylor Smith)",
+]
 description = "Vanilla Coffee game: in progress"
 documentation = "https://github.com/Hellzbellz123/VanillaCoffee/blob/main/README.md"
 edition = "2021"
@@ -12,35 +14,49 @@ version = "0.0.3"
 
 [features]
 dev = [
-  "bevy_rapier2d/debug-render",
-  "big-brain/trace",
   "bevy-debug-text-overlay/debug",
+  "bevy_rapier2d/debug-render",
 ]
-dev_linux = ["bevy/dynamic", "dev"]
-trace = ["bevy/trace_tracy", "dev"]
+dev_linux = [
+  "bevy/dynamic",
+  "dev",
+]
+trace = [
+  "bevy/trace",
+  "big-brain/trace",
+  "bevy/trace_tracy",
+  "dev",
+]
 
 [workspace]
-exclude = ["crates"]
+exclude = [
+  "crates",
+]
 resolver = "2"
 
 [build-dependencies]
 embed-resource = "1.7.4"
 
 [dependencies]
-bevy-debug-text-overlay = { version = "4.0.1", default-features = false, features = [
+bevy-debug-text-overlay = {version = "4.0.1", default-features = false, features = [
   "builtin-font",
-] }
+]}
 bevy_framepace = "0.9.1"
-bevy_mod_debugdump = { version = "0.6.0", features = [
+bevy_mod_debugdump = {version = "0.6.0", features = [
   "bevy_render",
   "render_graph",
-] }
+]}
 bevy_prototype_lyon = "0.7.1"
 bevycheck = "0.4.0"
 chrono = "0.4.23"
 rand = "0.8.5"
 serde = "1.0.144"
 serde_derive = "1.0.144"
+strum = {version = "0.24.1", features = [
+  "derive",
+  "std",
+  "strum_macros",
+]}
 toml = "0.5.8"
 tracing-error = "0.2.0"
 tracing-log = "0.1.3"
@@ -68,7 +84,10 @@ git = "https://github.com/zkat/big-brain"
 # version = "0.3.1"
 
 [dependencies.rust-embed]
-features = ["debug-embed", "include-exclude"]
+features = [
+  "debug-embed",
+  "include-exclude",
+]
 version = "6.4.2"
 
 [dependencies.bevy]
@@ -100,30 +119,41 @@ version = "0.9.0"
 [dependencies.bevy_ecs_ldtk]
 git = "https://github.com/Trouv/bevy_ecs_ldtk.git"
 # version = "0.4.0"
-features = ["atlas"]
+features = [
+  "atlas",
+]
 
 [dependencies.bevy_asset_loader]
 # git = "https://github.com/NiklasEi/bevy_asset_loader.git"
-features = ["2d"]
+features = [
+  "2d",
+]
 version = "0.14.1"
 
 [dependencies.bevy_kira_audio]
 # git = "https://github.com/NiklasEi/bevy_kira_audio.git"
 default-features = false
-features = ["ogg"]
+features = [
+  "ogg",
+]
 version = "0.13.0"
 
 [dependencies.bevy-inspector-egui]
-version = "0.14.0"
+version = "0.15.0"
 
 # features = ["bevy_render", "bevy_sprite", "bevy_text"]
 
 [dependencies.bevy-inspector-egui-rapier]
-features = ["rapier2d"]
-version = "0.8.0"
+features = [
+  "rapier2d",
+]
+version = "0.9.0"
 
 [dependencies.bevy_rapier2d]
-features = ["parallel", "simd-nightly"]
+features = [
+  # "parallel",
+  # "simd-nightly",
+]
 version = "0.19.0"
 
 [dependencies.kayak_ui]
@@ -137,7 +167,9 @@ version = "0.7.1"
 
 [dependencies.image]
 default-features = false
-features = ["png"]
+features = [
+  "png",
+]
 version = "0.24.3"
 
 [target.x86_64-pc-windows-msvc.dependencies]
@@ -146,7 +178,9 @@ winapi = "0.3.9"
 [package.metadata.bundle]
 copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
 description = "Vanilla Coffee: a game in progress"
-icon = ["assets/textures/stonercaticon.png"]
+icon = [
+  "assets/textures/stonercaticon.png",
+]
 identifier = "io.github.hellzbellz123.vanillacoffee"
 long_description = """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do

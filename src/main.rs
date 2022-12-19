@@ -14,7 +14,8 @@ use bevy::prelude::{
     Vec2,
 };
 use bevy::window::{
-    MonitorSelection, PresentMode, WindowPlugin, WindowPosition, WindowResizeConstraints,
+    MonitorSelection, PresentMode, WindowMode, WindowPlugin, WindowPosition,
+    WindowResizeConstraints,
 };
 use bevy::{
     prelude::{App, Query, Res, ResMut, With},
@@ -56,8 +57,9 @@ pub const APP_SETTINGS_PATH: &str = "./config.toml";
 fn main() {
     let mut vanillacoffee = App::new();
     vanillacoffee.add_plugin(VCLogPlugin {
+        // filter: "".into(),
         filter: "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
-        level: bevy::log::Level::DEBUG,
+        level: bevy::log::Level::TRACE,
     });
     info!("Starting Game");
 
@@ -98,7 +100,10 @@ fn main() {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
-                .set(ImagePlugin::default_nearest())
+                // .set(LogPlugin {
+                //     filter: "trace".into(),
+                //     level: bevy::log::Level::TRACE,
+                // })
                 .disable::<LogPlugin>(),
         )
         .insert_resource(ClearColor(Color::Hsla {
@@ -132,7 +137,7 @@ fn main() {
         })
         .add_plugin(loading::AssetLoadPlugin)
         .add_plugin(ui::UIPlugin)
-        .add_plugin(VCConsolePlugin)
+        // .add_plugin(VCConsolePlugin)
         .add_plugin(utilities::UtilitiesPlugin)
         .add_plugin(game::GamePlugin)
         .add_system(update_settings)

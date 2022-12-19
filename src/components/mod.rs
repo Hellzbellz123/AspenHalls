@@ -1,19 +1,16 @@
-pub mod error;
-
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
 pub mod actors {
     pub mod spawners {
-
-        use crate::components::error::ParseEnemyTypeError;
         use bevy::{
             prelude::{Component, Deref, DerefMut, ReflectComponent, Vec3},
             reflect::Reflect,
             time::Timer,
         };
         use bevy_inspector_egui::Inspectable;
-        use std::str::FromStr;
+        use strum::{EnumVariantNames, EnumString};
+
 
         #[derive(Component)]
         pub struct EnemyContainerTag;
@@ -21,40 +18,20 @@ pub mod actors {
         #[derive(Debug, Component, DerefMut, Deref)]
         pub struct SpawnerTimer(pub Timer);
 
-        #[derive(Component, Inspectable, Debug, Reflect, Default, Clone, Copy)]
+        #[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString)]
+        #[strum(serialize_all = "lowercase")]
         pub enum EnemyType {
             #[default]
             Skeleton,
             Slime,
         }
 
-        impl FromStr for EnemyType {
-            type Err = ParseEnemyTypeError;
-            fn from_str(input: &str) -> Result<EnemyType, Self::Err> {
-                match input.to_lowercase().as_str() {
-                    "skeleton" => Ok(EnemyType::Skeleton),
-                    "slime" => Ok(EnemyType::Slime),
-                    _ => Err(ParseEnemyTypeError),
-                }
-            }
-        }
-
-        #[derive(Component, Inspectable, Debug, Reflect, Default, Clone, Copy)]
+        #[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString)]
+        #[strum(serialize_all = "lowercase")]
         pub enum WeaponType {
             #[default]
             SmallSMG,
             SmallPistol,
-        }
-
-        impl FromStr for WeaponType {
-            type Err = ParseEnemyTypeError;
-            fn from_str(input: &str) -> Result<WeaponType, Self::Err> {
-                match input {
-                    "smallpistol" => Ok(WeaponType::SmallPistol),
-                    "smallsmg" => Ok(WeaponType::SmallSMG),
-                    _ => Err(ParseEnemyTypeError),
-                }
-            }
         }
 
         #[derive(Component, Inspectable, Debug, Reflect)]
@@ -64,7 +41,8 @@ pub mod actors {
             EnemyType,
         }
 
-        #[derive(Component, Inspectable)]
+        #[derive(Component, Default, Reflect)]
+        #[reflect(Component)]
         pub struct Spawner {
             pub enemytype: EnemyType,
             pub spawn_radius: f32,
