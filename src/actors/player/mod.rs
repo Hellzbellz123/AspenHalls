@@ -1,10 +1,10 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
 
 use crate::{
-    action_manager::bindings::PlayerInput,
+    actions::bindings::PlayerInput,
     actors::{
+        combat::components::WeaponSlots,
         player::movement::{camera_movement_system, player_movement_system, player_sprint},
-        weapons::components::WeaponSlots,
     },
     components::actors::{
         animation::FacingDirection,
@@ -28,10 +28,10 @@ use bevy_rapier2d::prelude::{
 
 use self::{
     actions::{equip_closest_weapon, spawn_skeleton_button},
-    actions::{player_attack_sender, PlayerMeleeEvent, PlayerShootEvent},
+    actions::{player_attack_sender, PlayerMeleeEvent, ShootEvent},
 };
 
-use super::weapons::components::WeaponSocket;
+use super::combat::components::WeaponSocket;
 
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
@@ -45,7 +45,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerMeleeEvent>()
-            .add_event::<PlayerShootEvent>()
+            .add_event::<ShootEvent>()
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)
                     .with_system(spawn_player.label(SystemLabels::Spawn)),

@@ -1,11 +1,11 @@
 pub mod commands;
 
 use bevy::prelude::*;
-use bevy_console::{
-    AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey,
-};
+use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
 
-use self::commands::*;
+use self::commands::{
+    spawnenemy_command, spawnweapon_command, SpawnEnemyCommand, SpawnWeaponCommand,
+};
 
 pub struct VCConsolePlugin;
 

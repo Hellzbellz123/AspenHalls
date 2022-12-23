@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::Anchor};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actors::weapons::components::{
+    actors::combat::components::{
         BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
         WeaponColliderTag, WeaponStats, WeaponTag,
     },

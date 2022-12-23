@@ -1,12 +1,11 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
-use super::actions::PlayerActions;
+use super::PlayerActions;
 
 pub struct ActionsPlugin;
 
 // holds default bindings for game
-
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(InputManagerPlugin::<PlayerActions>::default());

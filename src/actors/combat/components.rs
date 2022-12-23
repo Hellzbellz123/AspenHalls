@@ -10,6 +10,14 @@ use bevy_rapier2d::prelude::{Collider, CollisionGroups};
 
 use crate::components::actors::{bundles::RigidBodyBundle, spawners::WeaponType};
 
+#[derive(Debug, Component)]
+pub struct Damaged {
+    pub amount: f32,
+}
+
+#[derive(Debug, Component)]
+pub struct Destroyed;
+
 #[derive(Bundle)]
 pub struct WeaponBundle {
     pub name: Name,

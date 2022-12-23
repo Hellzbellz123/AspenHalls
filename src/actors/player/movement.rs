@@ -6,7 +6,7 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerActions,
+    actions::PlayerActions,
     components::{
         actors::{
             animation::{AnimState, FacingDirection},
@@ -100,11 +100,10 @@ pub fn camera_movement_system(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
 ) {
     let (mut camera_trans, tag) = camera_transform.single_mut();
-    let player_trans = player_transform.single();
-    let ctt = camera_trans.translation.truncate();
-    let ptt = player_trans.translation.truncate();
+    let playertrans = player_transform.single().translation.truncate();
+    let camtrans = camera_trans.translation.truncate();
 
     if tag.is_active {
-        camera_trans.translation = (ctt.lerp(ptt, 0.05)).extend(999.0);
+        camera_trans.translation = (camtrans.lerp(playertrans, 0.05)).extend(999.0);
     }
 }

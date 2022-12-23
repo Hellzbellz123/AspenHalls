@@ -22,14 +22,14 @@ pub mod debug_plugin {
     use std::{fs, time::Duration};
 
     use crate::{
-        action_manager::actions::PlayerActions,
-        actors::weapons::components::{
+        actions::PlayerActions,
+        actors::combat::components::{
             CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
         },
         components::{
             actors::{
                 ai::{
-                    AIAttackTimer, AICanChase, AICanWander, AIChaseAction, AIEnemy, AIWanderAction,
+                    AIAttackState, AICanChase, AICanWander, AIChaseAction, AIEnemy, AIWanderAction,
                     ActorType, AggroScore, TypeEnum,
                 },
                 animation::{AnimState, AnimationSheet, FacingDirection},
@@ -81,7 +81,7 @@ pub mod debug_plugin {
                 .register_type::<Spawner>()
                 .register_type::<PlayerActions>()
                 .register_type::<AnimState>()
-                .register_type::<AIAttackTimer>()
+                .register_type::<AIAttackState>()
                 .register_type::<TimeToLive>()
                 .register_type::<WeaponTag>()
                 // weapon stuff

@@ -4,7 +4,7 @@ use bevy_inspector_egui::Inspectable;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::{actions::PlayerActions, bindings::ActionsPlugin},
+    actions::{bindings::ActionsPlugin, PlayerActions},
     actors::ActorPlugin,
     audio::InternalAudioPlugin,
     components::actors::general::TimeToLive,

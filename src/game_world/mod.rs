@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::LdtkPlugin;
 
+pub mod components;
 pub mod homeworld;
 
 pub struct MapSystemPlugin;

@@ -34,7 +34,7 @@ impl Plugin for HomeWorldPlugin {
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)
                     .with_system(systems::spawn_mapbundle) //TODO: Change back to menu when kayakui new menu is done
-                    .with_system(systems::spawn_level_0)
+                    .with_system(systems::spawn_homeworld)
                     .with_system(spawn_initial_stuff),
             )
             .add_system_set(

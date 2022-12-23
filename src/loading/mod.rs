@@ -3,6 +3,7 @@ pub mod splashscreen;
 
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+// use bevy_asset_loader::prelude::
 
 use crate::game::GameStage;
 use crate::loading::assets::{
@@ -20,9 +21,10 @@ impl Plugin for AssetLoadPlugin {
         app.add_plugin(splashscreen::SplashPlugin);
         info!("asset loader init");
         LoadingState::new(GameStage::Loading)
+            .with_dynamic_collections::<StandardDynamicAssetCollection>(vec!["registery.assets"])
+            .with_collection::<ActorTextureHandles>()
             .with_collection::<FontHandles>()
             .with_collection::<AudioHandles>()
-            .with_collection::<ActorTextureHandles>()
             .with_collection::<UiTextureHandles>()
             .with_collection::<MapAssetHandles>()
             .on_failure_continue_to_state(GameStage::FailedLoading)

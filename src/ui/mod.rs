@@ -15,7 +15,7 @@ use kayak_ui::{
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerActions,
+    actions::PlayerActions,
     components::OnSplashScreen,
     game::{GameStage, TimeInfo},
     loading::assets::FontHandles,
@@ -72,6 +72,7 @@ impl Plugin for UIPlugin {
 }
 
 pub fn toggle_pause_menu(
+    mut time: ResMut<Time>,
     mut timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<PlayerActions>>,
     mut menu_state: ResMut<State<MenuState>>,
@@ -88,6 +89,7 @@ pub fn toggle_pause_menu(
 
         if menu_state.current() == &MenuState::Pause {
             //if calling this function and MenuState is pause we are already paused and want too unpause
+            time.unpause();
             timeinfo.pause_menu = false;
             timeinfo.game_paused = false;
             timeinfo.time_step = 1.0;
@@ -98,6 +100,7 @@ pub fn toggle_pause_menu(
             event_reader.clear();
         } else if menu_state.current() == &MenuState::HideMenu {
             //if calling this function and MenuState is HideMenu we want too set menustate too pause and freeze time. kayak will listen for the menustate.
+            time.pause();
             timeinfo.pause_menu = true;
             timeinfo.game_paused = true;
             timeinfo.time_step = 0.;
@@ -105,7 +108,7 @@ pub fn toggle_pause_menu(
                 .set(MenuState::Pause)
                 .expect("couldnt push pausemenu state");
             event_reader.clear();
-            info!("pause menu should be shown and game should be paused")
+            info!("pause menu should be shown and game should be paused");
         }
     }
 }
@@ -131,7 +134,7 @@ pub fn game_ui(
     fonts: Res<FontHandles>,
 ) {
     info!("setting up UI");
-    font_mapping.set_default(fonts.fantasque_sans_msdf.clone());
+    font_mapping.set_default(fonts.main_font.clone());
 
     let mut widget_context = KayakRootContext::new();
     widget_context.add_plugin(KayakWidgetsContextPlugin);

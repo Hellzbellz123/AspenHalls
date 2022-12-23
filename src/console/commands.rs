@@ -4,8 +4,8 @@ use bevy::{
 };
 use bevy_console::{reply, ConsoleCommand};
 use rand::{thread_rng, Rng};
-use strum::VariantNames;
 use std::str::FromStr;
+use strum::VariantNames;
 
 use crate::{
     components::actors::{
@@ -15,7 +15,7 @@ use crate::{
     utilities::game::ACTOR_Z_INDEX,
 };
 
-/// spawn weapon [WeaponType] x amount of times using `SpawnWeaponEvent`
+/// spawn weapon [`WeaponType`] x amount of times using `SpawnWeaponEvent`
 #[derive(ConsoleCommand)]
 #[console_command(name = "spawnweapon")]
 pub struct SpawnWeaponCommand {
@@ -30,7 +30,7 @@ pub struct SpawnWeaponCommand {
     atplayer: Option<bool>,
 }
 
-///  spawns enemy [EnemyType] x amount of times using `SpawnEnemyEvent`
+///  spawns enemy [`EnemyType`] x amount of times using `SpawnEnemyEvent`
 #[derive(ConsoleCommand)]
 #[console_command(name = "spawnenemy")]
 pub struct SpawnEnemyCommand {
@@ -92,7 +92,12 @@ pub fn spawnweapon_command(
                 spawn.ok();
             }
             Err(err) => {
-                reply!(spawn, "{}, possible values are {:?}", err, WeaponType::VARIANTS );
+                reply!(
+                    spawn,
+                    "{}, possible values are {:?}",
+                    err,
+                    WeaponType::VARIANTS
+                );
             }
         }
     }
@@ -132,7 +137,7 @@ pub fn spawnenemy_command(
                     }
 
                     ew.send(SpawnEnemyEvent {
-                        enemy_to_spawn: cspawn_type.clone(),
+                        enemy_to_spawn: cspawn_type,
                         spawn_position: cspawn_location,
                         spawn_count: 1,
                     })
@@ -144,7 +149,12 @@ pub fn spawnenemy_command(
                 spawn.ok();
             }
             Err(err) => {
-                reply!(spawn, "{}, possible values are {:?}", err, EnemyType::VARIANTS);
+                reply!(
+                    spawn,
+                    "{}, possible values are {:?}",
+                    err,
+                    EnemyType::VARIANTS
+                );
             }
         }
     }

@@ -1,3 +1,5 @@
+pub(crate) mod bindings;
+
 use bevy::reflect::Reflect;
 use bevy_inspector_egui::Inspectable;
 use leafwing_input_manager::Actionlike;

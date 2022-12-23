@@ -23,7 +23,7 @@ pub fn set_window_icon(
     // here we use the `image` crate to load our icon data from a png file
     // this is not a very bevy-native solution, but it will do
     let (icon_rgba, icon_width, icon_height) = {
-        let image = image::open("assets/ico/stonercaticon.png")
+        let image = image::open("data/assets/ico/stonercaticon.png")
             .expect("Failed to open icon path: assets/ico/stonercaticon.png")
             .into_rgba8();
         let (width, height) = image.dimensions();
@@ -37,6 +37,8 @@ pub fn set_window_icon(
     primary.set_window_icon(std::option::Option::Some(icon));
 }
 
+/// # Panics
+/// will panic if their is no window, will also panic if the bevy diagnostics plugin isnt added
 /// This system will then change the title during execution
 pub fn set_debug_title(
     mut windows: ResMut<Windows>,
@@ -51,7 +53,7 @@ pub fn set_debug_title(
                 .get(FrameTimeDiagnosticsPlugin::FPS)
                 .unwrap()
                 .average()
-                .unwrap_or_default(),
+                .unwrap_or(666.66),
             (entities.len()),
             state.current()
         );

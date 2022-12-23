@@ -79,7 +79,18 @@ pub fn settings_menu_render(
     images: Res<UiTextureHandles>,
     props: Query<&SettingsMenuProps>,
 ) -> bool {
-    let props = props.get(entity).unwrap();
+    let props = props.get(entity);
+
+    let props: &SettingsMenuProps = match props {
+        Ok(props) => props,
+        Err(err) => {
+            warn!("settings_menu_render: error getting props, {}", err);
+            &SettingsMenuProps {
+                settings_menu_state: MenuState::HideMenu,
+            }
+        }
+    };
+
     let parent_id = Some(entity);
 
     let state_entity = widget_context.use_state(&mut commands, entity, MenuState::default());

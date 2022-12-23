@@ -1,6 +1,6 @@
 use crate::{
-    action_manager::actions::PlayerActions,
-    actors::weapons::components::{
+    actions::PlayerActions,
+    actors::combat::components::{
         BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
         WeaponTag,
     },
@@ -45,7 +45,7 @@ pub enum AttackEventType {
     Ranged,
 }
 
-pub struct PlayerShootEvent {
+pub struct ShootEvent {
     pub bullet_spawn_loc: Vec3,
     pub travel_dir: Vec2,
 }
@@ -79,7 +79,7 @@ pub fn player_attack_sender(
     player_query: Query<(&mut Player, &mut Transform), With<MovementState>>,
     mut input_query: Query<&lfActionState<PlayerActions>>,
     mouse_pos: Res<EagerMousePos>,
-    mut shootwriter: EventWriter<PlayerShootEvent>,
+    mut shootwriter: EventWriter<ShootEvent>,
 ) {
     if player_query.is_empty()
         | weapon_query.is_empty()
@@ -98,7 +98,7 @@ pub fn player_attack_sender(
                 let action_state = input_query.single_mut();
 
                 if action_state.pressed(PlayerActions::Shoot) {
-                    shootwriter.send(PlayerShootEvent {
+                    shootwriter.send(ShootEvent {
                         bullet_spawn_loc: barrel_loc,
                         travel_dir: direction,
                     })

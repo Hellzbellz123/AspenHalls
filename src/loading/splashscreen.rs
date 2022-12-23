@@ -2,8 +2,7 @@ use bevy::prelude::*;
 // use rust_embed::RustEmbed;
 use crate::{
     components::{MainCameraTag, OnSplashScreen, SplashTimer},
-    game::GameStage,
-    utilities::game::SystemLabels,
+    loading::assets::SPLASHASSETPATH,
 };
 
 // This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
@@ -11,17 +10,21 @@ pub struct SplashPlugin;
 
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
+        // TODO: do some speciial trickery to make this system work awesome
         // As this plugin is managing the splash screen, it will focus on the state `GameState::Splash`
 
-        app.add_system_set(
-            SystemSet::on_enter(GameStage::Loading)
-                .with_system(
-                    spawn_main_camera
-                        .label(SystemLabels::InitSettings)
-                        .before(SystemLabels::UpdateSettings),
-                )
-                .with_system(splash_setup.label(SystemLabels::UpdateSettings)),
-        );
+        app
+            // .add_system_set(
+            //     SystemSet::on_enter(GameStage::Loading)
+            //         .with_system(
+            //         )
+            //         // .with_system(splash_setup.label(SystemLabels::UpdateSettings)),
+            // )
+            .add_startup_system(
+                spawn_main_camera, // .label(SystemLabels::InitSettings)
+                                   // .before(SystemLabels::UpdateSettings),
+            )
+            .add_startup_system(splash_setup); //.label(SystemLabels::UpdateSettings));
     }
 }
 
@@ -43,7 +46,7 @@ fn spawn_main_camera(mut commands: Commands) {
 
 fn splash_setup(mut commands: Commands, assetserver: ResMut<AssetServer>) {
     info!("loading splash");
-    let img = assetserver.load("textures/splash/splashL.png");
+    let img = assetserver.load(SPLASHASSETPATH);
 
     // Display the logo
     info!("spawning splash ImageBundle");

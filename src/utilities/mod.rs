@@ -201,6 +201,7 @@ fn save_settings(app_settings: AppSettings, settings_path: &Path) {
 /// When `s` is `0.0`, the result will be equal to `self`.  When `s` is `1.0`, the result
 /// will be equal to `rhs`. When `s` is outside of range `[0, 1]`, the result is linearly
 /// extrapolated.
+#[must_use]
 pub fn lerp(from: f32, to: f32, s: f32) -> f32 {
     from + ((to - from) * s)
 }

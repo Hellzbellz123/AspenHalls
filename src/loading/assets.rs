@@ -3,67 +3,69 @@ use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::LdtkAsset;
 use kayak_ui::prelude::KayakFont;
 
+/// game data folder is data, anything thats not ron/toml/json/etc goes in assets
+pub const SPLASHASSETPATH: &str = "assets/textures/splash/splashL.png";
+
 #[derive(AssetCollection, Resource)]
 pub struct FontHandles {
     /// default font
-    #[asset(path = "fonts/kttf/FantasqueSansMonoNF.kayak_font")]
-    pub fantasque_sans_msdf: Handle<KayakFont>,
+    #[asset(key = "main_font")]
+    pub main_font: Handle<KayakFont>,
+
+    #[asset(key = "title_font")]
+    pub title_font: Handle<KayakFont>,
 }
 
 #[derive(AssetCollection, Resource, Debug)]
 pub struct AudioHandles {
     /// looping background soundtrack
-    #[asset(path = "audio/ost/expansion.ogg")]
+    #[asset(key = "ost")]
     pub gamesoundtrack: Handle<bevy_kira_audio::AudioSource>,
 
     /// a vector of footstep files, currently 8
-    #[asset(path = "audio/footstep", collection(typed))]
+    #[asset(key = "footsteps", collection(typed))]
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
 }
 
 #[derive(AssetCollection, Resource, Clone)]
 pub struct ActorTextureHandles {
     /// player character 1 texture handle
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "textures/actors/heroes/rex-sheet.png")]
+    #[asset(key = "hero_rex")]
     pub rex_sheet: Handle<TextureAtlas>,
 
     /// skeleton enemy asset
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "textures/actors/enemies/skeleton-sheet.png")]
+    #[asset(key = "skeleton")]
     pub skeleton_sheet: Handle<TextureAtlas>,
 
     /// slime enemy asset
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 5, rows = 4))]
-    #[asset(path = "textures/actors/enemies/slime-sheet.png")]
+    #[asset(key = "slime")]
     pub slime_sheet: Handle<TextureAtlas>,
 
     /// first weapon, small smg
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 1, rows = 1))]
-    #[asset(path = "textures/actors/weapons/smallsmg.png")]
+    #[asset(key = "small_smg")]
     pub small_smg: Handle<TextureAtlas>,
 
-    #[asset(texture_atlas(tile_size_x = 18., tile_size_y = 36., columns = 1, rows = 1))]
-    #[asset(path = "textures/actors/weapons/smallpistol.png")]
+    /// second weapon a small pistol
+    #[asset(key = "small_pistol")]
     pub small_pistol: Handle<TextureAtlas>,
 
     /// bevy icon
-    #[asset(path = "textures/bevy.png")]
+    #[asset(key = "bevy_icon")]
     pub bevy_icon: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource, Clone)]
 pub struct UiTextureHandles {
     /// ui containing image
-    #[asset(path = "ui/panel_brown.png")]
+    #[asset(key = "panel_brown")]
     pub panel_brown: Handle<Image>,
 
     /// blue button texture
-    #[asset(path = "ui/buttonSquare_blue.png")]
+    #[asset(key = "button_unpressed")]
     pub button_blue: Handle<Image>,
 
     /// blue button darkend for pressing
-    #[asset(path = "ui/buttonSquare_blue_pressed.png")]
+    #[asset(key = "button_pressed")]
     pub button_blue_pressed: Handle<Image>,
 }
 

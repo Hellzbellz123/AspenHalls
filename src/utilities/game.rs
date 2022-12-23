@@ -16,7 +16,7 @@ pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
 /// actor size
 pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE.x, TILE_SIZE.y * 2.0);
 /// max amount of enemy actors
-pub const MAX_ENEMIES: usize = 20;
+pub const MAX_ENEMIES: i32 = 20;
 /// bullet speed
 pub const BULLET_SPEED_MODIFIER: f32 = 100.0;
 

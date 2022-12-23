@@ -4,18 +4,18 @@
 #![feature(type_ascription)]
 #![feature(lint_reasons)]
 // #![forbid(missing_docs)]
+#![allow(clippy::module_name_repetitions)]
 
 // #![allow(dead_code)]
 use audio::{Ambience, Music, Sound};
 
 use bevy::log::LogPlugin;
 use bevy::prelude::{
-    default, info, Camera2d, ClearColor, Color, ImagePlugin, OrthographicProjection, PluginGroup,
-    Vec2,
+    default, info, AssetPlugin, Camera2d, ClearColor, Color, ImagePlugin, OrthographicProjection,
+    PluginGroup, Vec2,
 };
 use bevy::window::{
-    MonitorSelection, PresentMode, WindowMode, WindowPlugin, WindowPosition,
-    WindowResizeConstraints,
+    MonitorSelection, PresentMode, WindowPlugin, WindowPosition, WindowResizeConstraints,
 };
 use bevy::{
     prelude::{App, Query, Res, ResMut, With},
@@ -27,17 +27,16 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
-use crate::console::VCConsolePlugin;
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::{debug_dump_graphs, DebugPlugin};
-
 use crate::utilities::logging::VCLogPlugin;
+
 use components::MainCameraTag;
 use game::TimeInfo;
 use utilities::game::AppSettings;
 
 /// module holds buttons that can be pressed
-pub mod action_manager;
+pub mod actions;
 /// module holds actors (entitys that have spatialbundles and that can affect gameplay)
 pub mod actors;
 /// module for all game audio, internal audio plugin handles all sound
@@ -59,7 +58,7 @@ fn main() {
     vanillacoffee.add_plugin(VCLogPlugin {
         // filter: "".into(),
         filter: "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
-        level: bevy::log::Level::TRACE,
+        level: bevy::log::Level::INFO,
     });
     info!("Starting Game");
 
@@ -84,9 +83,10 @@ fn main() {
                         },
                         // scale_factor_override: Some(1.0),
                         title: "Vanilla Coffee".to_string(),
-                        present_mode: match settings.vsync {
-                            true => PresentMode::Fifo,
-                            false => PresentMode::AutoNoVsync,
+                        present_mode: if settings.vsync {
+                            PresentMode::AutoVsync
+                        } else {
+                            PresentMode::AutoNoVsync
                         },
                         // resizable: true,
                         // decorations: false,
@@ -100,6 +100,10 @@ fn main() {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
+                .set(AssetPlugin {
+                    asset_folder: "data".to_string(),
+                    watch_for_changes: false,
+                })
                 // .set(LogPlugin {
                 //     filter: "trace".into(),
                 //     level: bevy::log::Level::TRACE,

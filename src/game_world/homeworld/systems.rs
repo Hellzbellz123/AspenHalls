@@ -7,10 +7,7 @@ use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
     components::actors::{bundles::PlayerColliderTag, general::Player},
-    game_world::homeworld::{
-        map_components::{HomeWorldTeleportSensor, TeleportTimer},
-        PlayerTeleportEvent,
-    },
+    game_world::homeworld::map_components::{HomeWorldTeleportSensor, TeleportTimer},
     loading::assets::MapAssetHandles,
     // loading::assets::MapAssetHandles,
 };
@@ -44,7 +41,7 @@ pub fn spawn_mapbundle(
     ));
 }
 
-pub fn spawn_level_0(mut commands: Commands) {
+pub fn spawn_homeworld(mut commands: Commands) {
     commands.insert_resource(TeleportTimer {
         timer: Timer::from_seconds(2.0, TimerMode::Once),
     });
@@ -65,7 +62,7 @@ pub fn homeworld_teleport(
     world_sensors: Query<Entity, With<HomeWorldTeleportSensor>>,
     player_collider_query: Query<Entity, With<PlayerColliderTag>>,
     mut player_query: Query<&mut Player>,
-    _ew: EventWriter<PlayerTeleportEvent>,
+    // _ew: EventWriter<PlayerTeleportEvent>,
     // rapier_context: Res<RapierContext>,
 ) {
     let _player = player_collider_query

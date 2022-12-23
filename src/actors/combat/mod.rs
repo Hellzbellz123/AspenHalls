@@ -1,3 +1,4 @@
+mod attacks;
 pub mod components;
 
 use std::{f32::consts::FRAC_PI_2, time::Duration};
@@ -5,67 +6,76 @@ use std::{f32::consts::FRAC_PI_2, time::Duration};
 use bevy::{math::vec2, prelude::*};
 
 use bevy_debug_text_overlay::screen_print;
-use bevy_rapier2d::prelude::{
-    ActiveEvents, Collider, ColliderMassProperties, CollisionEvent, CollisionGroups, Damping,
-    Friction, Group, LockedAxes, Restitution, RigidBody, Sensor, Velocity,
-};
+use bevy_rapier2d::prelude::{CollisionEvent, Velocity};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    action_manager::actions::PlayerActions,
+    actions::PlayerActions,
     actors::{
-        player::actions::PlayerShootEvent,
-        weapons::components::{
+        combat::components::{
             CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
         },
+        player::actions::ShootEvent,
     },
     components::actors::{
         ai::AIEnemy,
         animation::FacingDirection,
         bundles::{
-            EnemyColliderTag, PlayerProjectileBundle, PlayerProjectileColliderBundle,
-            PlayerProjectileColliderTag, PlayerProjectileTag, RigidBodyBundle,
+            EnemyColliderTag, EnemyProjectileColliderTag, EnemyProjectileTag, PlayerColliderTag,
+            PlayerProjectileColliderTag, PlayerProjectileTag,
         },
-        general::{DefenseStats, MovementState, Player, ProjectileStats, TimeToLive},
+        general::{DefenseStats, MovementState, Player, ProjectileStats},
     },
     game::{GameStage, TimeInfo},
     loading::assets::ActorTextureHandles,
-    utilities::{
-        game::{
-            SystemLabels, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER,
-            PLAYER_PROJECTILE_LAYER,
-        },
-        lerp, EagerMousePos,
-    },
+    utilities::{game::ACTOR_Z_INDEX, lerp, EagerMousePos},
 };
 
+use self::components::Damaged;
+
 #[derive(Debug, Clone, Copy, Resource)]
-pub struct EnemyCounterInformation {
-    pub enemys_killed: i32,
+pub struct PlayerGameInformation {
     pub damage_dealt: f32,
+    pub enemys_killed: i32,
+    pub damage_taken: f32,
+    pub player_deaths: i32,
+    pub enemy_damage_sent: f32,
+    pub player_damage_sent: f32,
+}
+
+#[derive(SystemLabel)]
+pub enum CombatSystemOrders {
+    Sysone,
+    Systwo,
+    Systhree,
 }
 
 pub struct WeaponPlugin;
 
 impl Plugin for WeaponPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(EnemyCounterInformation {
-            enemys_killed: 0,
+        app.insert_resource(PlayerGameInformation {
+            damage_taken: 0.0,
             damage_dealt: 0.0,
+            player_damage_sent: 0.0,
+            enemys_killed: 0,
+            enemy_damage_sent: 0.0,
+            player_deaths: 0,
         })
-            .insert_resource(WeaponFiringTimer::default())
-            .add_system_to_stage(CoreStage::PreUpdate, remove_cdw_componenet)
-            .add_system_set(
-                SystemSet::on_update(GameStage::Playing)
-                    .with_system(rotate_player_weapon)
-                    .with_system(weapon_visiblity_system)
-                    .with_system(update_equipped_weapon)
-                    .with_system(keep_player_weapons_centered)
-                    .with_system(shoot_weapon)
-                    .with_system(detect_bullet_hits_on_enemy)
-                    .with_system(remove_dead_enemys)
-                    .after(SystemLabels::Spawn),
-            );
+        .insert_resource(WeaponFiringTimer::default())
+        .add_system_to_stage(CoreStage::PreUpdate, remove_cdw_componenet)
+        .add_system_set(
+            SystemSet::on_update(GameStage::Playing)
+                .with_system(detect_bullet_hits_on_enemy)
+                .with_system(detect_bullet_hits_on_player)
+                .with_system(rotate_player_weapon)
+                .with_system(keep_player_weapons_centered)
+                .with_system(weapon_visiblity_system)
+                .with_system(update_equipped_weapon)
+                .with_system(shoot_weapon)
+                .with_system(deal_with_damaged)
+                .with_system(player_death_system),
+        );
     }
 }
 
@@ -128,7 +138,8 @@ fn keep_player_weapons_centered(
     for (wtag, mut wtransform, mut wvelocity) in weapon_query.iter_mut() {
         if wtag.parent.is_some() {
             let (playerstate, _) = player_query.single_mut();
-            // modify weapon sprite to be below player when facing up, this still looks strange but looks better than a back mounted smg
+            // modify weapon sprite to be below player when facing up, this
+            // still looks strange but looks better than a back mounted smg
             if playerstate.facing == FacingDirection::Up {
                 wtransform.translation = Vec3 {
                     x: 0.0,
@@ -162,7 +173,8 @@ fn weapon_visiblity_system(
     }
 }
 
-/// removes CurrentlyDrawnWeapon from entitys parented to player that dont match the entity in Weaponsocket.drawn_weapon
+/// removes `CurrentlyDrawnWeapon` from entitys parented to player that dont
+/// match the entity in `Weaponsocket.drawn_weapon`
 fn remove_cdw_componenet(
     mut cmds: Commands,
     names: Query<&Name>,
@@ -213,10 +225,13 @@ fn update_equipped_weapon(
     let (_ent, mut wsocket, _transform) = player_query.single_mut();
     let actions = query_action_state.single();
 
-    // TODO: this mostly works, but we need to have a system that checks if the current equippped weapon has a CurrentlyDrawnWeapon and adds it if it doesnt
-    // a default is basically what we need, so a weapon is always out if available i guess
+    // TODO: this mostly works, but we need to have a system that checks if the
+    // current equippped weapon has a CurrentlyDrawnWeapon and adds it if it
+    // doesnt a default is basically what we need, so a weapon is always out if
+    // available i guess
     if actions.just_pressed(PlayerActions::EquipSlot1) {
-        // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove CurrentlyDrawnWeapon from old weapon
+        // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
+        // CurrentlyDrawnWeapon from old weapon
         wsocket.drawn_slot = WeaponSlots::Slot1;
         let current_weapon_slots = &mut wsocket.weapon_slots.clone();
         let current_weapon = get_current_weapon(current_weapon_slots, &wsocket);
@@ -278,7 +293,7 @@ pub fn shoot_weapon(
     time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,
     mut fireingtimer: ResMut<WeaponFiringTimer>,
-    mut attackreader: EventReader<PlayerShootEvent>,
+    mut attackreader: EventReader<ShootEvent>,
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
     weapon_query: Query<
@@ -302,174 +317,130 @@ pub fn shoot_weapon(
     for event in attackreader.iter() {
         // info!("firing duration: {:#?}", fireingtimer.duration());
         if fireingtimer.finished() {
-            create_bullet(&mut cmds, &assets, event, wstats);
+            attacks::create_bullet(&mut cmds, &assets, event, wstats);
             fireingtimer.reset();
             // info!("fire timer finished");
             return;
-        } else {
-            // info!("fire timer not finished");
         }
     }
 }
 
-fn create_bullet(
-    cmds: &mut Commands,
-    assets: &ResMut<ActorTextureHandles>,
-    event: &PlayerShootEvent,
-    wstats: &WeaponStats,
-) {
-    cmds.spawn((
-        PlayerProjectileBundle {
-            name: Name::new("PlayerProjectile"),
-            tag: PlayerProjectileTag,
-            projectile_stats: ProjectileStats {
-                damage: wstats.damage,
-                speed: wstats.bullet_speed,
-                size: wstats.projectile_size,
-            },
-            ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
-            sprite_bundle: SpriteBundle {
-                texture: assets.bevy_icon.clone(),
-                transform: Transform::from_translation(
-                    event.bullet_spawn_loc, //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
-                ),
-                sprite: Sprite {
-                    custom_size: Some(Vec2::splat(wstats.projectile_size)),
-                    ..default()
-                },
-                ..default()
-            },
-            rigidbody_bundle: RigidBodyBundle {
-                velocity: Velocity::linear(
-                    event.travel_dir * (wstats.bullet_speed * BULLET_SPEED_MODIFIER),
-                ),
-                rigidbody: RigidBody::Dynamic,
-                friction: Friction::coefficient(0.7),
-                howbouncy: Restitution::coefficient(0.3),
-                massprop: ColliderMassProperties::Density(0.3),
-                rotationlocks: LockedAxes::ROTATION_LOCKED,
-                dampingprop: Damping {
-                    linear_damping: 1.0,
-                    angular_damping: 1.0,
-                },
-            },
-        },
-        Sensor,
-    ))
-    .with_children(|child| {
-        child.spawn((
-            PlayerProjectileColliderBundle {
-                name: Name::new("PlayerProjectileCollider"),
-                transformbundle: TransformBundle {
-                    local: (Transform {
-                        translation: (Vec3 {
-                            x: 0.,
-                            y: 0.,
-                            z: ACTOR_PHYSICS_Z_INDEX,
-                        }),
-                        ..default()
-                    }),
-                    ..default()
-                },
-                collider: Collider::ball(3.0),
-                tag: crate::components::actors::bundles::PlayerProjectileColliderTag,
-                collisiongroups: CollisionGroups::new(
-                    PLAYER_PROJECTILE_LAYER,
-                    Group::from_bits_truncate(0b00101),
-                ),
-                ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
-            },
-            ActiveEvents::COLLISION_EVENTS,
-        ));
-    });
-}
-
+// TODO: Make damage dealt an event or component that is inserted onto the
+// enemy. have system that takes entities that get that componenet and applies
+// damage to them, if the enemys health goes below 0 in that system it should
+// add a dead componenet
 pub fn detect_bullet_hits_on_enemy(
+    mut game_info: ResMut<PlayerGameInformation>,
     mut cmds: Commands,
-    name_query: Query<&Name>,
+    projectile_query: Query<&ProjectileStats, With<PlayerProjectileTag>>,
     mut collision_events: EventReader<CollisionEvent>,
     enemycollider_query: Query<(Entity, &Parent), With<EnemyColliderTag>>,
     playerprojectilecollider_query: Query<(Entity, &Parent), With<PlayerProjectileColliderTag>>,
-    mut enemy_query: Query<(&mut DefenseStats, Entity), With<AIEnemy>>,
-    playerprojectile_query: Query<&ProjectileStats, With<PlayerProjectileTag>>,
 ) {
     for event in collision_events.iter() {
         if let CollisionEvent::Started(a, b, _flags) = event {
-            let noname = Name::new("no name on ent a");
-            let aname = name_query.get(*a).unwrap_or(&noname);
-            let bname = name_query.get(*b).unwrap_or(&noname);
-            info!("{}{:?} started colliding with {}{:?}", bname, b, aname, a,);
-
-            if playerprojectilecollider_query.get(*a).is_ok() | enemycollider_query.get(*b).is_ok()
-            {
-                let projcollider = playerprojectilecollider_query.get(*a);
-                let enemycollider = enemycollider_query.get(*b);
-
-                if let Ok((_proj, parent)) = projcollider {
-                    let projparent = parent.get();
-                    if let Ok((_ent, enemy)) = enemycollider {
-                        let hitenemy = enemy_query.get_mut(enemy.get());
-                        let proj = playerprojectile_query.get(parent.get());
-
-                        if let Ok((mut hitenemystats, _hitent)) = hitenemy {
-                            if let Ok(stats) = proj {
-                                hitenemystats.health -= stats.damage;
-                                cmds.entity(projparent).despawn_recursive();
-                                info!(
-                                    "hit enemy and took {} from hp: {}",
-                                    stats.damage, hitenemystats.health
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            if enemycollider_query.get(*a).is_ok() | playerprojectilecollider_query.get(*b).is_ok()
-            {
-                let projcollider = playerprojectilecollider_query.get(*b);
-                let enemycollider = enemycollider_query.get(*a);
-
-                if let Ok((_proj, parent)) = projcollider {
-                    let projparent = parent.get();
-                    if let Ok((_ent, enemy)) = enemycollider {
-                        let hitenemy = enemy_query.get_mut(enemy.get());
-                        let proj = playerprojectile_query.get(parent.get());
-
-                        if let Ok((mut hitenemystats, _hitent)) = hitenemy {
-                            if let Ok(stats) = proj {
-                                hitenemystats.health -= stats.damage;
-                                cmds.entity(projparent).despawn_recursive();
-                                info!(
-                                    "hit enemy and took {} from hp: {}",
-                                    stats.damage, hitenemystats.health
-                                )
-                            }
-                        }
-                    }
-                }
+            let enemy = if enemycollider_query.get(*b).is_ok() {
+                let (_collider, parent) = enemycollider_query.get(*b).unwrap();
+                parent.get()
+            } else if enemycollider_query.get(*a).is_ok() {
+                let (_collider, parent) = enemycollider_query.get(*a).unwrap();
+                parent.get()
+            } else {
+                return;
             };
+            let projectile = if playerprojectilecollider_query.get(*a).is_ok() {
+                let (_a, parent) = playerprojectilecollider_query.get(*a).unwrap();
+                parent.get()
+            } else if playerprojectilecollider_query.get(*b).is_ok() {
+                let (_a, parent) = playerprojectilecollider_query.get(*b).unwrap();
+                parent.get()
+            } else {
+                return;
+            };
+            let damage = projectile_query.get(projectile).unwrap().damage;
+
+            cmds.entity(projectile).despawn_recursive();
+            game_info.player_damage_sent += damage;
+            cmds.entity(enemy).insert(Damaged { amount: damage });
         }
     }
-    collision_events.clear();
+    // collision_events.clear();
 }
 
-pub fn remove_dead_enemys(
-    mut enemy_stats: ResMut<EnemyCounterInformation>,
-    enemy_query: Query<(&mut DefenseStats, Entity), With<AIEnemy>>,
+pub fn detect_bullet_hits_on_player(
+    mut game_info: ResMut<PlayerGameInformation>,
     mut cmds: Commands,
+    mut collision_events: EventReader<CollisionEvent>,
+    playercollider_query: Query<(Entity, &Parent), With<PlayerColliderTag>>,
+    bad_projectile_query: Query<&ProjectileStats, With<EnemyProjectileTag>>,
+    enemyprojectilecollider_query: Query<(Entity, &Parent), With<EnemyProjectileColliderTag>>,
 ) {
-    screen_print!("{:#?}", enemy_stats);
+    for event in collision_events.iter() {
+        if let CollisionEvent::Started(a, b, _flags) = event {
+            let player = if playercollider_query.get(*b).is_ok() {
+                let (_collider, parent) = playercollider_query.get(*b).unwrap();
+                parent.get()
+            } else if playercollider_query.get(*a).is_ok() {
+                let (_collider, parent) = playercollider_query.get(*a).unwrap();
+                parent.get()
+            } else {
+                return;
+            };
+            let projectile = if enemyprojectilecollider_query.get(*a).is_ok() {
+                let (_a, parent) = enemyprojectilecollider_query.get(*a).unwrap();
+                parent.get()
+            } else if enemyprojectilecollider_query.get(*b).is_ok() {
+                let (_a, parent) = enemyprojectilecollider_query.get(*b).unwrap();
+                parent.get()
+            } else {
+                return;
+            };
+            let damage = bad_projectile_query.get(projectile).unwrap().damage;
 
-    if enemy_query.is_empty() {
+            cmds.entity(projectile).despawn_recursive();
+            game_info.enemy_damage_sent += damage;
+            cmds.entity(player).insert(Damaged { amount: damage });
+        }
+    }
+    // collision_events.clear();
+}
+
+fn deal_with_damaged(
+    mut cmds: Commands,
+    mut game_info: ResMut<PlayerGameInformation>,
+    mut enemy_query: Query<(&mut DefenseStats, Entity, &Damaged), With<AIEnemy>>,
+) {
+    screen_print!("{:#?}", game_info);
+    for (mut enemy_stats, enemy, damage) in enemy_query.iter_mut() {
+        game_info.damage_dealt += damage.amount;
+        enemy_stats.health -= damage.amount;
+        cmds.entity(enemy).remove::<Damaged>();
+
+        if enemy_stats.health <= 0.0 {
+            cmds.entity(enemy).despawn_recursive();
+            game_info.enemys_killed += 1;
+        }
+    }
+}
+
+fn player_death_system(
+    mut cmds: Commands,
+    mut game_info: ResMut<PlayerGameInformation>,
+    mut player_query: Query<(&mut DefenseStats, Entity, &Damaged, &mut Transform), With<Player>>,
+) {
+    if player_query.is_empty() {
         return;
     }
+    let (mut player_stats, player, damage, mut player_loc) = player_query.get_single_mut().unwrap();
 
-    for (enemystats, ent) in enemy_query.iter() {
-        if enemystats.health <= 0.0 {
-            cmds.entity(ent).despawn_recursive();
-            enemy_stats.enemys_killed += 1
-        }
+    game_info.damage_taken += damage.amount;
+    if player_stats.health <= 0.0 {
+        warn!("player is dead");
+        player_stats.health = 150.0;
+        *player_loc = Transform::from_translation(Vec3::new(-60.0, 1090.0, ACTOR_Z_INDEX));
+        game_info.player_deaths += 1;
     }
-}
 
-// TODO: add system that find enemies with no health and despawns them,
+    player_stats.health -= damage.amount;
+    cmds.entity(player).remove::<Damaged>();
+}

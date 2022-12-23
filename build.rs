@@ -42,8 +42,8 @@ fn copyassets() {
 
     println!("Cargo out dir: {out_dir}");
 
-    let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("assets/");
-    let output_path = Path::new(&output_path).join("assets/");
+    let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("data/");
+    let output_path = Path::new(&output_path).join("data/");
     copy(input_path, output_path).expect("couldnt copy files, maybe the source doesnt exist? {}");
 }
 
@@ -51,7 +51,7 @@ fn compilewindowicons() {
     let target = env::var("TARGET").unwrap();
     if target.contains("windows") {
         println!("embedding icon.rc ");
-        embed_resource::compile("assets/ico/windows/icon.rc");
+        embed_resource::compile("data/assets/ico/windows/icon.rc");
     }
 }
 

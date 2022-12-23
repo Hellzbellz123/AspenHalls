@@ -9,21 +9,33 @@ pub mod actors {
             time::Timer,
         };
         use bevy_inspector_egui::Inspectable;
-        use strum::{EnumVariantNames, EnumString};
-
+        use rand::{distributions::Standard, prelude::Distribution, Rng};
+        use strum::{EnumString, EnumVariantNames};
 
         #[derive(Component)]
         pub struct EnemyContainerTag;
 
-        #[derive(Debug, Component, DerefMut, Deref)]
+        #[derive(Debug, Component, DerefMut, Deref, Default, Reflect)]
+        #[reflect(Component)]
         pub struct SpawnerTimer(pub Timer);
 
-        #[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString)]
+        #[derive(Component, Debug, Reflect, Default, Clone, Copy, EnumVariantNames, EnumString)]
         #[strum(serialize_all = "lowercase")]
         pub enum EnemyType {
+            Random,
             #[default]
             Skeleton,
             Slime,
+        }
+
+        impl Distribution<EnemyType> for Standard {
+            fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
+                match rng.gen_range(0..=2) {
+                    0 => EnemyType::Skeleton,
+                    1 => EnemyType::Slime,
+                    _ => EnemyType::Slime,
+                }
+            }
         }
 
         #[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString)]
@@ -45,11 +57,12 @@ pub mod actors {
         #[reflect(Component)]
         pub struct Spawner {
             pub enemytype: EnemyType,
+            pub randomenemy: bool,
             pub spawn_radius: f32,
             pub max_enemies: i32,
         }
 
-        #[derive(Component, Debug, Reflect, Default)]
+        #[derive(Component, Debug, Reflect, Default, Copy, Clone)]
         #[reflect(Component)]
         pub struct SpawnEnemyEvent {
             pub enemy_to_spawn: EnemyType,
@@ -67,7 +80,7 @@ pub mod actors {
     }
     pub mod bundles {
         use crate::components::actors::{
-            ai::{AIAttackTimer, AICanChase, AICanWander, ActorType},
+            ai::{AIAttackState, AICanChase, AICanShoot, AICanWander, ActorType},
             general::{ProjectileStats, TimeToLive},
         };
         use bevy::prelude::*;
@@ -77,9 +90,10 @@ pub mod actors {
         #[derive(Bundle)]
         pub struct StupidAiBundle {
             pub actortype: ActorType,
-            pub aggrodistance: AICanChase,
+            pub canaggro: AICanChase,
             pub canmeander: AICanWander,
-            pub aiattacktimer: AIAttackTimer,
+            pub canshoot: AICanShoot,
+            pub aiattacktimer: AIAttackState,
             pub thinker: ThinkerBuilder,
         }
 
@@ -196,6 +210,18 @@ pub mod actors {
             Slime,
         }
 
+        /// enemeies that can chase scorer
+        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        pub struct AggroScore;
+
+        /// enemeies that can shoot scorer
+        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        pub struct ShootScore;
+
+        /// enemies that wander scorer
+        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        pub struct WanderScore;
+
         /// enemies that can chase
         #[derive(Component, Default, Clone, Debug, Inspectable)]
         pub struct AICanChase {
@@ -209,13 +235,15 @@ pub mod actors {
             pub spawn_position: Option<Vec3>,
         }
 
-        /// enemeies that can chase scorer
+        /// enemies that can shoot
         #[derive(Component, Default, Clone, Debug, Inspectable)]
-        pub struct AggroScore;
+        pub struct AICanShoot {
+            pub shoot_range: f32,
+        }
 
-        /// enemies that wander scorer
+        /// enemies with this tag are shooting a target
         #[derive(Component, Default, Clone, Debug, Inspectable)]
-        pub struct WanderScore;
+        pub struct AIShootAction;
 
         /// enemies with this tag are chasing a target
         #[derive(Component, Default, Clone, Debug, Inspectable)]
@@ -227,9 +255,9 @@ pub mod actors {
 
         #[derive(Component, Default, Clone, Debug, Reflect)]
         #[reflect(Component)]
-        pub struct AIAttackTimer {
+        pub struct AIAttackState {
             pub timer: Timer,
-            pub is_attacking: bool,
+            pub should_shoot: bool,
             pub is_near: bool,
         }
     }
