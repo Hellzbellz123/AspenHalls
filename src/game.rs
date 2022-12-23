@@ -82,9 +82,9 @@ fn time_to_live(
     time: Res<Time>,
     mut query: Query<(Entity, &mut TimeToLive)>,
 ) {
-    for (entity, mut timer) in query.iter_mut() {
+    query.for_each_mut(|(entity, mut timer)| {
         if timer.0.tick(time.delta()).finished() {
             commands.entity(entity).despawn();
         }
-    }
+    });
 }

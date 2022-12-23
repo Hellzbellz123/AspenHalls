@@ -8,7 +8,7 @@ license-file = "LICENSE"
 name = "vanillacoffee"
 readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
-version = "0.0.3"
+version = "0.0.4"
 
 [features]
 dev = ["bevy-debug-text-overlay/debug", "bevy_rapier2d/debug-render"]

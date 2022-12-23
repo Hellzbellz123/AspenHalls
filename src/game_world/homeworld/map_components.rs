@@ -7,7 +7,10 @@ use bevy_rapier2d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Group, RigidBody, Rot, Sensor, Vect,
 };
 
-use crate::utilities::game::WORLD_COLLIDER_LAYER;
+use crate::{
+    components::actors::spawners::{EnemyType, Spawner, SpawnerTimer},
+    utilities::game::WORLD_COLLIDER_LAYER,
+};
 
 #[derive(Inspectable, Default, Debug, Resource)]
 pub struct InspectableData {
@@ -258,6 +261,35 @@ impl From<EntityInstance> for SensorBundle {
             sensor: Sensor,
             events: ActiveEvents::COLLISION_EVENTS,
             homeworldsensor: HomeWorldTeleportSensor { active: true },
+        }
+        // ent_instance.field_instances.leak()
+    }
+}
+
+#[derive(Bundle, LdtkEntity)]
+pub struct LdtkSpawnerBundle {
+    #[from_entity_instance]
+    sensorbundle: SpawnerBundle,
+}
+
+#[derive(Clone, Debug, Bundle, LdtkEntity)]
+pub struct SpawnerBundle {
+    name: Name,
+    state: Spawner,
+    timer: SpawnerTimer,
+}
+
+impl From<EntityInstance> for SpawnerBundle {
+    fn from(_ent_instance: EntityInstance) -> SpawnerBundle {
+        SpawnerBundle {
+            name: Name::new("spawnerbundle"),
+            state: Spawner {
+                enemytype: EnemyType::Skeleton,
+                spawn_radius: 100.0,
+                max_enemies: 7,
+                randomenemy: true,
+            },
+            timer: SpawnerTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
         }
         // ent_instance.field_instances.leak()
     }

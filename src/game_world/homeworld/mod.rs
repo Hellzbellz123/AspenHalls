@@ -8,7 +8,7 @@ use crate::{
     components::actors::spawners::{SpawnWeaponEvent, WeaponType},
     game::GameStage,
     game_world::homeworld::{
-        map_components::{LdtkCollisionBundle, LdtkSensorBundle},
+        map_components::{LdtkCollisionBundle, LdtkSensorBundle, LdtkSpawnerBundle},
         systems::{enter_the_dungeon, homeworld_teleport},
     },
     utilities::game::ACTOR_Z_INDEX,
@@ -30,6 +30,7 @@ impl Plugin for HomeWorldPlugin {
                 None,
             )
             .register_ldtk_entity::<LdtkSensorBundle>("TeleportSensor")
+            .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
             .add_event::<PlayerTeleportEvent>()
             .add_system_set(
                 SystemSet::on_enter(GameStage::Playing)

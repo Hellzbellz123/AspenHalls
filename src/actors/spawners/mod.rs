@@ -2,7 +2,7 @@
 //whichever direction has the least amount of colliders? maybe check spawning positon for collider first, if no collider then spawn?
 // after some more digging bevy_rapier has a raycast shape function, i think what i will do is raycast down on the position and check if it
 // collides, if collideshape doesnt collide then spawn, if does collide pick new positon 40 or so pixels in any direction
-use bevy::{math::vec3, prelude::*, time::Timer};
+use bevy::{math::vec3, prelude::*};
 use rand::{thread_rng, Rng};
 
 use crate::{
@@ -147,36 +147,37 @@ pub fn on_enter(mut cmds: Commands) {
     ));
 
     //TODO: make this an entity thats placed in ldtk.
-    info!("spawning enemy spawners");
-    cmds.spawn((
-        Name::new("SpawnerOutside"),
-        Spawner {
-            enemytype: EnemyType::Random,
-            spawn_radius: 300.0,
-            max_enemies: 7,
-            randomenemy: true,
-        },
-        SpawnerTimer(Timer::from_seconds(5.0, TimerMode::Repeating)),
-        Transform {
-            translation: Vec3::new(-644.16, 2342.0, 8.0),
-            ..default()
-        },
-    ));
+    // info!("spawning enemy spawners");
+    // cmds.spawn((
+    //     Name::new("SpawnerOutside"),
+    //     Spawner {
+    //         enemytype: EnemyType::Random,
+    //         spawn_radius: 300.0,
+    //         max_enemies: 7,
+    //         randomenemy: true,
+    //     },
+    //     SpawnerTimer(Timer::from_seconds(5.0, TimerMode::Repeating)),
+    //     Transform {
+    //         translation: Vec3::new(-644.16, 2342.0, 8.0),
+    //         ..default()
+    //     },
+    // ));
 }
 
 pub fn spawner_timer_system(
     time: Res<Time>,
     mut _ew: EventWriter<SpawnEnemyEvent>,
-    mut spawner_query: Query<(&Transform, &Spawner, &mut SpawnerTimer), With<Spawner>>,
+    mut spawner_query: Query<(&GlobalTransform, &Spawner, &mut SpawnerTimer), With<Spawner>>,
     all_enemys: Query<&Transform, With<AIEnemy>>,
 ) {
     let totalenemycount = all_enemys.iter().len() as i32;
 
     if spawner_query.is_empty() || totalenemycount.ge(&MAX_ENEMIES) {
+        warn!("no spawns");
         return;
     }
 
-    for (spawner_transform, spawner_state, mut spawner_timer) in spawner_query.iter_mut() {
+    spawner_query.for_each_mut(|(spawner_transform, spawner_state, mut spawner_timer)| {
         if !spawner_timer.tick(time.delta()).finished() {
             return;
         }
@@ -189,26 +190,27 @@ pub fn spawner_timer_system(
 
             enemy_to_spawn = etype;
         }
-        for enemy_transform in all_enemys.iter() {
+        all_enemys.for_each(|enemy_transform| {
             // add buffer for enemies that can maybe walk outside :/
             let distance_too_spawner = spawner_transform
-                .translation
+                .translation()
                 .distance(enemy_transform.translation)
                 .abs()
                 - 50.0;
-            if distance_too_spawner.gt(&spawner_state.spawn_radius) {
+            if distance_too_spawner.lt(&spawner_state.spawn_radius) {
                 enemys_in_spawner_area += 1;
             }
-        }
+        });
 
         if enemys_in_spawner_area.ge(&spawner_state.max_enemies) {
+            warn!("enemies in spawn area is large");
             return;
         } //else
 
         _ew.send(SpawnEnemyEvent {
             enemy_to_spawn,
-            spawn_position: (spawner_transform.translation),
+            spawn_position: (spawner_transform.translation()),
             spawn_count: 1,
         });
-    }
+    });
 }

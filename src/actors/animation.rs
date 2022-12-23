@@ -31,20 +31,20 @@ impl AnimationPlugin {
             Changed<MovementState>,
         >,
     ) {
-        for (player_compontent, mut animation, anim_sheet) in sprites_query.iter_mut() {
+        sprites_query.for_each_mut(|(movement_state, mut animation, anim_sheet)| {
             if matches!(
-                player_compontent.facing,
+                movement_state.facing,
                 FacingDirection::Right | FacingDirection::Left
             ) {
                 animation.current_frames = anim_sheet.right_animation.to_vec();
-            } else if player_compontent.facing == FacingDirection::Up {
+            } else if movement_state.facing == FacingDirection::Up {
                 animation.current_frames = anim_sheet.up_animation.to_vec();
-            } else if player_compontent.facing == FacingDirection::Down {
+            } else if movement_state.facing == FacingDirection::Down {
                 animation.current_frames = anim_sheet.down_animation.to_vec();
-            } else if player_compontent.facing == FacingDirection::Idle {
+            } else if movement_state.facing == FacingDirection::Idle {
                 animation.current_frames = anim_sheet.idle_animation.to_vec();
             }
-        }
+        });
     }
 
     fn frame_animation(
@@ -52,7 +52,7 @@ impl AnimationPlugin {
         mut sprites_query: Query<(&mut TextureAtlasSprite, &mut AnimState)>,
         time: Res<Time>,
     ) {
-        for (mut sprite, mut animation) in sprites_query.iter_mut() {
+        sprites_query.for_each_mut(|(mut sprite, mut animation)| {
             animation.timer.tick(time.delta());
             if !timeinfo.game_paused && animation.timer.just_finished() {
                 if animation.current_frames.is_empty() {
@@ -63,6 +63,6 @@ impl AnimationPlugin {
                     sprite.index = animation.current_frames[animation.current_frame];
                 }
             }
-        }
+        });
     }
 }

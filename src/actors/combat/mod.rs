@@ -64,6 +64,7 @@ impl Plugin for WeaponPlugin {
         })
         .insert_resource(WeaponFiringTimer::default())
         .add_system_to_stage(CoreStage::PreUpdate, remove_cdw_componenet)
+        .add_system_to_stage(CoreStage::PreUpdate, deal_with_damaged)
         .add_system_set(
             SystemSet::on_update(GameStage::Playing)
                 .with_system(detect_bullet_hits_on_enemy)
@@ -73,7 +74,6 @@ impl Plugin for WeaponPlugin {
                 .with_system(weapon_visiblity_system)
                 .with_system(update_equipped_weapon)
                 .with_system(shoot_weapon)
-                .with_system(deal_with_damaged)
                 .with_system(player_death_system),
         );
     }
@@ -86,13 +86,13 @@ pub struct WeaponFiringTimer(pub Timer);
 fn rotate_player_weapon(
     gametime: Res<TimeInfo>,
     eager_mouse: Res<EagerMousePos>,
-    mut player_query: Query<(&mut MovementState, With<Player>)>,
+    mut player_query: Query<(&MovementState, With<Player>)>,
 
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
     mut weapon_query: Query<
         // this is equivelent to if player has a weapon equipped and out
-        (&mut WeaponTag, &GlobalTransform, &mut Transform),
+        (&WeaponTag, &GlobalTransform, &mut Transform),
         (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
     >,
 ) {
@@ -101,7 +101,7 @@ fn rotate_player_weapon(
     }
     let gmouse = eager_mouse.world;
 
-    for (wtag, wgtransform, mut wtransform) in weapon_query.iter_mut() {
+    weapon_query.for_each_mut(|(wtag, wgtransform, mut wtransform)| {
         if wtag.parent.is_some() {
             let (_playerstate, _) = player_query.single_mut();
             let gmousepos = vec2(gmouse.x, gmouse.y);
@@ -117,17 +117,17 @@ fn rotate_player_weapon(
             }
             *wtransform.rotation = *(Quat::from_euler(EulerRot::ZYX, aimangle, 0.0, 0.0));
         }
-    }
+    });
 }
 
 fn keep_player_weapons_centered(
-    mut player_query: Query<(&mut MovementState, With<Player>)>,
+    mut player_query: Query<(&MovementState, With<Player>)>,
 
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
     mut weapon_query: Query<
         // this is equivelent to if player has a weapon equipped and out
-        (&mut WeaponTag, &mut Transform, &mut Velocity),
+        (&WeaponTag, &mut Transform, &mut Velocity),
         (With<Parent>, Without<Player>),
     >,
 ) {
@@ -135,7 +135,7 @@ fn keep_player_weapons_centered(
         return;
     }
 
-    for (wtag, mut wtransform, mut wvelocity) in weapon_query.iter_mut() {
+    weapon_query.for_each_mut(|(wtag, mut wtransform, mut wvelocity)| {
         if wtag.parent.is_some() {
             let (playerstate, _) = player_query.single_mut();
             // modify weapon sprite to be below player when facing up, this
@@ -155,7 +155,7 @@ fn keep_player_weapons_centered(
             }
             wvelocity.angvel = lerp(wvelocity.angvel, 0.0, 0.3);
         }
-    }
+    });
 }
 
 // check if the weapon is supposed to be visible
@@ -164,13 +164,13 @@ fn weapon_visiblity_system(
     mut weapon_query: Query<(&WeaponTag, &mut Visibility), With<Parent>>, // query weapons parented to entitys
 ) {
     let p_weaponsocket = player_query.single();
-    for (wtag, mut wvisiblity) in weapon_query.iter_mut() {
+    weapon_query.for_each_mut(|(wtag, mut wvisiblity)| {
         if wtag.stored_weapon_slot == Some(p_weaponsocket.drawn_slot) {
             wvisiblity.is_visible = true;
         } else {
             wvisiblity.is_visible = false;
         }
-    }
+    });
 }
 
 /// removes `CurrentlyDrawnWeapon` from entitys parented to player that dont
@@ -194,7 +194,7 @@ fn remove_cdw_componenet(
 
     let wsocket = player_query.single();
 
-    for (went, wtag) in weapon_query.iter() {
+    weapon_query.for_each(|(went, wtag)| {
         if wtag.stored_weapon_slot != Some(wsocket.drawn_slot) && drawn_weapon.get(went).is_ok() {
             let wname = names.get(went).expect("entity doesnt have a name");
             debug!(
@@ -203,13 +203,13 @@ fn remove_cdw_componenet(
             );
             cmds.entity(went).remove::<CurrentlySelectedWeapon>();
         }
-    }
+    });
 }
 
 fn update_equipped_weapon(
     mut cmds: Commands,
     query_action_state: Query<&ActionState<PlayerActions>>,
-    mut player_query: Query<(Entity, &mut WeaponSocket, &mut Transform), With<Player>>,
+    mut player_query: Query<&mut WeaponSocket, With<Player>>,
 
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
@@ -222,7 +222,7 @@ fn update_equipped_weapon(
         return;
     }
 
-    let (_ent, mut wsocket, _transform) = player_query.single_mut();
+    let mut wsocket = player_query.single_mut();
     let actions = query_action_state.single();
 
     // TODO: this mostly works, but we need to have a system that checks if the
@@ -408,10 +408,10 @@ pub fn detect_bullet_hits_on_player(
 fn deal_with_damaged(
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,
-    mut enemy_query: Query<(&mut DefenseStats, Entity, &Damaged), With<AIEnemy>>,
+    mut enemy_query: Query<(&mut DefenseStats, Entity, &Damaged), (Added<Damaged>, With<AIEnemy>)>,
 ) {
     screen_print!("{:#?}", game_info);
-    for (mut enemy_stats, enemy, damage) in enemy_query.iter_mut() {
+    enemy_query.for_each_mut(|(mut enemy_stats, enemy, damage)| {
         game_info.damage_dealt += damage.amount;
         enemy_stats.health -= damage.amount;
         cmds.entity(enemy).remove::<Damaged>();
@@ -420,7 +420,7 @@ fn deal_with_damaged(
             cmds.entity(enemy).despawn_recursive();
             game_info.enemys_killed += 1;
         }
-    }
+    });
 }
 
 fn player_death_system(
@@ -431,9 +431,10 @@ fn player_death_system(
     if player_query.is_empty() {
         return;
     }
-    let (mut player_stats, player, damage, mut player_loc) = player_query.get_single_mut().unwrap();
+    let (mut player_stats, player, player_damaged, mut player_loc) =
+        player_query.get_single_mut().unwrap();
 
-    game_info.damage_taken += damage.amount;
+    game_info.damage_taken += player_damaged.amount;
     if player_stats.health <= 0.0 {
         warn!("player is dead");
         player_stats.health = 150.0;
@@ -441,6 +442,6 @@ fn player_death_system(
         game_info.player_deaths += 1;
     }
 
-    player_stats.health -= damage.amount;
+    player_stats.health -= player_damaged.amount;
     cmds.entity(player).remove::<Damaged>();
 }

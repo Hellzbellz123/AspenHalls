@@ -11,7 +11,7 @@ use crate::{
     utilities::{game::ACTOR_Z_INDEX, EagerMousePos},
 };
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
+
 use leafwing_input_manager::prelude::ActionState as lfActionState;
 
 pub fn spawn_skeleton_button(
@@ -61,7 +61,7 @@ pub fn player_attack_sender(
             Entity,
             &Children,
             &Parent,
-            &CurrentlySelectedWeapon,
+            &CurrentlySelectedWeapon, // this can probably be single()
             &Transform,
         ),
         (With<Parent>, Without<Player>),
@@ -89,27 +89,30 @@ pub fn player_attack_sender(
         return;
     }
 
-    for (went, _wchildren, _wparent, _wactivetag, _wtransform) in weapon_query.iter() {
-        for (_ent, parent, barrel_trans) in query_childbarrelpoint.iter() {
-            if parent.get() == went {
-                let barrel_loc = barrel_trans.translation();
-                let playerpos = player_query.single().1.translation.truncate();
-                let direction: Vec2 = (mouse_pos.world - playerpos).normalize_or_zero();
-                let action_state = input_query.single_mut();
+    // weapon_query.for_each(|(went, _wchildren, _wparent, _wactivetag, _wtransform)| {
+    // });
 
-                if action_state.pressed(PlayerActions::Shoot) {
-                    shootwriter.send(ShootEvent {
-                        bullet_spawn_loc: barrel_loc,
-                        travel_dir: direction,
-                    })
-                }
-                if action_state.pressed(PlayerActions::Melee) {
-                    // TODO: setup melee system and weapons
-                    info!("meleee not implemented yet")
-                }
+    let (went, _wchild, _wparent, _wactive, _wtrans) = weapon_query.single();
+
+    query_childbarrelpoint.for_each(|(_ent, parent, barrel_trans)| {
+        if parent.get() == went {
+            let barrel_loc = barrel_trans.translation();
+            let playerpos = player_query.single().1.translation.truncate();
+            let direction: Vec2 = (mouse_pos.world - playerpos).normalize_or_zero();
+            let action_state = input_query.single_mut();
+
+            if action_state.pressed(PlayerActions::Shoot) {
+                shootwriter.send(ShootEvent {
+                    bullet_spawn_loc: barrel_loc,
+                    travel_dir: direction,
+                })
+            }
+            if action_state.pressed(PlayerActions::Melee) {
+                // TODO: setup melee system and weapons
+                info!("meleee not implemented yet")
             }
         }
-    }
+    });
 }
 
 pub fn equip_closest_weapon(
@@ -132,11 +135,11 @@ pub fn equip_closest_weapon(
 
     let (playerentity, mut weaponsocket_on_player, ptransform, actions) = player_query.single_mut();
 
-    screen_print!(
-        "{:#?} \n selected slot: {:?}",
-        weaponsocket_on_player.weapon_slots,
-        weaponsocket_on_player.drawn_slot
-    );
+    // screen_print!(
+    //     "{:#?} \n selected slot: {:?}",
+    //     weaponsocket_on_player.weapon_slots,
+    //     weaponsocket_on_player.drawn_slot
+    // );
 
     if !actions
         .just_pressed(PlayerActions::Interact)
@@ -151,6 +154,7 @@ pub fn equip_closest_weapon(
 
     debug!("player interact pressed, testing weapon distance");
     for (weapon, mut weapontag, mut wtransform) in weapon_query.iter_mut() {
+        // pretty sure i should leave this as an iterator, we want it sequential
         let distance_to_player = (ptransform.translation - wtransform.translation)
             .length()
             .abs();

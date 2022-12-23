@@ -10,19 +10,18 @@ pub mod actors {
         };
         use bevy_inspector_egui::Inspectable;
         use rand::{distributions::Standard, prelude::Distribution, Rng};
-        use strum::{EnumString, EnumVariantNames};
+        use strum::{EnumString, EnumVariantNames, VariantNames};
 
         #[derive(Component)]
         pub struct EnemyContainerTag;
 
-        #[derive(Debug, Component, DerefMut, Deref, Default, Reflect)]
+        #[derive(Debug, Component, DerefMut, Deref, Default, Reflect, Clone)]
         #[reflect(Component)]
         pub struct SpawnerTimer(pub Timer);
 
         #[derive(Component, Debug, Reflect, Default, Clone, Copy, EnumVariantNames, EnumString)]
         #[strum(serialize_all = "lowercase")]
         pub enum EnemyType {
-            Random,
             #[default]
             Skeleton,
             Slime,
@@ -30,7 +29,7 @@ pub mod actors {
 
         impl Distribution<EnemyType> for Standard {
             fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
-                match rng.gen_range(0..=2) {
+                match rng.gen_range(0..=EnemyType::VARIANTS.len()) {
                     0 => EnemyType::Skeleton,
                     1 => EnemyType::Slime,
                     _ => EnemyType::Slime,
@@ -53,7 +52,7 @@ pub mod actors {
             EnemyType,
         }
 
-        #[derive(Component, Default, Reflect)]
+        #[derive(Component, Default, Debug, Clone, Reflect)]
         #[reflect(Component)]
         pub struct Spawner {
             pub enemytype: EnemyType,

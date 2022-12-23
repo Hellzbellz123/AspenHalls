@@ -118,13 +118,13 @@ pub fn despawn_ui(
     to_despawn: Query<Entity, With<CameraUIKayak>>,
     widts: Query<Entity, With<KStyle>>,
 ) {
-    for entity in to_despawn.iter() {
+    to_despawn.for_each(|entity| {
         info!("despawning kayak_root_context: {:#?}", entity);
         commands.entity(entity).despawn_recursive();
         for widget in widts.iter() {
             commands.entity(widget).despawn_recursive();
         }
-    }
+    });
 }
 
 // THIS ONLY RUNS ONCE. VERY IMPORTANT FACT.

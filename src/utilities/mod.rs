@@ -83,10 +83,10 @@ fn eager_cursor_pos(
 }
 
 pub fn despawn_with<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
-    for entity in to_despawn.iter() {
+    to_despawn.for_each(|entity| {
         info!("despawning entity recursively: {:#?}", entity);
         commands.entity(entity).despawn_recursive();
-    }
+    });
 }
 
 #[must_use]
