@@ -46,10 +46,10 @@ pub fn spawn_homeworld(mut commands: Commands) {
         timer: Timer::from_seconds(2.0, TimerMode::Once),
     });
 
-    commands.insert_resource(LevelSelection::Index(1));
+    commands.insert_resource(LevelSelection::Index(0));
     commands.insert_resource(LdtkSettings {
         level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
-            load_level_neighbors: true,
+            load_level_neighbors: false,
         },
         set_clear_color: SetClearColor::No,
         int_grid_rendering: IntGridRendering::Invisible,
@@ -121,6 +121,7 @@ pub fn homeworld_teleport(
 
 pub fn enter_the_dungeon(
     time: Res<Time>,
+    mut level_selection: ResMut<LevelSelection>,
     mut teleport_timer: ResMut<TeleportTimer>,
     mut player_query: Query<(&mut Transform, &mut Player)>,
 ) {
@@ -137,6 +138,7 @@ pub fn enter_the_dungeon(
         info!("timer not done, ticking timer");
         teleport_timer.tick(time.delta());
         if teleport_timer.finished() && !player.just_teleported {
+            *level_selection = LevelSelection::Index(1);
             *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
             info!("player teleport/next playing sub-phase");
             player.just_teleported = true;

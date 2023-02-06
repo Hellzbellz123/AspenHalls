@@ -12,9 +12,9 @@ pub fn play_button_event(
     mut timeinfo: ResMut<TimeInfo>,
 ) {
     if !events.is_empty() {
-        if *current_state.current() == game::GameStage::Menu {
+        if *current_state.current() == game::GameStage::StartMenu {
             current_state
-                .push(game::GameStage::Playing)
+                .push(game::GameStage::PlaySubStage)
                 .expect("couldnt set state, weird");
             info!(
                 "play button was pressed, current state: {:?}",
@@ -22,7 +22,7 @@ pub fn play_button_event(
             )
         }
 
-        if *current_state.current() == game::GameStage::Playing {
+        if *current_state.current() == game::GameStage::PlaySubStage {
             info!("already playing, menu probably open, assuming close menu resume game");
             // commands.remove_resource::<BevyContext>();
             timeinfo.pause_menu = false;

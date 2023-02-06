@@ -28,7 +28,7 @@ impl Plugin for AssetLoadPlugin {
             .with_collection::<UiTextureHandles>()
             .with_collection::<MapAssetHandles>()
             .on_failure_continue_to_state(GameStage::FailedLoading)
-            .continue_to_state(GameStage::Menu)
+            .continue_to_state(GameStage::StartMenu)
             .build(app);
     }
 }

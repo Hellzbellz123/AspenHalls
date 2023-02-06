@@ -102,7 +102,7 @@ pub fn main_menu_render(
                     .set(MenuState::HideMenu)
                     .expect("couldnt set menustate to hideMenu");
                 game_state
-                    .push(GameStage::Playing)
+                    .push(GameStage::PlaySubStage)
                     .expect("cant push state for some reason")
             }
             (event_dispatcher_context, event)

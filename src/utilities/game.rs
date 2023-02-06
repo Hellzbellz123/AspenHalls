@@ -1,5 +1,7 @@
-use bevy::prelude::{FromWorld, Resource, SystemLabel, Vec2, World};
-use bevy_inspector_egui::Inspectable;
+use bevy::{
+    prelude::{FromWorld, Resource, SystemLabel, Vec2, World},
+    reflect::Reflect,
+};
 use bevy_rapier2d::prelude::Group;
 use serde::{Deserialize, Serialize};
 
@@ -48,7 +50,7 @@ pub enum SystemLabels {
 
 /// all game settings in metastruct
 /// make sure tables are AFTER single fields
-#[derive(Inspectable, Resource, Serialize, Deserialize, Copy, Clone)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone)]
 pub struct AppSettings {
     /// enable vsync if true
     pub vsync: bool,
@@ -121,7 +123,7 @@ impl FromWorld for AppSettings {
 //     // && !layers.contains_group(PhysicsLayers::Projectile)
 // }
 
-// #[derive(PhysicsLayer, Inspectable)]
+// #[derive(PhysicsLayer, Reflect)]
 // pub enum PhysicsLayers {
 //     World,
 //     Player,

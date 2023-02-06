@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
+use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -33,15 +33,16 @@ pub struct WalkingSoundTimer {
 }
 //TODO: make this serialize into a settings.toml file in a saves folder
 /// modify to change sound volume settings
-#[derive(Inspectable, Debug, Serialize, Deserialize, Copy, Clone)]
+#[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Copy, Clone)]
+#[reflect(InspectorOptions)]
 pub struct SoundSettings {
-    #[inspectable(min = 0.0, max = 1.0)]
+    #[inspector(min = 0.0, max = 1.0)]
     pub mastervolume: f64,
-    #[inspectable(min = 0.0, max = 1.0)]
+    #[inspector(min = 0.0, max = 1.0)]
     pub ambiencevolume: f64,
-    #[inspectable(min = 0.0, max = 1.0)]
+    #[inspector(min = 0.0, max = 1.0)]
     pub musicvolume: f64,
-    #[inspectable(min = 0.0, max = 1.0)]
+    #[inspector(min = 0.0, max = 1.0)]
     pub soundvolume: f64,
 }
 
@@ -70,9 +71,12 @@ impl Plugin for InternalAudioPlugin {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
-            .add_system_set(SystemSet::on_enter(GameStage::Menu).with_system(play_background_audio))
             .add_system_set(
-                SystemSet::on_update(GameStage::Playing).with_system(player_walking_sound_system),
+                SystemSet::on_enter(GameStage::StartMenu).with_system(play_background_audio),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameStage::PlaySubStage)
+                    .with_system(player_walking_sound_system),
             )
             .add_startup_system(setup_sound_volume);
     }

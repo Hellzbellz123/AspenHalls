@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 
 pub mod actors {
     pub mod spawners {
@@ -8,7 +7,6 @@ pub mod actors {
             reflect::Reflect,
             time::Timer,
         };
-        use bevy_inspector_egui::Inspectable;
         use rand::{distributions::Standard, prelude::Distribution, Rng};
         use strum::{EnumString, EnumVariantNames, VariantNames};
 
@@ -45,7 +43,7 @@ pub mod actors {
             SmallPistol,
         }
 
-        #[derive(Component, Inspectable, Debug, Reflect)]
+        #[derive(Component, Reflect, Debug)]
         pub enum SpawnType {
             Item,
             Weapon,
@@ -190,9 +188,9 @@ pub mod actors {
 
     pub mod ai {
         use bevy::prelude::*;
-        use bevy_inspector_egui::Inspectable;
+        use big_brain::prelude::{ActionBuilder, ScorerBuilder};
 
-        #[derive(Inspectable)]
+        #[derive(Reflect)]
         pub enum TypeEnum {
             Enemy,
             Neutral,
@@ -200,56 +198,56 @@ pub mod actors {
             Player,
         }
 
-        #[derive(Component, Deref, DerefMut, Inspectable)]
+        #[derive(Component, Deref, DerefMut, Reflect)]
         pub struct ActorType(pub TypeEnum);
 
-        #[derive(Component, Inspectable)]
+        #[derive(Component, Reflect)]
         pub enum AIEnemy {
             Skeleton,
             Slime,
         }
 
         /// enemeies that can chase scorer
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
         pub struct AggroScore;
 
         /// enemeies that can shoot scorer
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
         pub struct ShootScore;
 
         /// enemies that wander scorer
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
         pub struct WanderScore;
 
         /// enemies that can chase
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect)]
         pub struct AICanChase {
             pub aggro_distance: f32,
         }
 
         /// enemies that can wander
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect)]
         pub struct AICanWander {
             pub wander_target: Option<Vec3>,
             pub spawn_position: Option<Vec3>,
         }
 
         /// enemies that can shoot
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect)]
         pub struct AICanShoot {
             pub shoot_range: f32,
         }
 
         /// enemies with this tag are shooting a target
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
         pub struct AIShootAction;
 
         /// enemies with this tag are chasing a target
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
         pub struct AIChaseAction;
 
         /// enemies with this tag are wandering
-        #[derive(Component, Default, Clone, Debug, Inspectable)]
+        #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
         pub struct AIWanderAction;
 
         #[derive(Component, Default, Clone, Debug, Reflect)]
@@ -263,9 +261,8 @@ pub mod actors {
 
     pub mod animation {
         use bevy::prelude::*;
-        use bevy_inspector_egui::Inspectable;
 
-        #[derive(Default, Component, Inspectable)]
+        #[derive(Default, Component, Reflect)]
         pub struct AnimationSheet {
             pub handle: Handle<TextureAtlas>,
             pub idle_animation: [usize; 5],
@@ -275,17 +272,7 @@ pub mod actors {
         }
 
         #[derive(
-            Component,
-            Default,
-            Clone,
-            Copy,
-            Inspectable,
-            PartialEq,
-            Eq,
-            PartialOrd,
-            Ord,
-            Debug,
-            Reflect,
+            Component, Default, Clone, Copy, Reflect, PartialEq, Eq, PartialOrd, Ord, Debug,
         )]
         pub enum FacingDirection {
             #[default]
@@ -296,7 +283,7 @@ pub mod actors {
             Right,
         }
 
-        #[derive(Component, Default, Inspectable)]
+        #[derive(Component, Default, Reflect)]
         pub struct PlayerGraphics {
             pub facing: FacingDirection,
         }
@@ -314,26 +301,25 @@ pub mod actors {
     pub mod general {
         use crate::components::actors::animation::FacingDirection;
         use bevy::prelude::*;
-        use bevy_inspector_egui::Inspectable;
 
         #[derive(Component, Default, Reflect, Deref, DerefMut)]
         #[reflect(Component)]
         pub struct TimeToLive(pub Timer);
 
-        #[derive(Component, Inspectable, Clone, Copy, Default)]
+        #[derive(Component, Reflect, Clone, Copy, Default)]
         pub struct Player {
             pub wants_to_teleport: bool,
             pub just_teleported: bool,
         }
 
-        #[derive(Component, Inspectable, Clone, Copy, Default)]
+        #[derive(Component, Reflect, Clone, Copy, Default)]
         pub struct ProjectileStats {
             pub damage: f32,
             pub speed: f32,
             pub size: f32,
         }
 
-        #[derive(Component, Inspectable, Clone, Copy, Default)]
+        #[derive(Component, Reflect, Clone, Copy, Default)]
         pub struct CombatStats {
             pub stamina: f64,  // gives health per point
             pub agility: f64,  // gives speed per point
@@ -341,13 +327,13 @@ pub mod actors {
             pub armor: f64,    // gives damage reduction % + shield points
         }
 
-        #[derive(Component, Inspectable, Clone, Copy, Default)]
+        #[derive(Component, Reflect, Clone, Copy, Default)]
         pub struct DefenseStats {
             pub health: f32,
             pub shield: f32,
         }
 
-        #[derive(Component, Default, Inspectable)]
+        #[derive(Component, Default, Reflect)]
         pub struct MovementState {
             //stores actor information, all actors have this
             pub speed: f32,             //TODO: Refactor into stats
@@ -361,7 +347,7 @@ pub mod actors {
 #[derive(Component)]
 pub struct OnSplashScreen;
 
-#[derive(Component, Inspectable)]
+#[derive(Component, Reflect)]
 pub struct MainCameraTag {
     pub is_active: bool,
 }

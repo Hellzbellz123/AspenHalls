@@ -15,22 +15,7 @@
     ".shellcheckrc": false,
     ".gitignore": false
   },
-  "explorerExclude.backup": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    "**/.trunk/*out": true,
-    "**/.trunk": true,
-    "**/.vscode": true,
-    ".cargo": true,
-    ".gitattributes": true,
-    ".markdownlint.yaml": true,
-    ".shellcheckrc": true,
-    ".gitignore": true
-  },
+  "explorerExclude.backup": {},
   "lldb.displayFormat": "auto",
   "lldb.showDisassembly": "always",
   "lldb.dereferencePointers": true,

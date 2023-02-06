@@ -1,11 +1,10 @@
 /target
 /publish
-/crates/*
 /statistics/*
 *.pdb
 .vscode/settings.json
-
 zappschedule.dot
 zrenderschedule.dot
 zrendergraph.dot
 debug.log
+/crates/bevy

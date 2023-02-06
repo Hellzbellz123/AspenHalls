@@ -1,12 +1,14 @@
 mod attacks;
 pub mod components;
+mod hit_detection;
 
 use std::{f32::consts::FRAC_PI_2, time::Duration};
 
 use bevy::{math::vec2, prelude::*};
 
 use bevy_debug_text_overlay::screen_print;
-use bevy_rapier2d::prelude::{CollisionEvent, Velocity};
+use bevy_ecs_ldtk::LevelSelection;
+use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
@@ -20,11 +22,7 @@ use crate::{
     components::actors::{
         ai::AIEnemy,
         animation::FacingDirection,
-        bundles::{
-            EnemyColliderTag, EnemyProjectileColliderTag, EnemyProjectileTag, PlayerColliderTag,
-            PlayerProjectileColliderTag, PlayerProjectileTag,
-        },
-        general::{DefenseStats, MovementState, Player, ProjectileStats},
+        general::{DefenseStats, MovementState, Player},
     },
     game::{GameStage, TimeInfo},
     loading::assets::ActorTextureHandles,
@@ -63,18 +61,22 @@ impl Plugin for WeaponPlugin {
             player_deaths: 0,
         })
         .insert_resource(WeaponFiringTimer::default())
-        .add_system_to_stage(CoreStage::PreUpdate, remove_cdw_componenet)
-        .add_system_to_stage(CoreStage::PreUpdate, deal_with_damaged)
+        .add_system_set_to_stage(
+            CoreStage::PreUpdate,
+            SystemSet::new()
+                .with_system(remove_cdw_componenet)
+                .with_system(deal_with_damaged), // .with_system(flash_damaged_entitys),
+        )
         .add_system_set(
-            SystemSet::on_update(GameStage::Playing)
-                .with_system(detect_bullet_hits_on_enemy)
-                .with_system(detect_bullet_hits_on_player)
+            SystemSet::on_update(GameStage::PlaySubStage)
+                .with_system(player_death_system)
+                .with_system(hit_detection::hits_on_enemy)
+                .with_system(hit_detection::hits_on_player)
                 .with_system(rotate_player_weapon)
                 .with_system(keep_player_weapons_centered)
                 .with_system(weapon_visiblity_system)
                 .with_system(update_equipped_weapon)
-                .with_system(shoot_weapon)
-                .with_system(player_death_system),
+                .with_system(shoot_weapon),
         );
     }
 }
@@ -163,6 +165,10 @@ fn weapon_visiblity_system(
     player_query: Query<&WeaponSocket, With<Player>>,
     mut weapon_query: Query<(&WeaponTag, &mut Visibility), With<Parent>>, // query weapons parented to entitys
 ) {
+    if player_query.is_empty() || weapon_query.is_empty() {
+        return;
+    }
+
     let p_weaponsocket = player_query.single();
     weapon_query.for_each_mut(|(wtag, mut wvisiblity)| {
         if wtag.stored_weapon_slot == Some(p_weaponsocket.drawn_slot) {
@@ -324,94 +330,22 @@ pub fn shoot_weapon(
         }
     }
 }
-
-// TODO: Make damage dealt an event or component that is inserted onto the
-// enemy. have system that takes entities that get that componenet and applies
-// damage to them, if the enemys health goes below 0 in that system it should
-// add a dead componenet
-pub fn detect_bullet_hits_on_enemy(
-    mut game_info: ResMut<PlayerGameInformation>,
-    mut cmds: Commands,
-    projectile_query: Query<&ProjectileStats, With<PlayerProjectileTag>>,
-    mut collision_events: EventReader<CollisionEvent>,
-    enemycollider_query: Query<(Entity, &Parent), With<EnemyColliderTag>>,
-    playerprojectilecollider_query: Query<(Entity, &Parent), With<PlayerProjectileColliderTag>>,
-) {
-    for event in collision_events.iter() {
-        if let CollisionEvent::Started(a, b, _flags) = event {
-            let enemy = if enemycollider_query.get(*b).is_ok() {
-                let (_collider, parent) = enemycollider_query.get(*b).unwrap();
-                parent.get()
-            } else if enemycollider_query.get(*a).is_ok() {
-                let (_collider, parent) = enemycollider_query.get(*a).unwrap();
-                parent.get()
-            } else {
-                return;
-            };
-            let projectile = if playerprojectilecollider_query.get(*a).is_ok() {
-                let (_a, parent) = playerprojectilecollider_query.get(*a).unwrap();
-                parent.get()
-            } else if playerprojectilecollider_query.get(*b).is_ok() {
-                let (_a, parent) = playerprojectilecollider_query.get(*b).unwrap();
-                parent.get()
-            } else {
-                return;
-            };
-            let damage = projectile_query.get(projectile).unwrap().damage;
-
-            cmds.entity(projectile).despawn_recursive();
-            game_info.player_damage_sent += damage;
-            cmds.entity(enemy).insert(Damaged { amount: damage });
-        }
-    }
-    // collision_events.clear();
-}
-
-pub fn detect_bullet_hits_on_player(
-    mut game_info: ResMut<PlayerGameInformation>,
-    mut cmds: Commands,
-    mut collision_events: EventReader<CollisionEvent>,
-    playercollider_query: Query<(Entity, &Parent), With<PlayerColliderTag>>,
-    bad_projectile_query: Query<&ProjectileStats, With<EnemyProjectileTag>>,
-    enemyprojectilecollider_query: Query<(Entity, &Parent), With<EnemyProjectileColliderTag>>,
-) {
-    for event in collision_events.iter() {
-        if let CollisionEvent::Started(a, b, _flags) = event {
-            let player = if playercollider_query.get(*b).is_ok() {
-                let (_collider, parent) = playercollider_query.get(*b).unwrap();
-                parent.get()
-            } else if playercollider_query.get(*a).is_ok() {
-                let (_collider, parent) = playercollider_query.get(*a).unwrap();
-                parent.get()
-            } else {
-                return;
-            };
-            let projectile = if enemyprojectilecollider_query.get(*a).is_ok() {
-                let (_a, parent) = enemyprojectilecollider_query.get(*a).unwrap();
-                parent.get()
-            } else if enemyprojectilecollider_query.get(*b).is_ok() {
-                let (_a, parent) = enemyprojectilecollider_query.get(*b).unwrap();
-                parent.get()
-            } else {
-                return;
-            };
-            let damage = bad_projectile_query.get(projectile).unwrap().damage;
-
-            cmds.entity(projectile).despawn_recursive();
-            game_info.enemy_damage_sent += damage;
-            cmds.entity(player).insert(Damaged { amount: damage });
-        }
-    }
-    // collision_events.clear();
-}
+// TODO: merge both damage application systems into single system that sends an event for player deaths
+// TODO: add seperate system that catches player death event and handles it
+// TODO: have damaged system remove red hit effect from enemy
 
 fn deal_with_damaged(
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,
-    mut enemy_query: Query<(&mut DefenseStats, Entity, &Damaged), (Added<Damaged>, With<AIEnemy>)>,
+    #[allow(clippy::type_complexity)]
+    // trunk-ignore(clippy/type_complexity)
+    mut damaged_query: Query<
+        (&mut DefenseStats, Entity, &Damaged),
+        (Added<Damaged>, With<AIEnemy>),
+    >,
 ) {
     screen_print!("{:#?}", game_info);
-    enemy_query.for_each_mut(|(mut enemy_stats, enemy, damage)| {
+    damaged_query.for_each_mut(|(mut enemy_stats, enemy, damage)| {
         game_info.damage_dealt += damage.amount;
         enemy_stats.health -= damage.amount;
         cmds.entity(enemy).remove::<Damaged>();
@@ -424,14 +358,25 @@ fn deal_with_damaged(
 }
 
 fn player_death_system(
+    mut level_selection: ResMut<LevelSelection>,
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,
-    mut player_query: Query<(&mut DefenseStats, Entity, &Damaged, &mut Transform), With<Player>>,
+    mut player_query: Query<
+        (
+            &mut DefenseStats,
+            Entity,
+            &Damaged,
+            &mut Transform,
+            &mut TextureAtlasSprite,
+        ),
+        With<Player>,
+    >,
 ) {
     if player_query.is_empty() {
+        // OR !level_selection.is_added()
         return;
     }
-    let (mut player_stats, player, player_damaged, mut player_loc) =
+    let (mut player_stats, player, player_damaged, mut player_loc, mut player_sprite) =
         player_query.get_single_mut().unwrap();
 
     game_info.damage_taken += player_damaged.amount;
@@ -439,9 +384,14 @@ fn player_death_system(
         warn!("player is dead");
         player_stats.health = 150.0;
         *player_loc = Transform::from_translation(Vec3::new(-60.0, 1090.0, ACTOR_Z_INDEX));
+        *level_selection = LevelSelection::Index(0);
         game_info.player_deaths += 1;
     }
 
+    let oldcolor = player_sprite.color;
+    player_sprite.color = Color::RED;
+
     player_stats.health -= player_damaged.amount;
     cmds.entity(player).remove::<Damaged>();
+    player_sprite.color = oldcolor;
 }

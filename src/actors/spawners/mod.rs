@@ -32,12 +32,12 @@ impl Plugin for SpawnerPlugin {
         app.add_event::<SpawnWeaponEvent>()
             .add_event::<SpawnEnemyEvent>()
             .add_system_set(
-                SystemSet::on_enter(GameStage::Playing)
+                SystemSet::on_enter(GameStage::PlaySubStage)
                     .with_system(on_enter)
                     .label(SystemLabels::Spawn),
             )
             .add_system_set(
-                SystemSet::on_update(GameStage::Playing)
+                SystemSet::on_update(GameStage::PlaySubStage)
                     .with_system(recieve_enemy_spawns)
                     .with_system(recieve_weapon_spawns)
                     .with_system(spawner_timer_system),

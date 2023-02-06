@@ -17,7 +17,7 @@ pub struct AnimationPlugin;
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
-            SystemSet::on_update(GameStage::Playing)
+            SystemSet::on_update(GameStage::PlaySubStage)
                 .with_system(Self::update_current_animation)
                 .with_system(Self::frame_animation),
         );

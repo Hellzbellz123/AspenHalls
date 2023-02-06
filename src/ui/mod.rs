@@ -6,7 +6,6 @@ mod zpause_menu;
 pub mod zsettings_menu;
 
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 use kayak_ui::{
     prelude::{widget_update, FontMapping, KayakRootContext, *},
     widgets::{ButtonState, KayakAppBundle, KayakWidgets, KayakWidgetsContextPlugin},
@@ -34,7 +33,7 @@ use self::{
     zsettings_menu::update_settings_menu_props,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Component, Reflect, Inspectable, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Component, Reflect, Hash)]
 pub enum MenuState {
     HideMenu,
     Main,
@@ -57,14 +56,16 @@ impl Plugin for UIPlugin {
             .add_plugin(KayakContextPlugin)
             .add_plugin(KayakWidgets)
             .add_system_set(
-                SystemSet::on_enter(GameStage::Menu)
+                SystemSet::on_enter(GameStage::StartMenu)
                     .with_system(despawn_with::<OnSplashScreen>)
                     .with_system(game_ui),
             )
             .add_system_set(
                 SystemSet::on_enter(GameStage::FailedLoading).with_system(failed_load_ui),
             )
-            .add_system_set(SystemSet::on_update(GameStage::Playing).with_system(toggle_pause_menu))
+            .add_system_set(
+                SystemSet::on_update(GameStage::PlaySubStage).with_system(toggle_pause_menu),
+            )
             .add_system(update_main_menu_props)
             .add_system(update_pause_menu_props)
             .add_system(update_settings_menu_props);

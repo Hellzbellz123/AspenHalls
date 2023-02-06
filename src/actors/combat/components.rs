@@ -2,6 +2,7 @@ use bevy::{
     prelude::{Bundle, Component, Entity, Handle, Name, ReflectComponent, SpatialBundle, Vec3},
     reflect::{FromReflect, Reflect},
     sprite::{SpriteBundle, TextureAtlas, TextureAtlasSprite},
+    time::Timer,
     transform::TransformBundle,
     utils::hashbrown::HashMap,
 };
@@ -13,6 +14,7 @@ use crate::components::actors::{bundles::RigidBodyBundle, spawners::WeaponType};
 #[derive(Debug, Component)]
 pub struct Damaged {
     pub amount: f32,
+    pub damage_timer: Timer,
 }
 
 #[derive(Debug, Component)]

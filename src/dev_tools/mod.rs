@@ -7,8 +7,7 @@ pub mod debug_plugin {
     };
     use bevy_debug_text_overlay::OverlayPlugin;
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
-    use bevy_inspector_egui::{RegisterInspectable, WorldInspectorPlugin};
-    use bevy_inspector_egui_rapier::InspectableRapierPlugin;
+    use bevy_inspector_egui::quick::WorldInspectorPlugin;
     use bevy_mod_debugdump::{get_render_graph, get_render_schedule, get_schedule};
     use bevy_prototype_lyon::{
         prelude::{DrawMode, FillMode, GeometryBuilder},
@@ -55,29 +54,30 @@ pub mod debug_plugin {
                     font_size: 32.0,
                     ..Default::default()
                 })
-                .add_plugin(WorldInspectorPlugin::new())
+                .add_plugin(WorldInspectorPlugin)
+                // .add_plugin(StateInspectorPlugin::<GameStage>::default())
                 .add_plugin(FrameTimeDiagnosticsPlugin::default())
                 .add_plugin(LogDiagnosticsPlugin {
                     wait_duration: Duration::from_secs(20),
                     ..Default::default()
                 })
-                // .add_plugin(InspectorPlugin::<crate::game_world::homeworld::components::InspectableData>::new())
+                // .add_plugin(InspectorPlugin::<crate::game_world::homeworld::components::ReflectData>::new())
                 .register_type::<Timer>()
-                //rapier inspectables in this plugin
-                .add_plugin(InspectableRapierPlugin)
+                //rapier Reflects in this plugin
+                // .add_plugin(ReflectRapierPlugin)
                 .add_plugin(RapierDebugRenderPlugin::default())
-                //custom inspectables not from plugins
-                .register_inspectable::<MenuState>()
-                .register_inspectable::<MovementState>()
-                .register_inspectable::<CombatStats>()
-                .register_inspectable::<DefenseStats>()
-                .register_inspectable::<Player>()
-                .register_inspectable::<AIEnemy>()
-                .register_inspectable::<TypeEnum>()
-                .register_inspectable::<AnimationSheet>()
-                .register_inspectable::<FacingDirection>()
-                .register_inspectable::<TimeInfo>()
-                .register_inspectable::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
+                //custom Reflects not from plugins
+                .register_type::<MenuState>()
+                .register_type::<MovementState>()
+                .register_type::<CombatStats>()
+                .register_type::<DefenseStats>()
+                .register_type::<Player>()
+                .register_type::<AIEnemy>()
+                .register_type::<TypeEnum>()
+                .register_type::<AnimationSheet>()
+                .register_type::<FacingDirection>()
+                .register_type::<TimeInfo>()
+                .register_type::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
                 .register_type::<Spawner>()
                 .register_type::<PlayerActions>()
                 .register_type::<AnimState>()
@@ -95,15 +95,15 @@ pub mod debug_plugin {
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
                 // bigbrain AI
-                .register_inspectable::<AggroScore>()
-                .register_inspectable::<AICanWander>()
-                .register_inspectable::<AICanChase>()
-                .register_inspectable::<AIChaseAction>()
-                .register_inspectable::<AIWanderAction>()
-                .register_inspectable::<ActorType>()
+                .register_type::<AggroScore>()
+                .register_type::<AICanWander>()
+                .register_type::<AICanChase>()
+                .register_type::<AIChaseAction>()
+                .register_type::<AIWanderAction>()
+                .register_type::<ActorType>()
                 // .add_system_to_stage(CoreStage::PostUpdate, debug_logging)
                 .add_system_set(
-                    SystemSet::on_update(GameStage::Playing)
+                    SystemSet::on_update(GameStage::PlaySubStage)
                         .with_system(debug_visualize_spawner)
                         // .with_system(debug_visualize_weapon_spawn_point)
                         .after(SystemLabels::Spawn),

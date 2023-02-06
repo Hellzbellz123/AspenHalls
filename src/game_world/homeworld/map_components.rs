@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{EntityInstance, IntGridCell, LdtkEntity, LdtkIntCell};
-use bevy_inspector_egui::reflect::ReflectedUI;
-use bevy_inspector_egui::Inspectable;
 
 use bevy_rapier2d::prelude::{
     ActiveEvents, Collider, CollisionGroups, Group, RigidBody, Rot, Sensor, Vect,
@@ -12,11 +10,6 @@ use crate::{
     utilities::game::WORLD_COLLIDER_LAYER,
 };
 
-#[derive(Inspectable, Default, Debug, Resource)]
-pub struct InspectableData {
-    // and for most of bevy's types
-    timer: ReflectedUI<Timer>,
-}
 /// just a marker for sensors, saying whether active
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct HomeWorldTeleportSensor {
@@ -240,7 +233,7 @@ impl From<IntGridCell> for CollisionBundle {
 
 #[derive(Bundle, LdtkEntity)]
 pub struct LdtkSensorBundle {
-    #[from_entity_instance]
+    #[with(sensor_bundle)]
     sensorbundle: SensorBundle,
 }
 
@@ -252,23 +245,20 @@ pub struct SensorBundle {
     collision_shape: Collider,
     events: ActiveEvents,
 }
-
-impl From<EntityInstance> for SensorBundle {
-    fn from(_ent_instance: EntityInstance) -> SensorBundle {
-        SensorBundle {
-            name: Name::new("SensorBundle"),
-            collision_shape: Collider::cuboid(8., 8.),
-            sensor: Sensor,
-            events: ActiveEvents::COLLISION_EVENTS,
-            homeworldsensor: HomeWorldTeleportSensor { active: true },
-        }
-        // ent_instance.field_instances.leak()
+fn sensor_bundle(_ent_instance: EntityInstance) -> SensorBundle {
+    SensorBundle {
+        name: Name::new("SensorBundle"),
+        collision_shape: Collider::cuboid(8., 8.),
+        sensor: Sensor,
+        events: ActiveEvents::COLLISION_EVENTS,
+        homeworldsensor: HomeWorldTeleportSensor { active: true },
     }
+    // ent_instance.field_instances.leak()
 }
 
 #[derive(Bundle, LdtkEntity)]
 pub struct LdtkSpawnerBundle {
-    #[from_entity_instance]
+    #[with(spawner_bundle)]
     sensorbundle: SpawnerBundle,
 }
 
@@ -279,18 +269,16 @@ pub struct SpawnerBundle {
     timer: SpawnerTimer,
 }
 
-impl From<EntityInstance> for SpawnerBundle {
-    fn from(_ent_instance: EntityInstance) -> SpawnerBundle {
-        SpawnerBundle {
-            name: Name::new("spawnerbundle"),
-            state: Spawner {
-                enemytype: EnemyType::Skeleton,
-                spawn_radius: 100.0,
-                max_enemies: 7,
-                randomenemy: true,
-            },
-            timer: SpawnerTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
-        }
-        // ent_instance.field_instances.leak()
+fn spawner_bundle(_ent_instance: EntityInstance) -> SpawnerBundle {
+    SpawnerBundle {
+        name: Name::new("spawnerbundle"),
+        state: Spawner {
+            enemytype: EnemyType::Skeleton,
+            spawn_radius: 100.0,
+            max_enemies: 7,
+            randomenemy: true,
+        },
+        timer: SpawnerTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
     }
+    // ent_instance.field_instances.leak()
 }

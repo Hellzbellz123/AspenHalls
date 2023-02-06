@@ -17,11 +17,11 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
-            SystemSet::on_update(GameStage::Playing)
+            SystemSet::on_update(GameStage::PlaySubStage)
                 .with_system(on_shoot)
                 .with_system(update_enemy_graphics),
         )
-        .add_system_set(SystemSet::on_enter(GameStage::Playing));
+        .add_system_set(SystemSet::on_enter(GameStage::PlaySubStage));
     }
 }
 

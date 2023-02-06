@@ -6,6 +6,7 @@ use bevy_console::{reply, ConsoleCommand};
 use rand::{thread_rng, Rng};
 use std::str::FromStr;
 use strum::VariantNames;
+use clap::Parser;
 
 use crate::{
     components::actors::{
@@ -16,8 +17,8 @@ use crate::{
 };
 
 /// spawn weapon [`WeaponType`] x amount of times using `SpawnWeaponEvent`
-#[derive(ConsoleCommand)]
-#[console_command(name = "spawnweapon")]
+#[derive(ConsoleCommand, Parser, Debug)]
+#[command(name = "spawnweapon")] //, author, version, about, long_about = None)]
 pub struct SpawnWeaponCommand {
     /// type of w to spawn
     weapon_type: String,
@@ -27,12 +28,13 @@ pub struct SpawnWeaponCommand {
     /// Number of times to spawn
     amount: Option<i32>,
     /// spawn at/near player
+    #[arg(short = '@', long="at_player")]
     atplayer: Option<bool>,
 }
 
 ///  spawns enemy [`EnemyType`] x amount of times using `SpawnEnemyEvent`
-#[derive(ConsoleCommand)]
-#[console_command(name = "spawnenemy")]
+#[derive(ConsoleCommand, Parser)]
+#[command(name = "spawnenemy")]
 pub struct SpawnEnemyCommand {
     /// type of thing to spawn
     enemy_type: String,

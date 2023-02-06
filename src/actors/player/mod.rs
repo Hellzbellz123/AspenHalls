@@ -47,11 +47,11 @@ impl Plugin for PlayerPlugin {
         app.add_event::<PlayerMeleeEvent>()
             .add_event::<ShootEvent>()
             .add_system_set(
-                SystemSet::on_enter(GameStage::Playing)
+                SystemSet::on_enter(GameStage::PlaySubStage)
                     .with_system(spawn_player.label(SystemLabels::Spawn)),
             )
             .add_system_set(
-                SystemSet::on_update(GameStage::Playing)
+                SystemSet::on_update(GameStage::PlaySubStage)
                     .with_system(player_movement_system)
                     .with_system(camera_movement_system)
                     .with_system(player_sprint)
