@@ -1,0 +1,131 @@
+[package]
+name = "vanillacoffee-refresh-wip"
+authors = ["Hellzbellz123 (Taylor Smith)"]
+description = "Vanilla Coffee game: in progress"
+documentation = "https://github.com/Hellzbellz123/VanillaCoffee/blob/main/README.md"
+edition = "2021"
+homepage = "https://github.com/Hellzbellz123/VanillaCoffee"
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
+version = "0.0.4"
+
+# all folder names use _ even if crates use - in name
+# patch bevy related dependencies too use local copies, comment out to use crates.io
+[patch.crates-io]
+bevy = {path = "crates/bevy", default_features = false, features = [""]}
+bevy_app = {path = "crates/bevy/crates/bevy_app"}
+bevy_log = {path = "crates/bevy/crates/bevy_log"}
+bevy_pbr = {path = "crates/bevy/crates/bevy_pbr"}
+bevy_ecs = {path = "crates/bevy/crates/bevy_ecs"}
+bevy_time = {path = "crates/bevy/crates/bevy_time"}
+bevy_core = {path = "crates/bevy/crates/bevy_core"}
+bevy_math = {path = "crates/bevy/crates/bevy_math"}
+bevy_utils = {path = "crates/bevy/crates/bevy_utils"}
+bevy_asset = {path = "crates/bevy/crates/bevy_asset"}
+bevy_render = {path = "crates/bevy/crates/bevy_render"}
+bevy_window = {path = "crates/bevy/crates/bevy_window"}
+bevy_derive = {path = "crates/bevy/crates/bevy_derive"}
+bevy_reflect = {path = "crates/bevy/crates/bevy_reflect"}
+bevy_hierarchy = {path = "crates/bevy/crates/bevy_hierarchy"}
+bevy_transform = {path = "crates/bevy/crates/bevy_transform"}
+bevy_mikktspace = {path = "crates/bevy/crates/bevy_mikktspace"}
+bevy_macro_utils = {path = "crates/bevy/crates/bevy_macro_utils"}
+bevy_render_macros = {path = "crates/bevy/crates/bevy_render/macros"}
+bevy_encase_derive = {path = "crates/bevy/crates/bevy_encase_derive"}
+bevy_core_pipeline = {path = "crates/bevy/crates/bevy_core_pipeline"}
+#deps that rely on bevy
+# bevy_egui= {path = "crates/bevy_egui"} breaks context stuff becuase apps see different libs
+bevy_kindly_macros = {path = "crates/bevy_kindly_macros"}
+bevy_ecs_tilemap = {path = "crates/bevy_ecs_tilemap"}
+bevy_common_assets = {path = "crates/bevy_common_assets"}
+
+
+[features]
+dev = ["bevy/dynamic"]
+# dev=["bevy/dynamic_linking"] #renamed after bevy 0.9.1
+
+[workspace]
+resolver = "2"
+exclude = [
+    "crates/bevy",
+    "crates/bevy_inspector_egui",
+    "crates/bevy_asset_loader",
+    "crates/bevy_console",
+    "crates/bevy_ecs_ldtk",
+    "crates/big_brain",
+    "crates/kayak_ui",
+    "crates/leafwing_input_manager",
+]
+
+# dependencies not related to bevy 
+# should be nabbed from crates.io
+[dependencies]
+
+
+[dependencies.bevy]
+path = "crates/bevy"
+default_features = false
+features = [
+    "animation",
+    "bevy_asset",
+    "bevy_gilrs",
+    "bevy_scene",
+    "bevy_winit",
+    "render",     # same as below 7 features
+    # "bevy_core_pipeline",
+    # "bevy_pbr",
+    # "bevy_gltf",
+    # "bevy_render",
+    # "bevy_sprite",
+    # "bevy_text",
+    # "bevy_ui",
+    "png",
+    "hdr",
+    "ktx2",
+    "zstd",
+    "vorbis",
+    "x11",
+]
+
+[dependencies.bevy_rapier2d]
+path = "crates/bevy_rapier/bevy_rapier2d"
+features = [
+    #   "parallel", --causes big lag cause we arent doing enough simulations for it too matter
+    "simd-nightly",
+]
+
+[dependencies.bevy_ecs_ldtk]
+path = "crates/bevy_ecs_ldtk"
+features = ["atlas"]
+
+[dependencies.bevy_asset_loader]
+path = "crates/bevy_asset_loader/bevy_asset_loader"
+features = ["2d", "standard_dynamic_assets"]
+
+[dependencies.bevy_kira_audio]
+path = "crates/bevy_kira_audio"
+default-features = false
+features = ["ogg"]
+
+[dependencies.bevy_console]
+path = "crates/bevy_console"
+
+[dependencies.big-brain]
+path = "crates/big_brain"
+
+[dependencies.bevy_kindly]
+path = "crates/bevy_kindly"
+
+[dependencies.bevy_mod_transform2d]
+path = "crates/bevy_mod_transform2d"
+
+
+[dependencies.bevy-inspector-egui]
+path = "crates/bevy_inspector_egui/crates/bevy-inspector-egui"
+
+[dependencies.kayak_ui]
+path = "crates/kayak_ui"
+
+[dependencies.leafwing-input-manager]
+path = "crates/leafwing_input_manager"
