@@ -1,0 +1,51 @@
+[submodule "crates/bevy"]
+	path = crates/bevy
+	url = https://github.com/BevyEngine/bevy.git
+[submodule "crates/bevy_asset_loader"]
+	path = crates/bevy_asset_loader
+	url = https://github.com/NiklasEi/bevy_asset_loader.git
+[submodule "crates/bevy_kira_audio"]
+	path = crates/bevy_kira_audio
+	url = https://github.com/NiklasEi/bevy_kira_audio.git
+[submodule "crates/bevy_ecs_ldtk"]
+	path = crates/bevy_ecs_ldtk
+	url = https://github.com/Trouv/bevy_ecs_ldtk.git
+[submodule "crates/bevy_kindly_macros"]
+	path = crates/bevy_kindly_macros
+	url = https://github.com/Zeenobit/bevy_kindly_macros.git
+[submodule "crates/bevy_kindly"]
+	path = crates/bevy_kindly
+	url = https://github.com/Zeenobit/bevy_kindly.git
+[submodule "crates/bevy_console"]
+	path = crates/bevy_console
+	url = https://github.com/RichoDemus/bevy-console.git
+[submodule "crates/bevy_mod_transform2d"]
+	path = crates/bevy_mod_transform2d
+	url = https://github.com/devil-ira/bevy_mod_transform2d.git
+[submodule "crates/big_brain"]
+	path = crates/big_brain
+	url = https://github.com/zkat/big-brain
+[submodule "crates/kayak_ui"]
+	path = crates/kayak_ui
+	url = https://github.com/StarArawn/kayak_ui.git
+[submodule "crates/leafwing_input_manager"]
+	path = crates/leafwing_input_manager
+	url = https://github.com/Leafwing-Studios/leafwing-input-manager
+[submodule "bevy_rapier"]
+	path = bevy_rapier
+	url = https://github.com/dimforge/bevy_rapier.git
+[submodule "crates/bevy_rapier"]
+	path = crates/bevy_rapier
+	url = https://github.com/dimforge/bevy_rapier.git
+[submodule "crates/bevy_inspector_egui"]
+	path = crates/bevy_inspector_egui
+	url = https://github.com/jakobhellermann/bevy-inspector-egui.git
+[submodule "crates/bevy_ecs_tilemap"]
+	path = crates/bevy_ecs_tilemap
+	url = https://github.com/StarArawn/bevy_ecs_tilemap.git
+[submodule "crates/bevy_common_assets"]
+	path = crates/bevy_common_assets
+	url = https://github.com/NiklasEi/bevy_common_assets.git
+[submodule "crates/bevy_egui"]
+	path = crates/bevy_egui
+	url = https://github.com/mvlabat/bevy_egui.git
