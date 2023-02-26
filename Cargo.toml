@@ -87,24 +87,23 @@ tracing-subscriber = {version = "0.3.16"}
 
 [dependencies.bevy]
 path = "crates/bevy"
-default-features = false
-features = [
-    #   "animation",            # Animation support
-    #   "bevy_core_pipeline",   # Higher-level rendering abstractions
-    #   "bevy_gilrs",           # Gamepad input support
-    #   "bevy_render",          # Rendering framework core
-    #   "bevy_sprite",          # 2D (sprites) rendering
-    #   "bevy_text",            # Text/font rendering
-    #   "bevy_winit",           # Window management
-    #   "filesystem_watcher",   # Asset hot-reloading
-    #   "serialize",            # Support for `serde` Serialize/Deserialize
-    #   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
-    "x11", # Linux: Support X11 windowing system
-    #   # "wayland",            # Linux: Support Wayland windowing system
-    #   # "bevy_ui",            # UI toolkit
-    #   "jpeg",
-    "png",
-]
+default-features = true
+# features = [
+#     "animation",            # Animation support
+#     "bevy_asset",
+#     "bevy_core_pipeline",   # Higher-level rendering abstractions
+#     "bevy_gilrs",           # Gamepad input support
+#     "bevy_render",          # Rendering framework core
+#     "bevy_sprite",          # 2D (sprites) rendering
+#     "bevy_text",            # Text/font rendering
+#     "bevy_winit",           # Window management
+#     "filesystem_watcher",   # Asset hot-reloading
+#     "serialize",            # Support for `serde` Serialize/Deserialize
+#     "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
+#     "x11",                  # Linux: Support X11 windowing system
+#     "jpeg",
+#     # "bevy_ui",            # UI toolkit
+# ]
 
 [dependencies.bevy_asset_loader]
 path = "crates/bevy_asset_loader/bevy_asset_loader"

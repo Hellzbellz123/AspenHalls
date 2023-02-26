@@ -1,0 +1,1596 @@
+  2023-02-26T22:27:55.494498Z  INFO vanillacoffee_wip: Starting Game
+    at src/main.rs:66
+
+  2023-02-26T22:27:55.494542Z  INFO vanillacoffee_wip: Loading Game Settings from file and inserting settings
+    at src/main.rs:68
+
+  2023-02-26T22:27:55.494991Z  INFO vanillacoffee_wip::utilities: Game Settings loaded from file succesfully
+    at src/utilities/mod.rs:103
+
+  2023-02-26T22:27:55.495130Z DEBUG bevy_app::plugin_group: added plugin: bevy_core::CorePlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.495151Z DEBUG bevy_app::app: added plugin: bevy_core::CorePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.496181Z DEBUG bevy_app::plugin_group: added plugin: bevy_time::TimePlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.496202Z DEBUG bevy_app::app: added plugin: bevy_time::TimePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.496311Z DEBUG bevy_app::plugin_group: added plugin: bevy_transform::TransformPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.496328Z DEBUG bevy_app::app: added plugin: bevy_transform::TransformPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.496403Z DEBUG bevy_app::app: added plugin: bevy_hierarchy::valid_parent_check_plugin::ValidParentCheckPlugin<bevy_transform::components::global_transform::GlobalTransform>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.496454Z DEBUG bevy_app::plugin_group: added plugin: bevy_hierarchy::HierarchyPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.496471Z DEBUG bevy_app::app: added plugin: bevy_hierarchy::HierarchyPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.496556Z DEBUG bevy_app::plugin_group: added plugin: bevy_diagnostic::DiagnosticsPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.496574Z DEBUG bevy_app::app: added plugin: bevy_diagnostic::DiagnosticsPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.496603Z DEBUG bevy_app::plugin_group: added plugin: bevy_input::InputPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.496621Z DEBUG bevy_app::app: added plugin: bevy_input::InputPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.497152Z DEBUG bevy_app::plugin_group: added plugin: bevy_window::WindowPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.497173Z DEBUG bevy_app::app: added plugin: bevy_window::WindowPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.497304Z DEBUG bevy_app::plugin_group: added plugin: bevy_asset::AssetPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.497318Z DEBUG bevy_app::app: added plugin: bevy_asset::AssetPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.497400Z DEBUG bevy_app::plugin_group: added plugin: bevy_scene::ScenePlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.497413Z DEBUG bevy_app::app: added plugin: bevy_scene::ScenePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.497609Z DEBUG bevy_app::plugin_group: added plugin: bevy_winit::WinitPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.497623Z DEBUG bevy_app::app: added plugin: bevy_winit::WinitPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.505714Z  INFO winit::platform_impl::platform::x11::window: Guessed window scale factor: 1.1666666666666667
+    at /home/hellzbellz/.cargo/registry/src/github.com-1ecc6299db9ec823/winit-0.27.5/src/platform_impl/linux/x11/window.rs:147
+
+  2023-02-26T22:27:55.505738Z DEBUG winit::platform_impl::platform::x11::window: Calculated physical dimensions: 1400x1050
+    at /home/hellzbellz/.cargo/registry/src/github.com-1ecc6299db9ec823/winit-0.27.5/src/platform_impl/linux/x11/window.rs:177
+
+  2023-02-26T22:27:55.509817Z DEBUG bevy_app::plugin_group: added plugin: bevy_render::RenderPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.509837Z DEBUG bevy_app::app: added plugin: bevy_render::RenderPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.577423Z  INFO bevy_render::renderer: AdapterInfo { name: "NVIDIA GeForce RTX 3070", vendor: 4318, device: 9352, device_type: DiscreteGpu, driver: "NVIDIA", driver_info: "525.89.02", backend: Vulkan }
+    at crates/bevy/crates/bevy_render/src/renderer/mod.rs:124
+
+  2023-02-26T22:27:55.672249Z DEBUG bevy_render: Configured wgpu adapter Limits: Limits {
+    max_texture_dimension_1d: 32768,
+    max_texture_dimension_2d: 32768,
+    max_texture_dimension_3d: 16384,
+    max_texture_array_layers: 2048,
+    max_bind_groups: 8,
+    max_dynamic_uniform_buffers_per_pipeline_layout: 15,
+    max_dynamic_storage_buffers_per_pipeline_layout: 16,
+    max_sampled_textures_per_shader_stage: 1048576,
+    max_samplers_per_shader_stage: 1048576,
+    max_storage_buffers_per_shader_stage: 1048576,
+    max_storage_textures_per_shader_stage: 1048576,
+    max_uniform_buffers_per_shader_stage: 1048576,
+    max_uniform_buffer_binding_size: 65536,
+    max_storage_buffer_binding_size: 2147483648,
+    max_vertex_buffers: 16,
+    max_vertex_attributes: 32,
+    max_vertex_buffer_array_stride: 2048,
+    max_push_constant_size: 256,
+    min_uniform_buffer_offset_alignment: 64,
+    min_storage_buffer_offset_alignment: 16,
+    max_inter_stage_shader_components: 128,
+    max_compute_workgroup_storage_size: 49152,
+    max_compute_invocations_per_workgroup: 1024,
+    max_compute_workgroup_size_x: 1024,
+    max_compute_workgroup_size_y: 1024,
+    max_compute_workgroup_size_z: 64,
+    max_compute_workgroups_per_dimension: 65535,
+    max_buffer_size: 18446744073709551615,
+}
+    at crates/bevy/crates/bevy_render/src/lib.rs:160
+
+  2023-02-26T22:27:55.672294Z DEBUG bevy_render: Configured wgpu adapter Features: DEPTH_CLIP_CONTROL | DEPTH24PLUS_STENCIL8 | DEPTH32FLOAT_STENCIL8 | TEXTURE_COMPRESSION_BC | INDIRECT_FIRST_INSTANCE | TIMESTAMP_QUERY | PIPELINE_STATISTICS_QUERY | SHADER_FLOAT16 | TEXTURE_BINDING_ARRAY | BUFFER_BINDING_ARRAY | STORAGE_RESOURCE_BINDING_ARRAY | SAMPLED_TEXTURE_AND_STORAGE_BUFFER_ARRAY_NON_UNIFORM_INDEXING | UNIFORM_BUFFER_AND_STORAGE_TEXTURE_ARRAY_NON_UNIFORM_INDEXING | PARTIALLY_BOUND_BINDING_ARRAY | MULTI_DRAW_INDIRECT | MULTI_DRAW_INDIRECT_COUNT | PUSH_CONSTANTS | ADDRESS_MODE_CLAMP_TO_BORDER | POLYGON_MODE_LINE | POLYGON_MODE_POINT | TEXTURE_ADAPTER_SPECIFIC_FORMAT_FEATURES | SHADER_FLOAT64 | CONSERVATIVE_RASTERIZATION | VERTEX_WRITABLE_STORAGE | CLEAR_TEXTURE | SPIRV_SHADER_PASSTHROUGH | SHADER_PRIMITIVE_INDEX | MULTIVIEW | TEXTURE_FORMAT_16BIT_NORM | ADDRESS_MODE_CLAMP_TO_ZERO | WRITE_TIMESTAMP_INSIDE_PASSES
+    at crates/bevy/crates/bevy_render/src/lib.rs:161
+
+  2023-02-26T22:27:55.677574Z DEBUG bevy_app::app: added plugin: bevy_hierarchy::valid_parent_check_plugin::ValidParentCheckPlugin<bevy_render::view::visibility::ComputedVisibility>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.677610Z DEBUG bevy_app::app: added plugin: bevy_render::view::window::WindowRenderPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.677662Z DEBUG bevy_app::app: added plugin: bevy_render::camera::CameraPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.677828Z DEBUG bevy_app::app: added plugin: bevy_render::camera::projection::CameraProjectionPlugin<bevy_render::camera::projection::Projection>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.677881Z DEBUG bevy_app::app: added plugin: bevy_render::camera::projection::CameraProjectionPlugin<bevy_render::camera::projection::OrthographicProjection>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.677936Z DEBUG bevy_app::app: added plugin: bevy_render::camera::projection::CameraProjectionPlugin<bevy_render::camera::projection::PerspectiveProjection>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678044Z DEBUG bevy_app::app: added plugin: bevy_render::view::ViewPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678150Z DEBUG bevy_app::app: added plugin: bevy_render::extract_resource::ExtractResourcePlugin<bevy_render::view::Msaa>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678178Z DEBUG bevy_app::app: added plugin: bevy_render::view::visibility::VisibilityPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678240Z DEBUG bevy_app::app: added plugin: bevy_render::mesh::MeshPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678402Z DEBUG bevy_app::app: added plugin: bevy_render::render_asset::RenderAssetPlugin<bevy_render::mesh::mesh::Mesh>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678456Z DEBUG bevy_app::app: added plugin: bevy_render::globals::GlobalsPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678593Z DEBUG bevy_app::app: added plugin: bevy_render::FrameCountPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678703Z DEBUG bevy_app::plugin_group: added plugin: bevy_render::texture::ImagePlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.678722Z DEBUG bevy_app::app: added plugin: bevy_render::texture::ImagePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.678763Z DEBUG bevy_app::app: added plugin: bevy_render::render_asset::RenderAssetPlugin<bevy_render::texture::image::Image>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.681646Z DEBUG bevy_app::plugin_group: added plugin: bevy_core_pipeline::CorePipelinePlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.681673Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::CorePipelinePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.682730Z DEBUG bevy_app::app: added plugin: bevy_render::extract_resource::ExtractResourcePlugin<bevy_core_pipeline::clear_color::ClearColor>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.682769Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::core_2d::Core2dPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.682818Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_core_pipeline::core_2d::camera_2d::Camera2d>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.682975Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::core_3d::Core3dPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.683043Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_core_pipeline::core_3d::camera_3d::Camera3d>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.683177Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::tonemapping::TonemappingPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.683644Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_core_pipeline::tonemapping::Tonemapping>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.683788Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::upscaling::UpscalingPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.683944Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::bloom::BloomPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.685128Z DEBUG bevy_app::app: added plugin: bevy_core_pipeline::fxaa::FxaaPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.686937Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_core_pipeline::fxaa::Fxaa>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.687076Z DEBUG bevy_app::plugin_group: added plugin: bevy_sprite::SpritePlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.687092Z DEBUG bevy_app::app: added plugin: bevy_sprite::SpritePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.687549Z DEBUG bevy_app::app: added plugin: bevy_sprite::mesh2d::mesh::Mesh2dRenderPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.688367Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::UniformComponentPlugin<bevy_sprite::mesh2d::mesh::Mesh2dUniform>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.688672Z DEBUG bevy_app::app: added plugin: bevy_sprite::mesh2d::color_material::ColorMaterialPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.688871Z DEBUG bevy_app::app: added plugin: bevy_sprite::mesh2d::material::Material2dPlugin<bevy_sprite::mesh2d::color_material::ColorMaterial>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.688953Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_asset::handle::Handle<bevy_sprite::mesh2d::color_material::ColorMaterial>>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.689456Z DEBUG bevy_app::plugin_group: added plugin: bevy_text::TextPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.689473Z DEBUG bevy_app::app: added plugin: bevy_text::TextPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.689723Z DEBUG bevy_app::plugin_group: added plugin: bevy_ui::UiPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.689739Z DEBUG bevy_app::app: added plugin: bevy_ui::UiPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.689757Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_ui::camera_config::UiCameraConfig>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.690528Z DEBUG bevy_app::plugin_group: added plugin: bevy_pbr::PbrPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.690547Z DEBUG bevy_app::app: added plugin: bevy_pbr::PbrPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.698409Z DEBUG bevy_app::app: added plugin: bevy_pbr::render::mesh::MeshRenderPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.700496Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::UniformComponentPlugin<bevy_pbr::render::mesh::MeshUniform>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.701157Z DEBUG bevy_app::app: added plugin: bevy_pbr::material::MaterialPlugin<bevy_pbr::pbr_material::StandardMaterial>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.701249Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<bevy_asset::handle::Handle<bevy_pbr::pbr_material::StandardMaterial>>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.701498Z DEBUG bevy_app::app: added plugin: bevy_render::extract_resource::ExtractResourcePlugin<bevy_pbr::light::AmbientLight>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.701739Z DEBUG bevy_app::plugin_group: added plugin: bevy_gltf::GltfPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.701755Z DEBUG bevy_app::app: added plugin: bevy_gltf::GltfPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.701995Z DEBUG bevy_app::plugin_group: added plugin: bevy_audio::AudioPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.702010Z DEBUG bevy_app::app: added plugin: bevy_audio::AudioPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.705700Z DEBUG bevy_app::plugin_group: added plugin: bevy_gilrs::GilrsPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.705734Z DEBUG bevy_app::app: added plugin: bevy_gilrs::GilrsPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.706894Z DEBUG gilrs::gamepad: Loaded 525 mappings.
+    at /home/hellzbellz/.cargo/registry/src/github.com-1ecc6299db9ec823/gilrs-0.10.1/src/gamepad.rs:662
+
+  2023-02-26T22:27:55.746344Z DEBUG bevy_app::plugin_group: added plugin: bevy_animation::AnimationPlugin
+    at crates/bevy/crates/bevy_app/src/plugin_group.rs:179
+
+  2023-02-26T22:27:55.746379Z DEBUG bevy_app::app: added plugin: bevy_animation::AnimationPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.746591Z DEBUG bevy_app::app: added plugin: bevy_framepace::FramepacePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.746680Z DEBUG bevy_app::app: added plugin: bevy_prototype_lyon::plugin::ShapePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.746727Z DEBUG bevy_app::app: added plugin: bevy_prototype_lyon::render::RenderShapePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.747382Z DEBUG bevy_app::app: added plugin: bevy_rapier2d::plugin::plugin::RapierPhysicsPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.747880Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::loading::AssetLoadPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.747906Z  INFO vanillacoffee_wip::loading: asset loader init
+    at src/loading/mod.rs:23
+
+  2023-02-26T22:27:55.747920Z DEBUG bevy_app::app: added plugin: bevy_common_assets::ron::RonAssetPlugin<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748013Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::loading::splashscreen::SplashPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748211Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::ui::UIPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748240Z DEBUG bevy_app::app: added plugin: kayak_ui::context::KayakContextPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748326Z DEBUG bevy_app::app: added plugin: kayak_ui::camera::KayakUICameraPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748351Z DEBUG bevy_app::app: added plugin: bevy_render::camera::projection::CameraProjectionPlugin<kayak_ui::camera::ortho::UIOrthographicProjection>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748425Z DEBUG bevy_app::app: added plugin: bevy_render::extract_component::ExtractComponentPlugin<kayak_ui::camera::camera::CameraUIKayak>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748445Z DEBUG bevy_app::app: added plugin: kayak_ui::render::BevyKayakUIRenderPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748571Z DEBUG bevy_app::app: added plugin: kayak_ui::render::font::TextRendererPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748610Z DEBUG bevy_app::app: added plugin: kayak_ui::render::unified::UnifiedRenderPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748624Z DEBUG bevy_app::app: added plugin: kayak_ui::render::unified::text::TextRendererPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.748634Z DEBUG bevy_app::app: added plugin: kayak_font::bevy::plugin::KayakFontPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.750784Z DEBUG bevy_app::app: added plugin: kayak_ui::render::extract::BevyKayakUIExtractPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751255Z DEBUG bevy_app::app: added plugin: kayak_ui::widgets::KayakWidgets
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751301Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::console::VCConsolePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751327Z DEBUG bevy_app::app: added plugin: bevy_console::ConsolePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751418Z DEBUG bevy_app::app: added plugin: bevy_egui::EguiPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751919Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::utilities::UtilitiesPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751952Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::game::GamePlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751968Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actions::bindings::ActionsPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.751984Z DEBUG bevy_app::app: added plugin: leafwing_input_manager::plugin::InputManagerPlugin<vanillacoffee_wip::actions::PlayerActions>
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.752023Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::audio::InternalAudioPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.752039Z DEBUG bevy_app::app: added plugin: bevy_kira_audio::AudioPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.765990Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::game_world::MapSystemPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.766024Z DEBUG bevy_app::app: added plugin: bevy_ecs_ldtk::plugin::LdtkPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.766119Z DEBUG bevy_app::app: added plugin: bevy_ecs_tilemap::TilemapPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.766143Z DEBUG bevy_app::app: added plugin: bevy_ecs_tilemap::render::TilemapRenderingPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770031Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::game_world::homeworld::HomeWorldPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770061Z  INFO vanillacoffee_wip::game_world::homeworld: registering ldtk map cells and adding teleport event
+    at src/game_world/homeworld/mod.rs:25
+
+  2023-02-26T22:27:55.770131Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::ActorPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770146Z DEBUG bevy_app::app: added plugin: big_brain::BigBrainPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770226Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::spawners::SpawnerPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770274Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::animation::AnimationPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770294Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::player::PlayerPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770334Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::combat::WeaponPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770378Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::enemies::EnemyPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770402Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::ai::AIPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.770417Z DEBUG bevy_app::app: added plugin: vanillacoffee_wip::actors::ai::skeleton_ai::SkeletonAiPlugin
+    at crates/bevy/crates/bevy_app/src/app.rs:853
+
+  2023-02-26T22:27:55.772162Z  INFO vanillacoffee_wip::loading::splashscreen: loading splash
+    at src/loading/splashscreen.rs:48
+
+  2023-02-26T22:27:55.772188Z  INFO vanillacoffee_wip::loading::splashscreen: Main Camera Spawned
+    at src/loading/splashscreen.rs:44
+
+  2023-02-26T22:27:55.772317Z  INFO vanillacoffee_wip::loading::splashscreen: spawning splash ImageBundle
+    at src/loading/splashscreen.rs:52
+
+  2023-02-26T22:27:55.938726Z  INFO vanillacoffee_wip: volumes changed, applying settings
+    at src/main.rs:188
+
+  2023-02-26T22:27:55.938815Z  INFO bevy_framepace: Frametime limit changed to: 16.666667ms
+    at crates/bevy_framepace/src/lib.rs:180
+
+  2023-02-26T22:27:56.087061Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 7837534426033940724)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.088520Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 929599476923908)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.102710Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 13012847047162779583)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.105789Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 2763343953151597127)), with shader defs ["COLORED"]
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.108198Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 14589267395627146578)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.110080Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 7604018236855288450)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.122540Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 9898276442290979394)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.125447Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 2763343953151597127)), with shader defs []
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:27:56.151097Z DEBUG bevy_render::view::window: Window size changed from 1400x1050 to 1920x1080
+    at crates/bevy/crates/bevy_render/src/view/window.rs:109
+
+  2023-02-26T22:27:59.739878Z  INFO vanillacoffee_wip::utilities: despawning entity recursively: 1v0
+    at src/utilities/mod.rs:87
+
+  2023-02-26T22:27:59.739884Z  INFO vanillacoffee_wip::ui: setting up UI
+    at src/ui/mod.rs:137
+
+  2023-02-26T22:27:59.746791Z  INFO vanillacoffee_wip::ui::zpause_menu: re rendering pause menu widget, can show menu? false
+    at src/ui/zpause_menu.rs:122
+
+  2023-02-26T22:27:59.747320Z  INFO vanillacoffee_wip::ui::zsettings_menu: re rendering settings menu widget, can show menu? false
+    at src/ui/zsettings_menu.rs:123
+
+  2023-02-26T22:27:59.770319Z  INFO vanillacoffee_wip::ui::zpause_menu: re rendering pause menu widget, can show menu? false
+    at src/ui/zpause_menu.rs:122
+
+  2023-02-26T22:27:59.770779Z  INFO vanillacoffee_wip::ui::zsettings_menu: re rendering settings menu widget, can show menu? false
+    at src/ui/zsettings_menu.rs:123
+
+  2023-02-26T22:27:59.805084Z DEBUG bevy_egui: Remove image (id: None, handle: WeakHandle<Image>(AssetPathId(AssetPathId(SourcePathId(16993368879159436873), LabelId(6298619649789039366)))))
+    at /home/hellzbellz/.cargo/registry/src/github.com-1ecc6299db9ec823/bevy_egui-0.19.0/src/lib.rs:381
+
+  2023-02-26T22:28:02.300121Z  INFO vanillacoffee_wip::actors::player: spawning player
+    at src/actors/player/mod.rs:88
+
+  2023-02-26T22:28:02.300123Z  INFO vanillacoffee_wip::game_world::homeworld::systems: spawning ldtkworldbundle
+    at src/game_world/homeworld/systems.rs:20
+
+  2023-02-26T22:28:02.300130Z  INFO vanillacoffee_wip::actors::spawners: spawning enemy container
+    at src/actors/spawners/mod.rs:138
+
+  2023-02-26T22:28:02.300473Z  WARN vanillacoffee_wip::actors::player: {
+    Slot1: None,
+    Slot3: None,
+    Slot2: None,
+    Slot4: None,
+}
+    at src/actors/player/mod.rs:192
+
+  2023-02-26T22:28:02.301169Z  WARN vanillacoffee_wip::actors::spawners: no spawns
+    at src/actors/spawners/mod.rs:176
+
+  2023-02-26T22:28:02.301223Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnWeaponEvent {
+    weapon_to_spawn: SmallSMG,
+    spawn_position: Vec3(
+        -833.0,
+        1270.0,
+        8.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:112
+
+  2023-02-26T22:28:02.301267Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnWeaponEvent {
+    weapon_to_spawn: SmallPistol,
+    spawn_position: Vec3(
+        -606.0,
+        1290.0,
+        8.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:112
+
+  2023-02-26T22:28:02.301302Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnWeaponEvent {
+    weapon_to_spawn: SmallSMG,
+    spawn_position: Vec3(
+        -611.0,
+        1637.0,
+        8.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:112
+
+  2023-02-26T22:28:02.301335Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnWeaponEvent {
+    weapon_to_spawn: SmallPistol,
+    spawn_position: Vec3(
+        -881.0,
+        1637.0,
+        8.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:112
+
+  2023-02-26T22:28:02.524232Z  INFO vanillacoffee_wip::ui::zpause_menu: re rendering pause menu widget, can show menu? false
+    at src/ui/zpause_menu.rs:122
+
+  2023-02-26T22:28:02.524511Z  INFO vanillacoffee_wip::ui::zsettings_menu: re rendering settings menu widget, can show menu? false
+    at src/ui/zsettings_menu.rs:123
+
+  2023-02-26T22:28:02.563858Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 8094008129742001941)), with shader defs ["ATLAS", "SQUARE"]
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:28:02.576545Z DEBUG bevy_render::render_resource::pipeline_cache: processing shader WeakHandle<Shader>(Id(d95bc916-6c55-4de3-9622-37e7b6969fda, 5716002228110903793)), with shader defs ["ATLAS", "SQUARE"]
+    at crates/bevy/crates/bevy_render/src/render_resource/pipeline_cache.rs:172
+
+  2023-02-26T22:28:04.308312Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        72.0,
+        312.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:04.308393Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Skeleton,
+    spawn_position: Vec3(
+        1032.0,
+        552.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:04.308439Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        -1032.0,
+        504.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:04.308479Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        -1032.0,
+        2328.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:04.308506Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        24.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:04.308528Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1224.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:04.323303Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4303v0
+
+  2023-02-26T22:28:04.323380Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 46v1
+    in big_brain::thinker::action with ent: 4303v0
+
+  2023-02-26T22:28:04.323453Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4304v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 46v1
+    in big_brain::thinker::action with ent: 4303v0
+
+  2023-02-26T22:28:04.323529Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4305v0
+
+  2023-02-26T22:28:04.323582Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 36v1
+    in big_brain::thinker::action with ent: 4305v0
+
+  2023-02-26T22:28:04.323640Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4306v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 36v1
+    in big_brain::thinker::action with ent: 4305v0
+
+  2023-02-26T22:28:04.323705Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4307v0
+
+  2023-02-26T22:28:04.323757Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 19v1
+    in big_brain::thinker::action with ent: 4307v0
+
+  2023-02-26T22:28:04.323816Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4308v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 19v1
+    in big_brain::thinker::action with ent: 4307v0
+
+  2023-02-26T22:28:04.323882Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4309v0
+
+  2023-02-26T22:28:04.323932Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4297v0
+    in big_brain::thinker::action with ent: 4309v0
+
+  2023-02-26T22:28:04.323992Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4310v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4297v0
+    in big_brain::thinker::action with ent: 4309v0
+
+  2023-02-26T22:28:04.324054Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4311v0
+
+  2023-02-26T22:28:04.324105Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4299v0
+    in big_brain::thinker::action with ent: 4311v0
+
+  2023-02-26T22:28:04.324164Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4312v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4299v0
+    in big_brain::thinker::action with ent: 4311v0
+
+  2023-02-26T22:28:04.324230Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4313v0
+
+  2023-02-26T22:28:04.324279Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4301v0
+    in big_brain::thinker::action with ent: 4313v0
+
+  2023-02-26T22:28:04.324338Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4314v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4301v0
+    in big_brain::thinker::action with ent: 4313v0
+
+  2023-02-26T22:28:04.334068Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 46v1
+    in big_brain::thinker::action with ent: 4303v0
+
+  2023-02-26T22:28:04.334126Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 36v1
+    in big_brain::thinker::action with ent: 4305v0
+
+  2023-02-26T22:28:04.334162Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 19v1
+    in big_brain::thinker::action with ent: 4307v0
+
+  2023-02-26T22:28:04.334194Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4297v0
+    in big_brain::thinker::action with ent: 4309v0
+
+  2023-02-26T22:28:04.334226Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4299v0
+    in big_brain::thinker::action with ent: 4311v0
+
+  2023-02-26T22:28:04.334258Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4301v0
+    in big_brain::thinker::action with ent: 4313v0
+
+  2023-02-26T22:28:04.357434Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 46v1
+    in big_brain::thinker::action with ent: 4303v0
+
+  2023-02-26T22:28:04.357535Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4315v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 46v1
+    in big_brain::thinker::action with ent: 4303v0
+
+  2023-02-26T22:28:04.357596Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 36v1
+    in big_brain::thinker::action with ent: 4305v0
+
+  2023-02-26T22:28:04.357647Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4316v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 36v1
+    in big_brain::thinker::action with ent: 4305v0
+
+  2023-02-26T22:28:04.357691Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 19v1
+    in big_brain::thinker::action with ent: 4307v0
+
+  2023-02-26T22:28:04.357742Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4317v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 19v1
+    in big_brain::thinker::action with ent: 4307v0
+
+  2023-02-26T22:28:04.357786Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4297v0
+    in big_brain::thinker::action with ent: 4309v0
+
+  2023-02-26T22:28:04.357833Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4318v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4297v0
+    in big_brain::thinker::action with ent: 4309v0
+
+  2023-02-26T22:28:04.357876Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4299v0
+    in big_brain::thinker::action with ent: 4311v0
+
+  2023-02-26T22:28:04.357936Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4319v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4299v0
+    in big_brain::thinker::action with ent: 4311v0
+
+  2023-02-26T22:28:04.357986Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4301v0
+    in big_brain::thinker::action with ent: 4313v0
+
+  2023-02-26T22:28:04.358034Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4320v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4301v0
+    in big_brain::thinker::action with ent: 4313v0
+
+  2023-02-26T22:28:06.308121Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        72.0,
+        312.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:06.308194Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1032.0,
+        552.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:06.308224Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        -1032.0,
+        504.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:06.308249Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        -1032.0,
+        2328.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:06.308291Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        24.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:06.308318Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1224.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:06.322928Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4333v0
+
+  2023-02-26T22:28:06.322998Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4321v0
+    in big_brain::thinker::action with ent: 4333v0
+
+  2023-02-26T22:28:06.323069Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4334v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4321v0
+    in big_brain::thinker::action with ent: 4333v0
+
+  2023-02-26T22:28:06.323142Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4335v0
+
+  2023-02-26T22:28:06.323191Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4323v0
+    in big_brain::thinker::action with ent: 4335v0
+
+  2023-02-26T22:28:06.323251Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4336v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4323v0
+    in big_brain::thinker::action with ent: 4335v0
+
+  2023-02-26T22:28:06.323315Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4337v0
+
+  2023-02-26T22:28:06.323365Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4325v0
+    in big_brain::thinker::action with ent: 4337v0
+
+  2023-02-26T22:28:06.323443Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4338v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4325v0
+    in big_brain::thinker::action with ent: 4337v0
+
+  2023-02-26T22:28:06.323508Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4339v0
+
+  2023-02-26T22:28:06.323557Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4327v0
+    in big_brain::thinker::action with ent: 4339v0
+
+  2023-02-26T22:28:06.323617Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4340v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4327v0
+    in big_brain::thinker::action with ent: 4339v0
+
+  2023-02-26T22:28:06.323681Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4341v0
+
+  2023-02-26T22:28:06.323729Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4329v0
+    in big_brain::thinker::action with ent: 4341v0
+
+  2023-02-26T22:28:06.323789Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4342v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4329v0
+    in big_brain::thinker::action with ent: 4341v0
+
+  2023-02-26T22:28:06.323853Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4343v0
+
+  2023-02-26T22:28:06.323901Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4331v0
+    in big_brain::thinker::action with ent: 4343v0
+
+  2023-02-26T22:28:06.323959Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4344v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4331v0
+    in big_brain::thinker::action with ent: 4343v0
+
+  2023-02-26T22:28:06.330519Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4321v0
+    in big_brain::thinker::action with ent: 4333v0
+
+  2023-02-26T22:28:06.330569Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4323v0
+    in big_brain::thinker::action with ent: 4335v0
+
+  2023-02-26T22:28:06.330603Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4325v0
+    in big_brain::thinker::action with ent: 4337v0
+
+  2023-02-26T22:28:06.330634Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4327v0
+    in big_brain::thinker::action with ent: 4339v0
+
+  2023-02-26T22:28:06.330674Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4329v0
+    in big_brain::thinker::action with ent: 4341v0
+
+  2023-02-26T22:28:06.330707Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4331v0
+    in big_brain::thinker::action with ent: 4343v0
+
+  2023-02-26T22:28:06.353129Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4321v0
+    in big_brain::thinker::action with ent: 4333v0
+
+  2023-02-26T22:28:06.353242Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4345v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4321v0
+    in big_brain::thinker::action with ent: 4333v0
+
+  2023-02-26T22:28:06.353307Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4323v0
+    in big_brain::thinker::action with ent: 4335v0
+
+  2023-02-26T22:28:06.353372Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4346v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4323v0
+    in big_brain::thinker::action with ent: 4335v0
+
+  2023-02-26T22:28:06.353429Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4325v0
+    in big_brain::thinker::action with ent: 4337v0
+
+  2023-02-26T22:28:06.353492Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4347v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4325v0
+    in big_brain::thinker::action with ent: 4337v0
+
+  2023-02-26T22:28:06.353549Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4327v0
+    in big_brain::thinker::action with ent: 4339v0
+
+  2023-02-26T22:28:06.353611Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4348v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4327v0
+    in big_brain::thinker::action with ent: 4339v0
+
+  2023-02-26T22:28:06.353666Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4329v0
+    in big_brain::thinker::action with ent: 4341v0
+
+  2023-02-26T22:28:06.353729Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4349v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4329v0
+    in big_brain::thinker::action with ent: 4341v0
+
+  2023-02-26T22:28:06.353784Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4331v0
+    in big_brain::thinker::action with ent: 4343v0
+
+  2023-02-26T22:28:06.353846Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4350v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4331v0
+    in big_brain::thinker::action with ent: 4343v0
+
+  2023-02-26T22:28:07.213145Z DEBUG vanillacoffee_wip::actors::player::actions: player interact pressed, testing weapon distance
+    at src/actors/player/actions.rs:155
+
+  2023-02-26T22:28:07.213189Z DEBUG vanillacoffee_wip::actors::player::actions: the weapon slot is empty, parenting weapon: 59v0 too player: Slot1
+    at src/actors/player/actions.rs:175
+
+  2023-02-26T22:28:07.213212Z  INFO vanillacoffee_wip::actors::player::actions: despawning collider for 59v0
+    at src/actors/player/actions.rs:183
+
+  2023-02-26T22:28:08.294667Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Skeleton,
+    spawn_position: Vec3(
+        72.0,
+        312.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:08.294738Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1032.0,
+        552.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:08.294790Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Skeleton,
+    spawn_position: Vec3(
+        -1032.0,
+        504.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:08.294819Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        -1032.0,
+        2328.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:08.294841Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        24.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:08.294863Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1224.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:08.307515Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4364v0
+
+  2023-02-26T22:28:08.307569Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4352v0
+    in big_brain::thinker::action with ent: 4364v0
+
+  2023-02-26T22:28:08.307619Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4365v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4352v0
+    in big_brain::thinker::action with ent: 4364v0
+
+  2023-02-26T22:28:08.307674Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4366v0
+
+  2023-02-26T22:28:08.307710Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4354v0
+    in big_brain::thinker::action with ent: 4366v0
+
+  2023-02-26T22:28:08.307768Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4367v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4354v0
+    in big_brain::thinker::action with ent: 4366v0
+
+  2023-02-26T22:28:08.307856Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4368v0
+
+  2023-02-26T22:28:08.307928Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4356v0
+    in big_brain::thinker::action with ent: 4368v0
+
+  2023-02-26T22:28:08.308014Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4369v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4356v0
+    in big_brain::thinker::action with ent: 4368v0
+
+  2023-02-26T22:28:08.308103Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4370v0
+
+  2023-02-26T22:28:08.308174Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4358v0
+    in big_brain::thinker::action with ent: 4370v0
+
+  2023-02-26T22:28:08.308261Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4371v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4358v0
+    in big_brain::thinker::action with ent: 4370v0
+
+  2023-02-26T22:28:08.308352Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4372v0
+
+  2023-02-26T22:28:08.308439Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4360v0
+    in big_brain::thinker::action with ent: 4372v0
+
+  2023-02-26T22:28:08.308523Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4373v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4360v0
+    in big_brain::thinker::action with ent: 4372v0
+
+  2023-02-26T22:28:08.308615Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4374v0
+
+  2023-02-26T22:28:08.308684Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4362v0
+    in big_brain::thinker::action with ent: 4374v0
+
+  2023-02-26T22:28:08.308771Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4375v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4362v0
+    in big_brain::thinker::action with ent: 4374v0
+
+  2023-02-26T22:28:08.315769Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4352v0
+    in big_brain::thinker::action with ent: 4364v0
+
+  2023-02-26T22:28:08.315828Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4354v0
+    in big_brain::thinker::action with ent: 4366v0
+
+  2023-02-26T22:28:08.315868Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4356v0
+    in big_brain::thinker::action with ent: 4368v0
+
+  2023-02-26T22:28:08.315905Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4358v0
+    in big_brain::thinker::action with ent: 4370v0
+
+  2023-02-26T22:28:08.315943Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4360v0
+    in big_brain::thinker::action with ent: 4372v0
+
+  2023-02-26T22:28:08.315980Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4362v0
+    in big_brain::thinker::action with ent: 4374v0
+
+  2023-02-26T22:28:08.338924Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4352v0
+    in big_brain::thinker::action with ent: 4364v0
+
+  2023-02-26T22:28:08.339012Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4376v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4352v0
+    in big_brain::thinker::action with ent: 4364v0
+
+  2023-02-26T22:28:08.339068Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4354v0
+    in big_brain::thinker::action with ent: 4366v0
+
+  2023-02-26T22:28:08.339123Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4377v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4354v0
+    in big_brain::thinker::action with ent: 4366v0
+
+  2023-02-26T22:28:08.339176Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4356v0
+    in big_brain::thinker::action with ent: 4368v0
+
+  2023-02-26T22:28:08.339247Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4378v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4356v0
+    in big_brain::thinker::action with ent: 4368v0
+
+  2023-02-26T22:28:08.339331Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4358v0
+    in big_brain::thinker::action with ent: 4370v0
+
+  2023-02-26T22:28:08.339396Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4379v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4358v0
+    in big_brain::thinker::action with ent: 4370v0
+
+  2023-02-26T22:28:08.339453Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4360v0
+    in big_brain::thinker::action with ent: 4372v0
+
+  2023-02-26T22:28:08.339506Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4380v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4360v0
+    in big_brain::thinker::action with ent: 4372v0
+
+  2023-02-26T22:28:08.339554Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4362v0
+    in big_brain::thinker::action with ent: 4374v0
+
+  2023-02-26T22:28:08.339608Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4381v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4362v0
+    in big_brain::thinker::action with ent: 4374v0
+
+  2023-02-26T22:28:08.533842Z DEBUG vanillacoffee_wip::actors::player::actions: player interact pressed, testing weapon distance
+    at src/actors/player/actions.rs:155
+
+  2023-02-26T22:28:08.533893Z DEBUG vanillacoffee_wip::actors::player::actions: this slot is full
+    at src/actors/player/actions.rs:209
+
+  2023-02-26T22:28:08.533910Z DEBUG vanillacoffee_wip::actors::player::actions: the weapon slot is empty, parenting weapon: 56v0 too player: Slot2
+    at src/actors/player/actions.rs:175
+
+  2023-02-26T22:28:08.533932Z  INFO vanillacoffee_wip::actors::player::actions: despawning collider for 56v0
+    at src/actors/player/actions.rs:183
+
+  2023-02-26T22:28:08.555045Z DEBUG vanillacoffee_wip::actors::combat: weapon Small Pistol 59v0 shouldnt have active component, removing
+    at src/actors/combat/mod.rs:206
+
+  2023-02-26T22:28:10.302930Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        72.0,
+        312.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:10.302985Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1032.0,
+        552.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:10.303010Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        -1032.0,
+        504.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:10.303031Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Skeleton,
+    spawn_position: Vec3(
+        -1032.0,
+        2328.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:10.303057Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Skeleton,
+    spawn_position: Vec3(
+        24.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:10.303093Z  INFO vanillacoffee_wip::actors::spawners: recieved event: SpawnEnemyEvent {
+    enemy_to_spawn: Slime,
+    spawn_position: Vec3(
+        1224.0,
+        2280.0,
+        5.0,
+    ),
+    spawn_count: 1,
+}
+    at src/actors/spawners/mod.rs:58
+
+  2023-02-26T22:28:10.318295Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4433v0
+
+  2023-02-26T22:28:10.318364Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4421v0
+    in big_brain::thinker::action with ent: 4433v0
+
+  2023-02-26T22:28:10.318436Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4434v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4421v0
+    in big_brain::thinker::action with ent: 4433v0
+
+  2023-02-26T22:28:10.318511Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4435v0
+
+  2023-02-26T22:28:10.318561Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4423v0
+    in big_brain::thinker::action with ent: 4435v0
+
+  2023-02-26T22:28:10.318621Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4436v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4423v0
+    in big_brain::thinker::action with ent: 4435v0
+
+  2023-02-26T22:28:10.318692Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4437v0
+
+  2023-02-26T22:28:10.318742Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4425v0
+    in big_brain::thinker::action with ent: 4437v0
+
+  2023-02-26T22:28:10.318802Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4438v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4425v0
+    in big_brain::thinker::action with ent: 4437v0
+
+  2023-02-26T22:28:10.318866Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4439v0
+
+  2023-02-26T22:28:10.318916Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4427v0
+    in big_brain::thinker::action with ent: 4439v0
+
+  2023-02-26T22:28:10.318975Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4440v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4427v0
+    in big_brain::thinker::action with ent: 4439v0
+
+  2023-02-26T22:28:10.319040Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4441v0
+
+  2023-02-26T22:28:10.319088Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4429v0
+    in big_brain::thinker::action with ent: 4441v0
+
+  2023-02-26T22:28:10.319149Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4442v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4429v0
+    in big_brain::thinker::action with ent: 4441v0
+
+  2023-02-26T22:28:10.319211Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4443v0
+
+  2023-02-26T22:28:10.319261Z DEBUG big_brain::thinker: Spawning Thinker.
+    at crates/big_brain/src/thinker.rs:220
+    in big_brain::thinker::thinker with actor: 4431v0
+    in big_brain::thinker::action with ent: 4443v0
+
+  2023-02-26T22:28:10.319337Z DEBUG big_brain::scorers: New Scorer spawned.
+    at crates/big_brain/src/scorers.rs:102
+    in big_brain::thinker::scorer with ent: 4444v0, label: "AggroScore"
+    in big_brain::thinker::thinker with actor: 4431v0
+    in big_brain::thinker::action with ent: 4443v0
+
+  2023-02-26T22:28:10.328950Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4421v0
+    in big_brain::thinker::action with ent: 4433v0
+
+  2023-02-26T22:28:10.329006Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4423v0
+    in big_brain::thinker::action with ent: 4435v0
+
+  2023-02-26T22:28:10.329048Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4425v0
+    in big_brain::thinker::action with ent: 4437v0
+
+  2023-02-26T22:28:10.329088Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4427v0
+    in big_brain::thinker::action with ent: 4439v0
+
+  2023-02-26T22:28:10.329128Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4429v0
+    in big_brain::thinker::action with ent: 4441v0
+
+  2023-02-26T22:28:10.329167Z DEBUG big_brain::thinker: Thinker requested. Starting execution.
+    at crates/big_brain/src/thinker.rs:339
+    in big_brain::thinker::thinker with actor: 4431v0
+    in big_brain::thinker::action with ent: 4443v0
+
+  2023-02-26T22:28:10.355638Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4421v0
+    in big_brain::thinker::action with ent: 4433v0
+
+  2023-02-26T22:28:10.355720Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4445v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4421v0
+    in big_brain::thinker::action with ent: 4433v0
+
+  2023-02-26T22:28:10.355773Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4423v0
+    in big_brain::thinker::action with ent: 4435v0
+
+  2023-02-26T22:28:10.355824Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4446v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4423v0
+    in big_brain::thinker::action with ent: 4435v0
+
+  2023-02-26T22:28:10.355871Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4425v0
+    in big_brain::thinker::action with ent: 4437v0
+
+  2023-02-26T22:28:10.355922Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4447v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4425v0
+    in big_brain::thinker::action with ent: 4437v0
+
+  2023-02-26T22:28:10.355968Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4427v0
+    in big_brain::thinker::action with ent: 4439v0
+
+  2023-02-26T22:28:10.356019Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4448v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4427v0
+    in big_brain::thinker::action with ent: 4439v0
+
+  2023-02-26T22:28:10.356066Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4429v0
+    in big_brain::thinker::action with ent: 4441v0
+
+  2023-02-26T22:28:10.356130Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4449v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4429v0
+    in big_brain::thinker::action with ent: 4441v0
+
+  2023-02-26T22:28:10.356176Z DEBUG big_brain::thinker: No current action. Spawning new action.
+    at crates/big_brain/src/thinker.rs:583
+    in big_brain::thinker::thinker with actor: 4431v0
+    in big_brain::thinker::action with ent: 4443v0
+
+  2023-02-26T22:28:10.356226Z DEBUG big_brain::actions: New Action spawned.
+    at crates/big_brain/src/actions.rs:140
+    in big_brain::thinker::action with ent: 4450v0, label: "AIWanderAction"
+    in big_brain::thinker::thinker with actor: 4431v0
+    in big_brain::thinker::action with ent: 4443v0
+
