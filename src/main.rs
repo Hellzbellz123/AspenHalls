@@ -2,6 +2,9 @@
 
 use bevy::prelude::*;
 
+
+mod test;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)

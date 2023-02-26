@@ -49,3 +49,15 @@
 [submodule "crates/bevy_egui"]
 	path = crates/bevy_egui
 	url = https://github.com/mvlabat/bevy_egui.git
+[submodule "crates/bevy_prototype_lyon"]
+	path = crates/bevy_prototype_lyon
+	url = https://github.com/Nilirad/bevy_prototype_lyon.git
+[submodule "crates/bevy_framepace"]
+	path = crates/bevy_framepace
+	url = https://github.com/aevyrie/bevy_framepace.git
+[submodule "crates/bevy_mod_debugdump"]
+	path = crates/bevy_mod_debugdump
+	url = https://github.com/jakobhellermann/bevy_mod_debugdump.git
+[submodule "crates/bevy_debug_text_overlay"]
+	path = crates/bevy_debug_text_overlay
+	url = https://github.com/nicopap/bevy-debug-text-overlay.git

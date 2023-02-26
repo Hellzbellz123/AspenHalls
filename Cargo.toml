@@ -1,5 +1,5 @@
 [package]
-name = "vanillacoffee-refresh-wip"
+name = "vanillacoffee-wip"
 authors = ["Hellzbellz123 (Taylor Smith)"]
 description = "Vanilla Coffee game: in progress"
 documentation = "https://github.com/Hellzbellz123/VanillaCoffee/blob/main/README.md"
@@ -10,10 +10,22 @@ readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 version = "0.0.4"
 
+[package.metadata.bundle]
+name = "Vanilla Coffee"
+copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
+description = "Vanilla Coffee: a game in progress"
+icon = ["assets/textures/stonercaticon.png"]
+identifier = "io.github.hellzbellz123.vanillacoffee"
+long_description = """
+game inspired by SoulKnight, Enter the Gungeon, and the Binding of Isaac
+random dungeons, run and gun, later on it may see a more open focus with
+dungeon main feature as more of a secondary goal.
+"""
+
 # all folder names use _ even if crates use - in name
 # patch bevy related dependencies too use local copies, comment out to use crates.io
 [patch.crates-io]
-bevy = {path = "crates/bevy", default_features = false, features = [""]}
+bevy = {path = "crates/bevy"}                                         #, default_features = false, features = [""]}
 bevy_app = {path = "crates/bevy/crates/bevy_app"}
 bevy_log = {path = "crates/bevy/crates/bevy_log"}
 bevy_pbr = {path = "crates/bevy/crates/bevy_pbr"}
@@ -34,95 +46,120 @@ bevy_macro_utils = {path = "crates/bevy/crates/bevy_macro_utils"}
 bevy_render_macros = {path = "crates/bevy/crates/bevy_render/macros"}
 bevy_encase_derive = {path = "crates/bevy/crates/bevy_encase_derive"}
 bevy_core_pipeline = {path = "crates/bevy/crates/bevy_core_pipeline"}
-#deps that rely on bevy
-# bevy_egui= {path = "crates/bevy_egui"} breaks context stuff becuase apps see different libs
+# patch deps that rely on bevy
+# bevy_egui= {path = "crates/bevy_egui"} breaks context stuff becuase apps use different libs?
+bevy_rapier2d = {path = "crates/bevy_rapier/bevy_rapier2d"}
 bevy_kindly_macros = {path = "crates/bevy_kindly_macros"}
 bevy_ecs_tilemap = {path = "crates/bevy_ecs_tilemap"}
 bevy_common_assets = {path = "crates/bevy_common_assets"}
 
-
 [features]
-dev = ["bevy/dynamic"]
-# dev=["bevy/dynamic_linking"] #renamed after bevy 0.9.1
+dev = ["bevy/dynamic"] # dev=["bevy/dynamic_linking"] #renamed after bevy 0.9.1
 
 [workspace]
 resolver = "2"
-exclude = [
-    "crates/bevy",
-    "crates/bevy_inspector_egui",
-    "crates/bevy_asset_loader",
-    "crates/bevy_console",
-    "crates/bevy_ecs_ldtk",
-    "crates/big_brain",
-    "crates/kayak_ui",
-    "crates/leafwing_input_manager",
-]
+exclude = ["crates/"]
+
+[build-dependencies]
+embed-resource = "1.7.4"
+
+[target.x86_64-pc-windows-msvc.dependencies]
+winapi = "0.3.9"
 
 # dependencies not related to bevy 
 # should be nabbed from crates.io
 [dependencies]
+strum = {version = "0.24.1", features = ["derive", "std", "strum_macros"]}
+image = {version = "0.24.5", default_features = false, features = ["png"]}
+winit = {version = "0.27.5", default-features = false, features = ["x11"]}
+rand = "0.8.5"
+serde = "1.0.144"
+toml = "0.7.1"
+tracing-error = "0.2.0"
+tracing-log = "0.1.3"
+clap = "4.1.4"
+tracing-subscriber = {version = "0.3.16"}
+# rust_embed = {version = "6.4.2", features = ["debug-embed", "include-exclude"]}
+# bevycheck = "0.4.0"
+# chrono = "0.4.23"
+# serde_derive = "1.0.144"
 
 
 [dependencies.bevy]
 path = "crates/bevy"
-default_features = false
+default-features = false
 features = [
-    "animation",
-    "bevy_asset",
-    "bevy_gilrs",
-    "bevy_scene",
-    "bevy_winit",
-    "render",     # same as below 7 features
-    # "bevy_core_pipeline",
-    # "bevy_pbr",
-    # "bevy_gltf",
-    # "bevy_render",
-    # "bevy_sprite",
-    # "bevy_text",
-    # "bevy_ui",
+    #   "animation",            # Animation support
+    #   "bevy_core_pipeline",   # Higher-level rendering abstractions
+    #   "bevy_gilrs",           # Gamepad input support
+    #   "bevy_render",          # Rendering framework core
+    #   "bevy_sprite",          # 2D (sprites) rendering
+    #   "bevy_text",            # Text/font rendering
+    #   "bevy_winit",           # Window management
+    #   "filesystem_watcher",   # Asset hot-reloading
+    #   "serialize",            # Support for `serde` Serialize/Deserialize
+    #   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
+    "x11", # Linux: Support X11 windowing system
+    #   # "wayland",            # Linux: Support Wayland windowing system
+    #   # "bevy_ui",            # UI toolkit
+    #   "jpeg",
     "png",
-    "hdr",
-    "ktx2",
-    "zstd",
-    "vorbis",
-    "x11",
 ]
 
-[dependencies.bevy_rapier2d]
-path = "crates/bevy_rapier/bevy_rapier2d"
-features = [
-    #   "parallel", --causes big lag cause we arent doing enough simulations for it too matter
-    "simd-nightly",
-]
+[dependencies.bevy_asset_loader]
+path = "crates/bevy_asset_loader/bevy_asset_loader"
+features = ["2d", "standard_dynamic_assets"]
+
+[dependencies.bevy_common_assets]
+path = "crates/bevy_common_assets"
+features = ["ron", "serde_ron", "serde_toml"]
+
+[dependencies.bevy_console]
+path = "crates/bevy_console"
+
+[dependencies.bevy-debug-text-overlay]
+path = "crates/bevy_debug_text_overlay"
+default-features = false
+features = ["builtin-font"]
 
 [dependencies.bevy_ecs_ldtk]
 path = "crates/bevy_ecs_ldtk"
 features = ["atlas"]
 
-[dependencies.bevy_asset_loader]
-path = "crates/bevy_asset_loader/bevy_asset_loader"
-features = ["2d", "standard_dynamic_assets"]
+[dependencies.bevy_framepace]
+path = "crates/bevy_framepace"
+
+[dependencies.bevy-inspector-egui]
+path = "crates/bevy_inspector_egui/crates/bevy-inspector-egui"
+
+[dependencies.bevy_kindly]
+path = "crates/bevy_kindly"
 
 [dependencies.bevy_kira_audio]
 path = "crates/bevy_kira_audio"
 default-features = false
 features = ["ogg"]
 
-[dependencies.bevy_console]
-path = "crates/bevy_console"
-
-[dependencies.big-brain]
-path = "crates/big_brain"
-
-[dependencies.bevy_kindly]
-path = "crates/bevy_kindly"
+[dependencies.bevy_mod_debugdump]
+path = "crates/bevy_mod_debugdump"
+features = ["bevy_render", "render_graph"]
 
 [dependencies.bevy_mod_transform2d]
 path = "crates/bevy_mod_transform2d"
+features = ["bevy_rapier2d"]
 
+[dependencies.bevy_prototype_lyon]
+path = "crates/bevy_prototype_lyon"
 
-[dependencies.bevy-inspector-egui]
-path = "crates/bevy_inspector_egui/crates/bevy-inspector-egui"
+[dependencies.bevy_rapier2d]
+path = "crates/bevy_rapier/bevy_rapier2d"
+features = [
+    # "parallel", # makes physics really slow, not enough rigidbodys, over optimization atm
+    "simd-nightly",
+]
+
+[dependencies.big-brain]
+path = "crates/big_brain"
 
 [dependencies.kayak_ui]
 path = "crates/kayak_ui"
