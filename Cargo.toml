@@ -10,18 +10,6 @@ readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 version = "0.0.4"
 
-[package.metadata.bundle]
-name = "Vanilla Coffee"
-copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
-description = "Vanilla Coffee: a game in progress"
-icon = ["assets/textures/stonercaticon.png"]
-identifier = "io.github.hellzbellz123.vanillacoffee"
-long_description = """
-game inspired by SoulKnight, Enter the Gungeon, and the Binding of Isaac
-random dungeons, run and gun, later on it may see a more open focus with
-dungeon main feature as more of a secondary goal.
-"""
-
 # all folder names use _ even if crates use - in name
 # patch bevy related dependencies too use local copies, comment out to use crates.io
 [patch.crates-io]
@@ -48,10 +36,10 @@ bevy_encase_derive = {path = "crates/bevy/crates/bevy_encase_derive"}
 bevy_core_pipeline = {path = "crates/bevy/crates/bevy_core_pipeline"}
 # patch deps that rely on bevy
 # bevy_egui= {path = "crates/bevy_egui"} breaks context stuff becuase apps use different libs?
-bevy_rapier2d = {path = "crates/bevy_rapier/bevy_rapier2d"}
-bevy_kindly_macros = {path = "crates/bevy_kindly_macros"}
 bevy_ecs_tilemap = {path = "crates/bevy_ecs_tilemap"}
+bevy_kindly_macros = {path = "crates/bevy_kindly_macros"}
 bevy_common_assets = {path = "crates/bevy_common_assets"}
+bevy_rapier2d = {path = "crates/bevy_rapier/bevy_rapier2d"}
 
 [features]
 dev = [
@@ -171,3 +159,17 @@ path = "crates/kayak_ui"
 
 [dependencies.leafwing-input-manager]
 path = "crates/leafwing_input_manager"
+
+
+[package.metadata.bundle]
+name = "Vanilla Coffee"
+copyright = "Copyright (c) Taylor Smith 2022. All rights reserved."
+description = "Vanilla Coffee: a game in progress"
+icon = ["gamedata/assets/textures/stonercaticon.png"]
+resources = ["gamedata"]
+identifier = "io.github.hellzbellz123.vanillacoffee"
+long_description = """
+game inspired by SoulKnight, Enter the Gungeon, and the Binding of Isaac
+random dungeons, run and gun, later on it may see a more open focus with
+dungeon main feature as more of a secondary goal.
+"""

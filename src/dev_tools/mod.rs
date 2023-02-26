@@ -40,7 +40,7 @@ pub mod debug_plugin {
         dev_tools::debug_dirs::debugdir,
         game::{GameStage, TimeInfo},
         ui::MenuState,
-        utilities::game::SystemLabels,
+        utilities::game::{SystemLabels, AppSettings},
     };
 
     pub struct DebugPlugin;
@@ -67,6 +67,7 @@ pub mod debug_plugin {
                 // .add_plugin(ReflectRapierPlugin)
                 .add_plugin(RapierDebugRenderPlugin::default())
                 //custom Reflects not from plugins
+                .register_type::<AppSettings>()
                 .register_type::<MenuState>()
                 .register_type::<MovementState>()
                 .register_type::<CombatStats>()

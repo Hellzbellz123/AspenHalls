@@ -26,7 +26,6 @@ use bevy_framepace::{FramepaceSettings, Limiter};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
-use serde::de::IntoDeserializer;
 
 use crate::console::VCConsolePlugin;
 // use crate::console::VCConsolePlugin;

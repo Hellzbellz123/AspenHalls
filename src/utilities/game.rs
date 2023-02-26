@@ -1,7 +1,8 @@
 use bevy::{
-    prelude::{FromWorld, Resource, SystemLabel, Vec2, World},
+    prelude::{FromWorld, Resource, SystemLabel, Vec2, World, ReflectResource},
     reflect::Reflect,
 };
+use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
 use bevy_rapier2d::prelude::Group;
 use serde::{Deserialize, Serialize};
 
@@ -50,13 +51,15 @@ pub enum SystemLabels {
 
 /// all game settings in metastruct
 /// make sure tables are AFTER single fields
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone)]
+#[derive(Reflect, Resource, InspectorOptions, Serialize, Deserialize, Copy, Clone)]
+#[reflect(Resource, InspectorOptions)]
 pub struct AppSettings {
     /// enable vsync if true
     pub vsync: bool,
     /// framerate
     pub frame_rate_target: f64,
     /// camera zooom
+    #[inspector(min = 0.0, max = 50.0)]
     pub camera_zoom: f32,
     /// display resolution
     pub resolution: Vec2,

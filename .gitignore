@@ -1,1 +1,6 @@
+/publish
+/crates
 /target
+/.vscode
+/.cargo
+*.dot
