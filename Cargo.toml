@@ -54,7 +54,13 @@ bevy_ecs_tilemap = {path = "crates/bevy_ecs_tilemap"}
 bevy_common_assets = {path = "crates/bevy_common_assets"}
 
 [features]
-dev = ["bevy/dynamic"] # dev=["bevy/dynamic_linking"] #renamed after bevy 0.9.1
+dev = [
+    "bevy-debug-text-overlay/debug",
+    "bevy_rapier2d/debug-render-2d",
+    "bevy_rapier2d/debug-render-2d",
+]
+dev_linux = ["bevy/dynamic", "dev"]
+trace = ["bevy/trace", "bevy/trace_tracy", "big-brain/trace", "dev"]
 
 [workspace]
 resolver = "2"

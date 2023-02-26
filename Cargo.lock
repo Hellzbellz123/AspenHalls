@@ -262,6 +262,7 @@ name = "bevy-debug-text-overlay"
 version = "4.0.1"
 dependencies = [
  "bevy",
+ "lazy_static",
 ]
 
 [[package]]
@@ -705,8 +706,10 @@ dependencies = [
  "bevy_ecs",
  "bevy_utils",
  "console_error_panic_hook",
+ "tracing-error",
  "tracing-log",
  "tracing-subscriber",
+ "tracing-tracy",
  "tracing-wasm",
 ]
 
@@ -858,6 +861,7 @@ dependencies = [
  "naga",
  "once_cell",
  "parking_lot 0.12.1",
+ "profiling",
  "regex",
  "serde",
  "smallvec",
@@ -1965,6 +1969,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "generator"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33a20a288a94683f5f4da0adecdbe095c94a77c295e514cc6484e9394dd8376e"
+dependencies = [
+ "cc",
+ "libc",
+ "log",
+ "rustversion",
+ "windows 0.44.0",
+]
+
+[[package]]
 name = "gethostname"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2637,6 +2654,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
 dependencies = [
  "cfg-if",
+]
+
+[[package]]
+name = "loom"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff50ecb28bb86013e935fb6683ab1f6d3a20016f123c76fd4c27470076ac30f5"
+dependencies = [
+ "cfg-if",
+ "generator",
+ "scoped-tls",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -3485,6 +3515,20 @@ name = "profiling"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74605f360ce573babfe43964cbe520294dcb081afbf8c108fc6e23036b4da2df"
+dependencies = [
+ "profiling-procmacros",
+ "tracing",
+]
+
+[[package]]
+name = "profiling-procmacros"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a1e2417ef905b8ad94215f8a607bd2d0f5d13d416d18dca4a530811e8a0674c"
+dependencies = [
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "quote"
@@ -3793,6 +3837,12 @@ checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
 ]
+
+[[package]]
+name = "scoped-tls"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1cf6437eb19a8f4a6cc0f7dca544973b0b78843adbfeb3683d1a94a0024a294"
 
 [[package]]
 name = "scoped_threadpool"
@@ -4398,6 +4448,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "tracing-tracy"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "55c48ef3e655220d4e43a6be44aa84f078c3004357251cab45f9cc15551a593e"
+dependencies = [
+ "tracing-core",
+ "tracing-subscriber",
+ "tracy-client",
+]
+
+[[package]]
 name = "tracing-wasm"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4406,6 +4467,26 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "tracy-client"
+version = "0.15.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75e647235d9be24735fa86867c854bc702b71586e637e3af7cfa4300715abdbb"
+dependencies = [
+ "loom",
+ "once_cell",
+ "tracy-client-sys",
+]
+
+[[package]]
+name = "tracy-client-sys"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8cf8aeb20e40d13be65a0b134f8d82d360e72b2793a11de8867d7fbc0f9d6f6"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -4857,6 +4938,15 @@ dependencies = [
  "windows_x86_64_gnu 0.42.1",
  "windows_x86_64_gnullvm",
  "windows_x86_64_msvc 0.42.1",
+]
+
+[[package]]
+name = "windows"
+version = "0.44.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e745dab35a0c4c77aa3ce42d595e13d2003d6902d6b08c9ef5fc326d08da12b"
+dependencies = [
+ "windows-targets",
 ]
 
 [[package]]
