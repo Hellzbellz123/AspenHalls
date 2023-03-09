@@ -3,11 +3,11 @@ use kayak_ui::prelude::{widgets::*, *};
 
 use crate::{
     game::GameStage,
-    loading::assets::UiTextureHandles,
-    ui::{
+    kayak_ui::{
         widgets::button::{self, MenuButton},
         MenuState,
     },
+    loading::assets::UiTextureHandles,
 };
 
 pub fn update_main_menu_props(

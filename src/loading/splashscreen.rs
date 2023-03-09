@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    core_pipeline::tonemapping::{DebandDither, Tonemapping},
+    prelude::*,
+};
 // use rust_embed::RustEmbed;
 use crate::{
     components::{MainCameraTag, OnSplashScreen, SplashTimer},
@@ -13,18 +16,8 @@ impl Plugin for SplashPlugin {
         // TODO: do some speciial trickery to make this system work awesome
         // As this plugin is managing the splash screen, it will focus on the state `GameState::Splash`
 
-        app
-            // .add_system_set(
-            //     SystemSet::on_enter(GameStage::Loading)
-            //         .with_system(
-            //         )
-            //         // .with_system(splash_setup.label(SystemLabels::UpdateSettings)),
-            // )
-            .add_startup_system(
-                spawn_main_camera, // .label(SystemLabels::InitSettings)
-                                   // .before(SystemLabels::UpdateSettings),
-            )
-            .add_startup_system(splash_setup); //.label(SystemLabels::UpdateSettings));
+        app.add_startup_system(spawn_main_camera)
+            .add_startup_system(splash_setup);
     }
 }
 
@@ -32,10 +25,13 @@ fn spawn_main_camera(mut commands: Commands) {
     commands.spawn((
         Camera2dBundle {
             camera: Camera {
-                priority: 1,
                 is_active: true,
+                order: 1,
+                hdr: true,
                 ..default()
             },
+            tonemapping: Tonemapping::AcesFitted,
+            deband_dither: DebandDither::Enabled,
             ..default()
         },
         Name::new("MainCamera"),
@@ -57,7 +53,10 @@ fn splash_setup(mut commands: Commands, assetserver: ResMut<AssetServer>) {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 ..default()
             },
-            image: UiImage(img),
+            image: UiImage {
+                texture: img,
+                ..default()
+            },
             ..default()
         })
         .insert(OnSplashScreen);

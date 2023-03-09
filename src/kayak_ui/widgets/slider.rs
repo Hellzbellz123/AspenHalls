@@ -6,7 +6,7 @@ pub mod scroll_bar {
         widgets::{BackgroundBundle, ClipBundle},
     };
 
-    use crate::ui::widgets::slider::map_range;
+    use crate::kayak_ui::widgets::slider::map_range;
 
     use super::scroll_context::ScrollContext;
 
@@ -320,7 +320,7 @@ pub mod scroll_box {
         widgets::{ClipBundle, ElementBundle},
     };
 
-    use crate::ui::widgets::slider::{
+    use crate::kayak_ui::widgets::slider::{
         scroll_bar::{ScrollBarBundle, ScrollBarProps},
         scroll_content::ScrollContentBundle,
     };

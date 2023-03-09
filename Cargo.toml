@@ -13,41 +13,41 @@ version = "0.0.4"
 # all folder names use _ even if crates use - in name
 # patch bevy related dependencies too use local copies, comment out to use crates.io
 [patch.crates-io]
-bevy = {path = "crates/bevy"}                                         #, default_features = false, features = [""]}
-bevy_app = {path = "crates/bevy/crates/bevy_app"}
-bevy_log = {path = "crates/bevy/crates/bevy_log"}
-bevy_pbr = {path = "crates/bevy/crates/bevy_pbr"}
-bevy_ecs = {path = "crates/bevy/crates/bevy_ecs"}
-bevy_time = {path = "crates/bevy/crates/bevy_time"}
-bevy_core = {path = "crates/bevy/crates/bevy_core"}
-bevy_math = {path = "crates/bevy/crates/bevy_math"}
-bevy_utils = {path = "crates/bevy/crates/bevy_utils"}
-bevy_asset = {path = "crates/bevy/crates/bevy_asset"}
-bevy_render = {path = "crates/bevy/crates/bevy_render"}
-bevy_window = {path = "crates/bevy/crates/bevy_window"}
-bevy_derive = {path = "crates/bevy/crates/bevy_derive"}
-bevy_reflect = {path = "crates/bevy/crates/bevy_reflect"}
-bevy_hierarchy = {path = "crates/bevy/crates/bevy_hierarchy"}
-bevy_transform = {path = "crates/bevy/crates/bevy_transform"}
-bevy_mikktspace = {path = "crates/bevy/crates/bevy_mikktspace"}
-bevy_macro_utils = {path = "crates/bevy/crates/bevy_macro_utils"}
-bevy_render_macros = {path = "crates/bevy/crates/bevy_render/macros"}
-bevy_encase_derive = {path = "crates/bevy/crates/bevy_encase_derive"}
-bevy_core_pipeline = {path = "crates/bevy/crates/bevy_core_pipeline"}
+bevy = { path = "crates/bevy" }                                         #, default_features = false, features = [""]}
+bevy_app = { path = "crates/bevy/crates/bevy_app" }
+bevy_log = { path = "crates/bevy/crates/bevy_log" }
+bevy_pbr = { path = "crates/bevy/crates/bevy_pbr" }
+bevy_ecs = { path = "crates/bevy/crates/bevy_ecs" }
+bevy_time = { path = "crates/bevy/crates/bevy_time" }
+bevy_core = { path = "crates/bevy/crates/bevy_core" }
+bevy_math = { path = "crates/bevy/crates/bevy_math" }
+bevy_utils = { path = "crates/bevy/crates/bevy_utils" }
+bevy_asset = { path = "crates/bevy/crates/bevy_asset" }
+bevy_render = { path = "crates/bevy/crates/bevy_render" }
+bevy_window = { path = "crates/bevy/crates/bevy_window" }
+bevy_derive = { path = "crates/bevy/crates/bevy_derive" }
+bevy_reflect = { path = "crates/bevy/crates/bevy_reflect" }
+bevy_hierarchy = { path = "crates/bevy/crates/bevy_hierarchy" }
+bevy_transform = { path = "crates/bevy/crates/bevy_transform" }
+bevy_mikktspace = { path = "crates/bevy/crates/bevy_mikktspace" }
+bevy_macro_utils = { path = "crates/bevy/crates/bevy_macro_utils" }
+bevy_render_macros = { path = "crates/bevy/crates/bevy_render/macros" }
+bevy_encase_derive = { path = "crates/bevy/crates/bevy_encase_derive" }
+bevy_core_pipeline = { path = "crates/bevy/crates/bevy_core_pipeline" }
+bevy_ecs_tilemap = { path = "crates/bevy_ecs_tilemap_bevy_0.10" }
+bevy_kindly_macros = { path = "crates/bevy_kindly_macros" }
+bevy_common_assets = { path = "crates/bevy_common_assets" }
+bevy_rapier2d = { path = "crates/bevy_rapier/bevy_rapier2d" }
 # patch deps that rely on bevy
 # bevy_egui= {path = "crates/bevy_egui"} breaks context stuff becuase apps use different libs?
-bevy_ecs_tilemap = {path = "crates/bevy_ecs_tilemap"}
-bevy_kindly_macros = {path = "crates/bevy_kindly_macros"}
-bevy_common_assets = {path = "crates/bevy_common_assets"}
-bevy_rapier2d = {path = "crates/bevy_rapier/bevy_rapier2d"}
 
 [features]
 dev = [
-    "bevy-debug-text-overlay/debug",
-    "bevy_rapier2d/debug-render-2d",
-    "bevy_rapier2d/debug-render-2d",
+  "bevy-debug-text-overlay/debug",
+  "bevy_rapier2d/debug-render-2d",
+  "bevy_rapier2d/debug-render-2d",
 ]
-dev_linux = ["bevy/dynamic", "dev"]
+dev_linux = ["bevy/dynamic_linking", "dev"]
 trace = ["bevy/trace", "bevy/trace_tracy", "big-brain/trace", "dev"]
 
 [workspace]
@@ -63,16 +63,16 @@ winapi = "0.3.9"
 # dependencies not related to bevy 
 # should be nabbed from crates.io
 [dependencies]
-strum = {version = "0.24.1", features = ["derive", "std", "strum_macros"]}
-image = {version = "0.24.5", default_features = false, features = ["png"]}
-winit = {version = "0.27.5", default-features = false, features = ["x11"]}
+strum = { version = "0.24.1", features = ["derive", "std", "strum_macros"] }
+image = { version = "0.24.5", default_features = false, features = ["png"] }
+winit = { version = "0.28.2", default-features = false, features = ["x11"] }
 rand = "0.8.5"
 serde = "1.0.144"
 toml = "0.7.1"
 tracing-error = "0.2.0"
 tracing-log = "0.1.3"
 clap = "4.1.4"
-tracing-subscriber = {version = "0.3.16"}
+tracing-subscriber = { version = "0.3.16" }
 # rust_embed = {version = "6.4.2", features = ["debug-embed", "include-exclude"]}
 # bevycheck = "0.4.0"
 # chrono = "0.4.23"
@@ -107,8 +107,8 @@ features = ["2d", "standard_dynamic_assets"]
 path = "crates/bevy_common_assets"
 features = ["ron", "serde_ron", "serde_toml"]
 
-[dependencies.bevy_console]
-path = "crates/bevy_console"
+# [dependencies.bevy_console]
+# path = "crates/bevy_console"
 
 [dependencies.bevy-debug-text-overlay]
 path = "crates/bevy_debug_text_overlay"
@@ -116,7 +116,7 @@ default-features = false
 features = ["builtin-font"]
 
 [dependencies.bevy_ecs_ldtk]
-path = "crates/bevy_ecs_ldtk"
+path = "crates/bevy_ecs_ldtk_bevy_0.10"
 features = ["atlas"]
 
 [dependencies.bevy_framepace]
@@ -147,18 +147,19 @@ path = "crates/bevy_prototype_lyon"
 [dependencies.bevy_rapier2d]
 path = "crates/bevy_rapier/bevy_rapier2d"
 features = [
-    # "parallel", # makes physics really slow, not enough rigidbodys, over optimization atm
-    "simd-nightly",
+  # "parallel", # makes physics really slow, not enough rigidbodys, over optimization atm
+  "simd-stable",
+  # "simd-nightly",
 ]
 
 [dependencies.big-brain]
 path = "crates/big_brain"
 
-[dependencies.kayak_ui]
-path = "crates/kayak_ui"
+# [dependencies.kayak_ui]
+# path = "crates/kayak_ui"
 
 [dependencies.leafwing-input-manager]
-path = "crates/leafwing_input_manager"
+path = "crates/leafwing_input_manager_bevy_0.10"
 
 
 [package.metadata.bundle]

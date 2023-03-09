@@ -17,13 +17,13 @@ use crate::{
     actions::PlayerActions,
     components::OnSplashScreen,
     game::{GameStage, TimeInfo},
-    loading::assets::FontHandles,
-    ui::{
+    kayak_ui::{
         widgets::button::{menu_button_render, MenuButton},
         zmain_menu::{main_menu_render, MainMenuBundle, MainMenuProps},
         zpause_menu::{pause_menu_render, PauseMenuBundle, PauseMenuProps},
         zsettings_menu::{settings_menu_render, SettingsMenuBundle, SettingsMenuProps},
     },
+    loading::assets::FontHandles,
     utilities::despawn_with,
 };
 

@@ -2,8 +2,8 @@ use crate::{
     audio::SoundSettings, components::MainCameraTag, utilities::game::AppSettings,
     APP_SETTINGS_PATH,
 };
-use bevy::{prelude::*, render::camera::RenderTarget};
-use std::{path::Path, thread};
+use bevy::{prelude::*, window::PrimaryWindow};
+use std::{ops::Mul, path::Path, thread};
 
 pub mod game;
 pub mod logging;
@@ -39,46 +39,42 @@ pub struct EagerMousePos {
 fn eager_cursor_pos(
     mut fastmousepos: ResMut<EagerMousePos>,
     q_camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
-    windows: Res<Windows>,
+    main_window: Query<&Window, With<PrimaryWindow>>,
 ) {
-    if !q_camera.is_empty() {
-        // get the camera info and transform
-        // assuming there is exactly one main camera entity, so query::single() is OK
-        let (camera, camera_transform) = q_camera.single();
+    if q_camera.is_empty() {
+        return;
+    }
+    // get the camera info and transform
+    // assuming there is exactly one main camera entity, so query::single() is OK
+    let (camera, camera_transform) = q_camera.single();
 
-        // // Games typically only have one window (the primary window).
-        // // For multi-window applications, you need to use a specific window ID here.
-        let wnd = if let RenderTarget::Window(id) = camera.target {
-            windows.get(id).unwrap()
-        } else {
-            windows.get_primary().unwrap()
-        };
+    // // Games typically only have one window (the primary window).
+    // // For multi-window applications, you need to use a specific window ID here.
+    let wnd = main_window.single();
 
-        // check if the cursor is inside the window and get its position
-        if let Some(screen_pos) = wnd.cursor_position() {
-            // get the size of the window
-            let window_size = Vec2::new(wnd.width(), wnd.height());
+    // check if the cursor is inside the window and get its position
+    if let Some(screen_pos) = wnd.cursor_position() {
+        // get the size of the window
+        let window_size = Vec2::new(wnd.width(), wnd.height());
 
-            // convert screen position [0..resolution] to ndc [-1..1] (gpu coordinates)
-            let ndc = (screen_pos / window_size) * 2.0 - Vec2::ONE;
+        // convert screen position [0..resolution] to ndc [-1..1] (gpu coordinates)
+        let ndc = (screen_pos / window_size) * 2.0 - Vec2::ONE;
 
-            // matrix for undoing the projection and camera transform
-            let ndc_to_world =
-                camera_transform.compute_matrix() * camera.projection_matrix().inverse();
+        // matrix for undoing the projection and camera transform
+        let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix().inverse();
 
-            // use it to convert ndc to world-space coordinates
-            let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
+        // use it to convert ndc to world-space coordinates
+        let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
 
-            // reduce it to a 2D value
-            let world_pos: Vec2 = world_pos.truncate();
-            fastmousepos.world = world_pos;
-            fastmousepos.window = screen_pos;
-            // info!("eager mouse update {}", world_pos);
-        } else {
-            fastmousepos.world = Vec2::ZERO;
-            fastmousepos.window = Vec2::ZERO;
-            // info!("eager mouse not in window");
-        }
+        // reduce it to a 2D value
+        let world_pos: Vec2 = world_pos.truncate();
+        fastmousepos.world = world_pos;
+        fastmousepos.window = screen_pos;
+        // info!("eager mouse update {}", world_pos);
+    } else {
+        fastmousepos.world = Vec2::ZERO;
+        fastmousepos.window = Vec2::ZERO;
+        // info!("eager mouse not in window");
     }
 }
 
@@ -95,10 +91,31 @@ pub fn load_settings() -> AppSettings {
     let settings_file_path = std::fs::read_to_string(settings_path); //File::open(settings_path);
 
     match settings_file_path {
+        // if settings file cant be read cause it doesnt exit, no permissions, or other
+        Err(target_settings) => {
+            info!(
+                "there was an error: {} acessing settings file as: {}",
+                target_settings,
+                settings_path.display()
+            );
+            let settings = create_default_settings();
+            settings
+        }
         // if settings file can be read
         Ok(target_settings) => {
             let toml_cfg: AppSettings =
                 match toml::from_str::<AppSettings>(target_settings.as_str()) {
+                    // if malformed settings file, create default
+                    Err(toml_cfg) => {
+                        info!(
+                            "There was an error deserializing `AppSettings`: {} at {}",
+                            toml_cfg,
+                            settings_path.display()
+                        );
+                        let settings = create_default_settings();
+                        settings
+                    }
+                    // setting file is not malformed, can be loaded
                     Ok(toml_cfg) => {
                         info!("Game Settings loaded from file succesfully");
                         AppSettings {
@@ -107,65 +124,16 @@ pub fn load_settings() -> AppSettings {
                             camera_zoom: toml_cfg.camera_zoom,
                             resolution: toml_cfg.resolution,
                             sound_settings: toml_cfg.sound_settings,
-                        }
-                    }
-                    Err(toml_cfg) => {
-                        info!(
-                            "There was an error deserializing `AppSettings`: {} at {}",
-                            toml_cfg,
-                            settings_path.display()
-                        );
-                        save_default_settings();
-                        AppSettings {
-                            vsync: true,
-                            frame_rate_target: 60.0,
-                            camera_zoom: 1.0,
-                            resolution: Vec2 {
-                                x: 1200.0,
-                                y: 900.0,
-                            },
-                            sound_settings: SoundSettings {
-                                mastervolume: 1.0,
-                                ambiencevolume: 1.0,
-                                musicvolume: 1.0,
-                                soundvolume: 1.0,
-                            },
+                            fullscreen: toml_cfg.fullscreen,
                         }
                     }
                 };
             toml_cfg
         }
-        // if settings file cant be read cause it doesnt exit, no permissions, or other
-        Err(target_settings) => {
-            info!(
-                "there was an error: {} acessing settings file as: {}",
-                target_settings,
-                settings_path.display()
-            );
-
-            let app_settings = AppSettings {
-                camera_zoom: 1.0,
-                resolution: Vec2 {
-                    x: 1200.0,
-                    y: 900.0,
-                },
-                sound_settings: SoundSettings {
-                    mastervolume: 1.0,
-                    ambiencevolume: 1.0,
-                    musicvolume: 1.0,
-                    soundvolume: 1.0,
-                },
-                vsync: true,
-                frame_rate_target: 60.0,
-            };
-            save_default_settings();
-
-            app_settings
-        }
     }
 }
 
-fn save_default_settings() {
+fn create_default_settings() -> AppSettings {
     let settings_path = Path::new(APP_SETTINGS_PATH);
     let app_settings = AppSettings {
         camera_zoom: 1.0,
@@ -181,13 +149,16 @@ fn save_default_settings() {
         },
         vsync: true,
         frame_rate_target: 60.0,
+        fullscreen: false,
     };
+
     let thread_one = thread::spawn(move || save_settings(app_settings, settings_path));
 
     if thread_one.is_finished() {
         thread_one.join().expect("coulddnt join thread");
         info!("MultiThreaded save complete");
     }
+    app_settings
 }
 
 fn save_settings(app_settings: AppSettings, settings_path: &Path) {
@@ -202,6 +173,13 @@ fn save_settings(app_settings: AppSettings, settings_path: &Path) {
 /// will be equal to `rhs`. When `s` is outside of range `[0, 1]`, the result is linearly
 /// extrapolated.
 #[must_use]
-pub fn lerp(from: f32, to: f32, s: f32) -> f32 {
+pub fn lerp<T>(from: T, to: T, s: T) -> T
+where
+    <T as std::ops::Sub>::Output: Mul<T>,
+    T: std::ops::Sub<Output = T>
+        + std::ops::Add<Output = T>
+        + std::ops::Mul<Output = T>
+        + std::marker::Copy,
+{
     from + ((to - from) * s)
 }

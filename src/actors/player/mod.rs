@@ -17,7 +17,7 @@ use crate::{
     },
     game::GameStage,
     loading::assets::ActorTextureHandles,
-    utilities::game::{SystemLabels, ACTOR_Z_INDEX},
+    utilities::game::ACTOR_Z_INDEX,
     utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE},
 };
 
@@ -46,18 +46,17 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerMeleeEvent>()
             .add_event::<ShootEvent>()
-            .add_system_set(
-                SystemSet::on_enter(GameStage::PlaySubStage)
-                    .with_system(spawn_player.label(SystemLabels::Spawn)),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameStage::PlaySubStage)
-                    .with_system(player_movement_system)
-                    .with_system(camera_movement_system)
-                    .with_system(player_sprint)
-                    .with_system(spawn_skeleton_button)
-                    .with_system(player_attack_sender)
-                    .with_system(equip_closest_weapon),
+            .add_system(spawn_player.in_schedule(OnEnter(GameStage::PlaySubStage)))
+            .add_systems(
+                (
+                    player_movement_system,
+                    camera_movement_system,
+                    player_sprint,
+                    spawn_skeleton_button,
+                    player_attack_sender,
+                    equip_closest_weapon,
+                )
+                    .in_set(OnUpdate(GameStage::PlaySubStage)),
             );
     }
 }
@@ -148,7 +147,7 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                     rotation: Quat::default(),
                     scale: Vec3::ONE,
                 }),
-                visibility: Visibility::VISIBLE,
+                visibility: Visibility::Inherited,
                 ..default()
             },
             player_input_map: PlayerInput::default(),

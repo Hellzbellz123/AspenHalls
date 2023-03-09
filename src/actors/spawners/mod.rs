@@ -19,7 +19,7 @@ use crate::{
     },
     game::GameStage,
     loading::assets::ActorTextureHandles,
-    utilities::game::{SystemLabels, ACTOR_Z_INDEX, MAX_ENEMIES},
+    utilities::game::{ACTOR_Z_INDEX, MAX_ENEMIES},
 };
 
 mod zenemy_spawners;
@@ -31,16 +31,14 @@ impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnWeaponEvent>()
             .add_event::<SpawnEnemyEvent>()
-            .add_system_set(
-                SystemSet::on_enter(GameStage::PlaySubStage)
-                    .with_system(on_enter)
-                    .label(SystemLabels::Spawn),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameStage::PlaySubStage)
-                    .with_system(recieve_enemy_spawns)
-                    .with_system(recieve_weapon_spawns)
-                    .with_system(spawner_timer_system),
+            .add_system(on_enter.in_schedule(OnEnter(GameStage::PlaySubStage)))
+            .add_systems(
+                (
+                    recieve_enemy_spawns,
+                    recieve_weapon_spawns,
+                    spawner_timer_system,
+                )
+                    .in_set(OnUpdate(GameStage::PlaySubStage)),
             );
     }
 }
@@ -140,7 +138,7 @@ pub fn on_enter(mut cmds: Commands) {
         Name::new("EnemyContainer"),
         EnemyContainerTag,
         SpatialBundle {
-            visibility: Visibility::VISIBLE,
+            visibility: Visibility::Inherited,
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
             ..default()
         },

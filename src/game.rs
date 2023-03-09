@@ -19,12 +19,12 @@ pub struct TimeInfo {
     pub pause_menu: bool,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Resource, Default, Reflect)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum GameStage {
     /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
+    #[default]
     Loading,
     /// Here the menu is drawn and waiting for player interaction
-    #[default]
     StartMenu,
     /// this is technically a [`PlaySubStage`] substate. not fully implemented yet however u,
     PlaySubStage, //(PlaySubStage),
@@ -53,11 +53,8 @@ impl Plugin for GamePlugin {
             .add_plugin(InternalAudioPlugin)
             .add_plugin(MapSystemPlugin)
             .add_plugin(ActorPlugin)
-            .add_system_set(
-                SystemSet::on_enter(GameStage::PlaySubStage).with_system(setup_time_state), // .with_system(zoom_control),
-            )
-            .add_system_set(SystemSet::on_update(GameStage::PlaySubStage).with_system(time_to_live))
-            .add_system(zoom_control);
+            .add_system(setup_time_state.in_schedule(OnEnter(GameStage::PlaySubStage)))
+            .add_systems((time_to_live, zoom_control).in_set(OnUpdate(GameStage::PlaySubStage)));
     }
 }
 

@@ -11,15 +11,12 @@ use audio::{Ambience, Music, Sound};
 
 use bevy::log::LogPlugin;
 use bevy::prelude::{
-    default, info, AssetPlugin, Camera2d, ClearColor, Color, ImagePlugin, OrthographicProjection,
-    PluginGroup, Vec2,
+    default, info, warn, AssetPlugin, Camera2d, ClearColor, Color, DetectChanges, ImagePlugin,
+    OrthographicProjection, PluginGroup, Vec2,
 };
+use bevy::prelude::{App, Query, Res, ResMut, With};
 use bevy::window::{
-    MonitorSelection, PresentMode, WindowPlugin, WindowPosition, WindowResizeConstraints,
-};
-use bevy::{
-    prelude::{App, Query, Res, ResMut, With},
-    window::{WindowDescriptor, Windows},
+    PresentMode, Window, WindowMode, WindowPlugin, WindowPosition, WindowResizeConstraints,
 };
 
 use bevy_framepace::{FramepaceSettings, Limiter};
@@ -27,10 +24,11 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
-use crate::console::VCConsolePlugin;
 // use crate::console::VCConsolePlugin;
+// use crate::console::VCConsolePlugin;
+use crate::dev_tools::debug_plugin::debug_dump_graphs;
 #[cfg(feature = "dev")]
-use crate::dev_tools::debug_plugin::{debug_dump_graphs, DebugPlugin};
+use crate::dev_tools::debug_plugin::DebugPlugin;
 use crate::utilities::logging::VCLogPlugin;
 
 use components::MainCameraTag;
@@ -44,12 +42,13 @@ pub mod actors;
 /// module for all game audio, internal audio plugin handles all sound
 pub mod audio;
 pub mod components;
-pub mod console;
+// pub mod console;
 mod dev_tools;
 pub mod game;
 pub mod game_world;
 pub mod loading;
-pub mod ui;
+// pub mod kayak_ui;
+pub mod bevy_ui;
 pub mod utilities;
 
 /// this translates too same folder as executable
@@ -57,6 +56,8 @@ pub const APP_SETTINGS_PATH: &str = "./config.toml";
 
 fn main() {
     let mut vanillacoffee = App::new();
+
+    vanillacoffee.add_state::<game::GameStage>();
     vanillacoffee.add_plugin(VCLogPlugin {
         // filter: "".into(),
         filter: "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(), // filters for anything that makies it through the default log level. quiet big loggers
@@ -73,32 +74,32 @@ fn main() {
         .add_plugins(
             bevy::DefaultPlugins
                 .set(WindowPlugin {
-                    window: WindowDescriptor {
-                        width: settings.resolution.x,
-                        height: settings.resolution.y,
-                        position: WindowPosition::Centered,
-                        monitor: MonitorSelection::Primary,
-                        resize_constraints: WindowResizeConstraints {
-                            min_width: 300.0,
-                            min_height: 200.0,
-                            ..default()
-                        },
-                        // scale_factor_override: Some(1.0),
-                        title: "Vanilla Coffee".to_string(),
+                    primary_window: Some(Window {
                         present_mode: if settings.vsync {
                             PresentMode::AutoVsync
                         } else {
                             PresentMode::AutoNoVsync
                         },
-                        // resizable: true,
-                        // decorations: false,
-                        // cursor_visible: true,
-                        // cursor_grab_mode: bevy::window::CursorGrabMode::Confined,
-                        // mode: WindowMode::BorderlessFullscreen,
-                        // transparent: false,
-                        // alpha_mode: bevy::window::CompositeAlphaMode::PreMultiplied,
+                        position: WindowPosition::Automatic,
+                        title: "Vanilla Coffee".to_string(),
+                        resize_constraints: WindowResizeConstraints {
+                            min_width: 300.0,
+                            min_height: 200.0,
+                            ..default()
+                        },
+                        resolution: (settings.resolution.x, settings.resolution.y).into(),
+                        mode: {
+                            if settings.fullscreen {
+                                // if fullscreen is true, use borderless fullscreen
+                                // cursor mode is confined to the window so it cant
+                                // leave without alt tab
+                                WindowMode::BorderlessFullscreen
+                            } else {
+                                WindowMode::Windowed
+                            }
+                        },
                         ..default()
-                    },
+                    }),
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
@@ -142,18 +143,20 @@ fn main() {
             pause_menu: false,
         })
         .add_plugin(loading::AssetLoadPlugin)
-        .add_plugin(ui::UIPlugin)
-        .add_plugin(VCConsolePlugin)
+        .add_plugin(bevy_ui::BevyUiPlugin)
+        // .add_plugin(kayak_ui::UIPlugin)
+        // .add_plugin(VCConsolePlugin)
         .add_plugin(utilities::UtilitiesPlugin)
         .add_plugin(game::GamePlugin)
-        .add_system(update_settings)
-        .add_state(game::GameStage::Loading);
+        .add_system(update_settings);
 
     #[cfg(feature = "dev")]
     vanillacoffee.add_plugin(DebugPlugin);
 
     #[cfg(feature = "dev")]
     debug_dump_graphs(&mut vanillacoffee);
+    #[cfg(feature = "dev")]
+    warn!("Dumping graphs");
 
     vanillacoffee.run();
 }
@@ -164,7 +167,7 @@ fn main() {
 fn update_settings(
     settings: Res<AppSettings>,
     mut framelimiter: ResMut<FramepaceSettings>,
-    mut windows: ResMut<Windows>,
+    mut windows: Query<&mut Window>,
     bgm: Res<AudioChannel<Music>>,
     bga: Res<AudioChannel<Ambience>>,
     bgs: Res<AudioChannel<Sound>>,
@@ -178,10 +181,12 @@ fn update_settings(
 
     framelimiter.limiter = Limiter::from_framerate(60.0);
 
-    let window = windows.primary_mut();
+    let mut window = windows.get_single_mut().expect("one window only");
     camera.get_single_mut().expect("no camera?").0.scale = settings.camera_zoom;
 
-    window.set_resolution(settings.resolution.x, settings.resolution.y);
+    window
+        .resolution
+        .set(settings.resolution.x, settings.resolution.y);
     //camera zoom
     //sound settings
     info!("volumes changed, applying settings");

@@ -31,7 +31,7 @@ pub struct WalkingSoundTimer {
     pub timer: Timer,
     pub is_first_time: bool,
 }
-//TODO: make this serialize into a settings.toml file in a saves folder
+
 /// modify to change sound volume settings
 #[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Copy, Clone)]
 #[reflect(InspectorOptions)]
@@ -46,18 +46,6 @@ pub struct SoundSettings {
     pub soundvolume: f64,
 }
 
-// impl FromWorld for SoundSettings {
-//     #[allow(unused_variables, reason = "clippy says its unused but it isnt")]
-//     fn from_world(world: &mut World) -> Self {
-//         SoundSettings {
-//             mastervolume: 0.5,
-//             ambiencevolume: 1.0,
-//             musicvolume: 0.1,
-//             soundvolume: 0.5,
-//         }
-//     }
-// }
-
 pub struct InternalAudioPlugin;
 
 // This plugin is responsible to control the game audio
@@ -71,13 +59,8 @@ impl Plugin for InternalAudioPlugin {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
-            .add_system_set(
-                SystemSet::on_enter(GameStage::StartMenu).with_system(play_background_audio),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameStage::PlaySubStage)
-                    .with_system(player_walking_sound_system),
-            )
+            .add_system(play_background_audio.in_schedule(OnEnter(GameStage::StartMenu)))
+            .add_system(player_walking_sound_system.in_set(OnUpdate(GameStage::PlaySubStage)))
             .add_startup_system(setup_sound_volume);
     }
 }

@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{FromWorld, Resource, SystemLabel, Vec2, World, ReflectResource},
+    prelude::{FromWorld, ReflectResource, Resource, Vec2, World},
     reflect::Reflect,
 };
 use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
@@ -30,25 +30,6 @@ pub const PLAYER_PROJECTILE_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP
 /// const
 pub const WORLD_COLLIDER_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP_32;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SystemLabel)]
-///labels for system ordering
-pub enum SystemLabels {
-    /// spawn label for systems that query things that might not exist
-    Spawn,
-    /// insert settings resources
-    InitSettings,
-    /// modify those settings resources
-    UpdateSettings,
-    /// everything that handles input
-    Input,
-    /// everything that updates player state
-    Player,
-    /// everything that moves things (works with transforms)
-    Movement,
-    /// systems that update the world map
-    Map,
-}
-
 /// all game settings in metastruct
 /// make sure tables are AFTER single fields
 #[derive(Reflect, Resource, InspectorOptions, Serialize, Deserialize, Copy, Clone)]
@@ -63,6 +44,8 @@ pub struct AppSettings {
     pub camera_zoom: f32,
     /// display resolution
     pub resolution: Vec2,
+    // fullscreen yes/no
+    pub fullscreen: bool,
     /// volume settings
     pub sound_settings: SoundSettings, //this last for now ig
 }
@@ -84,6 +67,7 @@ impl FromWorld for AppSettings {
             camera_zoom: 1.0,
             vsync: true,
             frame_rate_target: 144.0,
+            fullscreen: false,
         }
     }
 }

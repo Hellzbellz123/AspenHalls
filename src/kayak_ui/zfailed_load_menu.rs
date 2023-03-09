@@ -7,7 +7,7 @@ use kayak_ui::{
     },
 };
 
-use crate::ui::widgets::button::{self, menu_button_render, MenuButton};
+use crate::kayak_ui::widgets::button::{self, menu_button_render, MenuButton};
 
 pub fn failed_load_ui(
     mut commands: Commands,

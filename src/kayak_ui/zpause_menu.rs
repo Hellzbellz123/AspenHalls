@@ -2,12 +2,12 @@ use bevy::{app::AppExit, prelude::*};
 use kayak_ui::prelude::{widgets::*, *};
 
 use crate::{
-    loading::assets::UiTextureHandles,
-    ui::{
+    kayak_ui::{
         events_handlers::PlayButtonEvent,
         widgets::button::{self, MenuButton},
         MenuState,
     },
+    loading::assets::UiTextureHandles,
 };
 
 pub fn update_pause_menu_props(
