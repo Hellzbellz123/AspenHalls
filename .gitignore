@@ -4,4 +4,3 @@
 /.vscode
 /.cargo
 *.dot
-crates/bevy_asset_loader
