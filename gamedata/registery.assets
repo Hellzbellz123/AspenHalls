@@ -1,10 +1,10 @@
 ({
     // fonts for game
     "title_font": File (
-        path: "assets/fonts/kttf/FantasqueSansMonoNF.kayak_font",
+        path: "assets/fonts/FantasqueSansMonoNF.ttf",
     ),
     "main_font": File (
-        path: "assets/fonts/kttf/antiquity.kayak_font",
+        path: "assets/fonts/FiraSans-Bold.ttf",
     ),
 
     // heroes go here

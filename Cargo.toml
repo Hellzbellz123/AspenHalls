@@ -45,6 +45,18 @@ image = {version = "0.24.5", default_features = false, features = ["png"]}
 # chrono = "0.4.23"
 # serde_derive = "1.0.144"
 
+# [dependencies.bevy_mod_transform2d]
+# version = "0.3"
+# features = ["bevy_rapier2d"]
+
+# [dependencies.bevy_kindly]
+# # git = https://github.com/Zeenobit/bevy_kindly
+# version = "0.3.1"
+
+# [dependencies.bevy_console]
+# path = "crates/bevy-console"
+# # git = "https://github.com/RichoDemus/bevy_console.git"
+
 [dependencies.bevy]
 version = "0.10.0"
 default-features = false
@@ -71,17 +83,13 @@ version = "0.15.0"
 # git = "https://github.com/NiklasEi/bevy_asset_loader.git"
 features = ["2d", "standard_dynamic_assets"]
 
-# [dependencies.bevy_common_assets]
-# version = "0.4.0"
-# features = [
-#   "ron",
-#   "serde_ron",
-#   "serde_toml"
-# ]
-
-[dependencies.bevy_console]
-path = "crates/bevy-console"
-# git = "https://github.com/RichoDemus/bevy_console.git"
+[dependencies.bevy_common_assets]
+version = "0.6.0"
+features = [
+  "ron",
+  "serde_ron",
+  "serde_toml"
+]
 
 [dependencies.bevy-debug-text-overlay]
 version = "5.1.0"
@@ -89,19 +97,18 @@ default-features = false
 features = ["builtin-font"]
 
 [dependencies.bevy_ecs_ldtk]
+path = "crates/bevy_ecs_ldtk"
 # version = "0.5.0"
-git = "https://github.com/Trouv/bevy_ecs_ldtk.git"
+# git = "https://github.com/Trouv/bevy_ecs_ldtk.git"
 features = ["atlas"]
 
 [dependencies.bevy_framepace]
-version = "0.11.0"
+path = "crates/bevy_framepace"
+# git = "https://github.com/alice-i-cecile/bevy_framepace.git"
 
 [dependencies.bevy-inspector-egui]
 version = "0.18.1"
 
-# [dependencies.bevy_kindly]
-# # git = https://github.com/Zeenobit/bevy_kindly
-# version = "0.3.1"
 
 [dependencies.bevy_kira_audio]
 version = "0.15.0"
@@ -113,9 +120,6 @@ features = ["ogg"]
 version = "0.7.0"
 features = ["bevy_render", "render_graph"]
 
-# [dependencies.bevy_mod_transform2d]
-# version = "0.3"
-# features = ["bevy_rapier2d"]
 
 [dependencies.bevy_prototype_lyon]
 version = "0.8.0"
@@ -131,10 +135,6 @@ features = [
 version = "0.17.0"
 # git = "https://github.com/zkat/big-brain"
 # path = "crates/big-brain"
-
-[dependencies.kayak_ui]
-path = "crates/kayak_ui"
-# git = "https://github.com/StarArawn/kayak_ui.git"
 
 [dependencies.leafwing-input-manager]
 version = "0.9.0"

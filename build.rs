@@ -42,8 +42,8 @@ fn copyassets() {
 
     println!("Cargo out dir: {out_dir}");
 
-    let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("data/");
-    let output_path = Path::new(&output_path).join("data/");
+    let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("gamedata/");
+    let output_path = Path::new(&output_path).join("gamedata/");
     copy(input_path, output_path).expect("couldnt copy files, maybe the source doesnt exist? {}");
 }
 
