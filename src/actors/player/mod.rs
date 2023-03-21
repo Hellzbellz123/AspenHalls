@@ -1,7 +1,6 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
 
 use crate::{
-    actions::bindings::PlayerInput,
     actors::{
         combat::components::WeaponSlots,
         player::movement::{camera_movement_system, player_movement_system, player_sprint},
@@ -15,10 +14,10 @@ use crate::{
         bundles::RigidBodyBundle,
         general::{CombatStats, DefenseStats, MovementState, Player},
     },
+    consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX},
     game::GameStage,
+    input::actions::PlayerBindings,
     loading::assets::ActorTextureHandles,
-    utilities::game::{SystemLabels, ACTOR_Z_INDEX},
-    utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE},
 };
 
 use bevy_rapier2d::prelude::{
@@ -46,18 +45,21 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerMeleeEvent>()
             .add_event::<ShootEvent>()
-            .add_system_set(
-                SystemSet::on_enter(GameStage::PlaySubStage)
-                    .with_system(spawn_player.label(SystemLabels::Spawn)),
+            .add_system(
+                spawn_player
+                    .run_if(|player: Query<&Player>| player.is_empty())
+                    .in_schedule(OnEnter(GameStage::PlaySubStage)),
             )
-            .add_system_set(
-                SystemSet::on_update(GameStage::PlaySubStage)
-                    .with_system(player_movement_system)
-                    .with_system(camera_movement_system)
-                    .with_system(player_sprint)
-                    .with_system(spawn_skeleton_button)
-                    .with_system(player_attack_sender)
-                    .with_system(equip_closest_weapon),
+            .add_systems(
+                (
+                    player_movement_system,
+                    camera_movement_system,
+                    player_sprint,
+                    spawn_skeleton_button,
+                    player_attack_sender,
+                    equip_closest_weapon,
+                )
+                    .in_set(OnUpdate(GameStage::PlaySubStage)),
             );
     }
 }
@@ -77,7 +79,7 @@ pub struct PlayerBundle {
     // This bundle must be added to your player entity
     // (or whatever else you wish to control)
     #[bundle]
-    pub player_input_map: PlayerInput,
+    pub player_input_map: PlayerBindings,
     #[bundle]
     spatial: SpatialBundle,
     #[bundle]
@@ -148,10 +150,10 @@ pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                     rotation: Quat::default(),
                     scale: Vec3::ONE,
                 }),
-                visibility: Visibility::VISIBLE,
+                visibility: Visibility::Inherited,
                 ..default()
             },
-            player_input_map: PlayerInput::default(),
+            player_input_map: PlayerBindings::default(),
             weapon_socket: WeaponSocket {
                 drawn_slot: WeaponSlots::Slot1, // entity id of currently equipped weapon
                 weapon_slots: init_weapon_slots(),

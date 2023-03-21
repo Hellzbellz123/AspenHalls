@@ -7,7 +7,7 @@ use bevy_rapier2d::prelude::{
 
 use crate::{
     components::actors::spawners::{EnemyType, Spawner, SpawnerTimer},
-    utilities::game::WORLD_COLLIDER_LAYER,
+    consts::PLAYER_LAYER,
 };
 
 /// just a marker for sensors, saying whether active
@@ -49,7 +49,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -62,7 +62,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -75,7 +75,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -88,7 +88,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -102,7 +102,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -115,7 +115,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -128,7 +128,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -141,7 +141,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -154,7 +154,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -169,7 +169,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -184,7 +184,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -199,7 +199,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -214,7 +214,7 @@ impl From<IntGridCell> for CollisionBundle {
                     collision_shape: Collider::compound(shape),
                     collision_group: CollisionGroups {
                         memberships: Group::all(),
-                        filters: WORLD_COLLIDER_LAYER,
+                        filters: PLAYER_LAYER,
                     },
                 }
             }
@@ -245,7 +245,7 @@ pub struct SensorBundle {
     collision_shape: Collider,
     events: ActiveEvents,
 }
-fn sensor_bundle(_ent_instance: EntityInstance) -> SensorBundle {
+fn sensor_bundle(_ent_instance: &EntityInstance) -> SensorBundle {
     SensorBundle {
         name: Name::new("SensorBundle"),
         collision_shape: Collider::cuboid(8., 8.),
@@ -269,7 +269,7 @@ pub struct SpawnerBundle {
     timer: SpawnerTimer,
 }
 
-fn spawner_bundle(_ent_instance: EntityInstance) -> SpawnerBundle {
+fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
     SpawnerBundle {
         name: Name::new("spawnerbundle"),
         state: Spawner {

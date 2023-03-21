@@ -6,7 +6,6 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    actions::PlayerActions,
     components::{
         actors::{
             animation::{AnimState, FacingDirection},
@@ -15,11 +14,12 @@ use crate::{
         MainCameraTag,
     },
     game::TimeInfo,
+    input::actions,
 };
 
 pub fn player_movement_system(
     timeinfo: ResMut<TimeInfo>,
-    query_action_state: Query<&ActionState<PlayerActions>, With<Player>>,
+    query_action_state: Query<&ActionState<actions::Combat>, With<Player>>,
     mut player_query: Query<(
         &mut Velocity,
         &mut MovementState,
@@ -36,9 +36,9 @@ pub fn player_movement_system(
     let timeinfo = timeinfo.as_ref();
     let delta;
 
-    if action_state.pressed(PlayerActions::Move) {
+    if action_state.pressed(actions::Combat::Move) {
         // Virtual direction pads are one of the types which return an AxisPair
-        let axis_pair = action_state.axis_pair(PlayerActions::Move).unwrap();
+        let axis_pair = action_state.axis_pair(actions::Combat::Move).unwrap();
 
         delta = axis_pair.xy().clamp_length(-1.0, 1.0);
 
@@ -63,14 +63,14 @@ pub fn player_movement_system(
             Velocity::linear(delta.normalize_or_zero() * player.speed * timeinfo.time_step);
 
         *velocity = new_velocity;
-    } else if !action_state.pressed(PlayerActions::Move) {
+    } else if !action_state.pressed(actions::Combat::Move) {
         velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
         player.facing = FacingDirection::Idle;
     }
 }
 
 pub fn player_sprint(
-    mut input_query: Query<&ActionState<PlayerActions>, With<MovementState>>,
+    mut input_query: Query<&ActionState<actions::Combat>, With<MovementState>>,
     mut player_query: Query<&mut MovementState, With<Player>>,
     mut anim_query: Query<&mut AnimState, With<Player>>,
 ) {
@@ -78,12 +78,12 @@ pub fn player_sprint(
     let mut animation = anim_query.single_mut();
     let mut player = player_query.single_mut();
 
-    if action_state.pressed(PlayerActions::Sprint) {
+    if action_state.pressed(actions::Combat::Sprint) {
         animation.timer.set_duration(Duration::from_millis(100));
         player.sprint_available = true;
     }
 
-    if action_state.released(PlayerActions::Sprint) {
+    if action_state.released(actions::Combat::Sprint) {
         animation.timer.set_duration(Duration::from_millis(200));
         player.sprint_available = false;
     }

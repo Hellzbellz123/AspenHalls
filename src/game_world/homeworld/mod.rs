@@ -1,17 +1,19 @@
 use bevy::{
     math::vec3,
-    prelude::{info, EventWriter, Plugin, SystemSet},
+    prelude::{
+        info, EventWriter, IntoSystemAppConfigs, IntoSystemConfigs, OnExit, OnUpdate, Plugin,
+    },
 };
 use bevy_ecs_ldtk::prelude::{LdtkEntityAppExt, LdtkIntCellAppExt};
 
 use crate::{
     components::actors::spawners::{SpawnWeaponEvent, WeaponType},
+    consts::ACTOR_Z_INDEX,
     game::GameStage,
     game_world::homeworld::{
         map_components::{LdtkCollisionBundle, LdtkSensorBundle, LdtkSpawnerBundle},
         systems::{enter_the_dungeon, homeworld_teleport},
     },
-    utilities::game::ACTOR_Z_INDEX,
 };
 
 pub mod map_components;
@@ -32,16 +34,17 @@ impl Plugin for HomeWorldPlugin {
             .register_ldtk_entity::<LdtkSensorBundle>("TeleportSensor")
             .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
             .add_event::<PlayerTeleportEvent>()
-            .add_system_set(
-                SystemSet::on_enter(GameStage::PlaySubStage)
-                    .with_system(systems::spawn_mapbundle) //TODO: Change back to menu when kayakui new menu is done
-                    .with_system(systems::spawn_homeworld)
-                    .with_system(spawn_initial_stuff),
+            .add_systems(
+                (
+                    systems::spawn_mapbundle,
+                    systems::spawn_homeworld,
+                    spawn_initial_stuff,
+                )
+                    // changed from ononter playsubstage to exiting main menu, to hopefully make pause logic easier
+                    .in_schedule(OnExit(GameStage::StartMenu)),
             )
-            .add_system_set(
-                SystemSet::on_update(GameStage::PlaySubStage)
-                    .with_system(homeworld_teleport)
-                    .with_system(enter_the_dungeon),
+            .add_systems(
+                (homeworld_teleport, enter_the_dungeon).in_set(OnUpdate(GameStage::PlaySubStage)),
             );
     }
 }

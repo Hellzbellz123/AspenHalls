@@ -1,19 +1,19 @@
 use bevy::{prelude::*, reflect::TypeUuid};
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::LdtkAsset;
-use kayak_ui::prelude::KayakFont;
+// use kayak_ui::prelude::KayakFont;
 
 /// game data folder is data, anything thats not ron/toml/json/etc goes in assets
 pub const SPLASHASSETPATH: &str = "assets/textures/splash/splashL.png";
 
-#[derive(AssetCollection, Resource)]
+#[derive(AssetCollection, Resource, Clone)]
 pub struct FontHandles {
     /// default font
     #[asset(key = "main_font")]
-    pub main_font: Handle<KayakFont>,
+    pub main_font: Handle<Font>,
 
     #[asset(key = "title_font")]
-    pub title_font: Handle<KayakFont>,
+    pub title_font: Handle<Font>,
 }
 
 #[derive(AssetCollection, Resource, Debug)]

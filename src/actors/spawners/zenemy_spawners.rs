@@ -16,8 +16,8 @@ use crate::{
         general::{DefenseStats, MovementState},
         spawners::SpawnEnemyEvent,
     },
+    consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
     loading::assets::ActorTextureHandles,
-    utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
 };
 
 pub fn spawn_skeleton(
@@ -29,7 +29,7 @@ pub fn spawn_skeleton(
     commands
                         .get_entity(enemycontainer)
                         .expect("should always be atleast one entity container. if this panics we probably made more than 1")
-                        .add_children(|parent| {
+                        .with_children(|parent| {
                             parent
                                 .spawn((
                                     SkeletonBundle {
@@ -128,7 +128,7 @@ pub fn spawn_slime(
     commands
             .get_entity(enemycontainer)
                 .expect("should always be atleast one entity container. if this panics we probably made more than 1")
-                .add_children(|parent| {
+                .with_children(|parent| {
                     parent
                         .spawn((
                             SlimeBundle {

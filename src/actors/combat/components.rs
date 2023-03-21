@@ -57,6 +57,7 @@ pub struct WeaponBarrelEndPoint {
 
 #[derive(Debug, Clone, Copy, Component, Default, Reflect)]
 #[reflect(Component)]
+/// things with this are weapons, holds stored slot and target parent
 pub struct WeaponTag {
     /// weapon slot weapon is currently in, None if not attached to player
     pub stored_weapon_slot: Option<WeaponSlots>,
@@ -100,6 +101,7 @@ pub enum WeaponSlots {
 
 #[derive(Debug, Clone, Component, Reflect, Default)]
 #[reflect(Component)]
+/// actors weaponsocket, holds weapons/weaponslots and currently drawn weapon
 pub struct WeaponSocket {
     /// hashmap with weapon slots and entitys that are in those slots
     pub weapon_slots: HashMap<WeaponSlots, Option<Entity>>,

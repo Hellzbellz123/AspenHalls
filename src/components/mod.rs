@@ -201,7 +201,7 @@ pub mod actors {
         #[derive(Component, Deref, DerefMut, Reflect)]
         pub struct ActorType(pub TypeEnum);
 
-        #[derive(Component, Reflect)]
+        #[derive(Component, Clone, Reflect)]
         pub enum AIEnemy {
             Skeleton,
             Slime,
@@ -333,7 +333,7 @@ pub mod actors {
             pub shield: f32,
         }
 
-        #[derive(Component, Default, Reflect)]
+        #[derive(Component, Default, Clone, Reflect)]
         pub struct MovementState {
             //stores actor information, all actors have this
             pub speed: f32,             //TODO: Refactor into stats

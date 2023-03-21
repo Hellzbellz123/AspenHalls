@@ -1,14 +1,17 @@
-use crate::components::actors::bundles::{
-    EnemyProjectileBundle, EnemyProjectileColliderBundle, EnemyProjectileColliderTag,
-    EnemyProjectileTag, RigidBodyBundle,
-};
-use crate::components::actors::general::{ProjectileStats, TimeToLive};
-use crate::game::GameStage;
-use crate::utilities::game::{
-    ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER,
-};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+
+use crate::{
+    components::actors::{
+        bundles::{
+            EnemyProjectileBundle, EnemyProjectileColliderBundle, EnemyProjectileColliderTag,
+            EnemyProjectileTag, RigidBodyBundle,
+        },
+        general::{ProjectileStats, TimeToLive},
+    },
+    consts::{ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER},
+    game::GameStage,
+};
 
 pub mod skeleton;
 
@@ -16,12 +19,9 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_update(GameStage::PlaySubStage)
-                .with_system(on_shoot)
-                .with_system(update_enemy_graphics),
-        )
-        .add_system_set(SystemSet::on_enter(GameStage::PlaySubStage));
+        app.add_systems(
+            (on_shoot, update_enemy_graphics).in_set(OnUpdate(GameStage::PlaySubStage)),
+        );
     }
 }
 

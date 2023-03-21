@@ -16,14 +16,10 @@
     ".gitignore": false
   },
   "explorerExclude.backup": {},
-  "lldb.displayFormat": "auto",
-  "lldb.showDisassembly": "always",
-  "lldb.dereferencePointers": true,
-  "lldb.consoleMode": "commands",
-  "rust-analyzer.runnables.extraArgs": ["--features=dev"],
-  "rust-analyzer.checkOnSave.allTargets": false,
-  "rust-analyzer.checkOnSave.target": ["x86_64-unknown-linux-gnu"],
-  "rust-analyzer.checkOnSave.extraArgs": ["--features=dev_linux"],
+  // "lldb.displayFormat": "auto",
+  // "lldb.showDisassembly": "always",
+  // "lldb.dereferencePointers": true,
+  // "lldb.consoleMode": "commands",
   "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
   "rust-analyzer.cargo.features": ["dev_linux"]
 }

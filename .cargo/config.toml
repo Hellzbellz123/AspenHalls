@@ -5,21 +5,30 @@ rwd = "run --features=dev_linux --target=x86_64-pc-windows-msvc"
 rwt = "build --target=x86_64-pc-windows-msvc -Zunstable-options --keep-going --out-dir=publish --release"
 rlt = "build --target=x86_64-unknown-linux-gnu -Zunstable-options --keep-going --out-dir=publish --release"
 
-# [build]
-# target = ["x86_64-pc-windows-msvc"]
+[build]
+target = ["x86_64-unknown-linux-gnu"]
+rustc-wrapper = "/home/hellzbellz/.cargo/bin/sccache"
+
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-Ctarget-cpu=native","-C", "link-arg=-fuse-ld=/usr/bin/mold", "-Zshare-generics=y"]
+
 
 [profile.dev]
 incremental = true
-codegen-units = 512
-# lto = "thin"
+codegen-units = 256
 opt-level = 1
 debug = true
 
-[profile.dev.package."*"] # # Enable high optimizations for dependencies (incl. Bevy), but not for our code: this makes debug stuff not work quite right
+## Enable low optimizations for dependencies (incl. Bevy), also dont compile these incrementally so they can be cached
+[profile.dev.package."*"] 
 opt-level = 1
+incremental = false
+debug = true
 
 [profile.release]
-codegen-units = 128
+strip = "symbols"
+debug = true 
+codegen-units = 1
 lto = "fat"
-debug = true        #disable for published builds
 opt-level = 3

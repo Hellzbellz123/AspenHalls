@@ -21,7 +21,7 @@ impl Plugin for ActorPlugin {
             .add_plugin(spawners::SpawnerPlugin)
             .add_plugin(animation::AnimationPlugin)
             .add_plugin(player::PlayerPlugin)
-            .add_plugin(combat::WeaponPlugin)
+            .add_plugin(combat::ActorWeaponPlugin)
             .add_plugin(enemies::EnemyPlugin)
             .add_plugin(ai::AIPlugin);
     }

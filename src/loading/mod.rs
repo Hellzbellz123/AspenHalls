@@ -2,8 +2,8 @@ pub mod assets;
 pub mod splashscreen;
 
 use bevy::prelude::*;
-use bevy_asset_loader::prelude::*;
-// use bevy_asset_loader::prelude::
+use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
+use bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection;
 
 use crate::game::GameStage;
 use crate::loading::assets::{
@@ -18,17 +18,22 @@ pub struct AssetLoadPlugin;
 
 impl Plugin for AssetLoadPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(splashscreen::SplashPlugin);
         info!("asset loader init");
-        LoadingState::new(GameStage::Loading)
-            .with_dynamic_collections::<StandardDynamicAssetCollection>(vec!["registery.assets"])
-            .with_collection::<ActorTextureHandles>()
-            .with_collection::<FontHandles>()
-            .with_collection::<AudioHandles>()
-            .with_collection::<UiTextureHandles>()
-            .with_collection::<MapAssetHandles>()
-            .on_failure_continue_to_state(GameStage::FailedLoading)
-            .continue_to_state(GameStage::StartMenu)
-            .build(app);
+        app.add_plugin(splashscreen::SplashPlugin);
+        app.add_loading_state(
+            LoadingState::new(GameStage::Loading)
+                .set_standard_dynamic_asset_collection_file_endings(["ron", "assets"].to_vec())
+                .on_failure_continue_to_state(GameStage::FailedLoading)
+                .continue_to_state(GameStage::StartMenu),
+        )
+        .add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
+            GameStage::Loading,
+            "registery.assets",
+        )
+        .add_collection_to_loading_state::<_, ActorTextureHandles>(GameStage::Loading)
+        .add_collection_to_loading_state::<_, FontHandles>(GameStage::Loading)
+        .add_collection_to_loading_state::<_, AudioHandles>(GameStage::Loading)
+        .add_collection_to_loading_state::<_, UiTextureHandles>(GameStage::Loading)
+        .add_collection_to_loading_state::<_, MapAssetHandles>(GameStage::Loading);
     }
 }

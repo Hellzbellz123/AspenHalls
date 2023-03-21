@@ -10,8 +10,8 @@ use crate::{
         },
         general::{ProjectileStats, TimeToLive},
     },
+    consts::{ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER},
     loading::assets::ActorTextureHandles,
-    utilities::game::{ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER},
 };
 
 use super::components::WeaponStats;

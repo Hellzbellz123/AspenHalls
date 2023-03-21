@@ -10,8 +10,8 @@ use crate::{
         bundles::RigidBodyBundle,
         spawners::{SpawnWeaponEvent, WeaponType},
     },
+    consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
     loading::assets::ActorTextureHandles,
-    utilities::game::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
 };
 
 //TODO: setup so i can load the guns from a ron file in assets directory. can probably use UntypedCollection
@@ -50,7 +50,7 @@ pub fn spawn_smallsmg(
         },
         texture: game_assets.small_smg,
         spatial: SpatialBundle {
-            visibility: Visibility::VISIBLE,
+            visibility: Visibility::Inherited,
             transform: Transform {
                 translation: event.spawn_position,
                 rotation: Quat::IDENTITY,
@@ -150,7 +150,7 @@ pub fn spawn_smallpistol(
         },
         texture: game_assets.small_pistol,
         spatial: SpatialBundle {
-            visibility: Visibility::VISIBLE,
+            visibility: Visibility::Inherited,
             transform: Transform {
                 translation: event.spawn_position,
                 rotation: Quat::IDENTITY,

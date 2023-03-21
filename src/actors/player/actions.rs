@@ -1,5 +1,4 @@
 use crate::{
-    actions::PlayerActions,
     actors::combat::components::{
         BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
         WeaponTag,
@@ -8,7 +7,9 @@ use crate::{
         general::{MovementState, Player},
         spawners::{EnemyType, SpawnEnemyEvent},
     },
-    utilities::{game::ACTOR_Z_INDEX, EagerMousePos},
+    consts::ACTOR_Z_INDEX,
+    input::actions,
+    utilities::EagerMousePos,
 };
 use bevy::prelude::*;
 
@@ -17,7 +18,7 @@ use leafwing_input_manager::prelude::ActionState as lfActionState;
 pub fn spawn_skeleton_button(
     mut eventwriter: EventWriter<SpawnEnemyEvent>,
     mouse: Res<EagerMousePos>,
-    query_action_state: Query<&lfActionState<PlayerActions>>,
+    query_action_state: Query<&lfActionState<actions::Combat>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
     if query_action_state.is_empty() {
@@ -25,7 +26,7 @@ pub fn spawn_skeleton_button(
     }
     let actions = query_action_state.get_single().expect("no ents?");
 
-    if actions.just_released(PlayerActions::DebugF1) {
+    if actions.just_released(actions::Combat::DebugF1) {
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
         let player_transform = player_query.single().0.translation.truncate();
         let direction: Vec2 = (player_transform - Vec2::new(mouse.world.x, mouse.world.y))
@@ -77,7 +78,7 @@ pub fn player_attack_sender(
     // query_childweaponcollider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
     // mut weapon_query2: Query<(Entity, &mut WeaponTag, &mut Transform), Without<Player>>,
     player_query: Query<(&mut Player, &mut Transform), With<MovementState>>,
-    mut input_query: Query<&lfActionState<PlayerActions>>,
+    mut input_query: Query<&lfActionState<actions::Combat>>,
     mouse_pos: Res<EagerMousePos>,
     mut shootwriter: EventWriter<ShootEvent>,
 ) {
@@ -101,13 +102,13 @@ pub fn player_attack_sender(
             let direction: Vec2 = (mouse_pos.world - playerpos).normalize_or_zero();
             let action_state = input_query.single_mut();
 
-            if action_state.pressed(PlayerActions::Shoot) {
+            if action_state.pressed(actions::Combat::Shoot) {
                 shootwriter.send(ShootEvent {
                     bullet_spawn_loc: barrel_loc,
                     travel_dir: direction,
                 })
             }
-            if action_state.pressed(PlayerActions::Melee) {
+            if action_state.pressed(actions::Combat::Melee) {
                 // TODO: setup melee system and weapons
                 info!("meleee not implemented yet")
             }
@@ -122,7 +123,7 @@ pub fn equip_closest_weapon(
             Entity,
             &mut WeaponSocket,
             &mut Transform,
-            &lfActionState<PlayerActions>,
+            &lfActionState<actions::Combat>,
         ),
         With<Player>,
     >,
@@ -142,7 +143,7 @@ pub fn equip_closest_weapon(
     // );
 
     if !actions
-        .just_pressed(PlayerActions::Interact)
+        .just_pressed(actions::Combat::Interact)
         | // if interact isnt pressed BitXor weaponsockets.weaponslots is "full" we can early exit the fn
         weaponsocket_on_player
             .weapon_slots

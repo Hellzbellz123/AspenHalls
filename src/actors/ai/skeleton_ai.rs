@@ -6,7 +6,8 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::Velocity;
 use big_brain::{
     prelude::{ActionState, Actor, Score},
-    BigBrainStage,
+    BigBrainSet,
+    // BigBrainStage,
 };
 use rand::{thread_rng, Rng};
 
@@ -19,20 +20,29 @@ use crate::{
         animation::FacingDirection,
         general::{MovementState, Player},
     },
-    game::TimeInfo,
-    utilities::game::ACTOR_Z_INDEX,
+    consts::ACTOR_Z_INDEX,
+    game::{GameStage, TimeInfo},
 };
 
 pub struct SkeletonAiPlugin;
 
 impl Plugin for SkeletonAiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_to_stage(BigBrainStage::Scorers, aggro_score_system)
-            // .add_system_to_stage(BigBrainStage::Scorers, shoot_score_system)
-            .add_system_to_stage(BigBrainStage::Scorers, wander_score_system)
-            .add_system_to_stage(BigBrainStage::Actions, chase_action)
-            // .add_system_to_stage(BigBrainStage::Actions, shoot_action)
-            .add_system_to_stage(BigBrainStage::Actions, wander_action);
+        app.add_systems(
+            (
+                wander_score_system.run_if(in_state(GameStage::PlaySubStage)),
+                aggro_score_system.run_if(in_state(GameStage::PlaySubStage)),
+                // shoot_score_system,
+            )
+                .in_set(BigBrainSet::Scorers),
+        )
+        .add_systems(
+            (
+                wander_action.run_if(in_state(GameStage::PlaySubStage)),
+                chase_action.run_if(in_state(GameStage::PlaySubStage)), // shoot_action,
+            )
+                .in_set(BigBrainSet::Actions),
+        );
     }
 }
 
@@ -42,7 +52,7 @@ fn aggro_score_system(
     mut aggro_scorer_query: Query<(&Actor, &mut Score), With<AggroScore>>, //enemy brain?
 ) {
     let Ok(player_transform) = player_query.get_single() else { return };
-    aggro_scorer_query.par_for_each_mut(4, |(Actor(actor), mut aggro_score)| {
+    aggro_scorer_query.for_each_mut(|(Actor(actor), mut aggro_score)| {
         if let Ok((transform, aggroable)) = enemy_query.get(*actor) {
             let distance = player_transform.translation.distance(transform.translation);
 
@@ -66,7 +76,7 @@ fn wander_score_system(
     >,
 ) {
     let Ok(player_transform) = player_query.get_single() else { return };
-    wanderscore_query.par_for_each_mut(4, |(Actor(actor), mut wander_score)| {
+    wanderscore_query.for_each_mut(|(Actor(actor), mut wander_score)| {
         if let Ok((transform, aggroable)) = enemy_query.get(*actor) {
             let distance = player_transform.translation.distance(transform.translation);
 

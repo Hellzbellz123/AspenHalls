@@ -12,7 +12,6 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    actions::PlayerActions,
     actors::{
         combat::components::{
             CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
@@ -24,9 +23,11 @@ use crate::{
         animation::FacingDirection,
         general::{DefenseStats, MovementState, Player},
     },
+    consts::ACTOR_Z_INDEX,
     game::{GameStage, TimeInfo},
+    input::actions,
     loading::assets::ActorTextureHandles,
-    utilities::{game::ACTOR_Z_INDEX, lerp, EagerMousePos},
+    utilities::{lerp, EagerMousePos},
 };
 
 use self::components::Damaged;
@@ -41,16 +42,9 @@ pub struct PlayerGameInformation {
     pub player_damage_sent: f32,
 }
 
-#[derive(SystemLabel)]
-pub enum CombatSystemOrders {
-    Sysone,
-    Systwo,
-    Systhree,
-}
+pub struct ActorWeaponPlugin;
 
-pub struct WeaponPlugin;
-
-impl Plugin for WeaponPlugin {
+impl Plugin for ActorWeaponPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PlayerGameInformation {
             damage_taken: 0.0,
@@ -61,22 +55,20 @@ impl Plugin for WeaponPlugin {
             player_deaths: 0,
         })
         .insert_resource(WeaponFiringTimer::default())
-        .add_system_set_to_stage(
-            CoreStage::PreUpdate,
-            SystemSet::new()
-                .with_system(remove_cdw_componenet)
-                .with_system(deal_with_damaged), // .with_system(flash_damaged_entitys),
-        )
-        .add_system_set(
-            SystemSet::on_update(GameStage::PlaySubStage)
-                .with_system(player_death_system)
-                .with_system(hit_detection::hits_on_enemy)
-                .with_system(hit_detection::hits_on_player)
-                .with_system(rotate_player_weapon)
-                .with_system(keep_player_weapons_centered)
-                .with_system(weapon_visiblity_system)
-                .with_system(update_equipped_weapon)
-                .with_system(shoot_weapon),
+        .add_system(remove_cdw_componenet.in_base_set(CoreSet::PreUpdate))
+        .add_system(deal_with_damaged.in_base_set(CoreSet::PostUpdate))
+        .add_systems(
+            (
+                update_equipped_weapon,
+                player_death_system,
+                hit_detection::hits_on_enemy,
+                hit_detection::hits_on_player,
+                rotate_player_weapon,
+                keep_player_weapons_centered,
+                weapon_visiblity_system,
+                receive_shoot_weapon,
+            )
+                .in_set(OnUpdate(GameStage::PlaySubStage)),
         );
     }
 }
@@ -95,7 +87,7 @@ fn rotate_player_weapon(
     mut weapon_query: Query<
         // this is equivelent to if player has a weapon equipped and out
         (&WeaponTag, &GlobalTransform, &mut Transform),
-        (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
+        // (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
     >,
 ) {
     if gametime.game_paused || weapon_query.is_empty() {
@@ -117,7 +109,7 @@ fn rotate_player_weapon(
             } else {
                 wtransform.scale.x = 1.0
             }
-            *wtransform.rotation = *(Quat::from_euler(EulerRot::ZYX, aimangle, 0.0, 0.0));
+            wtransform.rotation = Quat::from_euler(EulerRot::ZYX, aimangle, 0.0, 0.0);
         }
     });
 }
@@ -172,9 +164,11 @@ fn weapon_visiblity_system(
     let p_weaponsocket = player_query.single();
     weapon_query.for_each_mut(|(wtag, mut wvisiblity)| {
         if wtag.stored_weapon_slot == Some(p_weaponsocket.drawn_slot) {
-            wvisiblity.is_visible = true;
+            // TODO: these feels wrong, deref doesnt feel correct here
+            // find a less gross solution
+            *wvisiblity = Visibility::Inherited
         } else {
-            wvisiblity.is_visible = false;
+            *wvisiblity = Visibility::Hidden
         }
     });
 }
@@ -198,10 +192,12 @@ fn remove_cdw_componenet(
         return;
     }
 
-    let wsocket = player_query.single();
+    let playerwsocket = player_query.single();
 
     weapon_query.for_each(|(went, wtag)| {
-        if wtag.stored_weapon_slot != Some(wsocket.drawn_slot) && drawn_weapon.get(went).is_ok() {
+        if wtag.stored_weapon_slot != Some(playerwsocket.drawn_slot)
+            && drawn_weapon.get(went).is_ok()
+        {
             let wname = names.get(went).expect("entity doesnt have a name");
             debug!(
                 "weapon {} {:#?} shouldnt have active component, removing",
@@ -214,7 +210,8 @@ fn remove_cdw_componenet(
 
 fn update_equipped_weapon(
     mut cmds: Commands,
-    query_action_state: Query<&ActionState<PlayerActions>>,
+    // mut cew: Query<(Entity, &CurrentlySelectedWeapon)>,
+    query_action_state: Query<&ActionState<actions::Combat>>,
     mut player_query: Query<&mut WeaponSocket, With<Player>>,
 
     #[allow(clippy::type_complexity)]
@@ -233,9 +230,11 @@ fn update_equipped_weapon(
 
     // TODO: this mostly works, but we need to have a system that checks if the
     // current equippped weapon has a CurrentlyDrawnWeapon and adds it if it
-    // doesnt a default is basically what we need, so a weapon is always out if
-    // available i guess
-    if actions.just_pressed(PlayerActions::EquipSlot1) {
+    // doesnt
+
+    // cmds.entity(cew.single_mut().0).remove::<CurrentlySelectedWeapon>();
+
+    if actions.just_pressed(actions::Combat::EquipSlot1) {
         // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
         // CurrentlyDrawnWeapon from old weapon
         wsocket.drawn_slot = WeaponSlots::Slot1;
@@ -246,7 +245,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 1")
         }
-    } else if actions.just_pressed(PlayerActions::EquipSlot2) {
+    } else if actions.just_pressed(actions::Combat::EquipSlot2) {
         wsocket.drawn_slot = WeaponSlots::Slot2;
         let current_weapon_slots = &mut wsocket.weapon_slots.clone();
         let newwep = get_current_weapon(current_weapon_slots, &wsocket);
@@ -255,7 +254,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 2")
         }
-    } else if actions.just_pressed(PlayerActions::EquipSlot3) {
+    } else if actions.just_pressed(actions::Combat::EquipSlot3) {
         wsocket.drawn_slot = WeaponSlots::Slot3;
         let current_weapon_slots = &mut wsocket.weapon_slots.clone();
         let newwep = get_current_weapon(current_weapon_slots, &wsocket);
@@ -264,7 +263,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 3")
         }
-    } else if actions.just_pressed(PlayerActions::EquipSlot4) {
+    } else if actions.just_pressed(actions::Combat::EquipSlot4) {
         wsocket.drawn_slot = WeaponSlots::Slot4;
         let current_weapon_slots = &mut wsocket.weapon_slots.clone();
         let newwep = get_current_weapon(current_weapon_slots, &wsocket);
@@ -294,7 +293,7 @@ fn get_current_weapon(
     }
 }
 
-pub fn shoot_weapon(
+pub fn receive_shoot_weapon(
     mut cmds: Commands,
     time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,

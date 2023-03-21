@@ -3,10 +3,10 @@ use bevy::{
     prelude::{info, Camera, EventWriter, Query, Transform, Vec3, With, Without},
 };
 use bevy_console::{reply, ConsoleCommand};
+use clap::Parser;
 use rand::{thread_rng, Rng};
 use std::str::FromStr;
 use strum::VariantNames;
-use clap::Parser;
 
 use crate::{
     components::actors::{
@@ -28,7 +28,7 @@ pub struct SpawnWeaponCommand {
     /// Number of times to spawn
     amount: Option<i32>,
     /// spawn at/near player
-    #[arg(short = '@', long="at_player")]
+    #[arg(short = '@', long = "at_player")]
     atplayer: Option<bool>,
 }
 

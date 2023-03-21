@@ -1,19 +1,16 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
+use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
 use rand::seq::SliceRandom;
-use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
-
 use crate::{
+    app_config::SoundSettings,
     components::actors::{
         animation::FacingDirection,
         general::{MovementState, Player},
     },
     game::GameStage,
     loading::assets::AudioHandles,
-    utilities::game::AppSettings,
 };
 
 /// music is played in this channel
@@ -31,32 +28,6 @@ pub struct WalkingSoundTimer {
     pub timer: Timer,
     pub is_first_time: bool,
 }
-//TODO: make this serialize into a settings.toml file in a saves folder
-/// modify to change sound volume settings
-#[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Copy, Clone)]
-#[reflect(InspectorOptions)]
-pub struct SoundSettings {
-    #[inspector(min = 0.0, max = 1.0)]
-    pub mastervolume: f64,
-    #[inspector(min = 0.0, max = 1.0)]
-    pub ambiencevolume: f64,
-    #[inspector(min = 0.0, max = 1.0)]
-    pub musicvolume: f64,
-    #[inspector(min = 0.0, max = 1.0)]
-    pub soundvolume: f64,
-}
-
-// impl FromWorld for SoundSettings {
-//     #[allow(unused_variables, reason = "clippy says its unused but it isnt")]
-//     fn from_world(world: &mut World) -> Self {
-//         SoundSettings {
-//             mastervolume: 0.5,
-//             ambiencevolume: 1.0,
-//             musicvolume: 0.1,
-//             soundvolume: 0.5,
-//         }
-//     }
-// }
 
 pub struct InternalAudioPlugin;
 
@@ -71,27 +42,22 @@ impl Plugin for InternalAudioPlugin {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
-            .add_system_set(
-                SystemSet::on_enter(GameStage::StartMenu).with_system(play_background_audio),
-            )
-            .add_system_set(
-                SystemSet::on_update(GameStage::PlaySubStage)
-                    .with_system(player_walking_sound_system),
-            )
+            .add_system(play_background_audio.in_schedule(OnEnter(GameStage::StartMenu)))
+            .add_system(player_walking_sound_system.in_set(OnUpdate(GameStage::PlaySubStage)))
             .add_startup_system(setup_sound_volume);
     }
 }
 
 fn setup_sound_volume(
-    settings: ResMut<AppSettings>,
+    sound_settings: ResMut<SoundSettings>,
     bgm: Res<AudioChannel<Music>>,
     bga: Res<AudioChannel<Ambience>>,
     bgs: Res<AudioChannel<Sound>>,
 ) {
-    let mastervolume = &settings.sound_settings.mastervolume;
-    bgm.set_volume(settings.sound_settings.musicvolume * mastervolume);
-    bga.set_volume(settings.sound_settings.ambiencevolume * mastervolume);
-    bgs.set_volume(settings.sound_settings.soundvolume * mastervolume);
+    let mastervolume = sound_settings.mastervolume;
+    bgm.set_volume(sound_settings.musicvolume * mastervolume);
+    bga.set_volume(sound_settings.ambiencevolume * mastervolume);
+    bgs.set_volume(sound_settings.soundvolume * mastervolume);
 }
 
 fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<Music>>) {
