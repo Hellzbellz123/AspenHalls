@@ -98,3 +98,4 @@ where
 {
     from + ((to - from) * s)
 }
+
