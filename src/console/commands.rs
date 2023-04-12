@@ -13,7 +13,7 @@ use crate::{
         general::Player,
         spawners::{EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, WeaponType},
     },
-    utilities::game::ACTOR_Z_INDEX,
+    consts::ACTOR_Z_INDEX,
 };
 
 /// spawn weapon [`WeaponType`] x amount of times using `SpawnWeaponEvent`

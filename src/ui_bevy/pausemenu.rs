@@ -1,4 +1,10 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::app::AppExit;
+use bevy::prelude::{
+    default, AlignContent, AlignItems, BackgroundColor, BuildChildren, ButtonBundle, Changed,
+    Children, Color, Commands, Entity, EventWriter, FlexDirection, Interaction, JustifyContent,
+    Label, Name, NextState, NodeBundle, Query, Res, ResMut, Size, Style, Text, TextBundle,
+    TextStyle, UiRect, Val, With, Without, ZIndex,
+};
 
 use crate::{game::GameStage, loading::assets::FontHandles};
 
@@ -220,7 +226,7 @@ pub fn button_system(
         let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
-                nextstate.set(GameStage::PlaySubStage);
+                nextstate.set(GameStage::PlayingGame);
                 text.sections[0].value = "Continue Game".to_string();
                 *color = PRESSED_BUTTON.into();
             }

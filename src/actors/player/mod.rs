@@ -46,9 +46,9 @@ impl Plugin for PlayerPlugin {
         app.add_event::<PlayerMeleeEvent>()
             .add_event::<ShootEvent>()
             .add_system(
-                spawn_player
+                build_player
                     .run_if(|player: Query<&Player>| player.is_empty())
-                    .in_schedule(OnEnter(GameStage::PlaySubStage)),
+                    .in_schedule(OnEnter(GameStage::PlayingGame)),
             )
             .add_systems(
                 (
@@ -59,7 +59,7 @@ impl Plugin for PlayerPlugin {
                     player_attack_sender,
                     equip_closest_weapon,
                 )
-                    .in_set(OnUpdate(GameStage::PlaySubStage)),
+                    .in_set(OnUpdate(GameStage::PlayingGame)),
             );
     }
 }
@@ -86,7 +86,8 @@ pub struct PlayerBundle {
     rigidbody: RigidBodyBundle,
 }
 
-pub fn spawn_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
+// TODO: run after world is spawned, find LDTK player ent and add worldy too it, use that as location too spawn player
+pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
     info!("spawning player");
     commands
         .spawn((PlayerBundle {

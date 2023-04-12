@@ -6,7 +6,7 @@ pub mod debug_plugin {
         prelude::{App, *},
     };
     use bevy_debug_text_overlay::OverlayPlugin;
-    use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata};
+    use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata, LdtkAsset, LdtkLevel};
     use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
     use bevy_mod_debugdump::{render_graph, schedule_graph};
     use bevy_prototype_lyon::{
@@ -26,7 +26,7 @@ pub mod debug_plugin {
         actors::combat::components::{
             CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
         },
-        app_config::{GeneralSettings, SoundSettings, WindowSettings},
+        app_config::{DifficultySettings, GeneralSettings, SoundSettings, WindowSettings},
         components::{
             actors::{
                 ai::{
@@ -70,6 +70,7 @@ pub mod debug_plugin {
                 // .add_plugin(ReflectRapierPlugin)
                 .add_plugin(RapierDebugRenderPlugin::default())
                 //custom Reflects not from plugins
+                .register_type::<DifficultySettings>()
                 .register_type::<WindowSettings>()
                 .register_type::<GeneralSettings>()
                 .register_type::<SoundSettings>()
@@ -97,6 +98,8 @@ pub mod debug_plugin {
                 .register_type::<WeaponSlots>()
                 .register_type::<WeaponSocket>()
                 // LDTK debug data
+                .register_type::<Handle<LdtkLevel>>()
+                .register_type::<Handle<LdtkAsset>>()
                 .register_type::<LayerMetadata>()
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
@@ -112,7 +115,7 @@ pub mod debug_plugin {
                 // TODO: refactor these systems into nice sets and stages
                 .add_systems(
                     (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                        .in_set(OnUpdate(GameStage::PlaySubStage)),
+                        .in_set(OnUpdate(GameStage::PlayingGame)),
                 );
         }
     }

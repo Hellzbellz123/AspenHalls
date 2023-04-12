@@ -75,6 +75,10 @@ pub struct MapAssetHandles {
     /// homeworld level asset
     #[asset(path = "levels/homeworld.ldtk")]
     pub homeworld: Handle<LdtkAsset>,
+    #[asset(path = "levels/dungeons.ldtk")]
+    pub dungeon_set_one: Handle<LdtkAsset>,
+    #[asset(path = "levels/dungeon_rooms.ldtk")]
+    pub dungeon_set_two: Handle<LdtkAsset>,
 }
 
 // BEVY ODDIO ASSET CONFIG

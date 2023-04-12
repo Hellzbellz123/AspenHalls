@@ -3,16 +3,18 @@
 #![feature(stmt_expr_attributes)]
 #![feature(type_ascription)]
 #![feature(lint_reasons)]
+#![feature(trivial_bounds)]
 // #![forbid(missing_docs)]
 #![allow(clippy::module_name_repetitions)]
 
-use bevy::prelude::{default, Vec2, warn};
+use bevy::prelude::{default, warn, Vec2};
+use bevy::DefaultPlugins;
 
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
-// use crate::console::VCConsolePlugin;
 use crate::app_config::configure_and_build;
+use crate::console::QuakeConPlugin;
 use crate::dev_tools::debug_plugin::debug_dump_graphs;
 
 #[cfg(feature = "dev")]
@@ -23,18 +25,23 @@ pub mod actors;
 /// module for all game audio, internal audio plugin handles all sound
 pub mod audio;
 pub mod components;
-/// module holds buttons that can be pressed
-pub mod input;
-// pub mod console;
+pub mod console;
 mod dev_tools;
 pub mod game;
 pub mod game_world;
+/// module holds buttons that can be pressed
+pub mod input;
 pub mod loading;
 // pub mod kayak_ui;
 mod app_config;
 pub mod consts;
 pub mod ui_bevy;
 pub mod utilities;
+
+// TODO: Convert items and weapon definitions too ron assets in gamedata/definitions and gamedata/custom (for custom user content) from the game folder.
+// add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
+// world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a playthrough should
+// have the [Loot] component/tag and should be added too a "leveled list" (skyrim) like system
 
 fn main() {
     let mut vanillacoffee = configure_and_build();
@@ -49,8 +56,11 @@ fn main() {
             ..default()
         });
 
-    // add vanillacoffee plugins
+    // add vanillacoffee stuff
     vanillacoffee
+        .add_state::<game::GameStage>()
+        .add_plugin(loading::AssetLoadPlugin)
+        .add_plugin(console::QuakeConPlugin)
         .add_plugin(game::GamePlugin)
         .add_plugin(utilities::UtilitiesPlugin);
 

@@ -43,7 +43,7 @@ impl Plugin for InternalAudioPlugin {
                 is_first_time: true,
             })
             .add_system(play_background_audio.in_schedule(OnEnter(GameStage::StartMenu)))
-            .add_system(player_walking_sound_system.in_set(OnUpdate(GameStage::PlaySubStage)))
+            .add_system(player_walking_sound_system.in_set(OnUpdate(GameStage::PlayingGame)))
             .add_startup_system(setup_sound_volume);
     }
 }

@@ -30,16 +30,16 @@ impl Plugin for SkeletonAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (
-                wander_score_system.run_if(in_state(GameStage::PlaySubStage)),
-                aggro_score_system.run_if(in_state(GameStage::PlaySubStage)),
+                wander_score_system.run_if(in_state(GameStage::PlayingGame)),
+                aggro_score_system.run_if(in_state(GameStage::PlayingGame)),
                 // shoot_score_system,
             )
                 .in_set(BigBrainSet::Scorers),
         )
         .add_systems(
             (
-                wander_action.run_if(in_state(GameStage::PlaySubStage)),
-                chase_action.run_if(in_state(GameStage::PlaySubStage)), // shoot_action,
+                wander_action.run_if(in_state(GameStage::PlayingGame)),
+                chase_action.run_if(in_state(GameStage::PlayingGame)), // shoot_action,
             )
                 .in_set(BigBrainSet::Actions),
         );

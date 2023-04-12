@@ -7,7 +7,7 @@ use std::{f32::consts::FRAC_PI_2, time::Duration};
 use bevy::{math::vec2, prelude::*};
 
 use bevy_debug_text_overlay::screen_print;
-use bevy_ecs_ldtk::LevelSelection;
+
 use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
@@ -68,7 +68,7 @@ impl Plugin for ActorWeaponPlugin {
                 weapon_visiblity_system,
                 receive_shoot_weapon,
             )
-                .in_set(OnUpdate(GameStage::PlaySubStage)),
+                .in_set(OnUpdate(GameStage::PlayingGame)),
         );
     }
 }
@@ -81,13 +81,10 @@ fn rotate_player_weapon(
     gametime: Res<TimeInfo>,
     eager_mouse: Res<EagerMousePos>,
     mut player_query: Query<(&MovementState, With<Player>)>,
-
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
     mut weapon_query: Query<
         // this is equivelent to if player has a weapon equipped and out
         (&WeaponTag, &GlobalTransform, &mut Transform),
-        // (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
+        (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
     >,
 ) {
     if gametime.game_paused || weapon_query.is_empty() {
@@ -357,7 +354,7 @@ fn deal_with_damaged(
 }
 
 fn player_death_system(
-    mut level_selection: ResMut<LevelSelection>,
+    // mut level_selection: ResMut<LevelSelection>,
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,
     mut player_query: Query<
@@ -372,7 +369,6 @@ fn player_death_system(
     >,
 ) {
     if player_query.is_empty() {
-        // OR !level_selection.is_added()
         return;
     }
     let (mut player_stats, player, player_damaged, mut player_loc, mut player_sprite) =
@@ -383,7 +379,6 @@ fn player_death_system(
         warn!("player is dead");
         player_stats.health = 150.0;
         *player_loc = Transform::from_translation(Vec3::new(-60.0, 1090.0, ACTOR_Z_INDEX));
-        *level_selection = LevelSelection::Index(0);
         game_info.player_deaths += 1;
     }
 

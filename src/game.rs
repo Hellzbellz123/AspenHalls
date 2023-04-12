@@ -8,14 +8,14 @@ use crate::{
     app_config::GeneralSettings,
     audio::InternalAudioPlugin,
     components::actors::general::{MovementState, TimeToLive},
-    game_world::MapSystemPlugin,
+    game_world::GameWorldPlugin,
     input::{
         actions::{self},
         ActionsPlugin,
     },
-    loading,
+    loading::{self, AssetLoadPlugin},
     // ui::MenuPlugin,
-    ui_bevy,
+    ui_bevy::{self, BevyUiPlugin},
 };
 
 #[derive(Debug, Clone, Component, Default, Resource, Reflect)]
@@ -33,45 +33,40 @@ pub enum GameStage {
     /// Here the menu is drawn and waiting for player interaction
     StartMenu,
     /// this is technically a [`PlaySubStage`] substate. not fully implemented yet however u,
-    PlaySubStage, //(PlaySubStage),
+    PlayingGame, //(PlaySubStage),
     /// Game Paused in this state, rapier timestep set too 0.0, no physics, ai is also stopped
     PauseMenu,
     /// game failed to load an asset
     FailedLoading,
 }
 
-/// play substate, homeworld, in dungeon, or some other activity
-// #[derive(Debug, Clone, Eq, PartialEq, Hash, Component, Reflect, Resource, Default)]
-// pub enum PlaySubStage {
-//     #[default]
-//     /// not loaded yet
-//     NotLoaded,
-//     /// homeworld for selecting your character and other things
-//     InHomeWorld,
-//     /// actual random levels and other shit
-//     InDungeon,
-// }
+// TODO: use this
+//
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
+pub enum GameProgress {
+    #[default]
+    Sanctuary,
+    Dungeon,
+}
 
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<GameStage>()
+        app
             .insert_resource(TimeInfo {
                 time_step: 1.0,
                 game_paused: false,
                 pause_menu: false,
             })
-            // .add_plugin(VCConsolePlugin)
-            .add_plugin(loading::AssetLoadPlugin)
             //game stuff after initial Game State setup
-            .add_plugin(ui_bevy::BevyUiPlugin)
+            .add_plugin(BevyUiPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            .add_plugin(MapSystemPlugin)
+            .add_plugin(GameWorldPlugin)
             .add_plugin(ActorPlugin)
             .add_system(pause_game)
-            .add_system(setup_time_state.in_schedule(OnEnter(GameStage::PlaySubStage)))
-            .add_systems((time_to_live, zoom_control).in_set(OnUpdate(GameStage::PlaySubStage)));
+            .add_system(setup_time_state.in_schedule(OnEnter(GameStage::PlayingGame)))
+            .add_systems((time_to_live, zoom_control).in_set(OnUpdate(GameStage::PlayingGame)));
     }
 }
 
@@ -108,7 +103,7 @@ pub fn pause_game(
 
     if input.just_pressed(actions::Combat::Pause) {
         match gamestate.0 {
-            GameStage::PlaySubStage => {
+            GameStage::PlayingGame => {
                 rapiercfg.timestep_mode = TimestepMode::Variable {
                     max_dt: 1.0 / 60.0,
                     time_scale: 0.0,
@@ -122,7 +117,7 @@ pub fn pause_game(
                     time_scale: 1.0,
                     substeps: 1,
                 };
-                cmds.insert_resource(NextState(Some(GameStage::PlaySubStage)));
+                cmds.insert_resource(NextState(Some(GameStage::PlayingGame)));
             }
             _ => {
                 return;

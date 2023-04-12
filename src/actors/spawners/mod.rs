@@ -10,6 +10,7 @@ use crate::{
         zenemy_spawners::{spawn_skeleton, spawn_slime},
         zweapon_spawner::{spawn_smallpistol, spawn_smallsmg},
     },
+    app_config::DifficultySettings,
     components::actors::{
         ai::AIEnemy,
         spawners::{
@@ -17,7 +18,7 @@ use crate::{
             WeaponType,
         },
     },
-    consts::{ACTOR_Z_INDEX, MAX_ENEMIES},
+    consts::ACTOR_Z_INDEX,
     game::GameStage,
     loading::assets::ActorTextureHandles,
 };
@@ -33,8 +34,8 @@ impl Plugin for SpawnerPlugin {
             .add_event::<SpawnEnemyEvent>()
             .add_system(
                 spawn_enemy_container
-                    .run_if(|player: Query<&EnemyContainerTag>| player.is_empty())
-                    .in_schedule(OnEnter(GameStage::PlaySubStage)),
+                    .run_if(|container_q: Query<&EnemyContainerTag>| container_q.is_empty())
+                    .in_schedule(OnEnter(GameStage::PlayingGame)),
             )
             .add_systems(
                 (
@@ -42,7 +43,7 @@ impl Plugin for SpawnerPlugin {
                     recieve_weapon_spawns,
                     spawner_timer_system,
                 )
-                    .in_set(OnUpdate(GameStage::PlaySubStage)),
+                    .in_set(OnUpdate(GameStage::PlayingGame)),
             );
     }
 }
@@ -168,14 +169,19 @@ pub fn spawn_enemy_container(mut cmds: Commands) {
 
 pub fn spawner_timer_system(
     time: Res<Time>,
+    hard_settings: Res<DifficultySettings>,
     mut _ew: EventWriter<SpawnEnemyEvent>,
     mut spawner_query: Query<(&GlobalTransform, &Spawner, &mut SpawnerTimer), With<Spawner>>,
     all_enemys: Query<&Transform, With<AIEnemy>>,
 ) {
-    let totalenemycount = all_enemys.iter().len() as i32;
+    if spawner_query.is_empty() {
+        // warn!("No Spawners available to spawn from");
+        return;
+    }
 
-    if spawner_query.is_empty() || totalenemycount.ge(&MAX_ENEMIES) {
-        warn!("no spawns");
+    let totalenemycount = all_enemys.iter().len() as i32;
+    if totalenemycount.ge(&hard_settings.max_enemies) {
+        // warn!("Enemy Count is greater than or equal too total enemies allowed in game");
         return;
     }
 
@@ -192,6 +198,7 @@ pub fn spawner_timer_system(
 
             enemy_to_spawn = etype;
         }
+
         all_enemys.for_each(|enemy_transform| {
             // add buffer for enemies that can maybe walk outside :/
             let distance_too_spawner = spawner_transform
@@ -205,7 +212,7 @@ pub fn spawner_timer_system(
         });
 
         if enemys_in_spawner_area.ge(&spawner_state.max_enemies) {
-            warn!("enemies in spawn area is large");
+            warn!("enemies in spawn area is too high");
             return;
         } //else
 

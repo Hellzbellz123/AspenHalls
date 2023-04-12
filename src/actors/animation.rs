@@ -18,7 +18,7 @@ impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             (Self::update_current_animation, Self::frame_animation)
-                .in_set(OnUpdate(GameStage::PlaySubStage)),
+                .in_set(OnUpdate(GameStage::PlayingGame)),
         );
     }
 }

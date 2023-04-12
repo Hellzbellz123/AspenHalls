@@ -2,13 +2,15 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::LdtkPlugin;
 
 pub mod components;
-pub mod homeworld;
+mod dungeon_generator;
+pub mod sanctuary;
 
-pub struct MapSystemPlugin;
+pub struct GameWorldPlugin;
 
-impl Plugin for MapSystemPlugin {
+impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_plugin(LdtkPlugin)
-            .add_plugin(homeworld::HomeWorldPlugin);
+            .add_plugin(sanctuary::HideOutPlugin)
+            .add_plugin(dungeon_generator::DungeonGeneratorPlugin);
     }
 }

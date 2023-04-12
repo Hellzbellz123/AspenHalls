@@ -17,12 +17,12 @@ use crate::{
     utilities::logging::VCLogPlugin,
 };
 
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Clone, Default)]
 #[reflect(Resource)]
 pub struct ConfigFile {
-    window_settings: WindowSettings,
-    sound_settings: SoundSettings,
-    general_settings: GeneralSettings,
+    window_settings: Box<WindowSettings>,
+    sound_settings: Box<SoundSettings>,
+    general_settings: Box<GeneralSettings>,
 }
 
 /// make sure tables are AFTER single fields
@@ -39,12 +39,24 @@ pub struct WindowSettings {
     pub resolution: Vec2,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect)]
+pub enum GameDifficulty {
+    Easy,
+    Medium,
+    Hard,
+    Insane,
+    MegaDeath,
+}
+
 #[derive(Reflect, Resource, InspectorOptions, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Resource, InspectorOptions)]
 pub struct GeneralSettings {
     /// camera zooom
     #[inspector(min = 0.0, max = 50.0)]
     pub camera_zoom: f32,
+    /// game difficulty,
+    /// value ranging from 1-4, 1 being easiest, 4 being hardest
+    pub game_difficulty: GameDifficulty,
 }
 
 /// modify to change sound volume settings
@@ -61,9 +73,43 @@ pub struct SoundSettings {
     pub soundvolume: f64,
 }
 
+// TODO: refactor actors module to use this global difficulty resource
+// add a system that takes GeneralSettings.difficulty_settings and matches
+// that i32 and inserts this configured
+#[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone)]
+#[reflect(Resource)]
+pub struct DifficultySettings {
+    pub max_enemies: i32,
+    pub player_health_modifier: f32,
+    pub player_damage_modifier: f32,
+    pub enemy_health_modifier: f32,
+    pub enemy_damage_modifier: f32,
+    pub max_dungeon_amount: i32,
+    pub enemy_speed: f32,
+    pub player_speed: f32,
+}
+
+impl Default for DifficultySettings {
+    fn default() -> Self {
+        Self {
+            max_enemies: 100,
+            max_dungeon_amount: 5,
+            player_health_modifier: 1.0,
+            player_damage_modifier: 1.0,
+            enemy_health_modifier: 1.0,
+            enemy_damage_modifier: 1.0,
+            enemy_speed: 1.0,
+            player_speed: 1.0,
+        }
+    }
+}
+
 impl Default for GeneralSettings {
     fn default() -> Self {
-        GeneralSettings { camera_zoom: 1.0 }
+        GeneralSettings {
+            camera_zoom: 1.0,
+            game_difficulty: GameDifficulty::Medium,
+        }
     }
 }
 
@@ -97,13 +143,14 @@ pub struct InitAppPlugin;
 
 impl Plugin for InitAppPlugin {
     fn build(&self, app: &mut App) {
-        let settings = load_file::load_settings();
+        let cfg_file = load_file::load_settings();
+        let difficulty_settings = DifficultySettings::default();
 
         app.add_plugins(
             bevy::DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        present_mode: if settings.window_settings.vsync {
+                        present_mode: if cfg_file.window_settings.vsync {
                             PresentMode::AutoVsync
                         } else {
                             PresentMode::AutoNoVsync
@@ -111,11 +158,11 @@ impl Plugin for InitAppPlugin {
                         position: WindowPosition::Automatic,
                         title: "Vanilla Coffee".to_string(),
                         resolution: WindowResolution::new(
-                            settings.window_settings.resolution.x,
-                            settings.window_settings.resolution.y,
+                            cfg_file.window_settings.resolution.x,
+                            cfg_file.window_settings.resolution.y,
                         ),
                         mode: {
-                            if settings.window_settings.fullscreen {
+                            if cfg_file.window_settings.fullscreen {
                                 // if fullscreen is true, use borderless fullscreen
                                 // cursor mode is confined to the window so it cant
                                 // leave without alt tab
@@ -145,14 +192,16 @@ impl Plugin for InitAppPlugin {
             lightness: 0.08,
             alpha: 1.0,
         }))
-        .insert_resource(settings.window_settings)
-        .insert_resource(settings.sound_settings)
-        .insert_resource(settings.general_settings);
+        .insert_resource(*cfg_file.window_settings)
+        .insert_resource(*cfg_file.sound_settings)
+        .insert_resource(*cfg_file.general_settings)
+        .insert_resource(difficulty_settings);
 
         app.add_systems((
             apply_window_settings,
             apply_sound_settings,
             apply_general_settings,
+            update_difficulty_settings,
             on_resize_system,
         ));
     }
@@ -241,4 +290,68 @@ fn on_resize_system(
         settings.resolution.x = resize_event.width;
         settings.resolution.y = resize_event.height;
     }
+}
+
+fn update_difficulty_settings(
+    general_settings: Res<GeneralSettings>,
+    _dif_settings: Res<DifficultySettings>,
+    mut cmds: Commands,
+) {
+    // if !general_settings.is_changed() | !dif_settings.is_added() {
+    //     return;
+    // }
+
+    let difficulty_settings: DifficultySettings = match general_settings.game_difficulty {
+        GameDifficulty::Easy => DifficultySettings {
+            max_enemies: 25,
+            player_health_modifier: 1.25,
+            player_damage_modifier: 1.25,
+            enemy_health_modifier: 0.75,
+            enemy_damage_modifier: 0.75,
+            max_dungeon_amount: 5,
+            enemy_speed: 0.9,
+            player_speed: 1.2,
+        },
+        GameDifficulty::Medium => DifficultySettings {
+            max_enemies: 50,
+            player_health_modifier: 1.00,
+            player_damage_modifier: 1.00,
+            enemy_health_modifier: 1.0,
+            enemy_damage_modifier: 1.0,
+            max_dungeon_amount: 7,
+            enemy_speed: 1.0,
+            player_speed: 1.0,
+        },
+        GameDifficulty::Hard => DifficultySettings {
+            max_enemies: 100,
+            player_health_modifier: 1.25,
+            player_damage_modifier: 1.25,
+            enemy_health_modifier: 1.0,
+            enemy_damage_modifier: 1.0,
+            max_dungeon_amount: 9,
+            enemy_speed: 1.2,
+            player_speed: 1.0,
+        },
+        GameDifficulty::Insane => DifficultySettings {
+            max_enemies: 150,
+            player_health_modifier: 1.25,
+            player_damage_modifier: 1.25,
+            enemy_health_modifier: 1.0,
+            enemy_damage_modifier: 1.0,
+            max_dungeon_amount: 15,
+            enemy_speed: 1.5,
+            player_speed: 1.0,
+        },
+        GameDifficulty::MegaDeath => DifficultySettings {
+            max_enemies: 2000,
+            player_health_modifier: 1.25,
+            player_damage_modifier: 1.25,
+            enemy_health_modifier: 1.0,
+            enemy_damage_modifier: 1.0,
+            max_dungeon_amount: 25,
+            enemy_speed: 1.7,
+            player_speed: 0.8,
+        },
+    };
+    cmds.insert_resource(difficulty_settings);
 }

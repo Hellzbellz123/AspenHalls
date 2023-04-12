@@ -55,7 +55,7 @@ fn control_menu_state(mut cmds: Commands, game_state: Res<State<GameStage>>) {
     match game_state.0 {
         GameStage::StartMenu => cmds.insert_resource(NextState(Some(CurrentMenu::StartMenu))),
         GameStage::PauseMenu => cmds.insert_resource(NextState(Some(CurrentMenu::PauseMenu))),
-        GameStage::PlaySubStage => cmds.insert_resource(NextState(Some(CurrentMenu::NoMenu))),
+        GameStage::PlayingGame => cmds.insert_resource(NextState(Some(CurrentMenu::NoMenu))),
         _ => {}
     }
 }

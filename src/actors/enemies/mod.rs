@@ -19,9 +19,7 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            (on_shoot, update_enemy_graphics).in_set(OnUpdate(GameStage::PlaySubStage)),
-        );
+        app.add_systems((on_shoot, update_enemy_graphics).in_set(OnUpdate(GameStage::PlayingGame)));
     }
 }
 

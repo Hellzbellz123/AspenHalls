@@ -220,7 +220,7 @@ pub fn button_system(
         let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Clicked => {
-                nextstate.set(GameStage::PlaySubStage);
+                nextstate.set(GameStage::PlayingGame);
                 text.sections[0].value = "Played".to_string();
                 *color = PRESSED_BUTTON.into();
             }

@@ -7,9 +7,10 @@ use self::commands::{
     spawnenemy_command, spawnweapon_command, SpawnEnemyCommand, SpawnWeaponCommand,
 };
 
-pub struct VCConsolePlugin;
+/// Holds Debug/Cheat Console functionality
+pub struct QuakeConPlugin;
 
-impl Plugin for VCConsolePlugin {
+impl Plugin for QuakeConPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(ConsolePlugin)
             .insert_resource(ConsoleConfiguration {
