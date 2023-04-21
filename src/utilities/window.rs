@@ -27,7 +27,7 @@ pub fn set_window_icon(
         // this is not a very bevy-native solution, but it will do
         let (icon_rgba, icon_width, icon_height) = {
             let image = image::open("gamedata/assets/ico/stonercaticon.png")
-                .expect("Failed to open icon path: assets/ico/stonercaticon.png")
+                .expect("Failed to open icon path: gamedata/assets/ico/stonercaticon.png")
                 .into_rgba8();
             let (width, height) = image.dimensions();
             let rgba = image.into_raw();

@@ -207,7 +207,6 @@ fn remove_cdw_componenet(
 
 fn update_equipped_weapon(
     mut cmds: Commands,
-    // mut cew: Query<(Entity, &CurrentlySelectedWeapon)>,
     query_action_state: Query<&ActionState<actions::Combat>>,
     mut player_query: Query<&mut WeaponSocket, With<Player>>,
 
@@ -224,12 +223,6 @@ fn update_equipped_weapon(
 
     let mut wsocket = player_query.single_mut();
     let actions = query_action_state.single();
-
-    // TODO: this mostly works, but we need to have a system that checks if the
-    // current equippped weapon has a CurrentlyDrawnWeapon and adds it if it
-    // doesnt
-
-    // cmds.entity(cew.single_mut().0).remove::<CurrentlySelectedWeapon>();
 
     if actions.just_pressed(actions::Combat::EquipSlot1) {
         // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
@@ -290,6 +283,7 @@ fn get_current_weapon(
     }
 }
 
+// TODO: refactor this system and related systems into a module for weapons, add ammo management too new module
 pub fn receive_shoot_weapon(
     mut cmds: Commands,
     time: Res<Time>,
@@ -327,8 +321,7 @@ pub fn receive_shoot_weapon(
     }
 }
 // TODO: merge both damage application systems into single system that sends an event for player deaths
-// TODO: add seperate system that catches player death event and handles it
-// TODO: have damaged system remove red hit effect from enemy
+// TODO: have damaged enemys use particle effect or red tint when damaged
 
 fn deal_with_damaged(
     mut cmds: Commands,
@@ -354,7 +347,6 @@ fn deal_with_damaged(
 }
 
 fn player_death_system(
-    // mut level_selection: ResMut<LevelSelection>,
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,
     mut player_query: Query<

@@ -11,10 +11,10 @@ use super::sanctuary::map_components::SanctuaryTeleportSensor;
 
 #[derive(Clone, Debug, Bundle, LdtkIntCell)]
 pub struct CollisionBundle {
-    name: Name,
-    rigidbody: RigidBody,
-    collision_shape: Collider,
-    collision_group: CollisionGroups,
+    pub name: Name,
+    pub rigidbody: RigidBody,
+    pub collision_shape: Collider,
+    pub collision_group: CollisionGroups,
 }
 
 #[derive(Bundle, LdtkIntCell)]
@@ -30,7 +30,7 @@ impl From<IntGridCell> for CollisionBundle {
         match int_grid_cell.value {
             1 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(0.0, 6.0), 0.0, Collider::cuboid(8.0, 2.0))];
+                    vec![(Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0))];
                 CollisionBundle {
                     name: Name::new("CollideDown"),
                     rigidbody: RigidBody::Fixed,
@@ -43,7 +43,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             2 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(0.0, -6.), 0.0, Collider::cuboid(8.0, 2.0))];
+                    vec![(Vec2::new(0.0, -12.), 0.0, Collider::cuboid(16.0, 4.0))];
                 CollisionBundle {
                     name: Name::new("CollideUp"),
                     rigidbody: RigidBody::Fixed,
@@ -56,7 +56,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             3 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(6.0, 0.0), 0.0, Collider::cuboid(2.0, 8.0))];
+                    vec![(Vec2::new(12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
                 CollisionBundle {
                     name: Name::new("CollideLeft"),
                     rigidbody: RigidBody::Fixed,
@@ -69,7 +69,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             4 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(-6.0, 0.0), 0.0, Collider::cuboid(2.0, 8.0))];
+                    vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
                 CollisionBundle {
                     name: Name::new("CollideRight"),
                     rigidbody: RigidBody::Fixed,
@@ -82,7 +82,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             5 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(0.0, 7.0), 0.0, Collider::cuboid(8.0, 2.0))];
+                    vec![(Vec2::new(0.0, 14.0), 0.0, Collider::cuboid(16.0, 4.0))];
 
                 CollisionBundle {
                     name: Name::new("CollideWall"),
@@ -96,7 +96,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             6 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(-6.0, 6.0), 0.0, Collider::cuboid(2.0, 2.0))];
+                    vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
                 CollisionBundle {
                     name: Name::new("CollideCornerUL"), //upper left //FINISHED
                     rigidbody: RigidBody::Fixed,
@@ -109,7 +109,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             7 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(-6.0, -6.0), 0.0, Collider::cuboid(2.0, 2.0))];
+                    vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
                 CollisionBundle {
                     name: Name::new("CollideCornerLL"), //lower left
                     rigidbody: RigidBody::Fixed,
@@ -122,7 +122,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             8 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(6.0, 6.0), 0.0, Collider::cuboid(2.0, 2.0))];
+                    vec![(Vec2::new(12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
                 CollisionBundle {
                     name: Name::new("CollideCornerUR"), //upper right   //done
                     rigidbody: RigidBody::Fixed,
@@ -135,7 +135,7 @@ impl From<IntGridCell> for CollisionBundle {
             }
             9 => {
                 let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(6.0, -6.0), 0.0, Collider::cuboid(2.0, 2.0))];
+                    vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
                 CollisionBundle {
                     name: Name::new("CollideCornerLR"), //lower right
                     rigidbody: RigidBody::Fixed,
@@ -148,8 +148,8 @@ impl From<IntGridCell> for CollisionBundle {
             }
             10 => {
                 let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(-6.0, -2.0), ndgs, Collider::cuboid(6.0, 2.0)),
-                    (Vec2::new(0.0, 6.0), 0.0, Collider::cuboid(8.0, 2.0)),
+                    (Vec2::new(-12.0, -4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+                    (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
                 ];
                 CollisionBundle {
                     name: Name::new("CollideInnerUL"), //lower left inverted corner
@@ -163,8 +163,8 @@ impl From<IntGridCell> for CollisionBundle {
             }
             11 => {
                 let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(-6.0, 2.0), ndgs, Collider::cuboid(6.0, 2.0)),
-                    (Vec2::new(0.0, -6.0), 0.0, Collider::cuboid(8.0, 2.0)),
+                    (Vec2::new(-12.0, 4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+                    (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
                 ];
                 CollisionBundle {
                     name: Name::new("CollideInnerLL"), //lower left inverted corner
@@ -178,8 +178,8 @@ impl From<IntGridCell> for CollisionBundle {
             }
             12 => {
                 let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(6.0, -2.0), ndgs, Collider::cuboid(6.0, 2.0)),
-                    (Vec2::new(0.0, 6.0), 0.0, Collider::cuboid(8.0, 2.0)),
+                    (Vec2::new(12.0, -4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+                    (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
                 ];
                 CollisionBundle {
                     name: Name::new("CollideInnerUR"), //upper right inverted corner
@@ -193,8 +193,8 @@ impl From<IntGridCell> for CollisionBundle {
             }
             13 => {
                 let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(6.0, 2.0), ndgs, Collider::cuboid(6.0, 2.0)),
-                    (Vec2::new(0.0, -6.0), 0.0, Collider::cuboid(8.0, 2.0)),
+                    (Vec2::new(12.0, 4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+                    (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
                 ];
                 CollisionBundle {
                     name: Name::new("CollideInnerLR"), //lower right inverted corner

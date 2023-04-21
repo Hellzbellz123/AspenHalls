@@ -1,26 +1,27 @@
-use bevy::prelude::*;
+use bevy::{asset::HandleId, prelude::*, reflect::TypeUuid};
 use bevy_ecs_ldtk::{
     app::{LdtkEntityMap, LdtkIntCellMap},
+    ldtk::{Level, LevelBackgroundPosition},
     prelude::TilesetDefinition,
     utils::{create_entity_definition_map, create_layer_definition_map},
     LdtkAsset, LdtkLevel, LdtkSettings, LevelEvent, Respawn, Worldly,
 };
 use bevy_prototype_lyon::{
-    prelude::{Fill, FillOptions, GeometryBuilder, ShapeBundle},
+    prelude::{Fill, FillOptions, GeometryBuilder, Path, ShapeBundle},
     shapes,
 };
+use bevy_rapier2d::rapier::geometry;
 use rand::prelude::*;
-use std::collections::HashMap;
-
-use crate::{app_config::DifficultySettings, loading::assets::MapAssetHandles};
+use std::{cmp, collections::HashMap};
 
 use super::{DungeonGeneratorSettings, GeneratorStage};
+use crate::loading::assets::MapAssetHandles;
 
 #[derive(Component, Default)]
 pub struct DungeonContainerTag;
 
 #[derive(Component, Default)]
-pub struct DungeonTag;
+pub struct DungeonRoomTag;
 
 #[derive(Bundle, Default)]
 pub struct DungeonContainerBundle {
@@ -32,14 +33,84 @@ pub struct DungeonContainerBundle {
     pub computed_visibility: ComputedVisibility,
 }
 
+#[derive(Bundle)]
+pub struct DungeonRoomBundle {
+    pub name: Name,
+    pub ldtk_level: LdtkLevel,
+    pub room_info: RoomInstance,
+    pub tag: DungeonRoomTag,
+
+    pub dv_shape: Path,
+    pub dv_color: Fill,
+    pub transform: Transform,
+    pub global_transform: GlobalTransform,
+    pub visibility: Visibility,
+    pub computed_visibility: ComputedVisibility,
+}
+
+#[derive(Component, Debug, Reflect)]
+pub struct RoomInstance {
+    room_id: i32,
+    room_asset: LdtkLevel,
+    width: i32,
+    height: i32,
+    position: Vec3,
+}
+
+impl Default for RoomInstance {
+    fn default() -> Self {
+        Self {
+            room_id: Default::default(),
+            room_asset: LdtkLevel {
+                level: Level::default(),
+                background_image: None,
+            },
+            width: Default::default(),
+            height: Default::default(),
+            position: Default::default(),
+        }
+    }
+}
+
+impl<'a> Default for DungeonRoomBundle {
+    fn default() -> Self {
+        let spawner_box_visual = shapes::Rectangle {
+            extents: Vec2 { x: 5.0, y: 5.0 },
+            origin: shapes::RectangleOrigin::Center,
+        };
+        let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+
+        Self {
+            name: Name::new("BlankDungeon"),
+            ldtk_level: LdtkLevel {
+                level: Level::default(),
+                background_image: None,
+            },
+            //room info is normall filled out with information
+            //from ldtk_level and spots passed in through generator
+            room_info: RoomInstance::default(),
+            tag: Default::default(),
+            dv_shape: spawner_visual_bundle,
+            dv_color: Fill {
+                options: FillOptions::default(),
+                color: Color::YELLOW,
+            },
+            transform: Default::default(),
+            global_transform: Default::default(),
+            visibility: Default::default(),
+            computed_visibility: Default::default(),
+        }
+    }
+}
+
 // TODO: pre place a "start room" for the dungeon at 0,0 and teleport the player too it
 // it would be useful too have the startroom predefined in the dungeons asset
-// spec for dungeon maps should be laid out,
-// rooms should always have a SmallStartRoom, to make assumptions explainable?
+// spec for dungeon maps should be created,
+// Dungeons should always have a SmallStartRoom, to make assumptions explainable?
 pub fn create_dungeon_container(
+    mut cmds: Commands,
     gen_settings: Res<DungeonGeneratorSettings>,
     dungeon_container: Query<Entity, &DungeonContainerTag>,
-    mut cmds: Commands,
     dungeons: Res<MapAssetHandles>,
 ) {
     if dungeon_container.is_empty() {
@@ -47,7 +118,7 @@ pub fn create_dungeon_container(
         cmds.spawn((
             DungeonContainerBundle {
                 tag: DungeonContainerTag,
-                ldtk_handle: dungeons.dungeon_set_two.clone(),
+                ldtk_handle: dungeons.homeworld.clone(),
                 transform: Transform {
                     scale: Vec3 {
                         x: 3.0,
@@ -70,13 +141,264 @@ pub fn create_dungeon_container(
     cmds.insert_resource(NextState(Some(GeneratorStage::PlaceRooms)));
 }
 
+fn filter_levels(level_assets: &Res<Assets<LdtkLevel>>) -> Vec<LdtkLevel> {
+    let excluded_levels = vec![
+        // identifer for main level, this isnt placed for dungeons
+        String::from("Sanctuary"),
+        // identifier for start room, we manually place at 0,0
+        // String::from("SmallStartRoom"),
+    ];
+
+    let vector_of_assets: Vec<LdtkLevel> = level_assets
+        .iter()
+        .map(|(_, level)| (level))
+        .cloned()
+        .filter(|l| !excluded_levels.contains(&l.level.identifier))
+        .collect();
+    vector_of_assets
+}
+
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+pub struct DungeonID(i32);
+
+pub fn create_dungeon_hashmap(
+    mut cmds: Commands,
+    mut gen_settings: ResMut<DungeonGeneratorSettings>,
+    level_assets: Res<Assets<LdtkLevel>>,
+) {
+    info!("Creating hashmap of dungeons to be used in dungeon generation");
+    let mut done = false;
+    let useablelevels = filter_levels(&level_assets);
+    let mut useable_rooms: HashMap<DungeonID, LdtkLevel> = HashMap::new();
+    let level_len = useablelevels.len() as i32;
+    let mut id = 0;
+
+    for ldtk in useablelevels {
+        info!(
+            "Inserting {} into hashmap, {id}/{level_len}",
+            ldtk.level.identifier
+        );
+        if ldtk.level.identifier == "SmallStartRoom" {
+            useable_rooms.insert(DungeonID(id), ldtk);
+            id += 1
+        } else {
+            useable_rooms.insert(DungeonID(id), ldtk);
+            id += 1
+        }
+        if id == level_len - 1 {
+            done = true;
+        }
+    }
+
+    if done == true {
+        gen_settings.useable_rooms = Some(useable_rooms);
+        cmds.insert_resource(NextState(Some(GeneratorStage::PlaceRooms)))
+    }
+}
+
+pub fn layout_dungeon_and_place_skeleton(
+    mut cmds: Commands,
+    gen_settings: Res<DungeonGeneratorSettings>,
+    dungeon_container: Query<(Entity, &DungeonContainerTag, &Handle<LdtkAsset>)>,
+) {
+    let mut rng = thread_rng();
+    let useable_levels = gen_settings.useable_rooms.as_ref().unwrap();
+    let mut rooms: Vec<RoomInstance> = Vec::new();
+
+    let dungeon_origin = gen_settings.dungeon_map_origin;
+    let map_half_extent = gen_settings.dungeon_map_halfextent;
+    let space_between_dungeons = gen_settings.dungeons_space_between;
+    let dungeon_count: i32 = gen_settings.dungeon_room_amount;
+
+    let mut dungeon_spots = generate_points_within_distance(
+        dungeon_origin,
+        map_half_extent, // this is actually a half extent
+        space_between_dungeons,
+        dungeon_count.try_into().unwrap(),
+    );
+
+    // remove 0,0,0 from list of dungeons AFTER its been position checked against other spots
+    let start_spot = Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+
+    remove_vec3(&mut dungeon_spots, &start_spot);
+
+    for kvp in useable_levels {
+        info!("id: {:?} name {}", kvp.0, kvp.1.level.identifier)
+    }
+
+    'createvec: for room in 0..=gen_settings.dungeon_room_amount {
+        let id_from_hashmap: i32 = rng.gen_range(1..(useable_levels.len() as i32 - 1));
+        info!(
+            "requesting id: {id_from_hashmap} from {:?}",
+            useable_levels.keys()
+        );
+
+        if room == gen_settings.dungeon_room_amount {
+            break 'createvec;
+        }
+        if room == 0 {
+            info!("inserting SmallStartRoom at 0 0");
+            rooms.insert(
+                room.try_into().unwrap(),
+                RoomInstance {
+                    room_id: room,
+                    room_asset: useable_levels
+                        .get_key_value(&DungeonID(0))
+                        .unwrap()
+                        .1
+                        .clone(),
+                    width: 0,
+                    height: 0,
+                    position: Vec3::ZERO,
+                },
+            );
+        } else {
+            let level = useable_levels
+                .get_key_value(&DungeonID(id_from_hashmap))
+                .unwrap()
+                .1
+                .clone();
+            rooms.insert(
+                room.try_into().unwrap(),
+                RoomInstance {
+                    room_id: room,
+                    width: level.level.px_wid,
+                    height: level.level.px_hei,
+                    room_asset: level,
+                    position: dungeon_spots.remove(0),
+                },
+            );
+        }
+    }
+
+    let rooms = layout_rooms(rooms, gen_settings.clone());
+    let dungeon_container = dungeon_container.single();
+
+    for room in rooms {
+        info!("{:?}", room);
+        let spawner_box_visual = shapes::Rectangle {
+            extents: Vec2 { x: 5.0, y: 5.0 },
+            origin: shapes::RectangleOrigin::Center,
+        };
+        let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+
+        cmds.entity(dungeon_container.0).with_children(|parent| {
+            let name = format!("{}", room.room_asset.level.identifier);
+            parent.spawn(DungeonRoomBundle {
+                name: Name::new(name),
+                ldtk_level: room.room_asset.clone(),
+                transform: Transform::from_translation(room.position),
+                room_info: room,
+                tag: DungeonRoomTag,
+                dv_shape: spawner_visual_bundle,
+                dv_color: Fill {
+                    color: (Color::RED),
+                    options: FillOptions::default(),
+                },
+                ..default()
+            });
+        });
+    }
+    // if dungeon spots is empty, pop returns none,
+    // dungeon spots should be empty when we have spawned all dungeons
+    // we can insert the next state
+    info!("Done spawning template");
+    cmds.insert_resource(NextState(Some(GeneratorStage::BuildDungeonRooms)));
+    return;
+}
+
+fn layout_rooms(
+    mut rooms: Vec<RoomInstance>,
+    settings: DungeonGeneratorSettings,
+) -> Vec<RoomInstance> {
+    // Sort rooms by decreasing area
+    rooms.sort_by(|a, b| {
+        let area_a = a.width * a.height;
+        let area_b = b.width * b.height;
+        area_b.partial_cmp(&area_a).unwrap()
+    });
+
+    let mut placed_rooms = vec![rooms.remove(0)];
+    let mut rng = rand::thread_rng();
+
+    while let Some(mut room) = rooms.pop() {
+        let mut min_distance = i32::MAX;
+        let mut min_pos = Vec2::new(0.0, 0.0);
+
+        // Try placing the room in all adjacent positions
+        for placed_room in &placed_rooms {
+            let x_min = cmp::max(0, placed_room.position.x as i32 - room.width);
+            let x_max = placed_room.position.x as i32 + placed_room.width;
+            let y_min = cmp::max(0, placed_room.position.y as i32 - room.height);
+            let y_max = placed_room.position.y as i32 + placed_room.height;
+
+            for x in x_min..=x_max {
+                for y in y_min..=y_max {
+                    let pos = Vec2::new(x as f32, y as f32);
+                    let mut distance = i32::MAX;
+
+                    // Calculate distance to nearest placed room
+                    for placed_room in &placed_rooms {
+                        let dx = cmp::max(
+                            0,
+                            cmp::max(
+                                placed_room.position.x as i32 - x,
+                                x - placed_room.position.x as i32 - placed_room.width,
+                            ),
+                        );
+                        let dy = cmp::max(
+                            0,
+                            cmp::max(
+                                placed_room.position.y as i32 - y,
+                                y - placed_room.position.y as i32 - placed_room.height,
+                            ),
+                        );
+                        distance = cmp::min(distance, dx + dy);
+                    }
+
+                    // If the position is valid and closer to other rooms than the current minimum, update the minimum
+                    if distance >= room.width && distance >= room.height && distance < min_distance
+                    {
+                        min_distance = distance;
+                        min_pos = pos;
+                    }
+                }
+            }
+        }
+
+        // If a valid adjacent position was found, place the room there
+        if min_distance < i32::MAX {
+            room.position = Vec3::new(min_pos.x as f32, min_pos.y as f32, 0.0);
+            placed_rooms.push(room);
+        } else {
+            // If no valid adjacent position was found, place the room at a random position
+            let x = rng.gen_range(
+                -settings.dungeon_map_halfextent
+                    ..settings.dungeon_map_halfextent - room.width as f32,
+            );
+            let y = rng.gen_range(
+                -settings.dungeon_map_halfextent
+                    ..settings.dungeon_map_halfextent - room.height as f32,
+            );
+            room.position = Vec3::new(x as f32, y as f32, 0.0);
+            placed_rooms.push(room);
+        }
+    }
+
+    placed_rooms
+}
+
 // place ldtk levels at random places on the map
 pub fn place_dungeon_skeleton(
     mut cmds: Commands,
     dungeon_container: Query<(Entity, &DungeonContainerTag, &Handle<LdtkAsset>)>,
     gen_settings: Res<DungeonGeneratorSettings>,
     mut ldtk_assets: ResMut<Assets<LdtkAsset>>,
-    mut level_assets: ResMut<Assets<LdtkLevel>>,
+    level_assets: Res<Assets<LdtkLevel>>,
 ) {
     let mut thread_rng = thread_rng();
     let dungeon_container = dungeon_container.single();
@@ -94,18 +416,59 @@ pub fn place_dungeon_skeleton(
         dungeon_count.try_into().unwrap(),
     );
 
-    let spotsfn = dungeon_spots.iter().for_each(|spot| {
-        info!("{:?}", spot);
+    info!(
+        "Generated {} points within distance {} from origin {:?} and at least {} units apart\n {:?}",
+        dungeon_count, map_half_extent, dungeon_origin, space_between_dungeons, dungeon_spots);
+
+    let useable_levels: Vec<LdtkLevel> = filter_levels(&level_assets);
+
+    // remove 0,0,0 from list of dungeons AFTER its been position checked against other spots
+    let start_spot = Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+    remove_vec3(&mut dungeon_spots, &start_spot);
+
+    let startroom: Option<(HandleId, &LdtkLevel)> = level_assets
+        .iter()
+        .find(|f| f.1.level.identifier == "SmallStartRoom");
+    let room = startroom.unwrap().1;
+
+    let spawner_box_visual = shapes::Rectangle {
+        extents: Vec2 { x: 5.0, y: 5.0 },
+        origin: shapes::RectangleOrigin::Center,
+    };
+    let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+
+    // spawn startroom at 0,0,0
+    cmds.entity(dungeon_container.0).with_children(|parent| {
+        info!(
+            "Creating Dungeon Room: SmallStartRoom 1/{} at world origin",
+            dungeon_count
+        );
+        parent.spawn(DungeonRoomBundle {
+            name: Name::new("StartRoom"),
+            ldtk_level: room.clone(),
+            room_info: RoomInstance {
+                room_id: 0,
+                width: room.level.px_wid,
+                height: room.level.px_hei,
+                position: start_spot,
+                room_asset: room.clone(),
+            },
+            tag: DungeonRoomTag,
+            dv_shape: spawner_visual_bundle,
+            dv_color: Fill {
+                color: (Color::RED),
+                options: FillOptions::default(),
+            },
+            transform: Transform::from_translation(start_spot),
+            ..default()
+        });
     });
 
-    info!(
-        "Generated {} points within distance {} from origin {:?} and at least {} units apart\n {:#?}",
-        dungeon_count, map_half_extent, dungeon_origin, space_between_dungeons, spotsfn
-    );
-
-    let dungeons: Vec<Handle<LdtkLevel>> = dungeon_asset.level_map.clone().into_values().collect(); //.collect();
-
-    for _current_dungeon in 0..=dungeon_count {
+    for current_dungeon in 0..=dungeon_count {
         dungeon_spots.shuffle(&mut thread_rng);
         let Some(spot) = dungeon_spots.pop() else  {
             // if dungeon spots is empty, pop returns none,
@@ -115,13 +478,20 @@ pub fn place_dungeon_skeleton(
             cmds.insert_resource(NextState(Some(GeneratorStage::BuildDungeonRooms)));
             return;
         }; //{warn!("Couldnt choose Vec3 from dungeon_spots array"); return;};
-        let Some(levelasset) = level_assets.get_mut(dungeons.choose(&mut thread_rng).expect("error choosing from map")).cloned() else {info!("couldnt get the level from the hashmap"); return;};
-        let name = format!("dungeon: {}", levelasset.level.identifier);
+        let levelasset = useable_levels
+            .choose(&mut thread_rng)
+            .expect("error choosing from map")
+            .to_owned();
 
-        info!("Creating Dungeon Skeleton: {name}");
+        let name = format!("{}", levelasset.level.identifier);
+        info!(
+            "Creating Dungeon Room: {name} {}/{}",
+            current_dungeon + 2,
+            dungeon_count
+        );
 
         let spawner_box_visual = shapes::Rectangle {
-            extents: Vec2 { x: 5.0, y: 5.0 },
+            extents: Vec2 { x: 1.0, y: 1.0 },
             origin: shapes::RectangleOrigin::Center,
         };
 
@@ -140,7 +510,7 @@ pub fn place_dungeon_skeleton(
                     level: levelasset.level,
                     background_image: levelasset.background_image,
                 },
-                DungeonTag,
+                DungeonRoomTag,
                 ShapeBundle {
                     path: spawner_visual_bundle,
                     transform: dungeon_spot,
@@ -155,6 +525,11 @@ pub fn place_dungeon_skeleton(
     }
 }
 
+fn remove_vec3(vec_list: &mut Vec<Vec3>, vec_to_remove: &Vec3) {
+    vec_list.retain(|v| v != vec_to_remove);
+}
+
+/// CENTERED AROUND 0,0,0 (World Origin)
 fn generate_points_within_distance(
     origin: Vec3,
     total_spread: f32,
@@ -165,6 +540,15 @@ fn generate_points_within_distance(
 
     let mut rng = rand::thread_rng();
     let mut points: Vec<Vec3> = Vec::with_capacity(num_points);
+
+    points.insert(
+        0,
+        Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        },
+    );
 
     while points.len() < num_points {
         let x = rng.gen_range(-total_spread..total_spread);
@@ -191,7 +575,6 @@ fn generate_points_within_distance(
     }
 
     warn!("Done Generating points");
-
     points
 }
 
@@ -205,9 +588,9 @@ pub fn build_dungeons(
     //the matches! childless fn below
     child_less_levels: Query<
         (Entity, &LdtkLevel, &Parent, Option<&Respawn>),
-        (With<DungeonTag>, Without<Children>),
+        (With<DungeonRoomTag>, Without<Children>),
     >,
-    // changed level query to only grab my levels, 
+    // changed level query to only grab my levels,
     // im pretty sure this is not necessary as build dungeons should just work if i use Handle<LdtkLevel>
     // but this way i feel like i can have more control later on (might change too using ldtks spawning fns)
     // wouldnt need too vendor anymore
@@ -219,7 +602,7 @@ pub fn build_dungeons(
             Option<&Respawn>,
             Option<&Children>,
         ),
-        With<DungeonTag>,
+        With<DungeonRoomTag>,
     >,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -241,6 +624,7 @@ pub fn build_dungeons(
     // we only need to run this loop if the levels arent built, layers
     // get added to levels as children so if the level has no children we know it needs to be built still
     if child_less_levels.is_empty() {
+        commands.insert_resource(NextState(Some(GeneratorStage::Finished)));
         return;
     }
 

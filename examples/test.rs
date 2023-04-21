@@ -1,4 +1,3 @@
-extern crate rand;
 use rand::Rng;
 
 #[derive(Clone, Copy, Debug)]

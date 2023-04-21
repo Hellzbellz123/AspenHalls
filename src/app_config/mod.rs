@@ -213,7 +213,9 @@ pub fn configure_and_build() -> App {
     vanillacoffee.add_plugin(VCLogPlugin {
         // filters for anything that makies it through the default log level. quiet big loggers
         // filter: "".into(), // an empty filter
-        filter: "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn".into(),
+        filter:
+            "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn"
+                .into(),
         level: bevy::log::Level::DEBUG,
     });
 

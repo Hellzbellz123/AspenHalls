@@ -6,7 +6,7 @@ use bevy_ecs_ldtk::{
 use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
-    components::actors::{bundles::PlayerColliderTag, general::Player},
+    components::actors::{ai::AIEnemy, bundles::PlayerColliderTag, general::Player},
     game_world::{
         dungeon_generator::GeneratorStage,
         sanctuary::map_components::{SanctuaryTeleportSensor, TeleportTimer},
@@ -20,7 +20,7 @@ pub struct MapContainerTag;
 
 pub fn spawn_mapbundle(
     mut commands: Commands,
-    _asset_server: ResMut<AssetServer>,
+    asset_server: ResMut<AssetServer>,
     maps: Res<MapAssetHandles>,
 ) {
     info!("spawning ldtkworldbundle");
@@ -35,8 +35,8 @@ pub fn spawn_mapbundle(
                     z: 0.0,
                 },
                 scale: Vec3 {
-                    x: 3.0,
-                    y: 3.0,
+                    x: 1.0,
+                    y: 1.0,
                     z: 1.0,
                 },
                 ..default()
@@ -55,9 +55,7 @@ pub fn spawn_homeworld(mut commands: Commands) {
 
     commands.insert_resource(LevelSelection::Index(0));
     commands.insert_resource(LdtkSettings {
-        level_spawn_behavior: LevelSpawnBehavior::UseWorldTranslation {
-            load_level_neighbors: false,
-        },
+        level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation {},
         set_clear_color: SetClearColor::No,
         int_grid_rendering: IntGridRendering::Invisible,
         level_background: LevelBackground::Nonexistent,
@@ -70,9 +68,9 @@ pub fn homeworld_teleport(
     player_collider_query: Query<Entity, With<PlayerColliderTag>>,
     mut player_query: Query<&mut Player>,
 ) {
-    let _player = player_collider_query
-        .get_single()
-        .expect("should always be a player");
+    if player_query.is_empty() {
+        return;
+    }
 
     for event in collision_events.iter() {
         if let CollisionEvent::Started(a, b, _flags) = event {
@@ -148,7 +146,7 @@ pub fn enter_the_dungeon(
                 .entity(homeworld_container.single())
                 .despawn_recursive();
             commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
-            *ptransform = Transform::from_xyz(46.0, 2900.0, 8.0);
+            *ptransform = Transform::from_xyz(383.0, 140.0, 8.0);
             info!("player teleport/next playing sub-phase");
             player.just_teleported = true;
         }

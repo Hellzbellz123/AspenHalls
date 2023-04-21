@@ -403,6 +403,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_animation"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0dc19f21846ebf8ba4d96617c2517b5119038774aa5dbbaf1bff122332b359c"
+dependencies = [
+ "bevy_app",
+ "bevy_asset",
+ "bevy_core",
+ "bevy_ecs",
+ "bevy_hierarchy",
+ "bevy_math",
+ "bevy_reflect",
+ "bevy_time",
+ "bevy_transform",
+ "bevy_utils",
+]
+
+[[package]]
 name = "bevy_app"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -542,6 +560,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_debug_grid"
+version = "0.1.1"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bevy_derive"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -599,7 +624,6 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_ldtk"
 version = "0.6.0"
-source = "git+https://github.com/Hellzbellz123/bevy_ecs_ldtk.git?branch=individual-levels-attempt#940a8d1721239df2e92ed4e773161a41c4b4a65c"
 dependencies = [
  "anyhow",
  "bevy",
@@ -615,7 +639,6 @@ dependencies = [
 [[package]]
 name = "bevy_ecs_ldtk_macros"
 version = "0.6.0"
-source = "git+https://github.com/Hellzbellz123/bevy_ecs_ldtk.git?branch=individual-levels-attempt#940a8d1721239df2e92ed4e773161a41c4b4a65c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -692,6 +715,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_gltf"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2707632208617c3660ea7a1d2ef2ccc84b59f217c2f01a1d0abe81db4ae7bbde"
+dependencies = [
+ "anyhow",
+ "base64",
+ "bevy_animation",
+ "bevy_app",
+ "bevy_asset",
+ "bevy_core",
+ "bevy_core_pipeline",
+ "bevy_ecs",
+ "bevy_hierarchy",
+ "bevy_log",
+ "bevy_math",
+ "bevy_pbr",
+ "bevy_reflect",
+ "bevy_render",
+ "bevy_scene",
+ "bevy_tasks",
+ "bevy_transform",
+ "bevy_utils",
+ "gltf",
+ "percent-encoding",
+ "thiserror",
+]
+
+[[package]]
 name = "bevy_hierarchy"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -728,6 +780,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "862b11931c5874cb00778ffb715fc526ee49e52a493d3bcf50e8010f301858b3"
 dependencies = [
  "bevy_a11y",
+ "bevy_animation",
  "bevy_app",
  "bevy_asset",
  "bevy_core",
@@ -736,6 +789,7 @@ dependencies = [
  "bevy_diagnostic",
  "bevy_ecs",
  "bevy_gilrs",
+ "bevy_gltf",
  "bevy_hierarchy",
  "bevy_input",
  "bevy_log",
@@ -2077,6 +2131,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "gltf"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1fd7703af6975def3b32573c60aaa5ebfebfab5d879da1e1315d87155ba57bcd"
+dependencies = [
+ "byteorder",
+ "gltf-json",
+ "lazy_static",
+ "urlencoding",
+]
+
+[[package]]
+name = "gltf-derive"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67b33dbe598480111e3b2e5a1e9a7e52ad5df0f836e04b8c80fc96f52a9c9f2e"
+dependencies = [
+ "inflections",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "gltf-json"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5511a759d99beeeef064bd6f81e207c77e3a3431c7499d7590929e35de371f31"
+dependencies = [
+ "gltf-derive",
+ "serde",
+ "serde_derive",
+ "serde_json",
+]
+
+[[package]]
 name = "glyph_brush_layout"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2137,6 +2227,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "363e3677e55ad168fef68cf9de3a4a310b53124c5e784c53a1d70e92d23f2126"
 dependencies = [
  "bitflags",
+]
+
+[[package]]
+name = "grid_plane"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b5f6fe683e85c46f37989c6d3851f389e434a7a4e8ab3f5356c2a30ac7640d4"
+dependencies = [
+ "bevy",
 ]
 
 [[package]]
@@ -2242,6 +2341,12 @@ dependencies = [
  "autocfg",
  "hashbrown",
 ]
+
+[[package]]
+name = "inflections"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a257582fdcde896fd96463bf2d40eefea0580021c0712a0e2b028b60b47a837a"
 
 [[package]]
 name = "instant"
@@ -4070,6 +4175,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "urlencoding"
+version = "2.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8db7427f936968176eaa7cdf81b7f98b980b18495ec28f1b5791ac3bfe3eea9"
+
+[[package]]
 name = "uuid"
 version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4095,7 +4206,9 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_common_assets",
  "bevy_console",
+ "bevy_debug_grid",
  "bevy_ecs_ldtk",
+ "bevy_ecs_tilemap",
  "bevy_framepace",
  "bevy_kira_audio",
  "bevy_mod_debugdump",
@@ -4105,6 +4218,7 @@ dependencies = [
  "big-brain",
  "clap",
  "embed-resource",
+ "grid_plane",
  "image",
  "leafwing-input-manager",
  "rand",

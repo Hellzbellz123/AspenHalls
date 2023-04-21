@@ -12,13 +12,13 @@ version = "0.0.4"
 
 [features]
 # default = ["dev"]
-dev = [
-  "bevy-debug-text-overlay/debug",
-  "bevy_rapier2d/debug-render-2d",
-]
+dev = ["bevy-debug-text-overlay/debug", "bevy_rapier2d/debug-render-2d"]
 
 dev_linux = ["bevy/dynamic_linking", "dev"]
 trace = ["bevy/trace", "bevy/trace_tracy", "big-brain/trace", "dev"]
+
+[[example]]
+name = "test" # examples/boolean.rs
 
 [workspace]
 exclude = ["crates"]
@@ -41,8 +41,8 @@ winit = { version = "0.28.2", default-features = false, features = ["x11"] }
 clap = "4.1.4"
 tracing-subscriber = { version = "0.3.16" }
 image = { version = "0.24.5", default_features = false, features = ["png"] }
+grid_plane = "0.1.2"
 # rust_embed = {version = "6.4.2", features = ["debug-embed", "include-exclude"]}
-bevycheck = "0.5.2"
 # chrono = "0.4.23"
 # serde_derive = "1.0.144"
 
@@ -54,6 +54,12 @@ bevycheck = "0.5.2"
 # # git = https://github.com/Zeenobit/bevy_kindly
 # version = "0.3.1"
 
+[dependencies.bevy_debug_grid]
+path = "crates/bevy_debug_grid"
+
+[dependencies.bevycheck]
+version = "0.5.2"
+
 [dependencies.bevy_console]
 version = "0.7.0"
 # path = "crates/bevy-console"
@@ -63,19 +69,19 @@ version = "0.7.0"
 version = "0.10.0"
 default-features = false
 features = [
-  #   "animation",            # Animation support
-  #   "bevy_core_pipeline",   # Higher-level rendering abstractions
-  #   "bevy_gilrs",           # Gamepad input support
-  #   "bevy_render",          # Rendering framework core
-  #   "bevy_sprite",          # 2D (sprites) rendering
-  "bevy_text",            # Text/font rendering
-  #   "bevy_winit",           # Window management
-  #   "filesystem_watcher",   # Asset hot-reloading
+  "animation",          # Animation support
+  "bevy_core_pipeline", # Higher-level rendering abstractions
+  "bevy_gilrs",         # Gamepad input support
+  "bevy_render",        # Rendering framework core
+  "bevy_sprite",        # 2D (sprites) rendering
+  "bevy_text",          # Text/font rendering
+  "bevy_winit",         # Window management
+  #"filesystem_watcher",   # Asset hot-reloading
   "serialize",            # Support for `serde` Serialize/Deserialize
-  #   "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
-  "x11", # Linux: Support X11 windowing system
-  #   # "wayland", # LinuxL Support Wayland windowing system
-  "bevy_ui",            # UI toolkit
+  "subpixel_glyph_atlas", # Subpixel antialiasing for text/fonts
+  "x11",                  # Linux: Support X11 windowing system
+  #"wayland",              # LinuxL Support Wayland windowing system
+  "bevy_ui", # UI toolkit
   #   "jpeg",
   "png",
 ]
@@ -94,17 +100,21 @@ version = "5.1.0"
 default-features = false
 features = ["builtin-font"]
 
+[dependencies.bevy_ecs_tilemap]
+version = "0.10.0"
+features = ["atlas", "render"]
+
 [dependencies.bevy_ecs_ldtk]
-git = "https://github.com/Hellzbellz123/bevy_ecs_ldtk.git"
-branch = "individual-levels-attempt"
+path = "crates/bevy_ecs_ldtk"
+# git = "https://github.com/Hellzbellz123/bevy_ecs_ldtk.git"
+# branch = "individual-levels-attempt"
 features = ["atlas"]
 
 [dependencies.bevy_framepace]
 version = "0.12.1"
 
 [dependencies.bevy-inspector-egui]
-version = "0.18.1"
-
+version = "0.18.3"
 
 [dependencies.bevy_kira_audio]
 version = "0.15.0"
@@ -114,7 +124,6 @@ features = ["ogg"]
 [dependencies.bevy_mod_debugdump]
 version = "0.7.0"
 features = ["bevy_render", "render_graph"]
-
 
 [dependencies.bevy_prototype_lyon]
 version = "0.8.0"
@@ -132,7 +141,7 @@ version = "0.17.0"
 # path = "crates/big-brain"
 
 [dependencies.leafwing-input-manager]
-version = "0.9.0"
+version = "0.9.1"
 # git = "https://github.com/Leafwing-Studios/leafwing-input-manager"
 # path = "crates/leafwing-0.24.5manager"
 

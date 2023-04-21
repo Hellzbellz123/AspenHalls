@@ -32,6 +32,12 @@ use self::{
 
 use super::combat::components::WeaponSocket;
 
+pub const ACTOR_SCALE: Vec3 = Vec3 {
+    x: 0.5,
+    y: 0.5,
+    z: 1.0,
+};
+
 #[derive(Component, Deref, DerefMut)]
 pub struct AnimationTimer(Timer);
 
@@ -144,12 +150,12 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             spatial: SpatialBundle {
                 transform: (Transform {
                     translation: Vec3 {
-                        x: -60.0,
-                        y: 1090.0,
+                        x: 630.0,
+                        y: 465.0,
                         z: ACTOR_Z_INDEX,
                     },
                     rotation: Quat::default(),
-                    scale: Vec3::ONE,
+                    scale: ACTOR_SCALE,
                 }),
                 visibility: Visibility::Inherited,
                 ..default()

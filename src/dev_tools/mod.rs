@@ -5,6 +5,7 @@ pub mod debug_plugin {
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
         prelude::{App, *},
     };
+    use bevy_debug_grid::DebugGridPlugin;
     use bevy_debug_text_overlay::OverlayPlugin;
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata, LdtkAsset, LdtkLevel};
     use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
@@ -20,6 +21,7 @@ pub mod debug_plugin {
         shapes,
     };
     use bevy_rapier2d::render::RapierDebugRenderPlugin;
+    use grid_plane::GridPlanePlugin;
     use std::{fs, time::Duration};
 
     use crate::{
@@ -50,73 +52,72 @@ pub mod debug_plugin {
     impl Plugin for DebugPlugin {
         fn build(&self, app: &mut App) {
             debugdir();
-            app
-                // .add_plugin()
-                .add_plugin(OverlayPlugin {
-                    font_size: 32.0,
-                    ..Default::default()
-                })
-                .add_plugin(WorldInspectorPlugin::default())
-                .add_plugin(StateInspectorPlugin::<GameStage>::default())
-                .add_plugin(StateInspectorPlugin::<CurrentMenu>::default())
-                .add_plugin(FrameTimeDiagnosticsPlugin::default())
-                .add_plugin(LogDiagnosticsPlugin {
-                    wait_duration: Duration::from_secs(20),
-                    ..Default::default()
-                })
-                // .add_plugin(InspectorPlugin::<crate::game_world::homeworld::components::ReflectData>::new())
-                .register_type::<Timer>()
-                //rapier Reflects in this plugin
-                // .add_plugin(ReflectRapierPlugin)
-                .add_plugin(RapierDebugRenderPlugin::default())
-                //custom Reflects not from plugins
-                .register_type::<DifficultySettings>()
-                .register_type::<WindowSettings>()
-                .register_type::<GeneralSettings>()
-                .register_type::<SoundSettings>()
-                // .register_type::<MenuState>()
-                .register_type::<MovementState>()
-                .register_type::<CombatStats>()
-                .register_type::<DefenseStats>()
-                .register_type::<Player>()
-                .register_type::<AIEnemy>()
-                .register_type::<TypeEnum>()
-                .register_type::<AnimationSheet>()
-                .register_type::<FacingDirection>()
-                .register_type::<TimeInfo>()
-                .register_type::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
-                .register_type::<Spawner>()
-                // .register_type::<actions::Combat>()
-                .register_type::<AnimState>()
-                .register_type::<AIAttackState>()
-                .register_type::<TimeToLive>()
-                .register_type::<WeaponTag>()
-                // weapon stuff
-                .register_type::<CurrentlySelectedWeapon>()
-                .register_type::<DamageType>()
-                .register_type::<WeaponStats>()
-                .register_type::<WeaponSlots>()
-                .register_type::<WeaponSocket>()
-                // LDTK debug data
-                .register_type::<Handle<LdtkLevel>>()
-                .register_type::<Handle<LdtkAsset>>()
-                .register_type::<LayerMetadata>()
-                .register_type::<IntGridCell>()
-                .register_type::<GridCoords>()
-                // bigbrain AI
-                .register_type::<AggroScore>()
-                .register_type::<AICanWander>()
-                .register_type::<AICanChase>()
-                .register_type::<AIChaseAction>()
-                .register_type::<AIWanderAction>()
-                .register_type::<ActorType>()
-                .add_systems((debug_visualize_spawner, debug_visualize_weapon_spawn_point))
-                .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
-                // TODO: refactor these systems into nice sets and stages
-                .add_systems(
-                    (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                        .in_set(OnUpdate(GameStage::PlayingGame)),
-                );
+            app.add_plugin(OverlayPlugin {
+                font_size: 32.0,
+                ..Default::default()
+            })
+            .add_plugin(WorldInspectorPlugin::default())
+            .add_plugin(StateInspectorPlugin::<GameStage>::default())
+            .add_plugin(StateInspectorPlugin::<CurrentMenu>::default())
+            .add_plugin(FrameTimeDiagnosticsPlugin::default())
+            .add_plugin(LogDiagnosticsPlugin {
+                wait_duration: Duration::from_secs(20),
+                ..Default::default()
+            })
+            // .add_plugin(InspectorPlugin::<crate::game_world::homeworld::components::ReflectData>::new())
+            .register_type::<Timer>()
+            //rapier Reflects in this plugin
+            // .add_plugin(ReflectRapierPlugin)
+            .add_plugin(RapierDebugRenderPlugin::default())
+            //custom Reflects not from plugins
+            .register_type::<DifficultySettings>()
+            .register_type::<WindowSettings>()
+            .register_type::<GeneralSettings>()
+            .register_type::<SoundSettings>()
+            // .register_type::<MenuState>()
+            .register_type::<MovementState>()
+            .register_type::<CombatStats>()
+            .register_type::<DefenseStats>()
+            .register_type::<Player>()
+            .register_type::<AIEnemy>()
+            .register_type::<TypeEnum>()
+            .register_type::<AnimationSheet>()
+            .register_type::<FacingDirection>()
+            .register_type::<TimeInfo>()
+            .register_type::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
+            .register_type::<Spawner>()
+            // .register_type::<actions::Combat>()
+            .register_type::<AnimState>()
+            .register_type::<AIAttackState>()
+            .register_type::<TimeToLive>()
+            .register_type::<WeaponTag>()
+            // weapon stuff
+            .register_type::<CurrentlySelectedWeapon>()
+            .register_type::<DamageType>()
+            .register_type::<WeaponStats>()
+            .register_type::<WeaponSlots>()
+            .register_type::<WeaponSocket>()
+            // LDTK debug data
+            .register_type::<LdtkLevel>()
+            .register_type::<Handle<LdtkLevel>>()
+            .register_type::<Handle<LdtkAsset>>()
+            .register_type::<LayerMetadata>()
+            .register_type::<IntGridCell>()
+            .register_type::<GridCoords>()
+            // bigbrain AI
+            .register_type::<AggroScore>()
+            .register_type::<AICanWander>()
+            .register_type::<AICanChase>()
+            .register_type::<AIChaseAction>()
+            .register_type::<AIWanderAction>()
+            .register_type::<ActorType>()
+            .add_systems((debug_visualize_spawner, debug_visualize_weapon_spawn_point))
+            .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
+            // TODO: refactor these systems into nice sets and stages
+            .add_systems(
+                (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
+                    .in_set(OnUpdate(GameStage::PlayingGame)),
+            );
         }
     }
 

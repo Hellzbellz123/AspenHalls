@@ -1,5 +1,6 @@
-/target
-/publish
+target/
+publish/
+debug/
 /statistics/*
 *.pdb
 .vscode/settings.json
@@ -7,4 +8,6 @@ zappschedule.dot
 zrenderschedule.dot
 zrendergraph.dot
 debug.log
-/crates
+crates/
+gamedata/levels/homeworld32x32/backups
+Cargo.lock

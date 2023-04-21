@@ -13,9 +13,8 @@ use crate::{
         actions::{self},
         ActionsPlugin,
     },
-    loading::{self, AssetLoadPlugin},
     // ui::MenuPlugin,
-    ui_bevy::{self, BevyUiPlugin},
+    ui_bevy::BevyUiPlugin,
 };
 
 #[derive(Debug, Clone, Component, Default, Resource, Reflect)]
@@ -41,7 +40,6 @@ pub enum GameStage {
 }
 
 // TODO: use this
-//
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum GameProgress {
     #[default]
@@ -52,21 +50,20 @@ pub enum GameProgress {
 pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app
-            .insert_resource(TimeInfo {
-                time_step: 1.0,
-                game_paused: false,
-                pause_menu: false,
-            })
-            //game stuff after initial Game State setup
-            .add_plugin(BevyUiPlugin)
-            .add_plugin(ActionsPlugin)
-            .add_plugin(InternalAudioPlugin)
-            .add_plugin(GameWorldPlugin)
-            .add_plugin(ActorPlugin)
-            .add_system(pause_game)
-            .add_system(setup_time_state.in_schedule(OnEnter(GameStage::PlayingGame)))
-            .add_systems((time_to_live, zoom_control).in_set(OnUpdate(GameStage::PlayingGame)));
+        app.insert_resource(TimeInfo {
+            time_step: 1.0,
+            game_paused: false,
+            pause_menu: false,
+        })
+        //game stuff after initial Game State setup
+        .add_plugin(BevyUiPlugin)
+        .add_plugin(ActionsPlugin)
+        .add_plugin(InternalAudioPlugin)
+        .add_plugin(GameWorldPlugin)
+        .add_plugin(ActorPlugin)
+        .add_system(pause_game)
+        .add_system(setup_time_state.in_schedule(OnEnter(GameStage::PlayingGame)))
+        .add_systems((time_to_live, zoom_control).in_set(OnUpdate(GameStage::PlayingGame)));
     }
 }
 

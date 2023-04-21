@@ -1,10 +1,12 @@
+mod command_systems;
 pub mod commands;
 
 use bevy::prelude::*;
 use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
 
-use self::commands::{
-    spawnenemy_command, spawnweapon_command, SpawnEnemyCommand, SpawnWeaponCommand,
+use self::{
+    command_systems::{spawnenemy_command, spawnweapon_command, teleportplayer_command},
+    commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
 };
 
 /// Holds Debug/Cheat Console functionality
@@ -24,7 +26,8 @@ impl Plugin for QuakeConPlugin {
                 ..default()
             })
             .add_console_command::<SpawnEnemyCommand, _>(spawnenemy_command)
-            .add_console_command::<SpawnWeaponCommand, _>(spawnweapon_command);
+            .add_console_command::<SpawnWeaponCommand, _>(spawnweapon_command)
+            .add_console_command::<TeleportPlayerCommand, _>(teleportplayer_command);
     }
 }
 

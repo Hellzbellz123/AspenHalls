@@ -15,58 +15,72 @@ digraph "" {
 		"color"="#ffffff50";
 		"penwidth"="2";
 		"set_marker_node_Set(0)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		"node_Set(170)" ["label"="OnUpdate(Loading)", "tooltip"="OnUpdate(Loading)"]
-		"node_Set(171)" ["label"="OnUpdate(StartMenu)", "tooltip"="OnUpdate(StartMenu)"]
-		subgraph "clusternode_Set(172)" {
+		"node_Set(190)" ["label"="OnUpdate(Loading)", "tooltip"="OnUpdate(Loading)"]
+		"node_Set(191)" ["label"="OnUpdate(StartMenu)", "tooltip"="OnUpdate(StartMenu)"]
+		subgraph "clusternode_Set(192)" {
 			"style"="rounded,filled";
 			"label"="OnUpdate(PlayingGame)";
 			"tooltip"="OnUpdate(PlayingGame)";
 			"fillcolor"="#ffffff44";
 			"color"="#ffffff50";
 			"penwidth"="2";
-			"set_marker_node_Set(172)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-			"node_System(191)" ["label"="vanillacoffee::audio::player_walking_sound_system", "tooltip"="vanillacoffee::audio::player_walking_sound_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(212)" ["label"="vanillacoffee::game_world::sanctuary::systems::homeworld_teleport", "tooltip"="vanillacoffee::game_world::sanctuary::systems::homeworld_teleport", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(213)" ["label"="vanillacoffee::game_world::sanctuary::systems::enter_the_dungeon", "tooltip"="vanillacoffee::game_world::sanctuary::systems::enter_the_dungeon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(234)" ["label"="vanillacoffee::actors::spawners::recieve_enemy_spawns", "tooltip"="vanillacoffee::actors::spawners::recieve_enemy_spawns", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(235)" ["label"="vanillacoffee::actors::spawners::recieve_weapon_spawns", "tooltip"="vanillacoffee::actors::spawners::recieve_weapon_spawns", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(236)" ["label"="vanillacoffee::actors::spawners::spawner_timer_system", "tooltip"="vanillacoffee::actors::spawners::spawner_timer_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(237)" ["label"="vanillacoffee::actors::animation::AnimationPlugin::update_current_animation", "tooltip"="vanillacoffee::actors::animation::AnimationPlugin::update_current_animation", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(238)" ["label"="vanillacoffee::actors::animation::AnimationPlugin::frame_animation", "tooltip"="vanillacoffee::actors::animation::AnimationPlugin::frame_animation", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(241)" ["label"="vanillacoffee::actors::player::movement::player_movement_system", "tooltip"="vanillacoffee::actors::player::movement::player_movement_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(242)" ["label"="vanillacoffee::actors::player::movement::camera_movement_system", "tooltip"="vanillacoffee::actors::player::movement::camera_movement_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(243)" ["label"="vanillacoffee::actors::player::movement::player_sprint", "tooltip"="vanillacoffee::actors::player::movement::player_sprint", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(244)" ["label"="vanillacoffee::actors::player::actions::spawn_skeleton_button", "tooltip"="vanillacoffee::actors::player::actions::spawn_skeleton_button", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(245)" ["label"="vanillacoffee::actors::player::actions::player_attack_sender", "tooltip"="vanillacoffee::actors::player::actions::player_attack_sender", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(246)" ["label"="vanillacoffee::actors::player::actions::equip_closest_weapon", "tooltip"="vanillacoffee::actors::player::actions::equip_closest_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(249)" ["label"="vanillacoffee::actors::combat::update_equipped_weapon", "tooltip"="vanillacoffee::actors::combat::update_equipped_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(250)" ["label"="vanillacoffee::actors::combat::player_death_system", "tooltip"="vanillacoffee::actors::combat::player_death_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(251)" ["label"="vanillacoffee::actors::combat::hit_detection::hits_on_enemy", "tooltip"="vanillacoffee::actors::combat::hit_detection::hits_on_enemy", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(252)" ["label"="vanillacoffee::actors::combat::hit_detection::hits_on_player", "tooltip"="vanillacoffee::actors::combat::hit_detection::hits_on_player", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(253)" ["label"="vanillacoffee::actors::combat::rotate_player_weapon", "tooltip"="vanillacoffee::actors::combat::rotate_player_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(254)" ["label"="vanillacoffee::actors::combat::keep_player_weapons_centered", "tooltip"="vanillacoffee::actors::combat::keep_player_weapons_centered", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(255)" ["label"="vanillacoffee::actors::combat::weapon_visiblity_system", "tooltip"="vanillacoffee::actors::combat::weapon_visiblity_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(256)" ["label"="vanillacoffee::actors::combat::receive_shoot_weapon", "tooltip"="vanillacoffee::actors::combat::receive_shoot_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(257)" ["label"="vanillacoffee::actors::enemies::on_shoot", "tooltip"="vanillacoffee::actors::enemies::on_shoot", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(258)" ["label"="vanillacoffee::actors::enemies::update_enemy_graphics", "tooltip"="vanillacoffee::actors::enemies::update_enemy_graphics", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(264)" ["label"="vanillacoffee::game::time_to_live", "tooltip"="vanillacoffee::game::time_to_live", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(265)" ["label"="vanillacoffee::game::zoom_control", "tooltip"="vanillacoffee::game::zoom_control", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(279)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(280)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"set_marker_node_Set(192)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(207)" ["label"="vanillacoffee::audio::player_walking_sound_system", "tooltip"="vanillacoffee::audio::player_walking_sound_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(230)" ["label"="vanillacoffee::game_world::sanctuary::systems::homeworld_teleport", "tooltip"="vanillacoffee::game_world::sanctuary::systems::homeworld_teleport", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(231)" ["label"="vanillacoffee::game_world::sanctuary::systems::enter_the_dungeon", "tooltip"="vanillacoffee::game_world::sanctuary::systems::enter_the_dungeon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(236)" ["label"="vanillacoffee::game_world::process_tile_enum_tags", "tooltip"="vanillacoffee::game_world::process_tile_enum_tags", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(252)" ["label"="vanillacoffee::actors::spawners::recieve_enemy_spawns", "tooltip"="vanillacoffee::actors::spawners::recieve_enemy_spawns", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(253)" ["label"="vanillacoffee::actors::spawners::recieve_weapon_spawns", "tooltip"="vanillacoffee::actors::spawners::recieve_weapon_spawns", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(254)" ["label"="vanillacoffee::actors::spawners::spawner_timer_system", "tooltip"="vanillacoffee::actors::spawners::spawner_timer_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(255)" ["label"="vanillacoffee::actors::animation::AnimationPlugin::update_current_animation", "tooltip"="vanillacoffee::actors::animation::AnimationPlugin::update_current_animation", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(256)" ["label"="vanillacoffee::actors::animation::AnimationPlugin::frame_animation", "tooltip"="vanillacoffee::actors::animation::AnimationPlugin::frame_animation", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(259)" ["label"="vanillacoffee::actors::player::movement::player_movement_system", "tooltip"="vanillacoffee::actors::player::movement::player_movement_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(260)" ["label"="vanillacoffee::actors::player::movement::camera_movement_system", "tooltip"="vanillacoffee::actors::player::movement::camera_movement_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(261)" ["label"="vanillacoffee::actors::player::movement::player_sprint", "tooltip"="vanillacoffee::actors::player::movement::player_sprint", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(262)" ["label"="vanillacoffee::actors::player::actions::spawn_skeleton_button", "tooltip"="vanillacoffee::actors::player::actions::spawn_skeleton_button", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(263)" ["label"="vanillacoffee::actors::player::actions::player_attack_sender", "tooltip"="vanillacoffee::actors::player::actions::player_attack_sender", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(264)" ["label"="vanillacoffee::actors::player::actions::equip_closest_weapon", "tooltip"="vanillacoffee::actors::player::actions::equip_closest_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(267)" ["label"="vanillacoffee::actors::combat::update_equipped_weapon", "tooltip"="vanillacoffee::actors::combat::update_equipped_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(268)" ["label"="vanillacoffee::actors::combat::player_death_system", "tooltip"="vanillacoffee::actors::combat::player_death_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(269)" ["label"="vanillacoffee::actors::combat::hit_detection::hits_on_enemy", "tooltip"="vanillacoffee::actors::combat::hit_detection::hits_on_enemy", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(270)" ["label"="vanillacoffee::actors::combat::hit_detection::hits_on_player", "tooltip"="vanillacoffee::actors::combat::hit_detection::hits_on_player", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(271)" ["label"="vanillacoffee::actors::combat::rotate_player_weapon", "tooltip"="vanillacoffee::actors::combat::rotate_player_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(272)" ["label"="vanillacoffee::actors::combat::keep_player_weapons_centered", "tooltip"="vanillacoffee::actors::combat::keep_player_weapons_centered", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(273)" ["label"="vanillacoffee::actors::combat::weapon_visiblity_system", "tooltip"="vanillacoffee::actors::combat::weapon_visiblity_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(274)" ["label"="vanillacoffee::actors::combat::receive_shoot_weapon", "tooltip"="vanillacoffee::actors::combat::receive_shoot_weapon", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(275)" ["label"="vanillacoffee::actors::enemies::on_shoot", "tooltip"="vanillacoffee::actors::enemies::on_shoot", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(276)" ["label"="vanillacoffee::actors::enemies::update_enemy_graphics", "tooltip"="vanillacoffee::actors::enemies::update_enemy_graphics", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(281)" ["label"="vanillacoffee::actors::ai::parent_brains_to_container", "tooltip"="vanillacoffee::actors::ai::parent_brains_to_container", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(283)" ["label"="vanillacoffee::game::time_to_live", "tooltip"="vanillacoffee::game::time_to_live", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(284)" ["label"="vanillacoffee::game::zoom_control", "tooltip"="vanillacoffee::game::zoom_control", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(298)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(299)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 		}
 		
-		"node_Set(173)" ["label"="OnUpdate(PauseMenu)", "tooltip"="OnUpdate(PauseMenu)"]
-		"node_Set(174)" ["label"="OnUpdate(FailedLoading)", "tooltip"="OnUpdate(FailedLoading)"]
-		"node_Set(206)" ["label"="OnUpdate(NoMenu)", "tooltip"="OnUpdate(NoMenu)"]
-		"node_Set(207)" ["label"="OnUpdate(StartMenu)", "tooltip"="OnUpdate(StartMenu)"]
-		"node_Set(208)" ["label"="OnUpdate(PauseMenu)", "tooltip"="OnUpdate(PauseMenu)"]
-		"node_Set(209)" ["label"="OnUpdate(SettingsMenu)", "tooltip"="OnUpdate(SettingsMenu)"]
-		"node_Set(270)" ["label"="OnUpdate(NoDungeon)", "tooltip"="OnUpdate(NoDungeon)"]
-		"node_Set(271)" ["label"="OnUpdate(Initialization)", "tooltip"="OnUpdate(Initialization)"]
-		"node_Set(272)" ["label"="OnUpdate(PlaceRooms)", "tooltip"="OnUpdate(PlaceRooms)"]
-		"node_Set(273)" ["label"="OnUpdate(GenerateConnections)", "tooltip"="OnUpdate(GenerateConnections)"]
-		"node_Set(274)" ["label"="OnUpdate(BuildDungeonRooms)", "tooltip"="OnUpdate(BuildDungeonRooms)"]
-		"node_Set(275)" ["label"="OnUpdate(DoneGenerating)", "tooltip"="OnUpdate(DoneGenerating)"]
+		"node_Set(193)" ["label"="OnUpdate(PauseMenu)", "tooltip"="OnUpdate(PauseMenu)"]
+		"node_Set(194)" ["label"="OnUpdate(FailedLoading)", "tooltip"="OnUpdate(FailedLoading)"]
+		"node_Set(227)" ["label"="OnUpdate(NoMenu)", "tooltip"="OnUpdate(NoMenu)"]
+		"node_Set(228)" ["label"="OnUpdate(StartMenu)", "tooltip"="OnUpdate(StartMenu)"]
+		"node_Set(229)" ["label"="OnUpdate(PauseMenu)", "tooltip"="OnUpdate(PauseMenu)"]
+		"node_Set(230)" ["label"="OnUpdate(SettingsMenu)", "tooltip"="OnUpdate(SettingsMenu)"]
+		"node_Set(266)" ["label"="OnUpdate(NoDungeon)", "tooltip"="OnUpdate(NoDungeon)"]
+		subgraph "clusternode_Set(267)" {
+			"style"="rounded,filled";
+			"label"="OnUpdate(Initialization)";
+			"tooltip"="OnUpdate(Initialization)";
+			"fillcolor"="#ffffff44";
+			"color"="#ffffff50";
+			"penwidth"="2";
+			"set_marker_node_Set(267)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(232)" ["label"="vanillacoffee::game_world::dungeon_generator::generator::create_dungeon_container", "tooltip"="vanillacoffee::game_world::dungeon_generator::generator::create_dungeon_container", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(233)" ["label"="vanillacoffee::game_world::dungeon_generator::generator::create_dungeon_hashmap", "tooltip"="vanillacoffee::game_world::dungeon_generator::generator::create_dungeon_hashmap", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		}
+		
+		"node_Set(268)" ["label"="OnUpdate(CreateMap)", "tooltip"="OnUpdate(CreateMap)"]
+		"node_Set(269)" ["label"="OnUpdate(PlaceRooms)", "tooltip"="OnUpdate(PlaceRooms)"]
+		"node_Set(270)" ["label"="OnUpdate(GenerateConnections)", "tooltip"="OnUpdate(GenerateConnections)"]
+		"node_Set(271)" ["label"="OnUpdate(BuildDungeonRooms)", "tooltip"="OnUpdate(BuildDungeonRooms)"]
+		"node_Set(272)" ["label"="OnUpdate(Finished)", "tooltip"="OnUpdate(Finished)"]
 		"node_System(46)" ["label"="bevy_window::system::close_when_requested", "tooltip"="bevy_window::system::close_when_requested", "fillcolor"="#bb85d4", "fontname"="Helvetica", "fontcolor"="#1d0d25", "color"="#8e3fb3", "penwidth"="1"]
 		"node_System(54)" ["label"="bevy_scene::scene_spawner::scene_spawner_system", "tooltip"="bevy_scene::scene_spawner::scene_spawner_system", "fillcolor"="#bacfcb", "fontname"="Helvetica", "fontcolor"="#141e1c", "color"="#7da59d", "penwidth"="1"]
 		"node_System(59)" ["label"="bevy_winit::accessibility::handle_window_focus", "tooltip"="bevy_winit::accessibility::handle_window_focus", "fillcolor"="#664f72", "fontname"="Helvetica", "fontcolor"="#e6e0ea", "color"="#9980a6", "penwidth"="1"]
@@ -77,25 +91,25 @@ digraph "" {
 		"node_System(102)" ["label"="bevy_ui::accessibility::button_changed", "tooltip"="bevy_ui::accessibility::button_changed", "fillcolor"="#ffb1e5", "fontname"="Helvetica", "fontcolor"="#320021", "color"="#ff4bc2", "penwidth"="1"]
 		"node_System(103)" ["label"="bevy_ui::accessibility::image_changed", "tooltip"="bevy_ui::accessibility::image_changed", "fillcolor"="#ffb1e5", "fontname"="Helvetica", "fontcolor"="#320021", "color"="#ff4bc2", "penwidth"="1"]
 		"node_System(104)" ["label"="bevy_ui::accessibility::label_changed", "tooltip"="bevy_ui::accessibility::label_changed", "fillcolor"="#ffb1e5", "fontname"="Helvetica", "fontcolor"="#320021", "color"="#ff4bc2", "penwidth"="1"]
-		"node_System(110)" ["label"="vanillacoffee::app_config::apply_window_settings", "tooltip"="vanillacoffee::app_config::apply_window_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(111)" ["label"="vanillacoffee::app_config::apply_sound_settings", "tooltip"="vanillacoffee::app_config::apply_sound_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(112)" ["label"="vanillacoffee::app_config::apply_general_settings", "tooltip"="vanillacoffee::app_config::apply_general_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(113)" ["label"="vanillacoffee::app_config::update_difficulty_settings", "tooltip"="vanillacoffee::app_config::update_difficulty_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(114)" ["label"="vanillacoffee::app_config::on_resize_system", "tooltip"="vanillacoffee::app_config::on_resize_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(115)" ["label"="bevy_framepace::update_proxy_resources", "tooltip"="bevy_framepace::update_proxy_resources", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(116)" ["label"="bevy_framepace::get_display_refresh_rate", "tooltip"="bevy_framepace::get_display_refresh_rate", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(168)" ["label"="vanillacoffee::ui_bevy::control_menu_state", "tooltip"="vanillacoffee::ui_bevy::control_menu_state", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(263)" ["label"="vanillacoffee::game::pause_game", "tooltip"="vanillacoffee::game::pause_game", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(266)" ["label"="vanillacoffee::utilities::window::set_debug_title", "tooltip"="vanillacoffee::utilities::window::set_debug_title", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(267)" ["label"="vanillacoffee::utilities::eager_cursor_pos", "tooltip"="vanillacoffee::utilities::eager_cursor_pos", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(268)" ["label"="bevy_debug_text_overlay::overlay::layout_messages", "tooltip"="bevy_debug_text_overlay::overlay::layout_messages", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(269)" ["label"="bevy_debug_text_overlay::overlay::update_messages_as_per_commands", "tooltip"="bevy_debug_text_overlay::overlay::update_messages_as_per_commands", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(270)" ["label"="bevy_inspector_egui::quick::world_inspector_ui", "tooltip"="bevy_inspector_egui::quick::world_inspector_ui", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(271)" ["label"="bevy_inspector_egui::quick::state_ui<vanillacoffee::game::GameStage>", "tooltip"="bevy_inspector_egui::quick::state_ui<vanillacoffee::game::GameStage>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(272)" ["label"="bevy_inspector_egui::quick::state_ui<vanillacoffee::ui_bevy::CurrentMenu>", "tooltip"="bevy_inspector_egui::quick::state_ui<vanillacoffee::ui_bevy::CurrentMenu>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(273)" ["label"="bevy_diagnostic::frame_time_diagnostics_plugin::FrameTimeDiagnosticsPlugin::diagnostic_system", "tooltip"="bevy_diagnostic::frame_time_diagnostics_plugin::FrameTimeDiagnosticsPlugin::diagnostic_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(277)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(278)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(125)" ["label"="vanillacoffee::app_config::apply_window_settings", "tooltip"="vanillacoffee::app_config::apply_window_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(126)" ["label"="vanillacoffee::app_config::apply_sound_settings", "tooltip"="vanillacoffee::app_config::apply_sound_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(127)" ["label"="vanillacoffee::app_config::apply_general_settings", "tooltip"="vanillacoffee::app_config::apply_general_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(128)" ["label"="vanillacoffee::app_config::update_difficulty_settings", "tooltip"="vanillacoffee::app_config::update_difficulty_settings", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(129)" ["label"="vanillacoffee::app_config::on_resize_system", "tooltip"="vanillacoffee::app_config::on_resize_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(130)" ["label"="bevy_framepace::update_proxy_resources", "tooltip"="bevy_framepace::update_proxy_resources", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(131)" ["label"="bevy_framepace::get_display_refresh_rate", "tooltip"="bevy_framepace::get_display_refresh_rate", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(184)" ["label"="vanillacoffee::ui_bevy::control_menu_state", "tooltip"="vanillacoffee::ui_bevy::control_menu_state", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(282)" ["label"="vanillacoffee::game::pause_game", "tooltip"="vanillacoffee::game::pause_game", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(285)" ["label"="vanillacoffee::utilities::window::set_debug_title", "tooltip"="vanillacoffee::utilities::window::set_debug_title", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(286)" ["label"="vanillacoffee::utilities::eager_cursor_pos", "tooltip"="vanillacoffee::utilities::eager_cursor_pos", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(287)" ["label"="bevy_debug_text_overlay::overlay::layout_messages", "tooltip"="bevy_debug_text_overlay::overlay::layout_messages", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(288)" ["label"="bevy_debug_text_overlay::overlay::update_messages_as_per_commands", "tooltip"="bevy_debug_text_overlay::overlay::update_messages_as_per_commands", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(289)" ["label"="bevy_inspector_egui::quick::world_inspector_ui", "tooltip"="bevy_inspector_egui::quick::world_inspector_ui", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(290)" ["label"="bevy_inspector_egui::quick::state_ui<vanillacoffee::game::GameStage>", "tooltip"="bevy_inspector_egui::quick::state_ui<vanillacoffee::game::GameStage>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(291)" ["label"="bevy_inspector_egui::quick::state_ui<vanillacoffee::ui_bevy::CurrentMenu>", "tooltip"="bevy_inspector_egui::quick::state_ui<vanillacoffee::ui_bevy::CurrentMenu>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(292)" ["label"="bevy_diagnostic::frame_time_diagnostics_plugin::FrameTimeDiagnosticsPlugin::diagnostic_system", "tooltip"="bevy_diagnostic::frame_time_diagnostics_plugin::FrameTimeDiagnosticsPlugin::diagnostic_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(296)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_spawner", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(297)" ["label"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "tooltip"="vanillacoffee::dev_tools::debug_plugin::debug_visualize_weapon_spawn_point", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
 	"node_Set(2)" ["label"="FirstFlush", "tooltip"="FirstFlush"]
@@ -112,26 +126,26 @@ digraph "" {
 		"penwidth"="2";
 		"set_marker_node_Set(7)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
 		"node_Set(16)" ["label"="TimeSystem", "tooltip"="TimeSystem"]
-		subgraph "clusternode_Set(279)" {
+		subgraph "clusternode_Set(303)" {
 			"style"="rounded,filled";
 			"label"="Scorers";
 			"tooltip"="Scorers";
 			"fillcolor"="#ffffff44";
 			"color"="#ffffff50";
 			"penwidth"="2";
-			"set_marker_node_Set(279)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-			"node_System(219)" ["label"="big_brain::scorers::fixed_score_system", "tooltip"="big_brain::scorers::fixed_score_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(220)" ["label"="big_brain::scorers::measured_scorers_system", "tooltip"="big_brain::scorers::measured_scorers_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(221)" ["label"="big_brain::scorers::all_or_nothing_system", "tooltip"="big_brain::scorers::all_or_nothing_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(222)" ["label"="big_brain::scorers::sum_of_scorers_system", "tooltip"="big_brain::scorers::sum_of_scorers_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(223)" ["label"="big_brain::scorers::product_of_scorers_system", "tooltip"="big_brain::scorers::product_of_scorers_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(224)" ["label"="big_brain::scorers::winning_scorer_system", "tooltip"="big_brain::scorers::winning_scorer_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(225)" ["label"="big_brain::scorers::evaluating_scorer_system", "tooltip"="big_brain::scorers::evaluating_scorer_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(259)" ["label"="vanillacoffee::actors::ai::skeleton_ai::wander_score_system", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::wander_score_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(260)" ["label"="vanillacoffee::actors::ai::skeleton_ai::aggro_score_system", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::aggro_score_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"set_marker_node_Set(303)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(237)" ["label"="big_brain::scorers::fixed_score_system", "tooltip"="big_brain::scorers::fixed_score_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(238)" ["label"="big_brain::scorers::measured_scorers_system", "tooltip"="big_brain::scorers::measured_scorers_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(239)" ["label"="big_brain::scorers::all_or_nothing_system", "tooltip"="big_brain::scorers::all_or_nothing_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(240)" ["label"="big_brain::scorers::sum_of_scorers_system", "tooltip"="big_brain::scorers::sum_of_scorers_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(241)" ["label"="big_brain::scorers::product_of_scorers_system", "tooltip"="big_brain::scorers::product_of_scorers_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(242)" ["label"="big_brain::scorers::winning_scorer_system", "tooltip"="big_brain::scorers::winning_scorer_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(243)" ["label"="big_brain::scorers::evaluating_scorer_system", "tooltip"="big_brain::scorers::evaluating_scorer_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(277)" ["label"="vanillacoffee::actors::ai::skeleton_ai::wander_score_system", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::wander_score_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(278)" ["label"="vanillacoffee::actors::ai::skeleton_ai::aggro_score_system", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::aggro_score_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 		}
 		
-		"node_Set(280)" ["label"="Thinkers", "tooltip"="Thinkers"]
+		"node_Set(304)" ["label"="Thinkers", "tooltip"="Thinkers"]
 		"node_System(5)" ["label"="bevy_ecs::event::Events<bevy_app::app::AppExit>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_app::app::AppExit>::update_system", "fillcolor"="#639d18", "fontname"="Helvetica", "fontcolor"="#e7f8d2", "color"="#98e03a", "penwidth"="1"]
 		"node_System(13)" ["label"="bevy_ecs::event::Events<bevy_hierarchy::events::HierarchyEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_hierarchy::events::HierarchyEvent>::update_system", "fillcolor"="#e4fba3", "fontname"="Helvetica", "fontcolor"="#243002", "color"="#c7f641", "penwidth"="1"]
 		"node_System(14)" ["label"="bevy_ecs::event::Events<bevy_input::keyboard::KeyboardInput>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_input::keyboard::KeyboardInput>::update_system", "fillcolor"="#d36aaf", "fontname"="Helvetica", "fontcolor"="#270b1d", "color"="#a5317d", "penwidth"="1"]
@@ -169,22 +183,24 @@ digraph "" {
 		"node_System(91)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_sprite::mesh2d::color_material::ColorMaterial>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_sprite::mesh2d::color_material::ColorMaterial>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(94)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_text::font::Font>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_text::font::Font>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(97)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_text::font_atlas_set::FontAtlasSet>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_text::font_atlas_set::FontAtlasSet>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(120)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_prototype_lyon::render::ShapeMaterial>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_prototype_lyon::render::ShapeMaterial>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(144)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(147)" ["label"="bevy_ecs::event::Events<bevy_console::console::ConsoleCommandEntered>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_console::console::ConsoleCommandEntered>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(148)" ["label"="bevy_ecs::event::Events<bevy_console::console::PrintConsoleLine>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_console::console::PrintConsoleLine>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(176)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::source::AudioSource>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::source::AudioSource>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(179)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::instance::AudioInstance>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::instance::AudioInstance>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(192)" ["label"="bevy_ecs_tilemap::render::clear_removed", "tooltip"="bevy_ecs_tilemap::render::clear_removed", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(195)" ["label"="bevy_ecs_tilemap::update_changed_tile_positions", "tooltip"="bevy_ecs_tilemap::update_changed_tile_positions", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(198)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkAsset>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkAsset>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(201)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkLevel>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkLevel>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(202)" ["label"="bevy_ecs::event::Events<bevy_ecs_ldtk::resources::LevelEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_ecs_ldtk::resources::LevelEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(211)" ["label"="bevy_ecs::event::Events<vanillacoffee::game_world::sanctuary::PlayerTeleportEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::game_world::sanctuary::PlayerTeleportEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(232)" ["label"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnWeaponEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnWeaponEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(233)" ["label"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnEnemyEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnEnemyEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(239)" ["label"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::PlayerMeleeEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::PlayerMeleeEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(240)" ["label"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::ShootEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::ShootEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(111)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_pbr::pbr_material::StandardMaterial>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_pbr::pbr_material::StandardMaterial>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(123)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_animation::AnimationClip>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_animation::AnimationClip>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(135)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_prototype_lyon::render::ShapeMaterial>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_prototype_lyon::render::ShapeMaterial>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(159)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(162)" ["label"="bevy_ecs::event::Events<bevy_console::console::ConsoleCommandEntered>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_console::console::ConsoleCommandEntered>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(163)" ["label"="bevy_ecs::event::Events<bevy_console::console::PrintConsoleLine>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_console::console::PrintConsoleLine>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(192)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::source::AudioSource>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::source::AudioSource>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(195)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::instance::AudioInstance>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_kira_audio::instance::AudioInstance>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(210)" ["label"="bevy_ecs_tilemap::render::clear_removed", "tooltip"="bevy_ecs_tilemap::render::clear_removed", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(213)" ["label"="bevy_ecs_tilemap::update_changed_tile_positions", "tooltip"="bevy_ecs_tilemap::update_changed_tile_positions", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(216)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkAsset>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkAsset>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(219)" ["label"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkLevel>>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_asset::assets::AssetEvent<bevy_ecs_ldtk::assets::LdtkLevel>>::update_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(220)" ["label"="bevy_ecs::event::Events<bevy_ecs_ldtk::resources::LevelEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_ecs_ldtk::resources::LevelEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(229)" ["label"="bevy_ecs::event::Events<vanillacoffee::game_world::sanctuary::PlayerTeleportEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::game_world::sanctuary::PlayerTeleportEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(250)" ["label"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnWeaponEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnWeaponEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(251)" ["label"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnEnemyEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::components::actors::spawners::SpawnEnemyEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(257)" ["label"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::PlayerMeleeEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::PlayerMeleeEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(258)" ["label"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::ShootEvent>::update_system", "tooltip"="bevy_ecs::event::Events<vanillacoffee::actors::player::actions::ShootEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
 	subgraph "clusternode_Set(8)" {
@@ -213,30 +229,30 @@ digraph "" {
 		}
 		
 		"node_Set(120)" ["label"="Focus", "tooltip"="Focus"]
-		subgraph "clusternode_Set(281)" {
+		subgraph "clusternode_Set(305)" {
 			"style"="rounded,filled";
 			"label"="Actions";
 			"tooltip"="Actions";
 			"fillcolor"="#ffffff44";
 			"color"="#ffffff50";
 			"penwidth"="2";
-			"set_marker_node_Set(281)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-			"node_System(227)" ["label"="big_brain::actions::steps_system", "tooltip"="big_brain::actions::steps_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(228)" ["label"="big_brain::actions::concurrent_system", "tooltip"="big_brain::actions::concurrent_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(261)" ["label"="vanillacoffee::actors::ai::skeleton_ai::wander_action", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::wander_action", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(262)" ["label"="vanillacoffee::actors::ai::skeleton_ai::chase_action", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::chase_action", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"set_marker_node_Set(305)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(245)" ["label"="big_brain::actions::steps_system", "tooltip"="big_brain::actions::steps_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(246)" ["label"="big_brain::actions::concurrent_system", "tooltip"="big_brain::actions::concurrent_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(279)" ["label"="vanillacoffee::actors::ai::skeleton_ai::wander_action", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::wander_action", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(280)" ["label"="vanillacoffee::actors::ai::skeleton_ai::chase_action", "tooltip"="vanillacoffee::actors::ai::skeleton_ai::chase_action", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 		}
 		
 		"node_System(47)" ["label"="bevy_asset::asset_server::free_unused_assets_system", "tooltip"="bevy_asset::asset_server::free_unused_assets_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(55)" ["label"="bevy_scene::bundle::scene_spawner", "tooltip"="bevy_scene::bundle::scene_spawner", "fillcolor"="#bacfcb", "fontname"="Helvetica", "fontcolor"="#141e1c", "color"="#7da59d", "penwidth"="1"]
-		"node_System(109)" ["label"="bevy_gilrs::gilrs_system::gilrs_event_system", "tooltip"="bevy_gilrs::gilrs_system::gilrs_event_system", "fillcolor"="#973977", "fontname"="Helvetica", "fontcolor"="#f1d9e9", "color"="#c86da9", "penwidth"="1"]
-		"node_System(183)" ["label"="bevy_kira_audio::audio_output::update_instance_states<bevy_kira_audio::MainTrack>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<bevy_kira_audio::MainTrack>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(186)" ["label"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Music>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Music>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(188)" ["label"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Ambience>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Ambience>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(190)" ["label"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Sound>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Sound>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(203)" ["label"="bevy_ecs_ldtk::systems::process_ldtk_assets", "tooltip"="bevy_ecs_ldtk::systems::process_ldtk_assets", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(204)" ["label"="bevy_ecs_ldtk::systems::process_ldtk_levels", "tooltip"="bevy_ecs_ldtk::systems::process_ldtk_levels", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(247)" ["label"="vanillacoffee::actors::combat::remove_cdw_componenet", "tooltip"="vanillacoffee::actors::combat::remove_cdw_componenet", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(120)" ["label"="bevy_gilrs::gilrs_system::gilrs_event_system", "tooltip"="bevy_gilrs::gilrs_system::gilrs_event_system", "fillcolor"="#973977", "fontname"="Helvetica", "fontcolor"="#f1d9e9", "color"="#c86da9", "penwidth"="1"]
+		"node_System(199)" ["label"="bevy_kira_audio::audio_output::update_instance_states<bevy_kira_audio::MainTrack>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<bevy_kira_audio::MainTrack>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(202)" ["label"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Music>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Music>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(204)" ["label"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Ambience>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Ambience>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(206)" ["label"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Sound>", "tooltip"="bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Sound>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(221)" ["label"="bevy_ecs_ldtk::systems::process_ldtk_assets", "tooltip"="bevy_ecs_ldtk::systems::process_ldtk_assets", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(222)" ["label"="bevy_ecs_ldtk::systems::process_ldtk_levels", "tooltip"="bevy_ecs_ldtk::systems::process_ldtk_levels", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(265)" ["label"="vanillacoffee::actors::combat::remove_cdw_componenet", "tooltip"="vanillacoffee::actors::combat::remove_cdw_componenet", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
 	subgraph "clusternode_Set(9)" {
@@ -247,13 +263,13 @@ digraph "" {
 		"color"="#ffffff50";
 		"penwidth"="2";
 		"set_marker_node_Set(9)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		"node_System(140)" ["label"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game::GameStage>", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game::GameStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
-		"node_System(141)" ["label"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game::GameStage>", "tooltip"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game::GameStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
-		"node_System(145)" ["label"="bevy_asset_loader::loading_state::systems::apply_internal_state_transition<vanillacoffee::game::GameStage>", "tooltip"="bevy_asset_loader::loading_state::systems::apply_internal_state_transition<vanillacoffee::game::GameStage>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(164)" ["label"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::ui_bevy::CurrentMenu>", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::ui_bevy::CurrentMenu>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
-		"node_System(165)" ["label"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::ui_bevy::CurrentMenu>", "tooltip"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::ui_bevy::CurrentMenu>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
-		"node_System(214)" ["label"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
-		"node_System(215)" ["label"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "tooltip"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+		"node_System(155)" ["label"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game::GameStage>", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game::GameStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+		"node_System(156)" ["label"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game::GameStage>", "tooltip"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game::GameStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+		"node_System(160)" ["label"="bevy_asset_loader::loading_state::systems::apply_internal_state_transition<vanillacoffee::game::GameStage>", "tooltip"="bevy_asset_loader::loading_state::systems::apply_internal_state_transition<vanillacoffee::game::GameStage>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(180)" ["label"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::ui_bevy::CurrentMenu>", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::ui_bevy::CurrentMenu>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+		"node_System(181)" ["label"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::ui_bevy::CurrentMenu>", "tooltip"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::ui_bevy::CurrentMenu>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+		"node_System(208)" ["label"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
+		"node_System(209)" ["label"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "tooltip"="bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "fillcolor"="#b0d34a", "fontname"="Helvetica", "fontcolor"="#edf5d5", "color"="#d3e69c", "penwidth"="1"]
 	}
 	
 	"node_Set(10)" ["label"="FixedUpdate", "tooltip"="FixedUpdate"]
@@ -299,21 +315,40 @@ digraph "" {
 		"node_Set(91)" ["label"="VisibilityPropagate", "tooltip"="VisibilityPropagate"]
 		"node_Set(121)" ["label"="Flex", "tooltip"="Flex"]
 		"node_Set(122)" ["label"="Stack", "tooltip"="Stack"]
-		"node_Set(141)" ["label"="BuildShapes", "tooltip"="BuildShapes"]
+		"node_Set(136)" ["label"="AddClusters", "tooltip"="AddClusters"]
+		"node_Set(137)" ["label"="AddClustersFlush", "tooltip"="AddClustersFlush"]
+		"node_Set(138)" ["label"="AssignLightsToClusters", "tooltip"="AssignLightsToClusters"]
+		"node_Set(139)" ["label"="CheckLightVisibility", "tooltip"="CheckLightVisibility"]
+		"node_Set(140)" ["label"="UpdateDirectionalLightCascades", "tooltip"="UpdateDirectionalLightCascades"]
+		subgraph "clusternode_Set(141)" {
+			"style"="rounded,filled";
+			"label"="UpdateLightFrusta";
+			"tooltip"="UpdateLightFrusta";
+			"fillcolor"="#ffffff44";
+			"color"="#ffffff50";
+			"penwidth"="2";
+			"set_marker_node_Set(141)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(116)" ["label"="bevy_pbr::light::update_directional_light_frusta", "tooltip"="bevy_pbr::light::update_directional_light_frusta", "fillcolor"="#abd5fc", "fontname"="Helvetica", "fontcolor"="#011a31", "color"="#48a3f8", "penwidth"="1"]
+			"node_System(117)" ["label"="bevy_pbr::light::update_point_light_frusta", "tooltip"="bevy_pbr::light::update_point_light_frusta", "fillcolor"="#abd5fc", "fontname"="Helvetica", "fontcolor"="#011a31", "color"="#48a3f8", "penwidth"="1"]
+			"node_System(118)" ["label"="bevy_pbr::light::update_spot_light_frusta", "tooltip"="bevy_pbr::light::update_spot_light_frusta", "fillcolor"="#abd5fc", "fontname"="Helvetica", "fontcolor"="#011a31", "color"="#48a3f8", "penwidth"="1"]
+		}
+		
+		"node_Set(161)" ["label"="BuildShapes", "tooltip"="BuildShapes"]
 		"node_System(45)" ["label"="bevy_window::system::exit_on_all_closed", "tooltip"="bevy_window::system::exit_on_all_closed", "fillcolor"="#bb85d4", "fontname"="Helvetica", "fontcolor"="#1d0d25", "color"="#8e3fb3", "penwidth"="1"]
 		"node_System(98)" ["label"="bevy_text::text2d::update_text2d_layout", "tooltip"="bevy_text::text2d::update_text2d_layout", "fillcolor"="#e9bbff", "fontname"="Helvetica", "fontcolor"="#220032", "color"="#c855ff", "penwidth"="1"]
 		"node_System(100)" ["label"="bevy_ui::widget::text::text_system", "tooltip"="bevy_ui::widget::text::text_system", "fillcolor"="#ffb1e5", "fontname"="Helvetica", "fontcolor"="#320021", "color"="#ff4bc2", "penwidth"="1"]
 		"node_System(105)" ["label"="bevy_ui::widget::image::update_image_calculated_size_system", "tooltip"="bevy_ui::widget::image::update_image_calculated_size_system", "fillcolor"="#ffb1e5", "fontname"="Helvetica", "fontcolor"="#320021", "color"="#ff4bc2", "penwidth"="1"]
 		"node_System(108)" ["label"="bevy_ui::update::update_clipping_system", "tooltip"="bevy_ui::update::update_clipping_system", "fillcolor"="#ffb1e5", "fontname"="Helvetica", "fontcolor"="#320021", "color"="#ff4bc2", "penwidth"="1"]
-		"node_System(160)" ["label"="bevy_egui::update_egui_textures_system", "tooltip"="bevy_egui::update_egui_textures_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(171)" ["label"="leafwing_input_manager::systems::release_on_input_map_removed<vanillacoffee::input::actions::Combat>", "tooltip"="leafwing_input_manager::systems::release_on_input_map_removed<vanillacoffee::input::actions::Combat>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(184)" ["label"="bevy_kira_audio::spacial::run_spacial_audio", "tooltip"="bevy_kira_audio::spacial::run_spacial_audio", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(193)" ["label"="bevy_ecs_tilemap::render::removal_helper_tilemap", "tooltip"="bevy_ecs_tilemap::render::removal_helper_tilemap", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(194)" ["label"="bevy_ecs_tilemap::render::removal_helper", "tooltip"="bevy_ecs_tilemap::render::removal_helper", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(210)" ["label"="Pipe(bevy_ecs_ldtk::systems::detect_level_spawned_events, bevy_ecs_ldtk::systems::fire_level_transformed_events)", "tooltip"="Pipe(bevy_ecs_ldtk::systems::detect_level_spawned_events, bevy_ecs_ldtk::systems::fire_level_transformed_events)", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(248)" ["label"="vanillacoffee::actors::combat::deal_with_damaged", "tooltip"="vanillacoffee::actors::combat::deal_with_damaged", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(274)" ["label"="bevy_diagnostic::log_diagnostics_plugin::LogDiagnosticsPlugin::log_diagnostics_system", "tooltip"="bevy_diagnostic::log_diagnostics_plugin::LogDiagnosticsPlugin::log_diagnostics_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(276)" ["label"="bevy_rapier2d::render::debug_render_scene", "tooltip"="bevy_rapier2d::render::debug_render_scene", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(124)" ["label"="bevy_animation::animation_player", "tooltip"="bevy_animation::animation_player", "fillcolor"="#ffbdb9", "fontname"="Helvetica", "fontcolor"="#320200", "color"="#ff5c53", "penwidth"="1"]
+		"node_System(175)" ["label"="bevy_egui::update_egui_textures_system", "tooltip"="bevy_egui::update_egui_textures_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(187)" ["label"="leafwing_input_manager::systems::release_on_input_map_removed<vanillacoffee::input::actions::Combat>", "tooltip"="leafwing_input_manager::systems::release_on_input_map_removed<vanillacoffee::input::actions::Combat>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(200)" ["label"="bevy_kira_audio::spacial::run_spacial_audio", "tooltip"="bevy_kira_audio::spacial::run_spacial_audio", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(211)" ["label"="bevy_ecs_tilemap::render::removal_helper_tilemap", "tooltip"="bevy_ecs_tilemap::render::removal_helper_tilemap", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(212)" ["label"="bevy_ecs_tilemap::render::removal_helper", "tooltip"="bevy_ecs_tilemap::render::removal_helper", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(228)" ["label"="Pipe(bevy_ecs_ldtk::systems::detect_level_spawned_events, bevy_ecs_ldtk::systems::fire_level_transformed_events)", "tooltip"="Pipe(bevy_ecs_ldtk::systems::detect_level_spawned_events, bevy_ecs_ldtk::systems::fire_level_transformed_events)", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(266)" ["label"="vanillacoffee::actors::combat::deal_with_damaged", "tooltip"="vanillacoffee::actors::combat::deal_with_damaged", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(293)" ["label"="bevy_diagnostic::log_diagnostics_plugin::LogDiagnosticsPlugin::log_diagnostics_system", "tooltip"="bevy_diagnostic::log_diagnostics_plugin::LogDiagnosticsPlugin::log_diagnostics_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(295)" ["label"="bevy_rapier2d::render::debug_render_scene", "tooltip"="bevy_rapier2d::render::debug_render_scene", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
 	subgraph "clusternode_Set(12)" {
@@ -324,17 +359,17 @@ digraph "" {
 		"color"="#ffffff50";
 		"penwidth"="2";
 		"set_marker_node_Set(12)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		subgraph "clusternode_Set(282)" {
+		subgraph "clusternode_Set(306)" {
 			"style"="rounded,filled";
 			"label"="Cleanup";
 			"tooltip"="Cleanup";
 			"fillcolor"="#ffffff44";
 			"color"="#ffffff50";
 			"penwidth"="2";
-			"set_marker_node_Set(282)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-			"node_System(229)" ["label"="big_brain::thinker::thinker_component_attach_system", "tooltip"="big_brain::thinker::thinker_component_attach_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(230)" ["label"="big_brain::thinker::thinker_component_detach_system", "tooltip"="big_brain::thinker::thinker_component_detach_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(231)" ["label"="big_brain::thinker::actor_gone_cleanup", "tooltip"="big_brain::thinker::actor_gone_cleanup", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"set_marker_node_Set(306)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(247)" ["label"="big_brain::thinker::thinker_component_attach_system", "tooltip"="big_brain::thinker::thinker_component_attach_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(248)" ["label"="big_brain::thinker::thinker_component_detach_system", "tooltip"="big_brain::thinker::thinker_component_detach_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(249)" ["label"="big_brain::thinker::actor_gone_cleanup", "tooltip"="big_brain::thinker::actor_gone_cleanup", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 		}
 		
 		"node_System(6)" ["label"="bevy_core::tick_global_task_pools", "tooltip"="bevy_core::tick_global_task_pools", "fillcolor"="#3e583c", "fontname"="Helvetica", "fontcolor"="#e1eae0", "color"="#689465", "penwidth"="1"]
@@ -343,7 +378,7 @@ digraph "" {
 		"node_System(56)" ["label"="bevy_winit::system::changed_window", "tooltip"="bevy_winit::system::changed_window", "fillcolor"="#664f72", "fontname"="Helvetica", "fontcolor"="#e6e0ea", "color"="#9980a6", "penwidth"="1"]
 		"node_System(57)" ["label"="bevy_winit::system::despawn_window", "tooltip"="bevy_winit::system::despawn_window", "fillcolor"="#664f72", "fontname"="Helvetica", "fontcolor"="#e6e0ea", "color"="#9980a6", "penwidth"="1"]
 		"node_System(66)" ["label"="bevy_hierarchy::valid_parent_check_plugin::check_hierarchy_component_has_valid_parent<bevy_render::view::visibility::ComputedVisibility>", "tooltip"="bevy_hierarchy::valid_parent_check_plugin::check_hierarchy_component_has_valid_parent<bevy_render::view::visibility::ComputedVisibility>", "fillcolor"="#e4fba3", "fontname"="Helvetica", "fontcolor"="#243002", "color"="#c7f641", "penwidth"="1"]
-		"node_System(161)" ["label"="bevy_egui::free_egui_textures_system", "tooltip"="bevy_egui::free_egui_textures_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(176)" ["label"="bevy_egui::free_egui_textures_system", "tooltip"="bevy_egui::free_egui_textures_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
 	subgraph "clusternode_Set(59)" {
@@ -364,12 +399,14 @@ digraph "" {
 		"node_System(90)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_sprite::mesh2d::color_material::ColorMaterial>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_sprite::mesh2d::color_material::ColorMaterial>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(93)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_text::font::Font>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_text::font::Font>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(96)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_text::font_atlas_set::FontAtlasSet>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_text::font_atlas_set::FontAtlasSet>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(119)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_prototype_lyon::render::ShapeMaterial>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_prototype_lyon::render::ShapeMaterial>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(143)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(175)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::source::AudioSource>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::source::AudioSource>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(178)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::instance::AudioInstance>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::instance::AudioInstance>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(197)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkAsset>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkAsset>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(200)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkLevel>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkLevel>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(110)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_pbr::pbr_material::StandardMaterial>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_pbr::pbr_material::StandardMaterial>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(122)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_animation::AnimationClip>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_animation::AnimationClip>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(134)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_prototype_lyon::render::ShapeMaterial>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_prototype_lyon::render::ShapeMaterial>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(158)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(191)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::source::AudioSource>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::source::AudioSource>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(194)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::instance::AudioInstance>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_kira_audio::instance::AudioInstance>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(215)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkAsset>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkAsset>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(218)" ["label"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkLevel>", "tooltip"="bevy_asset::loader::update_asset_storage_system<bevy_ecs_ldtk::assets::LdtkLevel>", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 	}
 	
 	subgraph "clusternode_Set(60)" {
@@ -390,218 +427,224 @@ digraph "" {
 		"node_System(89)" ["label"="bevy_asset::assets::Assets<bevy_sprite::mesh2d::color_material::ColorMaterial>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_sprite::mesh2d::color_material::ColorMaterial>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(92)" ["label"="bevy_asset::assets::Assets<bevy_text::font::Font>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_text::font::Font>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 		"node_System(95)" ["label"="bevy_asset::assets::Assets<bevy_text::font_atlas_set::FontAtlasSet>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_text::font_atlas_set::FontAtlasSet>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(118)" ["label"="bevy_asset::assets::Assets<bevy_prototype_lyon::render::ShapeMaterial>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_prototype_lyon::render::ShapeMaterial>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(142)" ["label"="bevy_asset::assets::Assets<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(174)" ["label"="bevy_asset::assets::Assets<bevy_kira_audio::source::AudioSource>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_kira_audio::source::AudioSource>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(177)" ["label"="bevy_asset::assets::Assets<bevy_kira_audio::instance::AudioInstance>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_kira_audio::instance::AudioInstance>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(196)" ["label"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkAsset>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkAsset>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
-		"node_System(199)" ["label"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkLevel>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkLevel>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(109)" ["label"="bevy_asset::assets::Assets<bevy_pbr::pbr_material::StandardMaterial>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_pbr::pbr_material::StandardMaterial>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(121)" ["label"="bevy_asset::assets::Assets<bevy_animation::AnimationClip>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_animation::AnimationClip>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(133)" ["label"="bevy_asset::assets::Assets<bevy_prototype_lyon::render::ShapeMaterial>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_prototype_lyon::render::ShapeMaterial>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(157)" ["label"="bevy_asset::assets::Assets<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_asset_loader::standard_dynamic_asset::StandardDynamicAssetCollection>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(190)" ["label"="bevy_asset::assets::Assets<bevy_kira_audio::source::AudioSource>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_kira_audio::source::AudioSource>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(193)" ["label"="bevy_asset::assets::Assets<bevy_kira_audio::instance::AudioInstance>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_kira_audio::instance::AudioInstance>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(214)" ["label"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkAsset>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkAsset>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
+		"node_System(217)" ["label"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkLevel>::asset_event_system", "tooltip"="bevy_asset::assets::Assets<bevy_ecs_ldtk::assets::LdtkLevel>::asset_event_system", "fillcolor"="#d1cbc5", "fontname"="Helvetica", "fontcolor"="#1c1916", "color"="#a3978c", "penwidth"="1"]
 	}
 	
-	subgraph "clusternode_Set(146)" {
+	subgraph "clusternode_Set(166)" {
 		"style"="rounded,filled";
 		"label"="SyncBackend";
 		"tooltip"="SyncBackend";
 		"fillcolor"="#ffffff44";
 		"color"="#ffffff50";
 		"penwidth"="2";
-		"set_marker_node_Set(146)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		"node_System(121)" ["label"="bevy_rapier2d::plugin::systems::update_character_controls", "tooltip"="bevy_rapier2d::plugin::systems::update_character_controls", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(124)" ["label"="bevy_rapier2d::plugin::systems::init_async_colliders", "tooltip"="bevy_rapier2d::plugin::systems::init_async_colliders", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(125)" ["label"="bevy_rapier2d::plugin::systems::apply_scale", "tooltip"="bevy_rapier2d::plugin::systems::apply_scale", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(126)" ["label"="bevy_rapier2d::plugin::systems::apply_collider_user_changes", "tooltip"="bevy_rapier2d::plugin::systems::apply_collider_user_changes", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(127)" ["label"="bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes", "tooltip"="bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(128)" ["label"="bevy_rapier2d::plugin::systems::apply_joint_user_changes", "tooltip"="bevy_rapier2d::plugin::systems::apply_joint_user_changes", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(129)" ["label"="bevy_rapier2d::plugin::systems::init_rigid_bodies", "tooltip"="bevy_rapier2d::plugin::systems::init_rigid_bodies", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(130)" ["label"="bevy_rapier2d::plugin::systems::init_colliders", "tooltip"="bevy_rapier2d::plugin::systems::init_colliders", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(131)" ["label"="bevy_rapier2d::plugin::systems::init_joints", "tooltip"="bevy_rapier2d::plugin::systems::init_joints", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(132)" ["label"="bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses", "tooltip"="bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(133)" ["label"="bevy_rapier2d::plugin::systems::sync_removals", "tooltip"="bevy_rapier2d::plugin::systems::sync_removals", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"set_marker_node_Set(166)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(136)" ["label"="bevy_rapier2d::plugin::systems::update_character_controls", "tooltip"="bevy_rapier2d::plugin::systems::update_character_controls", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(139)" ["label"="bevy_rapier2d::plugin::systems::init_async_colliders", "tooltip"="bevy_rapier2d::plugin::systems::init_async_colliders", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(140)" ["label"="bevy_rapier2d::plugin::systems::apply_scale", "tooltip"="bevy_rapier2d::plugin::systems::apply_scale", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(141)" ["label"="bevy_rapier2d::plugin::systems::apply_collider_user_changes", "tooltip"="bevy_rapier2d::plugin::systems::apply_collider_user_changes", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(142)" ["label"="bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes", "tooltip"="bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(143)" ["label"="bevy_rapier2d::plugin::systems::apply_joint_user_changes", "tooltip"="bevy_rapier2d::plugin::systems::apply_joint_user_changes", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(144)" ["label"="bevy_rapier2d::plugin::systems::init_rigid_bodies", "tooltip"="bevy_rapier2d::plugin::systems::init_rigid_bodies", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(145)" ["label"="bevy_rapier2d::plugin::systems::init_colliders", "tooltip"="bevy_rapier2d::plugin::systems::init_colliders", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(146)" ["label"="bevy_rapier2d::plugin::systems::init_joints", "tooltip"="bevy_rapier2d::plugin::systems::init_joints", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(147)" ["label"="bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses", "tooltip"="bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(148)" ["label"="bevy_rapier2d::plugin::systems::sync_removals", "tooltip"="bevy_rapier2d::plugin::systems::sync_removals", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
-	"node_Set(147)" ["label"="SyncBackendFlush", "tooltip"="SyncBackendFlush"]
-	subgraph "clusternode_Set(148)" {
+	"node_Set(167)" ["label"="SyncBackendFlush", "tooltip"="SyncBackendFlush"]
+	subgraph "clusternode_Set(168)" {
 		"style"="rounded,filled";
 		"label"="StepSimulation";
 		"tooltip"="StepSimulation";
 		"fillcolor"="#ffffff44";
 		"color"="#ffffff50";
 		"penwidth"="2";
-		"set_marker_node_Set(148)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		"node_System(135)" ["label"="bevy_rapier2d::plugin::systems::step_simulation<()>", "tooltip"="bevy_rapier2d::plugin::systems::step_simulation<()>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(136)" ["label"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::CollisionEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::CollisionEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(137)" ["label"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::ContactForceEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::ContactForceEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"set_marker_node_Set(168)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(150)" ["label"="bevy_rapier2d::plugin::systems::step_simulation<()>", "tooltip"="bevy_rapier2d::plugin::systems::step_simulation<()>", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(151)" ["label"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::CollisionEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::CollisionEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(152)" ["label"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::ContactForceEvent>::update_system", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::ContactForceEvent>::update_system", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
-	subgraph "clusternode_Set(149)" {
+	subgraph "clusternode_Set(169)" {
 		"style"="rounded,filled";
 		"label"="Writeback";
 		"tooltip"="Writeback";
 		"fillcolor"="#ffffff44";
 		"color"="#ffffff50";
 		"penwidth"="2";
-		"set_marker_node_Set(149)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		"node_System(138)" ["label"="bevy_rapier2d::plugin::systems::update_colliding_entities", "tooltip"="bevy_rapier2d::plugin::systems::update_colliding_entities", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-		"node_System(139)" ["label"="bevy_rapier2d::plugin::systems::writeback_rigid_bodies", "tooltip"="bevy_rapier2d::plugin::systems::writeback_rigid_bodies", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"set_marker_node_Set(169)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		"node_System(153)" ["label"="bevy_rapier2d::plugin::systems::update_colliding_entities", "tooltip"="bevy_rapier2d::plugin::systems::update_colliding_entities", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+		"node_System(154)" ["label"="bevy_rapier2d::plugin::systems::writeback_rigid_bodies", "tooltip"="bevy_rapier2d::plugin::systems::writeback_rigid_bodies", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 	}
 	
-	"node_Set(151)" ["label"="RapierTransformPropagateSet", "tooltip"="RapierTransformPropagateSet"]
-	"node_Set(152)" ["label"="PropagateTransformsSet", "tooltip"="PropagateTransformsSet"]
-	"node_Set(179)" ["label"="LoadingStateSet(Loading)", "tooltip"="LoadingStateSet(Loading)"]
-	"node_Set(184)" ["label"="Commands", "tooltip"="Commands"]
-	"node_Set(188)" ["label"="ConsoleUI", "tooltip"="ConsoleUI"]
-	"node_Set(190)" ["label"="PostCommands", "tooltip"="PostCommands"]
-	"node_Set(192)" ["label"="InitContexts", "tooltip"="InitContexts"]
-	"node_Set(195)" ["label"="ProcessInput", "tooltip"="ProcessInput"]
-	"node_Set(197)" ["label"="BeginFrame", "tooltip"="BeginFrame"]
-	"node_Set(199)" ["label"="ProcessOutput", "tooltip"="ProcessOutput"]
-	"node_Set(214)" ["label"="Tick", "tooltip"="Tick"]
-	"node_Set(215)" ["label"="Update", "tooltip"="Update"]
-	"node_Set(217)" ["label"="ReleaseOnDisable", "tooltip"="ReleaseOnDisable"]
-	"node_Set(221)" ["label"="ManualControl", "tooltip"="ManualControl"]
-	"node_Set(229)" ["label"="PlayDynamicChannels", "tooltip"="PlayDynamicChannels"]
-	"node_Set(231)" ["label"="InstanceCleanup", "tooltip"="InstanceCleanup"]
-	"node_Set(233)" ["label"="PlayTypedChannels", "tooltip"="PlayTypedChannels"]
-	subgraph "clusternode_Set(247)" {
+	"node_Set(171)" ["label"="RapierTransformPropagateSet", "tooltip"="RapierTransformPropagateSet"]
+	"node_Set(172)" ["label"="PropagateTransformsSet", "tooltip"="PropagateTransformsSet"]
+	"node_Set(199)" ["label"="LoadingStateSet(Loading)", "tooltip"="LoadingStateSet(Loading)"]
+	"node_Set(204)" ["label"="Commands", "tooltip"="Commands"]
+	"node_Set(208)" ["label"="ConsoleUI", "tooltip"="ConsoleUI"]
+	"node_Set(210)" ["label"="PostCommands", "tooltip"="PostCommands"]
+	"node_Set(212)" ["label"="InitContexts", "tooltip"="InitContexts"]
+	"node_Set(215)" ["label"="ProcessInput", "tooltip"="ProcessInput"]
+	"node_Set(217)" ["label"="BeginFrame", "tooltip"="BeginFrame"]
+	"node_Set(219)" ["label"="ProcessOutput", "tooltip"="ProcessOutput"]
+	"node_Set(235)" ["label"="Tick", "tooltip"="Tick"]
+	"node_Set(236)" ["label"="Update", "tooltip"="Update"]
+	"node_Set(238)" ["label"="ReleaseOnDisable", "tooltip"="ReleaseOnDisable"]
+	"node_Set(242)" ["label"="ManualControl", "tooltip"="ManualControl"]
+	"node_Set(250)" ["label"="PlayDynamicChannels", "tooltip"="PlayDynamicChannels"]
+	"node_Set(252)" ["label"="InstanceCleanup", "tooltip"="InstanceCleanup"]
+	"node_Set(254)" ["label"="PlayTypedChannels", "tooltip"="PlayTypedChannels"]
+	subgraph "clusternode_Set(277)" {
 		"style"="rounded,filled";
 		"label"="ProcessApi";
 		"tooltip"="ProcessApi";
 		"fillcolor"="#ffffff44";
 		"color"="#ffffff50";
 		"penwidth"="2";
-		"set_marker_node_Set(247)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-		subgraph "clusternode_Set(248)" {
+		"set_marker_node_Set(277)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+		subgraph "clusternode_Set(278)" {
 			"style"="rounded,filled";
 			"label"="PreClean";
 			"tooltip"="PreClean";
 			"fillcolor"="#ffffff44";
 			"color"="#ffffff50";
 			"penwidth"="2";
-			"set_marker_node_Set(248)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-			"node_System(205)" ["label"="bevy_ecs_ldtk::systems::worldly_adoption", "tooltip"="bevy_ecs_ldtk::systems::worldly_adoption", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(206)" ["label"="bevy_ecs_ldtk::systems::apply_level_selection", "tooltip"="bevy_ecs_ldtk::systems::apply_level_selection", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
-			"node_System(207)" ["label"="bevy_ecs_ldtk::systems::apply_level_set", "tooltip"="bevy_ecs_ldtk::systems::apply_level_set", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"set_marker_node_Set(278)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(223)" ["label"="bevy_ecs_ldtk::systems::worldly_adoption", "tooltip"="bevy_ecs_ldtk::systems::worldly_adoption", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(224)" ["label"="bevy_ecs_ldtk::systems::apply_level_selection", "tooltip"="bevy_ecs_ldtk::systems::apply_level_selection", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"node_System(225)" ["label"="bevy_ecs_ldtk::systems::apply_level_set", "tooltip"="bevy_ecs_ldtk::systems::apply_level_set", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 		}
 		
-		subgraph "clusternode_Set(249)" {
+		subgraph "clusternode_Set(279)" {
 			"style"="rounded,filled";
 			"label"="Clean";
 			"tooltip"="Clean";
 			"fillcolor"="#ffffff44";
 			"color"="#ffffff50";
 			"penwidth"="2";
-			"set_marker_node_Set(249)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
-			"node_System(208)" ["label"="bevy_ecs::schedule::executor::apply_system_buffers", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers", "fillcolor"="#e70000", "fontname"="Helvetica", "fontcolor"="#ffffff", "color"="#5a0000", "penwidth"="2"]
-			"node_System(209)" ["label"="bevy_ecs_ldtk::systems::clean_respawn_entities", "tooltip"="bevy_ecs_ldtk::systems::clean_respawn_entities", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
+			"set_marker_node_Set(279)" ["style"="invis", "label"="", "height"="0", "shape"="point"]
+			"node_System(226)" ["label"="bevy_ecs::schedule::executor::apply_system_buffers", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers", "fillcolor"="#e70000", "fontname"="Helvetica", "fontcolor"="#ffffff", "color"="#5a0000", "penwidth"="2"]
+			"node_System(227)" ["label"="bevy_ecs_ldtk::systems::clean_respawn_entities", "tooltip"="bevy_ecs_ldtk::systems::clean_respawn_entities", "fillcolor"="#eff1f3", "fontname"="Helvetica", "fontcolor"="#15191d", "color"="#b4bec7", "penwidth"="1"]
 		}
 		
 	}
 	
-	"node_Set(340)" ["label"="DrawLinesLabel", "tooltip"="DrawLinesLabel"]
-	"node_System(122)" -> "set_marker_node_Set(146)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(146)"]
-	"node_System(122)" -> "node_Set(151)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(151)"]
-	"node_System(122)" ["label"="bevy_transform::systems::sync_simple_transforms
+	"node_Set(365)" ["label"="DrawLinesLabel", "tooltip"="DrawLinesLabel"]
+	"node_System(137)" -> "set_marker_node_Set(166)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(166)"]
+	"node_System(137)" -> "node_Set(171)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(171)"]
+	"node_System(137)" ["label"="bevy_transform::systems::sync_simple_transforms
 In multiple sets, SyncBackend, RapierTransformPropagateSet", "tooltip"="bevy_transform::systems::sync_simple_transforms"]
-	"node_System(123)" -> "set_marker_node_Set(146)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(146)"]
-	"node_System(123)" -> "node_Set(151)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(151)"]
-	"node_System(123)" -> "node_Set(152)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(152)"]
-	"node_System(123)" ["label"="bevy_transform::systems::propagate_transforms
+	"node_System(138)" -> "set_marker_node_Set(166)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(166)"]
+	"node_System(138)" -> "node_Set(171)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(171)"]
+	"node_System(138)" -> "node_Set(172)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(172)"]
+	"node_System(138)" ["label"="bevy_transform::systems::propagate_transforms
 In multiple sets, SyncBackend, RapierTransformPropagateSet, PropagateTransformsSet", "tooltip"="bevy_transform::systems::propagate_transforms"]
-	"node_System(149)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(149)" -> "node_Set(184)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(184)"]
-	"node_System(149)" ["label"="bevy_console::commands::clear::clear_command
+	"node_System(164)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(164)" -> "node_Set(204)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(204)"]
+	"node_System(164)" ["label"="bevy_console::commands::clear::clear_command
 In multiple sets, Update, Commands", "tooltip"="bevy_console::commands::clear::clear_command"]
-	"node_System(150)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(150)" -> "node_Set(184)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(184)"]
-	"node_System(150)" ["label"="bevy_console::commands::exit::exit_command
+	"node_System(165)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(165)" -> "node_Set(204)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(204)"]
+	"node_System(165)" ["label"="bevy_console::commands::exit::exit_command
 In multiple sets, Update, Commands", "tooltip"="bevy_console::commands::exit::exit_command"]
-	"node_System(151)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(151)" -> "node_Set(184)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(184)"]
-	"node_System(151)" ["label"="bevy_console::commands::help::help_command
+	"node_System(166)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(166)" -> "node_Set(204)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(204)"]
+	"node_System(166)" ["label"="bevy_console::commands::help::help_command
 In multiple sets, Update, Commands", "tooltip"="bevy_console::commands::help::help_command"]
-	"node_System(152)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(152)" -> "node_Set(188)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(188)"]
-	"node_System(152)" ["label"="bevy_console::console::console_ui
+	"node_System(167)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(167)" -> "node_Set(208)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(208)"]
+	"node_System(167)" ["label"="bevy_console::console::console_ui
 In multiple sets, Update, ConsoleUI", "tooltip"="bevy_console::console::console_ui"]
-	"node_System(153)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(153)" -> "node_Set(190)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(190)"]
-	"node_System(153)" ["label"="bevy_console::console::receive_console_line
+	"node_System(168)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(168)" -> "node_Set(210)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(210)"]
+	"node_System(168)" ["label"="bevy_console::console::receive_console_line
 In multiple sets, Update, PostCommands", "tooltip"="bevy_console::console::receive_console_line"]
-	"node_System(154)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(154)" -> "node_Set(192)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(192)"]
-	"node_System(154)" ["label"="bevy_egui::setup_new_windows_system
-In multiple sets, PreUpdate, InitContexts", "tooltip"="bevy_egui::setup_new_windows_system"]
-	"node_System(155)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(155)" -> "node_Set(192)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(192)"]
-	"node_System(155)" ["label"="bevy_ecs::schedule::executor::apply_system_buffers
-In multiple sets, PreUpdate, InitContexts", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers"]
-	"node_System(156)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(156)" -> "node_Set(192)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(192)"]
-	"node_System(156)" ["label"="bevy_egui::systems::update_window_contexts_system
-In multiple sets, PreUpdate, InitContexts", "tooltip"="bevy_egui::systems::update_window_contexts_system"]
-	"node_System(157)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(157)" -> "node_Set(195)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(195)"]
-	"node_System(157)" ["label"="bevy_egui::systems::process_input_system
-In multiple sets, PreUpdate, ProcessInput", "tooltip"="bevy_egui::systems::process_input_system"]
-	"node_System(158)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(158)" -> "node_Set(197)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(197)"]
-	"node_System(158)" ["label"="bevy_egui::systems::begin_frame_system
-In multiple sets, PreUpdate, BeginFrame", "tooltip"="bevy_egui::systems::begin_frame_system"]
-	"node_System(159)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(159)" -> "node_Set(199)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(199)"]
-	"node_System(159)" ["label"="bevy_egui::systems::process_output_system
-In multiple sets, PostUpdate, ProcessOutput", "tooltip"="bevy_egui::systems::process_output_system"]
-	"node_System(162)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(162)" -> "node_Set(184)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(184)"]
-	"node_System(162)" ["label"="vanillacoffee::console::commands::spawnenemy_command
-In multiple sets, Update, Commands", "tooltip"="vanillacoffee::console::commands::spawnenemy_command"]
-	"node_System(163)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
-	"node_System(163)" -> "node_Set(184)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(184)"]
-	"node_System(163)" ["label"="vanillacoffee::console::commands::spawnweapon_command
-In multiple sets, Update, Commands", "tooltip"="vanillacoffee::console::commands::spawnweapon_command"]
 	"node_System(169)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(169)" -> "node_Set(214)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(214)"]
-	"node_System(169)" ["label"="leafwing_input_manager::systems::tick_action_state<vanillacoffee::input::actions::Combat>
-In multiple sets, PreUpdate, Tick", "tooltip"="leafwing_input_manager::systems::tick_action_state<vanillacoffee::input::actions::Combat>"]
+	"node_System(169)" -> "node_Set(212)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(212)"]
+	"node_System(169)" ["label"="bevy_egui::setup_new_windows_system
+In multiple sets, PreUpdate, InitContexts", "tooltip"="bevy_egui::setup_new_windows_system"]
 	"node_System(170)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(170)" -> "node_Set(217)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(217)"]
-	"node_System(170)" ["label"="leafwing_input_manager::systems::release_on_disable<vanillacoffee::input::actions::Combat>
-In multiple sets, PreUpdate, ReleaseOnDisable", "tooltip"="leafwing_input_manager::systems::release_on_disable<vanillacoffee::input::actions::Combat>"]
+	"node_System(170)" -> "node_Set(212)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(212)"]
+	"node_System(170)" ["label"="bevy_ecs::schedule::executor::apply_system_buffers
+In multiple sets, PreUpdate, InitContexts", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers"]
+	"node_System(171)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
+	"node_System(171)" -> "node_Set(212)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(212)"]
+	"node_System(171)" ["label"="bevy_egui::systems::update_window_contexts_system
+In multiple sets, PreUpdate, InitContexts", "tooltip"="bevy_egui::systems::update_window_contexts_system"]
 	"node_System(172)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
 	"node_System(172)" -> "node_Set(215)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(215)"]
-	"node_System(172)" ["label"="leafwing_input_manager::systems::update_action_state<vanillacoffee::input::actions::Combat>
-In multiple sets, PreUpdate, Update", "tooltip"="leafwing_input_manager::systems::update_action_state<vanillacoffee::input::actions::Combat>"]
+	"node_System(172)" ["label"="bevy_egui::systems::process_input_system
+In multiple sets, PreUpdate, ProcessInput", "tooltip"="bevy_egui::systems::process_input_system"]
 	"node_System(173)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(173)" -> "node_Set(221)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(221)"]
-	"node_System(173)" ["label"="leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>
+	"node_System(173)" -> "node_Set(217)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(217)"]
+	"node_System(173)" ["label"="bevy_egui::systems::begin_frame_system
+In multiple sets, PreUpdate, BeginFrame", "tooltip"="bevy_egui::systems::begin_frame_system"]
+	"node_System(174)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(174)" -> "node_Set(219)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(219)"]
+	"node_System(174)" ["label"="bevy_egui::systems::process_output_system
+In multiple sets, PostUpdate, ProcessOutput", "tooltip"="bevy_egui::systems::process_output_system"]
+	"node_System(177)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(177)" -> "node_Set(204)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(204)"]
+	"node_System(177)" ["label"="vanillacoffee::console::command_systems::spawnenemy_command
+In multiple sets, Update, Commands", "tooltip"="vanillacoffee::console::command_systems::spawnenemy_command"]
+	"node_System(178)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(178)" -> "node_Set(204)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(204)"]
+	"node_System(178)" ["label"="vanillacoffee::console::command_systems::spawnweapon_command
+In multiple sets, Update, Commands", "tooltip"="vanillacoffee::console::command_systems::spawnweapon_command"]
+	"node_System(179)" -> "set_marker_node_Set(0)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(0)"]
+	"node_System(179)" -> "node_Set(204)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(204)"]
+	"node_System(179)" ["label"="vanillacoffee::console::command_systems::teleportplayer_command
+In multiple sets, Update, Commands", "tooltip"="vanillacoffee::console::command_systems::teleportplayer_command"]
+	"node_System(185)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
+	"node_System(185)" -> "node_Set(235)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(235)"]
+	"node_System(185)" ["label"="leafwing_input_manager::systems::tick_action_state<vanillacoffee::input::actions::Combat>
+In multiple sets, PreUpdate, Tick", "tooltip"="leafwing_input_manager::systems::tick_action_state<vanillacoffee::input::actions::Combat>"]
+	"node_System(186)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
+	"node_System(186)" -> "node_Set(238)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(238)"]
+	"node_System(186)" ["label"="leafwing_input_manager::systems::release_on_disable<vanillacoffee::input::actions::Combat>
+In multiple sets, PreUpdate, ReleaseOnDisable", "tooltip"="leafwing_input_manager::systems::release_on_disable<vanillacoffee::input::actions::Combat>"]
+	"node_System(188)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
+	"node_System(188)" -> "node_Set(236)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(236)"]
+	"node_System(188)" ["label"="leafwing_input_manager::systems::update_action_state<vanillacoffee::input::actions::Combat>
+In multiple sets, PreUpdate, Update", "tooltip"="leafwing_input_manager::systems::update_action_state<vanillacoffee::input::actions::Combat>"]
+	"node_System(189)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
+	"node_System(189)" -> "node_Set(242)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(242)"]
+	"node_System(189)" ["label"="leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>
 In multiple sets, PreUpdate, ManualControl", "tooltip"="leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>"]
-	"node_System(180)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(180)" -> "node_Set(229)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(229)"]
-	"node_System(180)" ["label"="bevy_kira_audio::audio_output::play_dynamic_channels
+	"node_System(196)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(196)" -> "node_Set(250)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(250)"]
+	"node_System(196)" ["label"="bevy_kira_audio::audio_output::play_dynamic_channels
 In multiple sets, PostUpdate, PlayDynamicChannels", "tooltip"="bevy_kira_audio::audio_output::play_dynamic_channels"]
-	"node_System(181)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
-	"node_System(181)" -> "node_Set(231)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(231)"]
-	"node_System(181)" ["label"="bevy_kira_audio::audio_output::cleanup_stopped_instances
+	"node_System(197)" -> "set_marker_node_Set(8)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(8)"]
+	"node_System(197)" -> "node_Set(252)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(252)"]
+	"node_System(197)" ["label"="bevy_kira_audio::audio_output::cleanup_stopped_instances
 In multiple sets, PreUpdate, InstanceCleanup", "tooltip"="bevy_kira_audio::audio_output::cleanup_stopped_instances"]
-	"node_System(182)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(182)" -> "node_Set(233)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(233)"]
-	"node_System(182)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<bevy_kira_audio::MainTrack>
+	"node_System(198)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(198)" -> "node_Set(254)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(254)"]
+	"node_System(198)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<bevy_kira_audio::MainTrack>
 In multiple sets, PostUpdate, PlayTypedChannels", "tooltip"="bevy_kira_audio::audio_output::play_audio_channel<bevy_kira_audio::MainTrack>"]
-	"node_System(185)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(185)" -> "node_Set(233)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(233)"]
-	"node_System(185)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Music>
+	"node_System(201)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(201)" -> "node_Set(254)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(254)"]
+	"node_System(201)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Music>
 In multiple sets, PostUpdate, PlayTypedChannels", "tooltip"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Music>"]
-	"node_System(187)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(187)" -> "node_Set(233)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(233)"]
-	"node_System(187)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Ambience>
+	"node_System(203)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(203)" -> "node_Set(254)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(254)"]
+	"node_System(203)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Ambience>
 In multiple sets, PostUpdate, PlayTypedChannels", "tooltip"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Ambience>"]
-	"node_System(189)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(189)" -> "node_Set(233)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(233)"]
-	"node_System(189)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Sound>
+	"node_System(205)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(205)" -> "node_Set(254)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(254)"]
+	"node_System(205)" ["label"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Sound>
 In multiple sets, PostUpdate, PlayTypedChannels", "tooltip"="bevy_kira_audio::audio_output::play_audio_channel<vanillacoffee::audio::Sound>"]
-	"node_System(275)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
-	"node_System(275)" -> "node_Set(340)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(340)"]
-	"node_System(275)" ["label"="bevy_rapier2d::render::lines::update
+	"node_System(294)" -> "set_marker_node_Set(11)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(11)"]
+	"node_System(294)" -> "node_Set(365)" ["dir"="none", "color"="blue", "lhead"="clusternode_Set(365)"]
+	"node_System(294)" ["label"="bevy_rapier2d::render::lines::update
 In multiple sets, PostUpdate, DrawLinesLabel", "tooltip"="bevy_rapier2d::render::lines::update"]
 	"set_marker_node_Set(7)" -> "node_Set(2)" ["lhead"="", "ltail"="clusternode_Set(7)", "tooltip"="First → FirstFlush", "color"="#eede00"]
 	"node_Set(2)" -> "set_marker_node_Set(8)" ["lhead"="clusternode_Set(8)", "ltail"="", "tooltip"="FirstFlush → PreUpdate", "color"="#881877"]
@@ -642,66 +685,85 @@ In multiple sets, PostUpdate, DrawLinesLabel", "tooltip"="bevy_rapier2d::render:
 	"node_System(105)" -> "node_Set(121)" ["lhead"="", "ltail"="", "tooltip"="bevy_ui::widget::image::update_image_calculated_size_system → Flex", "color"="#aa3a55"]
 	"node_Set(121)" -> "set_marker_node_Set(20)" ["lhead"="clusternode_Set(20)", "ltail"="", "tooltip"="bevy_ui::flex::flex_node_system → TransformPropagate", "color"="#44d488"]
 	"set_marker_node_Set(20)" -> "node_System(108)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_ui::update::update_clipping_system", "color"="#0090cc"]
-	"node_System(109)" -> "set_marker_node_Set(25)" ["lhead"="clusternode_Set(25)", "ltail"="", "tooltip"="bevy_gilrs::gilrs_system::gilrs_event_system → InputSystem", "color"="#ee9e44"]
-	"set_marker_node_Set(20)" -> "node_Set(141)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → BuildShapes", "color"="#663699"]
-	"node_Set(4)" -> "set_marker_node_Set(146)" ["lhead"="clusternode_Set(146)", "ltail"="", "tooltip"="UpdateFlush → SyncBackend", "color"="#3363bb"]
-	"set_marker_node_Set(146)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(146)", "tooltip"="SyncBackend → PostUpdate", "color"="#22c2bb"]
-	"node_Set(4)" -> "node_Set(147)" ["lhead"="", "ltail"="", "tooltip"="UpdateFlush → SyncBackendFlush", "color"="#99d955"]
-	"node_Set(147)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="", "tooltip"="SyncBackendFlush → PostUpdate", "color"="#eede00"]
-	"set_marker_node_Set(146)" -> "node_Set(147)" ["lhead"="", "ltail"="clusternode_Set(146)", "tooltip"="SyncBackend → SyncBackendFlush", "color"="#881877"]
-	"node_Set(4)" -> "set_marker_node_Set(148)" ["lhead"="clusternode_Set(148)", "ltail"="", "tooltip"="UpdateFlush → StepSimulation", "color"="#00b0cc"]
-	"set_marker_node_Set(148)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(148)", "tooltip"="StepSimulation → PostUpdate", "color"="#aa3a55"]
-	"node_Set(147)" -> "set_marker_node_Set(148)" ["lhead"="clusternode_Set(148)", "ltail"="", "tooltip"="SyncBackendFlush → StepSimulation", "color"="#44d488"]
-	"node_Set(4)" -> "set_marker_node_Set(149)" ["lhead"="clusternode_Set(149)", "ltail"="", "tooltip"="UpdateFlush → Writeback", "color"="#0090cc"]
-	"set_marker_node_Set(149)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(149)", "tooltip"="Writeback → PostUpdate", "color"="#ee9e44"]
-	"set_marker_node_Set(148)" -> "set_marker_node_Set(149)" ["lhead"="clusternode_Set(149)", "ltail"="clusternode_Set(148)", "tooltip"="StepSimulation → Writeback", "color"="#663699"]
-	"node_System(121)" -> "node_System(122)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::update_character_controls\") → bevy_transform::systems::sync_simple_transforms", "color"="#3363bb"]
-	"node_System(121)" -> "node_System(123)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::update_character_controls\") → bevy_transform::systems::propagate_transforms", "color"="#22c2bb"]
-	"node_Set(151)" -> "node_System(124)" ["lhead"="", "ltail"="", "tooltip"="RapierTransformPropagateSet → bevy_rapier2d::plugin::systems::init_async_colliders", "color"="#99d955"]
-	"node_System(124)" -> "node_System(125)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_async_colliders\") → bevy_rapier2d::plugin::systems::apply_scale", "color"="#eede00"]
-	"node_System(125)" -> "node_System(126)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_scale\") → bevy_rapier2d::plugin::systems::apply_collider_user_changes", "color"="#881877"]
-	"node_System(126)" -> "node_System(127)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_collider_user_changes\") → bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes", "color"="#00b0cc"]
-	"node_System(127)" -> "node_System(128)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes\") → bevy_rapier2d::plugin::systems::apply_joint_user_changes", "color"="#aa3a55"]
-	"node_System(128)" -> "node_System(129)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_joint_user_changes\") → bevy_rapier2d::plugin::systems::init_rigid_bodies", "color"="#44d488"]
-	"node_System(129)" -> "node_System(130)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_rigid_bodies\") → bevy_rapier2d::plugin::systems::init_colliders", "color"="#0090cc"]
-	"node_System(124)" -> "node_System(130)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_async_colliders\") → bevy_rapier2d::plugin::systems::init_colliders", "color"="#ee9e44"]
-	"node_System(130)" -> "node_System(131)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_colliders\") → bevy_rapier2d::plugin::systems::init_joints", "color"="#663699"]
-	"node_System(130)" -> "node_System(132)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_colliders\") → bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses", "color"="#3363bb"]
-	"node_System(131)" -> "node_System(133)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_joints\") → bevy_rapier2d::plugin::systems::sync_removals", "color"="#22c2bb"]
-	"node_System(132)" -> "node_System(133)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses\") → bevy_rapier2d::plugin::systems::sync_removals", "color"="#99d955"]
-	"node_System(136)" -> "node_System(135)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::CollisionEvent>::update_system → SystemTypeSet(\"bevy_rapier2d::plugin::systems::step_simulation<()>\")", "color"="#eede00"]
-	"node_System(137)" -> "node_System(135)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::ContactForceEvent>::update_system → SystemTypeSet(\"bevy_rapier2d::plugin::systems::step_simulation<()>\")", "color"="#881877"]
-	"node_System(140)" -> "node_System(141)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game::GameStage> → bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game::GameStage>", "color"="#00b0cc"]
-	"set_marker_node_Set(9)" -> "node_Set(179)" ["lhead"="", "ltail"="clusternode_Set(9)", "tooltip"="StateTransitions → LoadingStateSet(Loading)", "color"="#aa3a55"]
-	"node_Set(179)" -> "set_marker_node_Set(0)" ["lhead"="clusternode_Set(0)", "ltail"="", "tooltip"="LoadingStateSet(Loading) → Update", "color"="#44d488"]
-	"node_Set(188)" -> "node_Set(184)" ["lhead"="", "ltail"="", "tooltip"="ConsoleUI → Commands", "color"="#0090cc"]
-	"node_Set(184)" -> "node_Set(190)" ["lhead"="", "ltail"="", "tooltip"="Commands → PostCommands", "color"="#ee9e44"]
-	"node_System(154)" -> "node_System(155)" ["lhead"="", "ltail"="", "tooltip"="bevy_egui::setup_new_windows_system → bevy_ecs::schedule::executor::apply_system_buffers", "color"="#663699"]
-	"node_System(155)" -> "node_System(156)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers → bevy_egui::systems::update_window_contexts_system", "color"="#3363bb"]
-	"set_marker_node_Set(25)" -> "node_System(157)" ["lhead"="", "ltail"="clusternode_Set(25)", "tooltip"="InputSystem → bevy_egui::systems::process_input_system", "color"="#22c2bb"]
-	"node_Set(192)" -> "node_System(157)" ["lhead"="", "ltail"="", "tooltip"="InitContexts → bevy_egui::systems::process_input_system", "color"="#99d955"]
-	"node_Set(195)" -> "node_System(158)" ["lhead"="", "ltail"="", "tooltip"="ProcessInput → bevy_egui::systems::begin_frame_system", "color"="#eede00"]
-	"node_Set(199)" -> "node_System(160)" ["lhead"="", "ltail"="", "tooltip"="ProcessOutput → bevy_egui::update_egui_textures_system", "color"="#881877"]
-	"node_System(164)" -> "node_System(165)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::ui_bevy::CurrentMenu> → bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::ui_bevy::CurrentMenu>", "color"="#00b0cc"]
-	"node_System(169)" -> "node_Set(215)" ["lhead"="", "ltail"="", "tooltip"="leafwing_input_manager::systems::tick_action_state<vanillacoffee::input::actions::Combat> → Update", "color"="#aa3a55"]
-	"node_Set(215)" -> "node_System(170)" ["lhead"="", "ltail"="", "tooltip"="Update → leafwing_input_manager::systems::release_on_disable<vanillacoffee::input::actions::Combat>", "color"="#44d488"]
-	"set_marker_node_Set(25)" -> "node_System(172)" ["lhead"="", "ltail"="clusternode_Set(25)", "tooltip"="InputSystem → leafwing_input_manager::systems::update_action_state<vanillacoffee::input::actions::Combat>", "color"="#0090cc"]
-	"node_System(173)" -> "node_Set(217)" ["lhead"="", "ltail"="", "tooltip"="leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat> → ReleaseOnDisable", "color"="#ee9e44"]
-	"node_Set(214)" -> "node_System(173)" ["lhead"="", "ltail"="", "tooltip"="Tick → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#663699"]
-	"node_Set(215)" -> "node_System(173)" ["lhead"="", "ltail"="", "tooltip"="Update → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#3363bb"]
-	"node_Set(120)" -> "node_System(173)" ["lhead"="", "ltail"="", "tooltip"="Focus → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#22c2bb"]
-	"set_marker_node_Set(25)" -> "node_System(173)" ["lhead"="", "ltail"="clusternode_Set(25)", "tooltip"="InputSystem → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#99d955"]
-	"node_Set(231)" -> "node_System(183)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<bevy_kira_audio::MainTrack>", "color"="#eede00"]
-	"node_Set(231)" -> "node_System(186)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Music>", "color"="#881877"]
-	"node_Set(231)" -> "node_System(188)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Ambience>", "color"="#00b0cc"]
-	"node_Set(231)" -> "node_System(190)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Sound>", "color"="#aa3a55"]
-	"node_Set(4)" -> "set_marker_node_Set(247)" ["lhead"="clusternode_Set(247)", "ltail"="", "tooltip"="UpdateFlush → ProcessApi", "color"="#44d488"]
-	"set_marker_node_Set(247)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(247)", "tooltip"="ProcessApi → PostUpdate", "color"="#0090cc"]
-	"set_marker_node_Set(248)" -> "set_marker_node_Set(249)" ["lhead"="clusternode_Set(249)", "ltail"="clusternode_Set(248)", "tooltip"="PreClean → Clean", "color"="#ee9e44"]
-	"node_System(206)" -> "node_System(207)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs_ldtk::systems::apply_level_selection → bevy_ecs_ldtk::systems::apply_level_set", "color"="#663699"]
-	"node_System(208)" -> "node_System(209)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers → bevy_ecs_ldtk::systems::clean_respawn_entities", "color"="#3363bb"]
-	"node_System(214)" -> "node_System(215)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game_world::dungeon_generator::GeneratorStage> → bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "color"="#22c2bb"]
-	"set_marker_node_Set(279)" -> "node_Set(280)" ["lhead"="", "ltail"="clusternode_Set(279)", "tooltip"="Scorers → Thinkers", "color"="#99d955"]
-	"node_System(269)" -> "node_System(268)" ["lhead"="", "ltail"="", "tooltip"="bevy_debug_text_overlay::overlay::update_messages_as_per_commands → SystemTypeSet(\"bevy_debug_text_overlay::overlay::layout_messages\")", "color"="#eede00"]
-	"node_System(276)" -> "node_Set(340)" ["lhead"="", "ltail"="", "tooltip"="bevy_rapier2d::render::debug_render_scene → DrawLinesLabel", "color"="#881877"]
+	"node_Set(136)" -> "node_Set(137)" ["lhead"="", "ltail"="", "tooltip"="AddClusters → AddClustersFlush", "color"="#ee9e44"]
+	"node_Set(137)" -> "node_Set(138)" ["lhead"="", "ltail"="", "tooltip"="AddClustersFlush → AssignLightsToClusters", "color"="#663699"]
+	"set_marker_node_Set(20)" -> "node_Set(138)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_pbr::light::assign_lights_to_clusters", "color"="#3363bb"]
+	"node_Set(90)" -> "node_Set(138)" ["lhead"="", "ltail"="", "tooltip"="CheckVisibility → bevy_pbr::light::assign_lights_to_clusters", "color"="#22c2bb"]
+	"set_marker_node_Set(81)" -> "node_Set(138)" ["lhead"="", "ltail"="clusternode_Set(81)", "tooltip"="CameraUpdateSystem → bevy_pbr::light::assign_lights_to_clusters", "color"="#99d955"]
+	"set_marker_node_Set(20)" -> "node_Set(140)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_pbr::light::update_directional_light_cascades", "color"="#eede00"]
+	"set_marker_node_Set(81)" -> "node_Set(140)" ["lhead"="", "ltail"="clusternode_Set(81)", "tooltip"="CameraUpdateSystem → bevy_pbr::light::update_directional_light_cascades", "color"="#881877"]
+	"node_Set(90)" -> "node_System(116)" ["lhead"="", "ltail"="", "tooltip"="CheckVisibility → bevy_pbr::light::update_directional_light_frusta", "color"="#00b0cc"]
+	"set_marker_node_Set(20)" -> "node_System(116)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_pbr::light::update_directional_light_frusta", "color"="#aa3a55"]
+	"node_Set(140)" -> "node_System(116)" ["lhead"="", "ltail"="", "tooltip"="UpdateDirectionalLightCascades → bevy_pbr::light::update_directional_light_frusta", "color"="#44d488"]
+	"set_marker_node_Set(20)" -> "node_System(117)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_pbr::light::update_point_light_frusta", "color"="#0090cc"]
+	"node_Set(138)" -> "node_System(117)" ["lhead"="", "ltail"="", "tooltip"="AssignLightsToClusters → bevy_pbr::light::update_point_light_frusta", "color"="#ee9e44"]
+	"set_marker_node_Set(20)" -> "node_System(118)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_pbr::light::update_spot_light_frusta", "color"="#663699"]
+	"node_Set(138)" -> "node_System(118)" ["lhead"="", "ltail"="", "tooltip"="AssignLightsToClusters → bevy_pbr::light::update_spot_light_frusta", "color"="#3363bb"]
+	"node_Set(86)" -> "node_Set(139)" ["lhead"="", "ltail"="", "tooltip"="CalculateBoundsFlush → bevy_pbr::light::check_light_mesh_visibility", "color"="#22c2bb"]
+	"set_marker_node_Set(20)" -> "node_Set(139)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → bevy_pbr::light::check_light_mesh_visibility", "color"="#99d955"]
+	"set_marker_node_Set(141)" -> "node_Set(139)" ["lhead"="", "ltail"="clusternode_Set(141)", "tooltip"="UpdateLightFrusta → bevy_pbr::light::check_light_mesh_visibility", "color"="#eede00"]
+	"node_Set(90)" -> "node_Set(139)" ["lhead"="", "ltail"="", "tooltip"="CheckVisibility → bevy_pbr::light::check_light_mesh_visibility", "color"="#881877"]
+	"node_System(120)" -> "set_marker_node_Set(25)" ["lhead"="clusternode_Set(25)", "ltail"="", "tooltip"="bevy_gilrs::gilrs_system::gilrs_event_system → InputSystem", "color"="#00b0cc"]
+	"node_System(124)" -> "set_marker_node_Set(20)" ["lhead"="clusternode_Set(20)", "ltail"="", "tooltip"="bevy_animation::animation_player → TransformPropagate", "color"="#aa3a55"]
+	"set_marker_node_Set(20)" -> "node_Set(161)" ["lhead"="", "ltail"="clusternode_Set(20)", "tooltip"="TransformPropagate → BuildShapes", "color"="#44d488"]
+	"node_Set(4)" -> "set_marker_node_Set(166)" ["lhead"="clusternode_Set(166)", "ltail"="", "tooltip"="UpdateFlush → SyncBackend", "color"="#0090cc"]
+	"set_marker_node_Set(166)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(166)", "tooltip"="SyncBackend → PostUpdate", "color"="#ee9e44"]
+	"node_Set(4)" -> "node_Set(167)" ["lhead"="", "ltail"="", "tooltip"="UpdateFlush → SyncBackendFlush", "color"="#663699"]
+	"node_Set(167)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="", "tooltip"="SyncBackendFlush → PostUpdate", "color"="#3363bb"]
+	"set_marker_node_Set(166)" -> "node_Set(167)" ["lhead"="", "ltail"="clusternode_Set(166)", "tooltip"="SyncBackend → SyncBackendFlush", "color"="#22c2bb"]
+	"node_Set(4)" -> "set_marker_node_Set(168)" ["lhead"="clusternode_Set(168)", "ltail"="", "tooltip"="UpdateFlush → StepSimulation", "color"="#99d955"]
+	"set_marker_node_Set(168)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(168)", "tooltip"="StepSimulation → PostUpdate", "color"="#eede00"]
+	"node_Set(167)" -> "set_marker_node_Set(168)" ["lhead"="clusternode_Set(168)", "ltail"="", "tooltip"="SyncBackendFlush → StepSimulation", "color"="#881877"]
+	"node_Set(4)" -> "set_marker_node_Set(169)" ["lhead"="clusternode_Set(169)", "ltail"="", "tooltip"="UpdateFlush → Writeback", "color"="#00b0cc"]
+	"set_marker_node_Set(169)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(169)", "tooltip"="Writeback → PostUpdate", "color"="#aa3a55"]
+	"set_marker_node_Set(168)" -> "set_marker_node_Set(169)" ["lhead"="clusternode_Set(169)", "ltail"="clusternode_Set(168)", "tooltip"="StepSimulation → Writeback", "color"="#44d488"]
+	"node_System(136)" -> "node_System(137)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::update_character_controls\") → bevy_transform::systems::sync_simple_transforms", "color"="#0090cc"]
+	"node_System(136)" -> "node_System(138)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::update_character_controls\") → bevy_transform::systems::propagate_transforms", "color"="#ee9e44"]
+	"node_Set(171)" -> "node_System(139)" ["lhead"="", "ltail"="", "tooltip"="RapierTransformPropagateSet → bevy_rapier2d::plugin::systems::init_async_colliders", "color"="#663699"]
+	"node_System(139)" -> "node_System(140)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_async_colliders\") → bevy_rapier2d::plugin::systems::apply_scale", "color"="#3363bb"]
+	"node_System(140)" -> "node_System(141)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_scale\") → bevy_rapier2d::plugin::systems::apply_collider_user_changes", "color"="#22c2bb"]
+	"node_System(141)" -> "node_System(142)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_collider_user_changes\") → bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes", "color"="#99d955"]
+	"node_System(142)" -> "node_System(143)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_rigid_body_user_changes\") → bevy_rapier2d::plugin::systems::apply_joint_user_changes", "color"="#eede00"]
+	"node_System(143)" -> "node_System(144)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_joint_user_changes\") → bevy_rapier2d::plugin::systems::init_rigid_bodies", "color"="#881877"]
+	"node_System(144)" -> "node_System(145)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_rigid_bodies\") → bevy_rapier2d::plugin::systems::init_colliders", "color"="#00b0cc"]
+	"node_System(139)" -> "node_System(145)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_async_colliders\") → bevy_rapier2d::plugin::systems::init_colliders", "color"="#aa3a55"]
+	"node_System(145)" -> "node_System(146)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_colliders\") → bevy_rapier2d::plugin::systems::init_joints", "color"="#44d488"]
+	"node_System(145)" -> "node_System(147)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_colliders\") → bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses", "color"="#0090cc"]
+	"node_System(146)" -> "node_System(148)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::init_joints\") → bevy_rapier2d::plugin::systems::sync_removals", "color"="#ee9e44"]
+	"node_System(147)" -> "node_System(148)" ["lhead"="", "ltail"="", "tooltip"="SystemTypeSet(\"bevy_rapier2d::plugin::systems::apply_initial_rigid_body_impulses\") → bevy_rapier2d::plugin::systems::sync_removals", "color"="#663699"]
+	"node_System(151)" -> "node_System(150)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::CollisionEvent>::update_system → SystemTypeSet(\"bevy_rapier2d::plugin::systems::step_simulation<()>\")", "color"="#3363bb"]
+	"node_System(152)" -> "node_System(150)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::event::Events<bevy_rapier2d::pipeline::events::ContactForceEvent>::update_system → SystemTypeSet(\"bevy_rapier2d::plugin::systems::step_simulation<()>\")", "color"="#22c2bb"]
+	"node_System(155)" -> "node_System(156)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game::GameStage> → bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game::GameStage>", "color"="#99d955"]
+	"set_marker_node_Set(9)" -> "node_Set(199)" ["lhead"="", "ltail"="clusternode_Set(9)", "tooltip"="StateTransitions → LoadingStateSet(Loading)", "color"="#eede00"]
+	"node_Set(199)" -> "set_marker_node_Set(0)" ["lhead"="clusternode_Set(0)", "ltail"="", "tooltip"="LoadingStateSet(Loading) → Update", "color"="#881877"]
+	"node_Set(208)" -> "node_Set(204)" ["lhead"="", "ltail"="", "tooltip"="ConsoleUI → Commands", "color"="#00b0cc"]
+	"node_Set(204)" -> "node_Set(210)" ["lhead"="", "ltail"="", "tooltip"="Commands → PostCommands", "color"="#aa3a55"]
+	"node_System(169)" -> "node_System(170)" ["lhead"="", "ltail"="", "tooltip"="bevy_egui::setup_new_windows_system → bevy_ecs::schedule::executor::apply_system_buffers", "color"="#44d488"]
+	"node_System(170)" -> "node_System(171)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers → bevy_egui::systems::update_window_contexts_system", "color"="#0090cc"]
+	"set_marker_node_Set(25)" -> "node_System(172)" ["lhead"="", "ltail"="clusternode_Set(25)", "tooltip"="InputSystem → bevy_egui::systems::process_input_system", "color"="#ee9e44"]
+	"node_Set(212)" -> "node_System(172)" ["lhead"="", "ltail"="", "tooltip"="InitContexts → bevy_egui::systems::process_input_system", "color"="#663699"]
+	"node_Set(215)" -> "node_System(173)" ["lhead"="", "ltail"="", "tooltip"="ProcessInput → bevy_egui::systems::begin_frame_system", "color"="#3363bb"]
+	"node_Set(219)" -> "node_System(175)" ["lhead"="", "ltail"="", "tooltip"="ProcessOutput → bevy_egui::update_egui_textures_system", "color"="#22c2bb"]
+	"node_System(180)" -> "node_System(181)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::ui_bevy::CurrentMenu> → bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::ui_bevy::CurrentMenu>", "color"="#99d955"]
+	"node_System(185)" -> "node_Set(236)" ["lhead"="", "ltail"="", "tooltip"="leafwing_input_manager::systems::tick_action_state<vanillacoffee::input::actions::Combat> → Update", "color"="#eede00"]
+	"node_Set(236)" -> "node_System(186)" ["lhead"="", "ltail"="", "tooltip"="Update → leafwing_input_manager::systems::release_on_disable<vanillacoffee::input::actions::Combat>", "color"="#881877"]
+	"set_marker_node_Set(25)" -> "node_System(188)" ["lhead"="", "ltail"="clusternode_Set(25)", "tooltip"="InputSystem → leafwing_input_manager::systems::update_action_state<vanillacoffee::input::actions::Combat>", "color"="#00b0cc"]
+	"node_System(189)" -> "node_Set(238)" ["lhead"="", "ltail"="", "tooltip"="leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat> → ReleaseOnDisable", "color"="#aa3a55"]
+	"node_Set(235)" -> "node_System(189)" ["lhead"="", "ltail"="", "tooltip"="Tick → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#44d488"]
+	"node_Set(236)" -> "node_System(189)" ["lhead"="", "ltail"="", "tooltip"="Update → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#0090cc"]
+	"node_Set(120)" -> "node_System(189)" ["lhead"="", "ltail"="", "tooltip"="Focus → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#ee9e44"]
+	"set_marker_node_Set(25)" -> "node_System(189)" ["lhead"="", "ltail"="clusternode_Set(25)", "tooltip"="InputSystem → leafwing_input_manager::systems::update_action_state_from_interaction<vanillacoffee::input::actions::Combat>", "color"="#663699"]
+	"node_Set(252)" -> "node_System(199)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<bevy_kira_audio::MainTrack>", "color"="#3363bb"]
+	"node_Set(252)" -> "node_System(202)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Music>", "color"="#22c2bb"]
+	"node_Set(252)" -> "node_System(204)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Ambience>", "color"="#99d955"]
+	"node_Set(252)" -> "node_System(206)" ["lhead"="", "ltail"="", "tooltip"="InstanceCleanup → bevy_kira_audio::audio_output::update_instance_states<vanillacoffee::audio::Sound>", "color"="#eede00"]
+	"node_System(208)" -> "node_System(209)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::state::run_enter_schedule<vanillacoffee::game_world::dungeon_generator::GeneratorStage> → bevy_ecs::schedule::state::apply_state_transition<vanillacoffee::game_world::dungeon_generator::GeneratorStage>", "color"="#881877"]
+	"node_Set(4)" -> "set_marker_node_Set(277)" ["lhead"="clusternode_Set(277)", "ltail"="", "tooltip"="UpdateFlush → ProcessApi", "color"="#00b0cc"]
+	"set_marker_node_Set(277)" -> "set_marker_node_Set(11)" ["lhead"="clusternode_Set(11)", "ltail"="clusternode_Set(277)", "tooltip"="ProcessApi → PostUpdate", "color"="#aa3a55"]
+	"set_marker_node_Set(278)" -> "set_marker_node_Set(279)" ["lhead"="clusternode_Set(279)", "ltail"="clusternode_Set(278)", "tooltip"="PreClean → Clean", "color"="#44d488"]
+	"node_System(224)" -> "node_System(225)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs_ldtk::systems::apply_level_selection → bevy_ecs_ldtk::systems::apply_level_set", "color"="#0090cc"]
+	"node_System(226)" -> "node_System(227)" ["lhead"="", "ltail"="", "tooltip"="bevy_ecs::schedule::executor::apply_system_buffers → bevy_ecs_ldtk::systems::clean_respawn_entities", "color"="#ee9e44"]
+	"set_marker_node_Set(303)" -> "node_Set(304)" ["lhead"="", "ltail"="clusternode_Set(303)", "tooltip"="Scorers → Thinkers", "color"="#663699"]
+	"node_System(288)" -> "node_System(287)" ["lhead"="", "ltail"="", "tooltip"="bevy_debug_text_overlay::overlay::update_messages_as_per_commands → SystemTypeSet(\"bevy_debug_text_overlay::overlay::layout_messages\")", "color"="#3363bb"]
+	"node_System(295)" -> "node_Set(365)" ["lhead"="", "ltail"="", "tooltip"="bevy_rapier2d::render::debug_render_scene → DrawLinesLabel", "color"="#22c2bb"]
 }

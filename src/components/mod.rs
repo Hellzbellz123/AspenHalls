@@ -211,6 +211,9 @@ pub mod actors {
         #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
         pub struct AggroScore;
 
+        #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
+        pub struct AttackScore;
+
         /// enemeies that can shoot scorer
         #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
         pub struct ShootScore;

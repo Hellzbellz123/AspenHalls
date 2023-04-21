@@ -74,6 +74,10 @@ pub fn player_sprint(
     mut player_query: Query<&mut MovementState, With<Player>>,
     mut anim_query: Query<&mut AnimState, With<Player>>,
 ) {
+    if input_query.is_empty() || player_query.is_empty() || anim_query.is_empty() {
+        return;
+    }
+
     let action_state = input_query.single_mut();
     let mut animation = anim_query.single_mut();
     let mut player = player_query.single_mut();
@@ -99,6 +103,9 @@ pub fn camera_movement_system(
     mut camera_transform: Query<(&mut Transform, &MainCameraTag), With<Camera>>,
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
 ) {
+    if player_transform.is_empty() || camera_transform.is_empty() {
+        return;
+    }
     let (mut camera_trans, tag) = camera_transform.single_mut();
     let playertrans = player_transform.single().translation.truncate();
     let camtrans = camera_trans.translation.truncate();
