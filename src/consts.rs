@@ -6,7 +6,7 @@ pub const APP_SETTINGS_PATH: &str = "./config.toml";
 /// timestep for game / physics
 pub const TIMESTEP: f32 = 1. / 144.;
 /// Z axis for physics interactions
-pub const ACTOR_PHYSICS_Z_INDEX: f32 = 5.0;
+pub const ACTOR_PHYSICS_Z_INDEX: f32 = 8.0;
 /// Z axis for sprites/entities to be positioned on
 pub const ACTOR_Z_INDEX: f32 = 8.0;
 /// games tile size as const for easy use

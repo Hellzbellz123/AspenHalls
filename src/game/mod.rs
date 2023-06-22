@@ -1,21 +1,23 @@
-use bevy::{app::App, prelude::*};
-
-use bevy_rapier2d::prelude::RapierConfiguration;
-use leafwing_input_manager::prelude::ActionState;
+pub mod actors;
+pub mod audio;
+pub mod game_world;
+pub mod input;
+pub mod ui;
 
 use crate::{
-    actors::ActorPlugin,
     app_config::GeneralSettings,
-    audio::InternalAudioPlugin,
     components::actors::general::{MovementState, TimeToLive},
-    game_world::GameWorldPlugin,
-    input::{
-        actions::{self},
-        ActionsPlugin,
+    game::{
+        actors::ActorPlugin, audio::InternalAudioPlugin, game_world::GameWorldPlugin,
+        input::ActionsPlugin, ui::BevyUiPlugin,
     },
-    // ui::MenuPlugin,
-    ui_bevy::BevyUiPlugin,
 };
+use bevy::{app::App, prelude::*};
+
+use bevy_rapier2d::prelude::{RapierConfiguration, TimestepMode};
+use leafwing_input_manager::prelude::ActionState;
+
+use self::input::actions;
 
 #[derive(Debug, Clone, Component, Default, Resource, Reflect)]
 pub struct TimeInfo {
@@ -89,31 +91,32 @@ pub fn pause_game(
         .get_single()
         .expect("should always only be one input");
 
-    // if gamestate.0 == GameStage::PauseMenu {
-    //     for mut velocity in &mut allvelocity {
-    //         velocity.angvel = 0.0;
-    //         velocity.linvel = Vec2::ZERO;
-    //     }
-    // }
-
-    use bevy_rapier2d::plugin::TimestepMode;
+    match gamestate.0 {
+        GameStage::PlayingGame => {
+            rapiercfg.timestep_mode = TimestepMode::Variable {
+                max_dt: 1.0 / 60.0,
+                time_scale: 1.0,
+                substeps: 1,
+            };
+        }
+        GameStage::PauseMenu => {
+            rapiercfg.timestep_mode = TimestepMode::Variable {
+                max_dt: 1.0 / 60.0,
+                time_scale: 0.0,
+                substeps: 1,
+            };
+        }
+        _ => {
+            return;
+        }
+    }
 
     if input.just_pressed(actions::Combat::Pause) {
         match gamestate.0 {
             GameStage::PlayingGame => {
-                rapiercfg.timestep_mode = TimestepMode::Variable {
-                    max_dt: 1.0 / 60.0,
-                    time_scale: 0.0,
-                    substeps: 1,
-                };
                 cmds.insert_resource(NextState(Some(GameStage::PauseMenu)));
             }
             GameStage::PauseMenu => {
-                rapiercfg.timestep_mode = TimestepMode::Variable {
-                    max_dt: 1.0 / 60.0,
-                    time_scale: 1.0,
-                    substeps: 1,
-                };
                 cmds.insert_resource(NextState(Some(GameStage::PlayingGame)));
             }
             _ => {

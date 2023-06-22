@@ -11,11 +11,9 @@ repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 version = "0.0.4"
 
 [features]
-# default = ["dev"]
+trace = ["bevy/trace", "bevy/trace_tracy", "big-brain/trace", "dev_linux"]
 dev = ["bevy-debug-text-overlay/debug", "bevy_rapier2d/debug-render-2d"]
-
 dev_linux = ["bevy/dynamic_linking", "dev"]
-trace = ["bevy/trace", "bevy/trace_tracy", "big-brain/trace", "dev"]
 
 [[example]]
 name = "test" # examples/boolean.rs

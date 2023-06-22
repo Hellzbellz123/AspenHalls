@@ -12,20 +12,22 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    actors::{
-        combat::components::{
-            CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
-        },
-        player::actions::ShootEvent,
-    },
     components::actors::{
         ai::AIEnemy,
         animation::FacingDirection,
         general::{DefenseStats, MovementState, Player},
     },
     consts::ACTOR_Z_INDEX,
+    game::{
+        actors::{
+            combat::components::{
+                CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
+            },
+            player::actions::ShootEvent,
+        },
+        input::actions,
+    },
     game::{GameStage, TimeInfo},
-    input::actions,
     loading::assets::ActorTextureHandles,
     utilities::{lerp, EagerMousePos},
 };

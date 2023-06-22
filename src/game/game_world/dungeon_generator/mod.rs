@@ -29,7 +29,8 @@ impl Plugin for DungeonGeneratorPlugin {
         .add_systems((
             generator::create_dungeon_container.in_set(OnUpdate(GeneratorStage::Initialization)),
             generator::create_dungeon_hashmap.in_set(OnUpdate(GeneratorStage::Initialization)),
-            generator::layout_dungeon_and_place_skeleton.in_set(OnUpdate(GeneratorStage::PlaceRooms)),
+            generator::layout_dungeon_and_place_skeleton
+                .in_set(OnUpdate(GeneratorStage::PlaceRooms)),
             generator::build_dungeons.in_set(OnUpdate(GeneratorStage::BuildDungeonRooms)),
             self::spawn_some_weapons.in_schedule(OnEnter(GeneratorStage::Finished)),
         ));
@@ -70,7 +71,6 @@ fn spawn_some_weapons(mut ew: EventWriter<SpawnWeaponEvent>) {
         spawn_count: 1,
     });
 }
-
 
 // we can probably create a plugin for this,
 // TODO: use physics for level placement, this may give some weirdness but it should be doable

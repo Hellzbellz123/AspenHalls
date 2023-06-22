@@ -3,12 +3,9 @@ use bevy_debug_grid::{Grid, GridAlignment, GridAxis, SubGrid, TrackedGrid};
 use bevy_ecs_ldtk::{LdtkPlugin, TileEnumTags};
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 
-use crate::{
-    components::MainCameraTag, consts::PLAYER_LAYER, game::GameStage,
-    game_world::components::CollisionBundle,
-};
+use crate::{components::MainCameraTag, consts::PLAYER_LAYER, game::GameStage};
 
-use self::dungeon_generator::GeneratorStage;
+use self::{components::CollisionBundle, dungeon_generator::GeneratorStage};
 
 pub mod components;
 mod dungeon_generator;

@@ -5,11 +5,11 @@
 use bevy::{math::vec3, prelude::*};
 use rand::{thread_rng, Rng};
 
+use self::{
+    zenemy_spawners::{spawn_skeleton, spawn_slime},
+    zweapon_spawner::{spawn_smallpistol, spawn_smallsmg},
+};
 use crate::{
-    actors::spawners::{
-        zenemy_spawners::{spawn_skeleton, spawn_slime},
-        zweapon_spawner::{spawn_smallpistol, spawn_smallsmg},
-    },
     app_config::DifficultySettings,
     components::actors::{
         ai::AIEnemy,

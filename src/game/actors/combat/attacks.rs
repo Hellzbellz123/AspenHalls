@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actors::player::actions::ShootEvent,
     components::actors::{
         bundles::{
             PlayerProjectileBundle, PlayerProjectileColliderBundle, PlayerProjectileTag,
@@ -11,6 +10,7 @@ use crate::{
         general::{ProjectileStats, TimeToLive},
     },
     consts::{ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER},
+    game::actors::player::actions::ShootEvent,
     loading::assets::ActorTextureHandles,
 };
 

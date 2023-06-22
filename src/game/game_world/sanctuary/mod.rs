@@ -1,7 +1,7 @@
 use bevy::{
     math::vec3,
     prelude::{
-        info, Commands, DespawnRecursiveExt, Entity, EventWriter, IntoSystemAppConfig,
+        info, warn, Commands, DespawnRecursiveExt, Entity, EventWriter, IntoSystemAppConfig,
         IntoSystemAppConfigs, IntoSystemConfig, IntoSystemConfigs, OnEnter, OnExit, OnUpdate,
         Plugin, Query, With,
     },
@@ -14,11 +14,15 @@ use crate::{
         spawners::{SpawnWeaponEvent, WeaponType},
     },
     consts::ACTOR_Z_INDEX,
-    game::GameStage,
-    game_world::{
-        components::{LdtkCollisionBundle, LdtkPlayerBundle, LdtkSensorBundle, LdtkSpawnerBundle},
-        dungeon_generator::GeneratorStage,
-        sanctuary::systems::{enter_the_dungeon, homeworld_teleport},
+    game::{
+        game_world::{
+            components::{
+                LdtkCollisionBundle, LdtkPlayerBundle, LdtkSensorBundle, LdtkSpawnerBundle,
+            },
+            dungeon_generator::GeneratorStage,
+            sanctuary::systems::{enter_the_dungeon, homeworld_teleport},
+        },
+        GameStage,
     },
 };
 
@@ -58,6 +62,10 @@ fn cleanup_start_world(
     homeworld_container: Query<Entity, With<MapContainerTag>>,
     weapons: Query<Entity, With<WeaponType>>,
 ) {
+    if homeworld_container.is_empty() {
+        warn!("no homeworld?");
+        return;
+    }
     commands
         .entity(homeworld_container.single())
         .despawn_recursive();

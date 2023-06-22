@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 use winit::dpi::LogicalSize;
 
 use crate::{
-    audio::{Ambience, Music, Sound},
     components::MainCameraTag,
+    game::audio::{Ambience, Music, Sound},
     utilities::logging::VCLogPlugin,
 };
 
@@ -207,19 +207,30 @@ impl Plugin for InitAppPlugin {
     }
 }
 
-pub fn configure_and_build() -> App {
+pub fn configure_logging() -> App {
     let mut vanillacoffee = App::new();
 
-    vanillacoffee.add_plugin(VCLogPlugin {
-        // filters for anything that makies it through the default log level. quiet big loggers
-        // filter: "".into(), // an empty filter
-        filter:
+    #[cfg(not(feature = "trace"))]
+    {
+        vanillacoffee.add_plugin(VCLogPlugin {
+            // filters for anything that makies it through the default log level. quiet big loggers
+            // filter: "".into(), // an empty filter
+            filter:
             "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn"
-                .into(),
-        level: bevy::log::Level::DEBUG,
-    });
+            .into(),
+            level: bevy::log::Level::DEBUG,
+        });
+    }
 
-    info!("Logging Initialized");
+    #[cfg(feature = "trace")]
+    {
+        warn!("Logging with tracing requested");
+        vanillacoffee.add_plugin(bevy::log::LogPlugin {
+            filter: "".into(),
+            level: bevy::log::Level::TRACE,
+        });
+        info!("Logging Initialized");
+    }
 
     // add bevy plugins
     vanillacoffee.add_plugin(InitAppPlugin);

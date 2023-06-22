@@ -2,7 +2,6 @@ use crate::components::MainCameraTag;
 use bevy::{prelude::*, window::PrimaryWindow};
 use std::ops::Mul;
 
-pub mod game;
 pub mod logging;
 pub mod window;
 

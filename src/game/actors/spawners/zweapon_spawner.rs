@@ -2,15 +2,15 @@ use bevy::{prelude::*, sprite::Anchor};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    actors::combat::components::{
-        BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
-        WeaponColliderTag, WeaponStats, WeaponTag,
-    },
     components::actors::{
         bundles::RigidBodyBundle,
         spawners::{SpawnWeaponEvent, WeaponType},
     },
     consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
+    game::actors::combat::components::{
+        BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
+        WeaponColliderTag, WeaponStats, WeaponTag,
+    },
     loading::assets::ActorTextureHandles,
 };
 

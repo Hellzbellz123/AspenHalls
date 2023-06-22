@@ -13,8 +13,7 @@ use crate::{
         },
         MainCameraTag,
     },
-    game::TimeInfo,
-    input::actions,
+    game::{input::actions, TimeInfo},
 };
 
 pub fn player_movement_system(

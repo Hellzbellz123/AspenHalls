@@ -5,7 +5,6 @@ use bevy_rapier2d::prelude::*;
 use big_brain::thinker::Thinker;
 
 use crate::{
-    actors::enemies::skeleton::{SkeletonBundle, SlimeBundle},
     components::actors::{
         ai::{
             AIAttackState, AICanChase, AICanShoot, AICanWander, AIChaseAction, AIEnemy,
@@ -17,6 +16,7 @@ use crate::{
         spawners::SpawnEnemyEvent,
     },
     consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
+    game::actors::enemies::skeleton::{SkeletonBundle, SlimeBundle},
     loading::assets::ActorTextureHandles,
 };
 

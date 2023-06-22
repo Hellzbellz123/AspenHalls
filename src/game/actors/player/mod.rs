@@ -1,10 +1,6 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
 
 use crate::{
-    actors::{
-        combat::components::WeaponSlots,
-        player::movement::{camera_movement_system, player_movement_system, player_sprint},
-    },
     components::actors::{
         animation::FacingDirection,
         bundles::{PlayerColliderBundle, PlayerColliderTag},
@@ -16,7 +12,13 @@ use crate::{
     },
     consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX},
     game::GameStage,
-    input::actions::PlayerBindings,
+    game::{
+        actors::{
+            combat::components::WeaponSlots,
+            player::movement::{camera_movement_system, player_movement_system, player_sprint},
+        },
+        input::actions::PlayerBindings,
+    },
     loading::assets::ActorTextureHandles,
 };
 
@@ -150,8 +152,8 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             spatial: SpatialBundle {
                 transform: (Transform {
                     translation: Vec3 {
-                        x: 630.0,
-                        y: 465.0,
+                        x: 816.0,
+                        y: 464.0,
                         z: ACTOR_Z_INDEX,
                     },
                     rotation: Quat::default(),

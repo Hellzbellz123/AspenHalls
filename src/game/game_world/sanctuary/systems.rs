@@ -7,22 +7,17 @@ use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
     components::actors::{ai::AIEnemy, bundles::PlayerColliderTag, general::Player},
-    game_world::{
-        dungeon_generator::GeneratorStage,
-        sanctuary::map_components::{SanctuaryTeleportSensor, TeleportTimer},
-    },
+    game::game_world::dungeon_generator::GeneratorStage,
     loading::assets::MapAssetHandles,
 };
+
+use super::map_components::{SanctuaryTeleportSensor, TeleportTimer};
 
 #[derive(Debug, Component, Clone, Copy, Reflect, Default)]
 #[reflect(Component)]
 pub struct MapContainerTag;
 
-pub fn spawn_mapbundle(
-    mut commands: Commands,
-    asset_server: ResMut<AssetServer>,
-    maps: Res<MapAssetHandles>,
-) {
+pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
     info!("spawning ldtkworldbundle");
 
     commands.spawn((
@@ -142,11 +137,8 @@ pub fn enter_the_dungeon(
         info!("timer not done, ticking timer");
         teleport_timer.tick(time.delta());
         if teleport_timer.finished() && !player.just_teleported {
-            commands
-                .entity(homeworld_container.single())
-                .despawn_recursive();
             commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
-            *ptransform = Transform::from_xyz(383.0, 140.0, 8.0);
+            *ptransform = Transform::from_xyz(816.0, 464.0, 8.0);
             info!("player teleport/next playing sub-phase");
             player.just_teleported = true;
         }

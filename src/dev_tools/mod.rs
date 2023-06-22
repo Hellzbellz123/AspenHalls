@@ -25,9 +25,6 @@ pub mod debug_plugin {
     use std::{fs, time::Duration};
 
     use crate::{
-        actors::combat::components::{
-            CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
-        },
         app_config::{DifficultySettings, GeneralSettings, SoundSettings, WindowSettings},
         components::{
             actors::{
@@ -42,9 +39,12 @@ pub mod debug_plugin {
             DebugTimer, MainCameraTag,
         },
         dev_tools::debug_dirs::debugdir,
-        game::{GameStage, TimeInfo},
+        game::actors::combat::components::{
+            CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
+        },
         // kayak_ui::MenuState,
-        ui_bevy::CurrentMenu,
+        game::ui::CurrentMenu,
+        game::{GameStage, TimeInfo},
     };
 
     pub struct DebugPlugin;

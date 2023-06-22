@@ -1,14 +1,16 @@
 use crate::{
-    actors::combat::components::{
-        BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
-        WeaponTag,
-    },
     components::actors::{
         general::{MovementState, Player},
         spawners::{EnemyType, SpawnEnemyEvent},
     },
     consts::ACTOR_Z_INDEX,
-    input::actions,
+    game::{
+        actors::combat::components::{
+            BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
+            WeaponTag,
+        },
+        input::actions,
+    },
     utilities::EagerMousePos,
 };
 use bevy::prelude::*;
