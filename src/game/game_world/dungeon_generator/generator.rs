@@ -49,7 +49,7 @@ pub struct DungeonRoomBundle {
     pub computed_visibility: ComputedVisibility,
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy, Reflect, FromReflect)]
 pub struct RoomID(i32);
 
 #[derive(Component, Debug, Reflect, Clone)]
@@ -129,7 +129,7 @@ pub fn setup_dungeon_environment(
                         y: 3.0,
                         z: 1.0,
                     },
-                    translation: gen_settings.dungeon_map_origin,
+                    translation: Vec3::ZERO,
                     ..default()
                 },
                 ..default()
@@ -422,8 +422,10 @@ fn layout_rooms(
     settings: &Res<'_, DungeonGeneratorSettings>,
 ) -> Vec<RoomInstance> {
     let mut grid_spots: Vec<(usize, usize)> = Vec::new();
-    let room_amount = (rooms.len() as f32 * 1.3) as usize;
-    let grid_size = (room_amount as f32).sqrt().ceil() as usize;
+    let room_amount = (rooms.len()) as usize;
+    let grid_size = (room_amount as f32 * settings.grid_too_room_ratio)
+        .sqrt()
+        .ceil() as usize;
     let mut placed_rooms: Vec<RoomInstance> = Vec::new();
 
     // Sort rooms by decreasing area

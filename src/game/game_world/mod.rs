@@ -8,7 +8,7 @@ use crate::{consts::PLAYER_LAYER, game::GameStage};
 use self::{components::CollisionBundle, dungeon_generator::GeneratorStage};
 
 pub mod components;
-mod dungeon_generator;
+pub mod dungeon_generator;
 pub mod sanctuary;
 
 pub struct GameWorldPlugin;

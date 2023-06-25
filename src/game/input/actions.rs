@@ -100,7 +100,8 @@ pub enum Combat {
     ZoomOut,
     /// Esc for keyboard
     Pause,
-    // debug
+    /// spawn skeleton near player
     DebugF1,
+    /// regenerate dungeon
     DebugF2,
 }

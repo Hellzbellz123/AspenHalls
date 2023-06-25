@@ -16,7 +16,11 @@ use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugi
 use crate::app_config::configure_logging;
 
 #[cfg(feature = "dev")]
+use crate::dev_tools::debug_plugin::debug_dump_graphs;
+#[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
+#[cfg(feature = "dev")]
+use tracing_log::log::warn;
 
 mod components;
 mod console;
