@@ -1,5 +1,5 @@
 use bevy::prelude::{info, Vec2};
-use std::{path::Path, thread};
+use std::path::Path;
 
 use crate::{
     app_config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings},

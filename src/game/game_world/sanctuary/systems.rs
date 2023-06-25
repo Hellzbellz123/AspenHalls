@@ -6,7 +6,7 @@ use bevy_ecs_ldtk::{
 use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
-    components::actors::{ai::AIEnemy, bundles::PlayerColliderTag, general::Player},
+    components::actors::{bundles::PlayerColliderTag, general::Player},
     game::game_world::dungeon_generator::GeneratorStage,
     loading::assets::MapAssetHandles,
 };
@@ -122,7 +122,7 @@ pub fn enter_the_dungeon(
     time: Res<Time>,
     mut teleport_timer: ResMut<TeleportTimer>,
     mut player_query: Query<(&mut Transform, &mut Player)>,
-    homeworld_container: Query<Entity, With<MapContainerTag>>,
+    _homeworld_container: Query<Entity, With<MapContainerTag>>,
 ) {
     let (mut ptransform, mut player) = player_query
         .get_single_mut()

@@ -24,8 +24,8 @@ struct Grid {
 
 impl Grid {
     fn new(width: i32, height: i32) -> Grid {
-        let mut cells = vec![vec![Cell::new(); height as usize]; width as usize];
-        return Grid { cells };
+        let cells = vec![vec![Cell::new(); height as usize]; width as usize];
+        Grid { cells }
     }
 
     fn iterate(&mut self) {
@@ -54,7 +54,7 @@ impl Grid {
                 }
             }
         }
-        return neighbors;
+        neighbors
     }
 
     fn get_new_state(&self, state: bool, neighbors: Vec<Cell>) -> bool {
@@ -65,13 +65,13 @@ impl Grid {
             }
         }
         if state {
-            return count == 2 || count == 3;
+            count == 2 || count == 3
         } else {
-            return count == 3;
+            count == 3
         }
     }
 
-    fn place_room_instance(&mut self, width: usize, height: usize) {
+    fn place_room_instance(&mut self, _width: usize, _height: usize) {
         let mut found_position = false;
         while !found_position {
             let i = rand::thread_rng().gen_range(0..self.cells.len());
@@ -86,7 +86,7 @@ impl Grid {
 
 fn main() {
     let mut grid = Grid::new(100, 100);
-    for a in 0..10 {
+    for _a in 0..10 {
         grid.place_room_instance(10, 10);
     }
 

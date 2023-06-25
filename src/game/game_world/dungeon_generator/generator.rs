@@ -1,7 +1,7 @@
-use bevy::{asset::HandleId, prelude::*, utils::HashSet};
+use bevy::{prelude::*, utils::HashSet};
 use bevy_ecs_ldtk::{
     app::{LdtkEntityMap, LdtkIntCellMap},
-    ldtk::{Level, LevelBackgroundPosition},
+    ldtk::Level,
     level::spawn_level,
     prelude::TilesetDefinition,
     utils::{create_entity_definition_map, create_layer_definition_map},
@@ -13,7 +13,7 @@ use bevy_prototype_lyon::{
 };
 
 use rand::prelude::*;
-use std::{cmp, collections::HashMap};
+use std::collections::HashMap;
 
 use super::{DungeonGeneratorSettings, GeneratorStage};
 use crate::loading::assets::MapAssetHandles;
@@ -178,7 +178,7 @@ pub fn create_dungeons_list(
         }
     }
 
-    if done == true {
+    if done {
         for (id, ldtk_level) in &useable_rooms {
             info!("ID: {:?}, Level: {}", id, ldtk_level.level.identifier);
         }
@@ -230,7 +230,6 @@ pub fn layout_dungeon_and_place_skeleton(
     // we can insert the next state
     info!("Done spawning template");
     cmds.insert_resource(NextState(Some(GeneratorStage::BuildDungeonRooms)));
-    return;
 }
 
 /// Performs all the spawning of levels, layers, chunks, bundles, entities, tiles, etc.
@@ -396,8 +395,8 @@ fn build_rooms(
             );
             rooms.push(RoomInstance {
                 room_id: room,
-                width: start_room.level.px_wid.clone(),
-                height: start_room.level.px_hei.clone(),
+                width: start_room.level.px_wid,
+                height: start_room.level.px_hei,
                 room_asset: start_room.clone(),
                 position: Vec3::ZERO,
             });
@@ -463,10 +462,8 @@ fn layout_rooms(
             let y = (row as f32 + 0.5) * cell_height;
 
             // Adjust the position based on the room size and wall distance
-            let adjusted_x =
-                x - (room.width as f32 / 2.0) - (settings.dungeons_space_between as f32);
-            let adjusted_y =
-                y - (room.height as f32 / 2.0) - (settings.dungeons_space_between as f32);
+            let adjusted_x = x - (room.width as f32 / 2.0) - settings.dungeons_space_between;
+            let adjusted_y = y - (room.height as f32 / 2.0) - settings.dungeons_space_between;
 
             // Check if the grid spot is already occupied
             let is_occupied = occupied_spots.contains(&(row, col));
@@ -496,9 +493,9 @@ fn layout_rooms(
                 let new_x = (new_col as f32 + 0.5) * cell_width;
                 let new_y = (new_row as f32 + 0.5) * cell_height;
                 let new_adjusted_x =
-                    new_x - (room.width as f32 / 2.0) - (settings.dungeons_space_between as f32);
+                    new_x - (room.width as f32 / 2.0) - settings.dungeons_space_between;
                 let new_adjusted_y =
-                    new_y - (room.height as f32 / 2.0) - (settings.dungeons_space_between as f32);
+                    new_y - (room.height as f32 / 2.0) - settings.dungeons_space_between;
                 room.position = Vec3::new(new_adjusted_x, new_adjusted_y, 0.0);
                 placed_rooms.push(room);
                 occupied_spots.insert((new_row, new_col));

@@ -59,7 +59,7 @@ pub mod debug_plugin {
             .add_plugin(WorldInspectorPlugin::default())
             .add_plugin(StateInspectorPlugin::<GameStage>::default())
             .add_plugin(StateInspectorPlugin::<CurrentMenu>::default())
-            .add_plugin(FrameTimeDiagnosticsPlugin::default())
+            .add_plugin(FrameTimeDiagnosticsPlugin)
             .add_plugin(LogDiagnosticsPlugin {
                 wait_duration: Duration::from_secs(20),
                 ..Default::default()

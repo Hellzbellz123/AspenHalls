@@ -119,9 +119,7 @@ pub fn pause_game(
             GameStage::PauseMenu => {
                 cmds.insert_resource(NextState(Some(GameStage::PlayingGame)));
             }
-            _ => {
-                return;
-            }
+            _ => {}
         }
     }
 }

@@ -1,9 +1,9 @@
-use bevy::{math::cubic_splines::Point, prelude::*};
+use bevy::prelude::*;
 // use bevy_debug_grid::{Grid, GridAlignment, GridAxis, SubGrid, TrackedGrid};
 use bevy_ecs_ldtk::{LdtkPlugin, TileEnumTags};
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 
-use crate::{components::MainCameraTag, consts::PLAYER_LAYER, game::GameStage};
+use crate::{consts::PLAYER_LAYER, game::GameStage};
 
 use self::{components::CollisionBundle, dungeon_generator::GeneratorStage};
 
@@ -36,7 +36,6 @@ impl Plugin for GameWorldPlugin {
 // can probably use ecs tilemap but i dont really need _ALL_ the functionality?
 // may make pathfinding easier tho so im not sure
 
-use bevy::{math::Vec3Swizzles, prelude::*, utils::HashSet};
 use bevy_ecs_tilemap::prelude::*;
 
 const DISTANCE_AROUND_CAMERA: i32 = 8;

@@ -76,8 +76,8 @@ fn aggro_score_system(
             }
         });
 
-        if let Some(player_transform) = closest_player_transform {
-            let (enemy_transform, aggroable) = enemy_query.get(*actor).unwrap();
+        if let Some(_player_transform) = closest_player_transform {
+            let (_enemy_transform, aggroable) = enemy_query.get(*actor).unwrap();
             if closest_player_as_distance < aggroable.aggro_distance.abs() {
                 aggro_score.set(1.0);
             } else {
@@ -114,11 +114,11 @@ fn wander_score_system(
 }
 
 fn attack_score_system(
-    player_query: Query<&Transform, With<Player>>, //player
-    enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, //enemys that can aggro
+    _player_query: Query<&Transform, With<Player>>, //player
+    _enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, //enemys that can aggro
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
-    mut attackscore_query: Query<
+    _attackscore_query: Query<
         (&Actor, &mut Score),
         (With<AttackScore>, Without<AggroScore>, With<WanderScore>),
     >,
@@ -148,7 +148,7 @@ fn chase_action(
             enemy_transform,
             mut velocity,
             aggroable,
-            mut attacking,
+            _attacking,
             mut enemystate,
             _sprite,
             _,

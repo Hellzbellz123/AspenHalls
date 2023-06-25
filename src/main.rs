@@ -8,13 +8,12 @@
 #![allow(clippy::module_name_repetitions)]
 #![feature(drain_filter)]
 
-use bevy::prelude::{default, warn, Vec2};
+use bevy::prelude::{default, Vec2};
 
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
 use crate::app_config::configure_logging;
-use crate::dev_tools::debug_plugin::debug_dump_graphs;
 
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
