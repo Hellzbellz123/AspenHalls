@@ -8,10 +8,12 @@ use crate::{
     consts::ACTOR_Z_INDEX,
 };
 
-use self::generator::{DungeonID, RoomInstance};
+use self::generator::{RoomID, RoomInstance};
 
 mod generator;
 mod utils;
+// mod test;
+// mod grid2d;
 // mod utils;
 
 pub struct DungeonGeneratorPlugin;
@@ -19,16 +21,16 @@ pub struct DungeonGeneratorPlugin;
 impl Plugin for DungeonGeneratorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(DungeonGeneratorSettings {
-            dungeon_room_amount: 20,
+            dungeon_room_amount: 30,
             dungeon_map_origin: Vec3::ZERO,
-            dungeon_map_halfextent: 5000.0,
-            dungeons_space_between: 1000.0,
+            dungeon_map_halfextent: 1000.0,
+            dungeons_space_between: 100.0,
             useable_rooms: None,
         })
         .register_type::<RoomInstance>()
         .add_systems((
-            generator::create_dungeon_container.in_set(OnUpdate(GeneratorStage::Initialization)),
-            generator::create_dungeon_hashmap.in_set(OnUpdate(GeneratorStage::Initialization)),
+            generator::setup_dungeon_environment.in_set(OnUpdate(GeneratorStage::Initialization)),
+            generator::create_dungeons_list.in_set(OnUpdate(GeneratorStage::Initialization)),
             generator::layout_dungeon_and_place_skeleton
                 .in_set(OnUpdate(GeneratorStage::PlaceRooms)),
             generator::build_dungeons.in_set(OnUpdate(GeneratorStage::BuildDungeonRooms)),
@@ -55,7 +57,7 @@ pub struct DungeonGeneratorSettings {
     dungeon_map_origin: Vec3,
     dungeon_map_halfextent: f32,
     dungeons_space_between: f32,
-    useable_rooms: Option<HashMap<DungeonID, LdtkLevel>>,
+    useable_rooms: Option<HashMap<RoomID, LdtkLevel>>,
 }
 
 fn spawn_some_weapons(mut ew: EventWriter<SpawnWeaponEvent>) {

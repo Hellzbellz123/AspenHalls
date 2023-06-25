@@ -6,6 +6,7 @@
 #![feature(trivial_bounds)]
 // #![forbid(missing_docs)]
 #![allow(clippy::module_name_repetitions)]
+#![feature(drain_filter)]
 
 use bevy::prelude::{default, warn, Vec2};
 

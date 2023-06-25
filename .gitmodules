@@ -1,0 +1,52 @@
+[submodule "deps/bevy-inspector-egui"]
+	path = deps/bevy-inspector-egui
+	url = https://github.com/jakobhellermann/bevy-inspector-egui.git
+[submodule "deps/bevy_rapier"]
+	path = deps/bevy_rapier
+	url = https://github.com/dimforge/bevy_rapier.git
+[submodule "deps/bevy_asset_loader"]
+	path = deps/bevy_asset_loader
+	url = https://github.com/NiklasEi/bevy_asset_loader.git
+[submodule "deps/bevy"]
+	path = deps/bevy
+	url = https://github.com/bevyengine/bevy.git
+	branch = release-0.10.1
+[submodule "deps/leafwing-input-manager"]
+	path = deps/leafwing-input-manager
+	url = https://github.com/Leafwing-Studios/leafwing-input-manager
+[submodule "deps/big-brain"]
+	path = deps/big-brain
+	url = https://github.com/zkat/big-brain
+[submodule "deps/bevy_prototype_lyon"]
+	path = deps/bevy_prototype_lyon
+	url = https://github.com/Nilirad/bevy_prototype_lyon.git
+[submodule "deps/bevy_debug_grid"]
+	path = deps/bevy_debug_grid
+	url = https://github.com/romenjelly/bevy_debug_grid.git
+[submodule "deps/bevy_ecs_ldtk"]
+	path = deps/bevy_ecs_ldtk
+	url = https://github.com/Trouv/bevy_ecs_ldtk.git
+[submodule "deps/bevy_mod_debugdump"]
+	path = deps/bevy_mod_debugdump
+	url = https://github.com/jakobhellermann/bevy_mod_debugdump.git
+[submodule "deps/bevy_kira_audio"]
+	path = deps/bevy_kira_audio
+	url = https://github.com/NiklasEi/bevy_kira_audio.git
+[submodule "deps/bevy_framepace"]
+	path = deps/bevy_framepace
+	url = https://github.com/aevyrie/bevy_framepace.git
+[submodule "deps/bevy_ecs_tilemap"]
+	path = deps/bevy_ecs_tilemap
+	url = https://github.com/StarArawn/bevy_ecs_tilemap.git
+[submodule "deps/bevy-debug-text-overlay"]
+	path = deps/bevy-debug-text-overlay
+	url = https://github.com/nicopap/bevy-debug-text-overlay.git
+[submodule "deps/bevy_common_assets"]
+	path = deps/bevy_common_assets
+	url = https://github.com/NiklasEi/bevy_common_assets.git
+[submodule "deps/bevy-console"]
+	path = deps/bevy-console
+	url = https://github.com/RichoDemus/bevy-console.git
+[submodule "deps/grid_plane"]
+	path = deps/grid_plane
+	url = https://github.com/George35mk/grid_plane.git

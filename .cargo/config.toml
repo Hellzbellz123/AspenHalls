@@ -18,7 +18,7 @@ rustflags = [
   "-Ctarget-cpu=native",
   "-C",
   "link-arg=-fuse-ld=/usr/bin/mold",
-  "-Zshare-generics=y",
+  # "-Zshare-generics=y",
 ]
 
 

@@ -5,7 +5,7 @@ pub mod debug_plugin {
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
         prelude::{App, *},
     };
-    use bevy_debug_grid::DebugGridPlugin;
+    // use bevy_debug_grid::DebugGridPlugin;
     use bevy_debug_text_overlay::OverlayPlugin;
     use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata, LdtkAsset, LdtkLevel};
     use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
@@ -21,7 +21,7 @@ pub mod debug_plugin {
         shapes,
     };
     use bevy_rapier2d::render::RapierDebugRenderPlugin;
-    use grid_plane::GridPlanePlugin;
+    // use grid_plane::GridPlanePlugin;
     use std::{fs, time::Duration};
 
     use crate::{
