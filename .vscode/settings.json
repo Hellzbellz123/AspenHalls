@@ -43,10 +43,6 @@
     "target": true,
     "gamedata/levels/homeworld32x32/backups": true
   },
-  // "lldb.displayFormat": "auto",
-  // "lldb.showDisassembly": "always",
-  // "lldb.dereferencePointers": true,
-  // "lldb.consoleMode": "commands",
   "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
   "rust-analyzer.cargo.features": ["dev_linux"]
 }

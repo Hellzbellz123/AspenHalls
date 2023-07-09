@@ -5,11 +5,13 @@ use std::time::Duration;
 
 use crate::{
     app_config::SoundSettings,
-    components::actors::{
-        animation::FacingDirection,
-        general::{MovementState, Player},
+    game::{
+        actors::{
+            animation::components::{ActorAnimationType, AnimState},
+            components::Player,
+        },
+        GameStage,
     },
-    game::GameStage,
     loading::assets::AudioHandles,
 };
 
@@ -23,12 +25,16 @@ pub struct Ambience;
 #[derive(Resource, Component)]
 pub struct Sound;
 
+/// footstep timer
 #[derive(Resource)]
 pub struct WalkingSoundTimer {
+    /// timer for steps
     pub timer: Timer,
+    /// is first step?
     pub is_first_time: bool,
 }
 
+/// audio plugin
 pub struct InternalAudioPlugin;
 
 // This plugin is responsible to control the game audio
@@ -48,6 +54,7 @@ impl Plugin for InternalAudioPlugin {
     }
 }
 
+/// initial volume from sound settings
 fn setup_sound_volume(
     sound_settings: ResMut<SoundSettings>,
     bgm: Res<AudioChannel<Music>>,
@@ -60,25 +67,27 @@ fn setup_sound_volume(
     bgs.set_volume(sound_settings.soundvolume * mastervolume);
 }
 
+/// play game soundtrack
 fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<Music>>) {
     audio.play(audio_assets.gamesoundtrack.clone()).looped();
 }
 
+/// play walking sound
 fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
-    mut player_query: Query<&mut MovementState, With<Player>>,
+    mut player_query: Query<(&mut AnimState, &mut Player)>,
     mut walksound_res: ResMut<WalkingSoundTimer>,
     audio: Res<AudioChannel<Sound>>,
     time: Res<Time>,
 ) {
-    let playerdata = player_query.single_mut();
-    if playerdata.facing == FacingDirection::Idle {
+    let (anim_data, player_data) = player_query.single_mut();
+    if anim_data.facing == ActorAnimationType::Idle {
         walksound_res.timer.reset();
         walksound_res.is_first_time = true;
     } else {
-        if !playerdata.sprint_available {
+        if !player_data.sprint_available {
             walksound_res.timer.set_duration(Duration::from_millis(650));
-        } else if playerdata.sprint_available {
+        } else if player_data.sprint_available {
             walksound_res.timer.set_duration(Duration::from_millis(150));
         }
 

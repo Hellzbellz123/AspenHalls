@@ -2,20 +2,22 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::actors::{
-        bundles::{
-            PlayerProjectileBundle, PlayerProjectileColliderBundle, PlayerProjectileTag,
-            RigidBodyBundle,
-        },
-        general::{ProjectileStats, TimeToLive},
+    bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
+    consts::{
+        ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER,
     },
-    consts::{ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER},
-    game::actors::player::actions::ShootEvent,
+    game::actors::{
+        components::{
+            PlayerProjectileColliderTag, PlayerProjectileTag, ProjectileStats, TimeToLive,
+        },
+        player::actions::ShootEvent,
+    },
     loading::assets::ActorTextureHandles,
 };
 
 use super::components::WeaponStats;
 
+/// creates player bullet
 pub fn create_bullet(
     cmds: &mut Commands,
     assets: &ResMut<ActorTextureHandles>,
@@ -23,9 +25,9 @@ pub fn create_bullet(
     wstats: &WeaponStats,
 ) {
     cmds.spawn((
-        PlayerProjectileBundle {
+        PlayerProjectileTag,
+        ProjectileBundle {
             name: Name::new("PlayerProjectile"),
-            tag: PlayerProjectileTag,
             projectile_stats: ProjectileStats {
                 damage: wstats.damage,
                 speed: wstats.bullet_speed,
@@ -35,7 +37,7 @@ pub fn create_bullet(
             sprite_bundle: SpriteBundle {
                 texture: assets.bevy_icon.clone(),
                 transform: Transform::from_translation(
-                    event.bullet_spawn_loc, //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
+                    event.bullet_spawn_loc.extend(ACTOR_Z_INDEX), //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
                 ),
                 sprite: Sprite {
                     custom_size: Some(Vec2::splat(wstats.projectile_size)),
@@ -62,21 +64,17 @@ pub fn create_bullet(
     ))
     .with_children(|child| {
         child.spawn((
-            PlayerProjectileColliderBundle {
+            PlayerProjectileColliderTag,
+            ProjectileColliderBundle {
                 name: Name::new("PlayerProjectileCollider"),
                 transformbundle: TransformBundle {
                     local: (Transform {
-                        translation: (Vec3 {
-                            x: 0.,
-                            y: 0.,
-                            z: ACTOR_PHYSICS_Z_INDEX,
-                        }),
+                        translation: Vec2::ZERO.extend(ACTOR_PHYSICS_Z_INDEX),
                         ..default()
                     }),
                     ..default()
                 },
                 collider: Collider::ball(3.0),
-                tag: crate::components::actors::bundles::PlayerProjectileColliderTag,
                 collisiongroups: CollisionGroups::new(
                     PLAYER_PROJECTILE_LAYER,
                     Group::from_bits_truncate(0b00101),

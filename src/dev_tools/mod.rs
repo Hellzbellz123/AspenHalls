@@ -1,5 +1,11 @@
+#![allow(clippy::type_complexity)]
+/// holds walk_dirs function
+/// outputs cwd too console
 mod debug_dirs;
-// #[cfg(feature = "dev")]
+
+/// debug plugin for vanillacoffee
+/// holds type registration, diagnostics, and inspector stuff
+#[cfg(feature = "dev")]
 pub mod debug_plugin {
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -27,32 +33,29 @@ pub mod debug_plugin {
     use std::{fs, time::Duration};
 
     use crate::{
-        app_config::{DifficultySettings, GeneralSettings, SoundSettings, WindowSettings},
-        components::{
-            actors::{
-                ai::{
-                    AIAttackState, AICanChase, AICanWander, AIChaseAction, AIEnemy, AIWanderAction,
-                    ActorType, AggroScore, TypeEnum,
-                },
-                animation::{AnimState, AnimationSheet, FacingDirection},
-                general::{CombatStats, DefenseStats, MovementState, Player, TimeToLive},
-                spawners::Spawner,
-            },
-            DebugTimer, MainCameraTag,
-        },
+        app_config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
         dev_tools::debug_dirs::debugdir,
         game::{
             actors::combat::components::{
                 CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
                 WeaponTag,
             },
-            game_world::dungeon_generator::DungeonGeneratorSettings,
+            game_world::dungeonator::DungeonGeneratorSettings,
         },
         // kayak_ui::MenuState,
-        game::{game_world::dungeon_generator::GeneratorStage, ui::CurrentMenu},
+        game::{
+            actors::{
+                ai::components::*, animation::components::*, components::*,
+                spawners::components::Spawner,
+            },
+            game_world::dungeonator::GeneratorStage,
+            ui::CurrentMenu,
+        },
         game::{GameStage, TimeInfo},
+        loading::splashscreen::MainCameraTag,
     };
 
+    /// actual plugin too insert
     pub struct DebugPlugin;
 
     impl Plugin for DebugPlugin {
@@ -65,19 +68,15 @@ pub mod debug_plugin {
                 // .add_plugin(ReflectRapierPlugin)
                 .add_plugin(RapierDebugRenderPlugin::default())
                 //custom Reflects not from plugins
-                .register_type::<DifficultySettings>()
+                .register_type::<DifficultyScale>()
                 .register_type::<WindowSettings>()
                 .register_type::<GeneralSettings>()
                 .register_type::<SoundSettings>()
                 // .register_type::<MenuState>()
-                .register_type::<MovementState>()
-                .register_type::<CombatStats>()
-                .register_type::<DefenseStats>()
                 .register_type::<Player>()
-                .register_type::<AIEnemy>()
-                .register_type::<TypeEnum>()
+                .register_type::<Faction>()
                 .register_type::<AnimationSheet>()
-                .register_type::<FacingDirection>()
+                .register_type::<ActorAnimationType>()
                 .register_type::<TimeInfo>()
                 .register_type::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
                 .register_type::<Spawner>()
@@ -102,7 +101,7 @@ pub mod debug_plugin {
                 // bigbrain AI
                 .register_type::<AggroScore>()
                 .register_type::<AICanWander>()
-                .register_type::<AICanChase>()
+                .register_type::<AICanAggro>()
                 .register_type::<AIChaseAction>()
                 .register_type::<AIWanderAction>()
                 .register_type::<ActorType>()
@@ -115,23 +114,27 @@ pub mod debug_plugin {
                     ResourceInspectorPlugin::<DungeonGeneratorSettings>::default()
                         .run_if(state_exists_and_equals(GeneratorStage::Finished)),
                 )
-                // .add_plugin(StateInspectorPlugin::<GameStage>::default())
-                // .add_plugin(StateInspectorPlugin::<CurrentMenu>::default())
+                .add_plugin(StateInspectorPlugin::<GameStage>::default())
+                .add_plugin(StateInspectorPlugin::<CurrentMenu>::default())
+                .add_plugin(StateInspectorPlugin::<GeneratorStage>::default())
                 .add_plugin(FrameTimeDiagnosticsPlugin)
                 .add_plugin(LogDiagnosticsPlugin {
                     wait_duration: Duration::from_secs(20),
                     ..Default::default()
                 })
                 .add_systems((debug_visualize_spawner, debug_visualize_weapon_spawn_point))
-                .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
+                // .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
                 // TODO: refactor these systems into nice sets and stages
                 .add_systems(
                     (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
                         .in_set(OnUpdate(GameStage::PlayingGame)),
                 );
+
+            debug_dump_graphs(app);
         }
     }
 
+    /// querys spawners and creates debug representations for spawner area
     fn debug_visualize_spawner(
         mut cmds: Commands,
         spawner_query: Query<(Entity, &Transform, &Spawner), Without<Fill>>,
@@ -167,14 +170,13 @@ pub mod debug_plugin {
         }
     }
 
+    /// spawn red dot where weapon bullets spawn
     fn debug_visualize_weapon_spawn_point(
         mut cmds: Commands,
-        #[allow(clippy::type_complexity)]
-        // trunk-ignore(clippy/type_complexity)
         weapon_query: Query<
             // this is equivelent to if player has a weapon equipped and out
             (Entity, &WeaponStats, &Transform),
-            (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
+            (With<Parent>, With<CurrentlySelectedWeapon>),
         >,
     ) {
         for (ent, _wstats, _trans) in &weapon_query {
@@ -189,7 +191,10 @@ pub mod debug_plugin {
         }
     }
 
+    /// dumps scheduling graphs for given App
     pub fn debug_dump_graphs(app: &mut App) {
+        warn!("Dumping graphs");
+
         let schedule_theme = schedule_graph::settings::Style::dark_github();
         let render_theme = render_graph::settings::Style::dark_github();
 
@@ -217,4 +222,16 @@ pub mod debug_plugin {
             .expect("couldnt write render schedule to file");
         fs::write("zrendergraph.dot", render_graph).expect("couldnt write render schedule to file");
     }
+
+    // /// takes all actors and sums z then divied by actor count
+    // pub fn debug_test_transform_z(actor_query: Query<(&ActorType, &GlobalTransform)>) {
+    //     let mut total = 0;
+    //     let mut z_value = 0.0;
+    //     actor_query.for_each(|(_thing, trans)| {
+    //         z_value += trans.translation().z;
+    //         total += 1;
+    //     });
+    //     let a: f32 = z_value / actor_query.iter().len() as f32;
+    //     info!("average z value {}", a);
+    // }
 }

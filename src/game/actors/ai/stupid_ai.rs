@@ -1,3 +1,4 @@
+#![allow(clippy::type_complexity)]
 /*
 all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfield
 for being the only real useful example of big-brain as far as im concerned
@@ -11,27 +12,16 @@ use big_brain::{
 };
 use rand::{thread_rng, Rng};
 
-use crate::{
-    components::actors::{
-        ai::{
-            AIAttackState, AICanChase, AICanShoot, AICanWander, AIChaseAction, AIEnemy,
-            AIWanderAction, AggroScore, AttackScore, WanderScore,
-        },
-        animation::FacingDirection,
-        general::{MovementState, Player},
+use crate::game::{
+    actors::{
+        ai::components::*,
+        animation::components::{ActorAnimationType, AnimState},
+        components::*,
     },
-    consts::ACTOR_Z_INDEX,
-    game::{GameStage, TimeInfo},
+    GameStage, TimeInfo,
 };
 
-/// All Componenents needed for 'stupid_ai' functionality
-#[derive(Bundle, Debug, Default)]
-pub struct StuipidAiBundle {
-    wander: AICanWander,
-    chase: AICanChase,
-    shoot: AICanShoot,
-}
-
+/// stupid ai systems and functions
 pub struct StupidAiPlugin;
 
 impl Plugin for StupidAiPlugin {
@@ -53,9 +43,10 @@ impl Plugin for StupidAiPlugin {
     }
 }
 
+/// aggro score system, if player is in range, aggro score is 1
 fn aggro_score_system(
     player_query: Query<&Transform, With<Player>>, // player
-    enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, // enemies that can aggro
+    enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, // enemies that can aggro
     mut aggro_scorer_query: Query<(&Actor, &mut Score), With<AggroScore>>, // aggro scorer
 ) {
     for (Actor(actor), mut aggro_score) in aggro_scorer_query.iter_mut() {
@@ -64,11 +55,12 @@ fn aggro_score_system(
 
         // Iterate over available player queries and find the closest player to the enemy
         player_query.for_each(|player_transform| {
-            let distance = player_transform.translation.distance(
+            let distance = player_transform.translation.truncate().distance(
                 enemy_query
                     .get_component::<Transform>(*actor)
                     .unwrap()
-                    .translation,
+                    .translation
+                    .truncate(),
             );
             if distance < closest_player_as_distance {
                 closest_player_as_distance = distance;
@@ -89,20 +81,25 @@ fn aggro_score_system(
     }
 }
 
+/// wanderable enemys scorer
+/// if player is not within range, score is 1
 fn wander_score_system(
     player_query: Query<&Transform, With<Player>>, //player
-    enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, //enemys that can aggro
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
+    enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemys that can aggro
     mut wanderscore_query: Query<
         (&Actor, &mut Score),
         (With<WanderScore>, Without<AggroScore>, With<AttackScore>),
     >,
 ) {
-    let Ok(player_transform) = player_query.get_single() else { return };
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
     wanderscore_query.for_each_mut(|(Actor(actor), mut wander_score)| {
         if let Ok((transform, aggroable)) = enemy_query.get(*actor) {
-            let distance = player_transform.translation.distance(transform.translation);
+            let distance = player_transform
+                .translation
+                .truncate()
+                .distance(transform.translation.truncate());
 
             if distance > aggroable.aggro_distance {
                 wander_score.set(1.0)
@@ -113,54 +110,49 @@ fn wander_score_system(
     });
 }
 
+/// TODO: add atacks
+/// if player is within attack range, shoot at player
+#[allow(dead_code)]
 fn attack_score_system(
     _player_query: Query<&Transform, With<Player>>, //player
-    _enemy_query: Query<(&Transform, &AICanChase), With<AIEnemy>>, //enemys that can aggro
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
+    _enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemys that can aggro
     _attackscore_query: Query<
         (&Actor, &mut Score),
-        (With<AttackScore>, Without<AggroScore>, With<WanderScore>),
+        (With<AttackScore>, Without<AggroScore>, Without<WanderScore>),
     >,
 ) {
 }
 
+/// handles enemys that can chase
 fn chase_action(
     _timeinfo: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
     mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
-        &AICanChase,
+        &AICanAggro,
         &mut AIAttackState,
-        &mut MovementState,
-        &mut TextureAtlasSprite,
-        With<AIEnemy>,
+        &mut AnimState,
+        With<Enemy>,
     )>,
     mut chasing_enemys: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
 ) {
-    let Ok(player_transform) = player_query.get_single() else { return; };
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
 
     chasing_enemys.for_each_mut(|(Actor(actor), mut state)| {
-        if let Ok((
-            enemy_transform,
-            mut velocity,
-            aggroable,
-            _attacking,
-            mut enemystate,
-            _sprite,
-            _,
-        )) = enemy_query.get_mut(*actor)
+        if let Ok((enemy_transform, mut velocity, aggroable, _attacking, mut anim_state, _)) =
+            enemy_query.get_mut(*actor)
         {
-            let direction = ((player_transform.translation) - enemy_transform.translation)
-                .truncate()
-                .normalize_or_zero();
+            let direction = ((player_transform.translation.truncate())
+                - enemy_transform.translation.truncate())
+            .normalize_or_zero();
 
             let distance = enemy_transform
                 .translation
-                .distance(player_transform.translation)
+                .truncate()
+                .distance(player_transform.translation.truncate())
                 .abs();
 
             match *state {
@@ -172,61 +164,61 @@ fn chase_action(
                     // move towards the player if player is close enough
                     if distance <= aggroable.aggro_distance {
                         *velocity = Velocity::linear(direction * 50.);
-                    } else
+                    }
                     // chase target escaped, failed to chase
-                    if distance < 100.0 || distance >= aggroable.aggro_distance {
+                    else if distance < 100.0 || distance >= aggroable.aggro_distance {
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3));
-                        enemystate.facing = FacingDirection::Idle;
+                        anim_state.facing = ActorAnimationType::Idle;
                         *state = ActionState::Failure;
                     }
                     // we really shouldnt hit this block
                     else {
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3));
-                        enemystate.facing = FacingDirection::Idle;
+                        anim_state.facing = ActorAnimationType::Idle;
                         warn!("AI CHASE ACTION HIT UNKNOWN CIRCUMSTANCES");
                         *state = ActionState::Failure;
                     }
                 }
                 ActionState::Cancelled => {
                     *velocity = Velocity::linear(Vec2::ZERO);
-                    enemystate.facing = FacingDirection::Idle;
+                    anim_state.facing = ActorAnimationType::Idle;
                     *state = ActionState::Failure;
                 }
                 ActionState::Success => {
                     *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3)); // Velocity::linear(Vec2::ZERO);
-                    enemystate.facing = FacingDirection::Idle;
+                    anim_state.facing = ActorAnimationType::Idle;
                 }
                 ActionState::Failure => {
                     *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
-                    enemystate.facing = FacingDirection::Idle;
+                    anim_state.facing = ActorAnimationType::Idle;
                 }
             }
         }
     });
 }
 
+/// handles enemys that are doing the wander action
 fn wander_action(
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
     mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
-        &mut MovementState,
         &mut TextureAtlasSprite,
         &mut AICanWander,
-        With<AIEnemy>,
+        With<Enemy>,
     )>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,
 ) {
     thinker_query.for_each_mut(|(Actor(actor), mut state)| {
-        if let Ok((enemy_transform, mut velocity, _enemystate, _prite, mut can_meander_tag, _a)) =
+        if let Ok((enemy_transform, mut velocity, _sprite, mut can_meander_tag, _a)) =
             enemy_query.get_mut(*actor)
         {
             let target_pos = can_meander_tag.wander_target;
             let spawn_pos = can_meander_tag
                 .spawn_position
                 .expect("theres always a spawn position, this can be expected");
-            let cur_pos = enemy_transform.translation;
+            let cur_pos = enemy_transform.translation.truncate();
             let mut rng = thread_rng();
             match *state {
                 ActionState::Init => {}
@@ -241,7 +233,7 @@ fn wander_action(
                     let t_deviation = rng.gen_range(-50.0..=50.0);
                     match target_pos {
                         Some(target_pos) => {
-                            let c_target_pos: Vec3 = target_pos;
+                            let c_target_pos: Vec2 = target_pos;
                             let distance = c_target_pos - cur_pos;
                             if distance.length().abs() <= t_deviation {
                                 can_meander_tag.wander_target = None;
@@ -251,10 +243,9 @@ fn wander_action(
                             }
                         }
                         None => {
-                            can_meander_tag.wander_target = Some(Vec3 {
+                            can_meander_tag.wander_target = Some(Vec2 {
                                 x: (spawn_pos.x + rng.gen_range(-300.0..=300.0)), //Rng::gen_range(&mut )),
                                 y: (spawn_pos.y + rng.gen_range(-300.0..=300.0)),
-                                z: ACTOR_Z_INDEX,
                             });
                             *state = ActionState::Executing;
                         }
@@ -262,14 +253,13 @@ fn wander_action(
                 }
                 ActionState::Executing => match target_pos {
                     Some(target_pos) => {
-                        let c_target_pos: Vec3 = target_pos;
+                        let c_target_pos: Vec2 = target_pos;
                         let distance = c_target_pos - cur_pos;
                         if distance.length().abs() <= 60.0 {
                             can_meander_tag.wander_target = None;
                             *state = ActionState::Requested;
                         } else {
-                            *velocity =
-                                Velocity::linear(distance.normalize_or_zero().truncate() * 100.);
+                            *velocity = Velocity::linear(distance.normalize_or_zero() * 100.);
                         }
                     }
                     None => {

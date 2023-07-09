@@ -1,8 +1,10 @@
+/// player input map
 pub mod actions;
 
 use bevy::prelude::{App, Plugin};
 use leafwing_input_manager::prelude::InputManagerPlugin;
 
+/// player input plugin
 pub struct ActionsPlugin;
 
 // holds default bindings for game

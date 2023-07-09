@@ -1,3 +1,4 @@
+/// prints current working directory too console
 pub fn debugdir() {
     let dir = std::env::current_dir()
         .expect("Couldnt get current working directory, No permissions or doesnt exist");
@@ -11,19 +12,24 @@ use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
+/// Term Colors that can be used in output
 pub enum ANSIColor {
-    // GREEN,
-    // MAGENTA,
-    // BLACK,
+    /// is executable
     Yellow,
+    /// is absolute
     Red,
+    /// resets termcolor
     Reset,
+    /// is directory
     Blue,
+    /// is symlink
     White,
+    /// everything else
     Cyan,
 }
 
 impl ANSIColor {
+    /// converts ansicolor enum too string
     #[must_use]
     pub fn as_string(&self) -> &str {
         match &self {
@@ -40,6 +46,7 @@ impl ANSIColor {
     }
 }
 
+/// walk through dirs in path
 fn visit_dirs(
     dir: &Path,
     depth: usize,
@@ -82,6 +89,7 @@ fn visit_dirs(
     Ok(())
 }
 
+/// checks and colorizes path based on type
 fn color_output(colorize: bool, path: &Path) -> std::string::String {
     let filename = path.file_name().unwrap().to_str().unwrap();
     let symlink = match fs::read_link(path) {
@@ -138,7 +146,6 @@ fn color_output(colorize: bool, path: &Path) -> std::string::String {
 /// # Errors
 /// Will return `Err` if `path` does not exist or the user does not have
 /// permission to read it, may also error if theres no where to println too
-
 pub fn run(show_all: bool, colorize: bool, level: usize, dir: &Path) -> Result<(), Box<dyn Error>> {
     visit_dirs(dir, 0, level, "", colorize, show_all)?;
     Ok(())
@@ -166,6 +173,7 @@ pub trait IsExecutable {
     fn is_executable(&self) -> bool;
 }
 
+/// check if path is executable on linux
 #[cfg(target_os = "linux")]
 mod linux {
     use std::os::unix::fs::PermissionsExt;
@@ -185,6 +193,7 @@ mod linux {
     }
 }
 
+/// check if path is exectable on windows
 #[cfg(target_os = "windows")]
 mod windows {
     use super::IsExecutable;

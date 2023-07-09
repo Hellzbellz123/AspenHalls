@@ -1,13 +1,14 @@
+#![allow(clippy::type_complexity)]
+
 use crate::{
-    components::actors::{
-        general::{MovementState, Player},
-        spawners::{EnemyType, SpawnEnemyEvent},
-    },
-    consts::ACTOR_Z_INDEX,
     game::{
-        actors::combat::components::{
-            BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
-            WeaponTag,
+        actors::{
+            combat::components::{
+                BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots,
+                WeaponSocket, WeaponTag,
+            },
+            components::Player,
+            spawners::components::{EnemyType, SpawnEnemyEvent},
         },
         input::actions,
     },
@@ -17,6 +18,7 @@ use bevy::prelude::*;
 
 use leafwing_input_manager::prelude::ActionState as lfActionState;
 
+/// spawns skeleton near player if debugf1 is pressed
 pub fn spawn_skeleton_button(
     mut eventwriter: EventWriter<SpawnEnemyEvent>,
     mouse: Res<EagerMousePos>,
@@ -37,28 +39,22 @@ pub fn spawn_skeleton_button(
 
         eventwriter.send(SpawnEnemyEvent {
             enemy_to_spawn: EnemyType::Skeleton,
-            spawn_position: (player_transform + (direction)).extend(ACTOR_Z_INDEX),
+            spawn_position: (player_transform + (direction)),
             spawn_count: 1,
         })
     };
 }
 
-pub enum AttackEventType {
-    Melee,
-    Ranged,
-}
-
+/// event too spawn bullets
 pub struct ShootEvent {
-    pub bullet_spawn_loc: Vec3,
+    /// where too spawn
+    pub bullet_spawn_loc: Vec2,
+    /// direction too shoot
     pub travel_dir: Vec2,
 }
 
-pub struct PlayerMeleeEvent {}
-
 /// send shoot request to gun control system.
 pub fn player_attack_sender(
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
     weapon_query: Query<
         (
             Entity,
@@ -69,9 +65,6 @@ pub fn player_attack_sender(
         ),
         (With<Parent>, Without<Player>),
     >,
-
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
     query_childbarrelpoint: Query<
         (Entity, &Parent, &GlobalTransform),
         (With<BarrelPointTag>, Without<Player>),
@@ -79,7 +72,7 @@ pub fn player_attack_sender(
 
     // query_childweaponcollider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
     // mut weapon_query2: Query<(Entity, &mut WeaponTag, &mut Transform), Without<Player>>,
-    player_query: Query<(&mut Player, &mut Transform), With<MovementState>>,
+    player_query: Query<(&mut Player, &mut Transform)>,
     mut input_query: Query<&lfActionState<actions::Combat>>,
     mouse_pos: Res<EagerMousePos>,
     mut shootwriter: EventWriter<ShootEvent>,
@@ -99,7 +92,7 @@ pub fn player_attack_sender(
 
     query_childbarrelpoint.for_each(|(_ent, parent, barrel_trans)| {
         if parent.get() == went {
-            let barrel_loc = barrel_trans.translation();
+            let barrel_loc = barrel_trans.translation().truncate();
             let playerpos = player_query.single().1.translation.truncate();
             let direction: Vec2 = (mouse_pos.world - playerpos).normalize_or_zero();
             let action_state = input_query.single_mut();
@@ -118,6 +111,7 @@ pub fn player_attack_sender(
     });
 }
 
+/// equips closest weapon too player if weaponslots is not full
 pub fn equip_closest_weapon(
     mut cmds: Commands,
     mut player_query: Query<
@@ -188,7 +182,7 @@ pub fn equip_closest_weapon(
                                 }
                             }
 
-                            weaponsocket_on_player.drawn_slot = slot; // this should make the most recently picked up weapon the currently drawn weapoin
+                            weaponsocket_on_player.drawn_slot = Some(slot); // this should make the most recently picked up weapon the currently drawn weapoin
 
                             cmds.entity(weapon).insert(CurrentlySelectedWeapon);
                             weapontag.parent = Some(playerentity);
@@ -200,12 +194,7 @@ pub fn equip_closest_weapon(
                                 .or_insert(None);
                             *socket_value = Some(weapon);
 
-                            wtransform.translation = Vec3::ZERO
-                                + Vec3 {
-                                    x: 0.0,
-                                    y: 1.5,
-                                    z: 1.0,
-                                };
+                            wtransform.translation = Vec3::ZERO;
                             return;
                         }
                         if slot_value.is_some() {

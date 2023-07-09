@@ -50,3 +50,9 @@
 [submodule "deps/grid_plane"]
 	path = deps/grid_plane
 	url = https://github.com/George35mk/grid_plane.git
+[submodule "deps/seldom_map_nav"]
+	path = deps/seldom_map_nav
+	url = https://github.com/Seldom-SE/seldom_map_nav.git
+[submodule "deps/pecs"]
+	path = deps/pecs
+	url = https://github.com/jkb0o/pecs.git

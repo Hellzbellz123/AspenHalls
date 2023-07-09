@@ -1,3 +1,6 @@
+// allow type complexity for whole file because i cant allow it for individual fn arguments
+#![allow(clippy::type_complexity)]
+
 use bevy::{app::AppExit, prelude::*};
 
 use crate::{game::GameStage, loading::assets::FontHandles};
@@ -7,6 +10,7 @@ use super::{
     HOVERED_BUTTON, NORMAL_BUTTON, PRESSED_BUTTON,
 };
 
+/// spawns startmenu as child of ui_root_node
 pub fn build(
     mut commands: Commands,
     fonts: Res<FontHandles>,
@@ -178,6 +182,7 @@ pub fn build(
     });
 }
 
+/// handles start menu button interactions
 pub fn button_system(
     mut nextstate: ResMut<NextState<GameStage>>,
     mut text_query: Query<&mut Text>,
@@ -193,7 +198,7 @@ pub fn button_system(
             ),
         ),
     >,
-    mut exit_button_query: Query<
+    #[allow(clippy::type_complexity)] mut exit_button_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
         (
             Changed<Interaction>,
@@ -204,7 +209,7 @@ pub fn button_system(
             ),
         ),
     >,
-    mut settings_button_query: Query<
+    #[allow(clippy::type_complexity)] mut settings_button_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
         (
             Changed<Interaction>,

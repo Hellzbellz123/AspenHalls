@@ -1,31 +1,44 @@
+/// actors enemy, chests, anything
 pub mod actors;
+/// audio data for game
 pub mod audio;
+/// homeworld and dungeon generator
 pub mod game_world;
+/// input from player
 pub mod input;
+/// ui related functionality
 pub mod ui;
 
 use crate::{
     app_config::GeneralSettings,
-    components::actors::general::{MovementState, TimeToLive},
     game::{
-        actors::ActorPlugin, audio::InternalAudioPlugin, game_world::GameWorldPlugin,
-        input::ActionsPlugin, ui::BevyUiPlugin,
+        actors::{
+            components::{Player, TimeToLive},
+            ActorPlugin,
+        },
+        audio::InternalAudioPlugin,
+        game_world::GameWorldPlugin,
+        input::{actions, ActionsPlugin},
+        ui::BevyUiPlugin,
     },
 };
-use bevy::{app::App, prelude::*};
 
+use bevy::{app::App, prelude::*};
 use bevy_rapier2d::prelude::{RapierConfiguration, TimestepMode};
 use leafwing_input_manager::prelude::ActionState;
 
-use self::input::actions;
-
+/// time info for game,
 #[derive(Debug, Clone, Component, Default, Resource, Reflect)]
 pub struct TimeInfo {
+    /// set rapier timestep
     pub time_step: f32,
+    /// pause check
     pub game_paused: bool,
+    /// in pause menu
     pub pause_menu: bool,
 }
 
+/// main game state loop
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum GameStage {
     /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
@@ -41,15 +54,19 @@ pub enum GameStage {
     FailedLoading,
 }
 
-// TODO: use this
+/// are we in dungeon yet?
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum GameProgress {
+    /// homeroom
     #[default]
     Sanctuary,
+    /// in dungeon now
     Dungeon,
 }
 
+/// plugin for all game functionality
 pub struct GamePlugin;
+
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TimeInfo {
@@ -69,6 +86,7 @@ impl Plugin for GamePlugin {
     }
 }
 
+/// setup initial time state
 pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
     *timeinfo = TimeInfo {
         time_step: 1.0,
@@ -77,11 +95,12 @@ pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
     }
 }
 
+/// pause game and modify timestate
 pub fn pause_game(
     mut cmds: Commands,
     gamestate: Res<State<GameStage>>,
     mut rapiercfg: ResMut<RapierConfiguration>,
-    input_query: Query<&ActionState<actions::Combat>, With<MovementState>>,
+    input_query: Query<&ActionState<actions::Combat>, With<Player>>,
 ) {
     if input_query.is_empty() {
         return;
@@ -124,6 +143,7 @@ pub fn pause_game(
     }
 }
 
+/// zoom control
 pub fn zoom_control(
     mut settings: ResMut<GeneralSettings>,
     query_action_state: Query<&ActionState<actions::Combat>>,
@@ -141,6 +161,7 @@ pub fn zoom_control(
     }
 }
 
+/// despawns any entity with TimeToLive timer thats finished
 fn time_to_live(
     mut commands: Commands,
     time: Res<Time>,

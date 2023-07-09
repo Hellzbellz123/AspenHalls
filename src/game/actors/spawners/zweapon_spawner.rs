@@ -2,11 +2,8 @@ use bevy::{prelude::*, sprite::Anchor};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::actors::{
-        bundles::RigidBodyBundle,
-        spawners::{SpawnWeaponEvent, WeaponType},
-    },
-    consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, PLAYER_PROJECTILE_LAYER},
+    bundles::RigidBodyBundle,
+    consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX, PLAYER_PROJECTILE_LAYER},
     game::actors::combat::components::{
         BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
         WeaponColliderTag, WeaponStats, WeaponTag,
@@ -14,9 +11,12 @@ use crate::{
     loading::assets::ActorTextureHandles,
 };
 
+use super::components::{SpawnWeaponEvent, WeaponType};
+
 //TODO: setup so i can load the guns from a ron file in assets directory. can probably use UntypedCollection
 // too allow adding in custom guns.
 
+/// spawns small smg, called from spawner
 pub fn spawn_smallsmg(
     game_assets: ActorTextureHandles,
     cmds: &mut Commands,
@@ -36,23 +36,22 @@ pub fn spawn_smallsmg(
                 z: 0.0,
             },
             damage: 20.0,
-            firing_speed: 0.03,
+            attack_speed: 0.03,
             bullet_speed: 6.0,
             projectile_size: 2.0,
         },
         damagetype: DamageType::KineticRanged,
-        sprite: TextureAtlasSprite {
-            flip_x: false,
-            flip_y: true,
-            anchor: Anchor::Custom(Vec2::new(0.2, 0.2)),
-            custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-            ..default()
-        },
-        texture: game_assets.small_smg,
-        spatial: SpatialBundle {
-            visibility: Visibility::Inherited,
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                flip_x: false,
+                flip_y: true,
+                anchor: Anchor::Custom(Vec2::new(0.2, 0.2)),
+                custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
+                ..default()
+            },
+            texture_atlas: game_assets.small_smg,
             transform: Transform {
-                translation: event.spawn_position,
+                translation: event.spawn_position.extend(ACTOR_Z_INDEX),
                 rotation: Quat::IDENTITY,
                 scale: Vec3::ONE,
             },
@@ -75,16 +74,16 @@ pub fn spawn_smallsmg(
             child.spawn(WeaponColliderBundle {
                 name: Name::new("SMGCollider"),
                 collider: Collider::capsule(
-                    Vec2 { x: 0.0, y: -20.0 },
-                    Vec2 { x: 0.0, y: 20.0 },
-                    4.0,
+                    Vec2 { x: 0.0, y: -10.0 },
+                    Vec2 { x: 0.0, y: 10.0 },
+                    2.0,
                 ),
                 cgroups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
                 transformbundle: TransformBundle {
                     local: Transform {
                         translation: Vec3 {
-                            x: -4.5,
-                            y: -5.5,
+                            x: -2.25,
+                            y: -2.525,
                             z: ACTOR_PHYSICS_Z_INDEX,
                         },
                         rotation: Quat::IDENTITY,
@@ -104,8 +103,8 @@ pub fn spawn_smallsmg(
                     },
                     transform: Transform {
                         translation: Vec3 {
-                            x: -5.5,
-                            y: -33.0,
+                            x: -2.525,
+                            y: -16.5,
                             z: 1.0,
                         },
                         ..default()
@@ -117,6 +116,7 @@ pub fn spawn_smallsmg(
         });
 }
 
+/// spawns small pistol, called from spawner
 pub fn spawn_smallpistol(
     game_assets: ActorTextureHandles,
     cmds: &mut Commands,
@@ -136,23 +136,22 @@ pub fn spawn_smallpistol(
                 z: 0.0,
             },
             damage: 100.0,
-            firing_speed: 1.1,
+            attack_speed: 1.1,
             projectile_size: 3.0,
             bullet_speed: 8.0,
         },
         damagetype: DamageType::KineticRanged,
-        sprite: TextureAtlasSprite {
-            flip_x: true,
-            flip_y: true,
-            anchor: Anchor::Custom(Vec2::new(0.2, 0.5)),
-            custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-            ..default()
-        },
-        texture: game_assets.small_pistol,
-        spatial: SpatialBundle {
-            visibility: Visibility::Inherited,
+        sprite: SpriteSheetBundle {
+            sprite: TextureAtlasSprite {
+                flip_x: true,
+                flip_y: true,
+                anchor: Anchor::Custom(Vec2::new(0.2, 0.5)),
+                custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
+                ..default()
+            },
+            texture_atlas: game_assets.small_pistol,
             transform: Transform {
-                translation: event.spawn_position,
+                translation: event.spawn_position.extend(ACTOR_Z_INDEX),
                 rotation: Quat::IDENTITY,
                 scale: Vec3::ONE,
             },
@@ -175,9 +174,9 @@ pub fn spawn_smallpistol(
             child.spawn(WeaponColliderBundle {
                 name: Name::new("PistolCollider"),
                 collider: Collider::capsule(
-                    Vec2 { x: -1.8, y: -18.3 },
-                    Vec2 { x: -6.0, y: -8.0 },
-                    10.0,
+                    Vec2 { x: -0.9, y: -9.15 },
+                    Vec2 { x: -3.0, y: -4.0 },
+                    5.0,
                 ),
                 cgroups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
                 transformbundle: TransformBundle {
@@ -205,7 +204,7 @@ pub fn spawn_smallpistol(
                     transform: Transform {
                         translation: Vec3 {
                             x: -1.0,
-                            y: -27.0,
+                            y: -13.5,
                             z: 1.0,
                         },
                         ..default()

@@ -1,8 +1,10 @@
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
+/// bundle for player bindings
 #[derive(Bundle)]
 pub struct PlayerBindings {
+    /// actual bindings
     #[bundle]
     input: InputManagerBundle<Combat>,
 }
@@ -67,6 +69,7 @@ impl Default for PlayerBindings {
     }
 }
 
+/// non menu actions
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub enum Combat {
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis

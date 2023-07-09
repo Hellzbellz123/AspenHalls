@@ -3,12 +3,24 @@ use bevy::{
     prelude::*,
 };
 // use rust_embed::RustEmbed;
-use crate::{
-    components::{MainCameraTag, OnSplashScreen, SplashTimer},
-    loading::assets::SPLASHASSETPATH,
-};
+use crate::{game::GameStage, loading::assets::SPLASHASSETPATH};
 
-// This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
+/// Identifies the Main Camera
+#[derive(Component, Reflect)]
+pub struct MainCameraTag {
+    /// true if active, false if not
+    pub is_active: bool,
+}
+
+/// tag added too splashscreen entitys that should be despawned after splashscreen
+#[derive(Component)]
+pub struct OnlySplashScreen;
+
+/// Newtype to use a `Timer` for splashscreen
+#[derive(Resource, Deref, DerefMut)]
+pub struct SplashTimer(pub Timer);
+
+/// This plugin will display a splash screen with Bevy logo for 1 second before switching to the menu
 pub struct SplashPlugin;
 
 impl Plugin for SplashPlugin {
@@ -16,11 +28,14 @@ impl Plugin for SplashPlugin {
         // TODO: do some speciial trickery to make this system work awesome
         // As this plugin is managing the splash screen, it will focus on the state `GameState::Splash`
 
-        app.add_startup_system(spawn_main_camera)
-            .add_startup_system(splash_setup);
+        app.add_systems((
+            spawn_main_camera.in_schedule(OnEnter(GameStage::Loading)),
+            splash_setup.in_schedule(OnEnter(GameStage::Loading)),
+        ));
     }
 }
 
+/// spawns maincamera
 fn spawn_main_camera(mut commands: Commands) {
     commands.spawn((
         Camera2dBundle {
@@ -40,6 +55,7 @@ fn spawn_main_camera(mut commands: Commands) {
     info!("Main Camera Spawned");
 }
 
+/// spawns splash, inserts splash timer
 fn splash_setup(mut commands: Commands, assetserver: ResMut<AssetServer>) {
     info!("loading splash");
     let img = assetserver.load(SPLASHASSETPATH);
@@ -59,6 +75,6 @@ fn splash_setup(mut commands: Commands, assetserver: ResMut<AssetServer>) {
             },
             ..default()
         })
-        .insert(OnSplashScreen);
+        .insert(OnlySplashScreen);
     commands.insert_resource(SplashTimer(Timer::from_seconds(3.0, TimerMode::Once)));
 }

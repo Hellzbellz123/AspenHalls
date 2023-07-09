@@ -1,6 +1,5 @@
+use crate::game::actors::components::Player;
 use bevy::prelude::*;
-
-use crate::components::actors::general::Player;
 
 /// find closest entity too (arg1: Entity) With<Player>.
 #[allow(dead_code)]
@@ -11,8 +10,10 @@ fn find_closest_player(
     *(player
         .iter()
         .min_by(|a, b| {
-            let da = (a.translation - actor_position.translation).length_squared();
-            let db = (b.translation - actor_position.translation).length_squared();
+            let da =
+                (a.translation.truncate() - actor_position.translation.truncate()).length_squared();
+            let db =
+                (b.translation.truncate() - actor_position.translation.truncate()).length_squared();
             da.partial_cmp(&db).unwrap()
         })
         .expect("to players"))

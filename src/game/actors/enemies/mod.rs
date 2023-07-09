@@ -2,19 +2,15 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    components::actors::{
-        bundles::{
-            EnemyProjectileBundle, EnemyProjectileColliderBundle, EnemyProjectileColliderTag,
-            EnemyProjectileTag, RigidBodyBundle,
-        },
-        general::{ProjectileStats, TimeToLive},
+    bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
+    consts::{
+        ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER,
     },
-    consts::{ACTOR_PHYSICS_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER},
     game::GameStage,
+    loading::assets::ActorTextureHandles,
 };
 
-pub mod skeleton;
-
+/// shoot and graphics for enemys
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
@@ -28,35 +24,40 @@ use bevy::{
     sprite::TextureAtlasSprite,
 };
 
-use crate::{
-    components::actors::{ai::AIEnemy, animation::FacingDirection, general::MovementState},
-    game::TimeInfo,
+use super::{
+    ai::components::{AIAttackState, Enemy},
+    animation::components::{ActorAnimationType, AnimState},
+    components::{
+        EnemyProjectileColliderTag, EnemyProjectileTag, Player, ProjectileStats, TimeToLive,
+    },
 };
+use crate::game::TimeInfo;
 
+/// updates enemys animation depending on velocity
 pub fn update_enemy_graphics(
     timeinfo: ResMut<TimeInfo>,
     mut enemy_query: Query<(
         &mut Velocity,
-        &mut MovementState,
+        &mut AnimState,
         &mut TextureAtlasSprite,
         Entity,
-        With<AIEnemy>,
+        With<Enemy>,
     )>,
 ) {
     if !timeinfo.game_paused {
-        enemy_query.for_each_mut(|(velocity, mut enemystate, mut sprite, _ent, _)| {
+        enemy_query.for_each_mut(|(velocity, mut anim_state, mut sprite, _ent, _)| {
             if velocity.linvel == Vec2::ZERO {
-                enemystate.facing = FacingDirection::Idle;
+                anim_state.facing = ActorAnimationType::Idle;
             } else if velocity.linvel.x > 5.0 {
                 sprite.flip_x = false;
-                enemystate.facing = FacingDirection::Right;
+                anim_state.facing = ActorAnimationType::Right;
             } else if velocity.linvel.x < -5.0 {
                 sprite.flip_x = true;
-                enemystate.facing = FacingDirection::Left;
+                anim_state.facing = ActorAnimationType::Left;
             } else if velocity.linvel.y < -5.0 {
-                enemystate.facing = FacingDirection::Down;
+                anim_state.facing = ActorAnimationType::Down;
             } else if velocity.linvel.y > 2.0 {
-                enemystate.facing = FacingDirection::Up;
+                anim_state.facing = ActorAnimationType::Up;
             }
         })
     }
@@ -64,31 +65,30 @@ pub fn update_enemy_graphics(
 
 use bevy_rapier2d::prelude::{RigidBody, Velocity};
 
-use crate::{
-    components::actors::{ai::AIAttackState, general::Player},
-    loading::assets::ActorTextureHandles,
-};
-
+/// timer for shooting
 #[derive(Resource, Deref, DerefMut)]
 pub struct ShootTimer(pub Timer);
 
+/// checks if enemy can shoot and shoots if check is true
 pub fn on_shoot(
     mut cmds: Commands,
     _time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,
     player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<(&Transform, &mut AIAttackState), With<AIEnemy>>,
+    mut enemy_query: Query<(&Transform, &mut AIAttackState), With<Enemy>>,
 ) {
-    let Ok(player_transform) = player_query.get_single() else {return;};
+    let Ok(player_transform) = player_query.get_single() else {
+        return;
+    };
 
     enemy_query.for_each_mut(|(enemytransform, mut attacking)| {
-        let direction: Vec3 =
-            (player_transform.translation - enemytransform.translation).normalize_or_zero();
+        let enemy_loc = enemytransform.translation.truncate();
+        let player_loc = player_transform.translation.truncate();
+        let direction: Vec2 = (player_loc - enemy_loc).normalize_or_zero();
 
         // Make sure that the projectiles spawn outside of the body so that it doesn't collide
-        let beyond_body_diff = direction * 36.;
-        let mut new_transform = *enemytransform;
-        new_transform.translation = enemytransform.translation + beyond_body_diff;
+        let beyond_body_diff: Vec2 = direction * 36.;
+        let modified_spawnloc: Vec2 = enemy_loc + beyond_body_diff;
 
         if attacking.should_shoot && attacking.timer.tick(_time.delta()).finished() {
             info!("should shoot");
@@ -96,23 +96,24 @@ pub fn on_shoot(
                 &mut cmds,
                 assets.bevy_icon.clone(),
                 direction,
-                new_transform,
+                modified_spawnloc,
             );
             attacking.timer.reset();
         }
     });
 }
 
+/// spawns enemy projectile
 pub fn create_enemy_projectile(
     cmds: &mut Commands,
     projtexture: Handle<Image>,
-    direction: Vec3,
-    location: Transform,
+    direction: Vec2,
+    location: Vec2,
 ) {
     cmds.spawn((
-        EnemyProjectileBundle {
+        EnemyProjectileTag,
+        ProjectileBundle {
             name: Name::new("EnemyProjectile"),
-            tag: EnemyProjectileTag,
             projectile_stats: ProjectileStats {
                 damage: 10.0,
                 speed: 100.0,
@@ -121,7 +122,7 @@ pub fn create_enemy_projectile(
             ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
                 texture: projtexture,
-                transform: location,
+                transform: Transform::from_translation(location.extend(ACTOR_Z_INDEX)),
                 sprite: Sprite {
                     custom_size: Some(Vec2::splat(5.0)),
                     ..default()
@@ -129,7 +130,7 @@ pub fn create_enemy_projectile(
                 ..default()
             },
             rigidbody_bundle: RigidBodyBundle {
-                velocity: Velocity::linear(direction.truncate() * (BULLET_SPEED_MODIFIER * 5.0)),
+                velocity: Velocity::linear(direction * (BULLET_SPEED_MODIFIER * 5.0)),
                 rigidbody: RigidBody::Dynamic,
                 friction: Friction::coefficient(0.2),
                 howbouncy: Restitution::coefficient(0.8),
@@ -145,7 +146,8 @@ pub fn create_enemy_projectile(
     ))
     .with_children(|child| {
         child.spawn((
-            EnemyProjectileColliderBundle {
+            EnemyProjectileColliderTag,
+            ProjectileColliderBundle {
                 name: Name::new("EnemyProjectileCollider"),
                 transformbundle: TransformBundle {
                     local: (Transform {
@@ -159,7 +161,6 @@ pub fn create_enemy_projectile(
                     ..default()
                 },
                 collider: Collider::ball(3.0),
-                tag: EnemyProjectileColliderTag,
                 collisiongroups: CollisionGroups::new(
                     PLAYER_PROJECTILE_LAYER,
                     Group::from_bits_truncate(0b00101),

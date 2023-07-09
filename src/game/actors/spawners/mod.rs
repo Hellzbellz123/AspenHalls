@@ -2,30 +2,33 @@
 //whichever direction has the least amount of colliders? maybe check spawning positon for collider first, if no collider then spawn?
 // after some more digging bevy_rapier has a raycast shape function, i think what i will do is raycast down on the position and check if it
 // collides, if collideshape doesnt collide then spawn, if does collide pick new positon 40 or so pixels in any direction
-use bevy::{math::vec3, prelude::*};
+use bevy::{math::vec2, prelude::*};
 use rand::{thread_rng, Rng};
 
 use self::{
+    components::{EnemyContainerTag, SpawnEnemyEvent, SpawnWeaponEvent, Spawner, SpawnerTimer},
     zenemy_spawners::{spawn_skeleton, spawn_slime},
     zweapon_spawner::{spawn_smallpistol, spawn_smallsmg},
 };
 use crate::{
-    app_config::DifficultySettings,
-    components::actors::{
-        ai::AIEnemy,
-        spawners::{
-            EnemyContainerTag, EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, Spawner, SpawnerTimer,
-            WeaponType,
-        },
+    app_config::DifficultyScale,
+    game::{
+        actors::spawners::components::{EnemyType, WeaponType},
+        GameStage,
     },
-    consts::ACTOR_Z_INDEX,
-    game::GameStage,
     loading::assets::ActorTextureHandles,
 };
 
+use super::ai::components::Enemy;
+
+/// spawner components
+pub mod components;
+/// fn for enemys
 mod zenemy_spawners;
+/// fn for weapons
 mod zweapon_spawner;
 
+/// spawner functionality
 pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
@@ -55,53 +58,48 @@ fn recieve_enemy_spawns(
     mut commands: Commands,
     enemyassets: Res<ActorTextureHandles>,
 ) {
-    for event in events.iter() {
+    events.iter().for_each(|event| {
         let mut rng = thread_rng();
-        let copied_event = event;
         info!("recieved event: {:#?}", event);
         if event.spawn_count > 100 {
             warn!("too many spawns, will likely panick, aborting");
             return;
         }
-        let pos = vec3(
-            copied_event.spawn_position.x + rng.gen_range(-300.0..=300.0),
-            copied_event.spawn_position.y + rng.gen_range(-300.0..=300.0),
-            ACTOR_Z_INDEX,
-        );
-        let new_event = SpawnEnemyEvent {
-            enemy_to_spawn: event.enemy_to_spawn,
-            spawn_position: pos,
-            spawn_count: event.spawn_count,
-        };
 
-        match event.enemy_to_spawn {
-            EnemyType::Skeleton => {
-                for _eventnum in 0..event.spawn_count {
-                    spawn_skeleton(
-                        entity_container.single(),
-                        &mut commands,
-                        enemyassets.as_ref(),
-                        &new_event,
-                    )
+        let pos = vec2(
+            event.spawn_position.x + rng.gen_range(-100.0..=100.0),
+            event.spawn_position.y + rng.gen_range(-100.0..=100.0),
+        );
+
+        for _eventnum in 0..event.spawn_count {
+            match event.enemy_to_spawn {
+                EnemyType::Skeleton => spawn_skeleton(
+                    entity_container.single(),
+                    &mut commands,
+                    enemyassets.as_ref(),
+                    &SpawnEnemyEvent {
+                        enemy_to_spawn: event.enemy_to_spawn,
+                        spawn_position: pos,
+                        spawn_count: event.spawn_count,
+                    },
+                ),
+                EnemyType::Slime => spawn_slime(
+                    entity_container.single(),
+                    &mut commands,
+                    enemyassets.as_ref(),
+                    &SpawnEnemyEvent {
+                        enemy_to_spawn: event.enemy_to_spawn,
+                        spawn_position: pos,
+                        spawn_count: event.spawn_count,
+                    },
+                ),
+                #[allow(unreachable_patterns)]
+                _ => {
+                    warn!("not implemented yet")
                 }
-            }
-            EnemyType::Slime => {
-                for _eventnum in 0..event.spawn_count {
-                    spawn_slime(
-                        entity_container.single(),
-                        &mut commands,
-                        enemyassets.as_ref(),
-                        &new_event,
-                    )
-                }
-            }
-            #[allow(unreachable_patterns)]
-            _ => {
-                warn!("not implemented yet")
             }
         }
-        // events.clear()
-    }
+    });
     events.clear();
 }
 
@@ -111,7 +109,7 @@ fn recieve_weapon_spawns(
     mut commands: Commands,
     enemyassets: Res<ActorTextureHandles>,
 ) {
-    for event in events.iter() {
+    events.iter().for_each(|event| {
         info!("recieved event: {:#?}", event);
         if event.spawn_count > 100 {
             warn!("too many spawns, will likely panick, aborting");
@@ -133,7 +131,8 @@ fn recieve_weapon_spawns(
                 warn!("not implemented yet")
             }
         }
-    }
+    });
+    events.clear();
 }
 
 /// creates enemy container entity, all enemys are parented to this container
@@ -167,12 +166,14 @@ pub fn spawn_enemy_container(mut cmds: Commands) {
     // ));
 }
 
+// TODO: add waves too spawners, variable on spawner that is wave count, initialized at value and ticks down per wave
+/// spawner timer system, send spawnevents based on spawner type and timer
 pub fn spawner_timer_system(
     time: Res<Time>,
-    hard_settings: Res<DifficultySettings>,
-    mut _ew: EventWriter<SpawnEnemyEvent>,
+    hard_settings: Res<DifficultyScale>,
+    mut eventwriter: EventWriter<SpawnEnemyEvent>,
     mut spawner_query: Query<(&GlobalTransform, &Spawner, &mut SpawnerTimer), With<Spawner>>,
-    all_enemys: Query<&Transform, With<AIEnemy>>,
+    all_enemys: Query<&Transform, With<Enemy>>,
 ) {
     if spawner_query.is_empty() {
         // warn!("No Spawners available to spawn from");
@@ -180,7 +181,7 @@ pub fn spawner_timer_system(
     }
 
     let totalenemycount = all_enemys.iter().len() as i32;
-    if totalenemycount.ge(&hard_settings.max_enemies) {
+    if totalenemycount.ge(&hard_settings.max_enemies_per_room) {
         // warn!("Enemy Count is greater than or equal too total enemies allowed in game");
         return;
     }
@@ -203,7 +204,8 @@ pub fn spawner_timer_system(
             // add buffer for enemies that can maybe walk outside :/
             let distance_too_spawner = spawner_transform
                 .translation()
-                .distance(enemy_transform.translation)
+                .truncate()
+                .distance(enemy_transform.translation.truncate())
                 .abs()
                 - 50.0;
             if distance_too_spawner.lt(&spawner_state.spawn_radius) {
@@ -216,9 +218,9 @@ pub fn spawner_timer_system(
             return;
         } //else
 
-        _ew.send(SpawnEnemyEvent {
+        eventwriter.send(SpawnEnemyEvent {
             enemy_to_spawn,
-            spawn_position: (spawner_transform.translation()),
+            spawn_position: (spawner_transform.translation().truncate()),
             spawn_count: 1,
         });
     });

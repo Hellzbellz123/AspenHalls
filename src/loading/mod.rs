@@ -1,4 +1,6 @@
+/// holds asset definitions
 pub mod assets;
+/// splashscreen functions
 pub mod splashscreen;
 
 use bevy::prelude::*;

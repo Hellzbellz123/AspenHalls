@@ -1,40 +1,50 @@
 use bevy::prelude::*;
 
-use crate::{components::OnSplashScreen, game::GameStage, utilities::despawn_with};
-
-pub mod components;
-pub mod pausemenu;
-pub mod startmenu;
 use self::components::{PauseMenuRoot, StartMenuRoot, UiRoot};
+use crate::{game::GameStage, loading::splashscreen::OnlySplashScreen, utilities::despawn_with};
 
+/// common ui components
+pub mod components;
+/// pause menu systems
+pub mod pausemenu;
+/// start menu systems
+pub mod startmenu;
+
+/// currently active menu
 #[derive(Debug, Default, States, Hash, PartialEq, Eq, Clone, Copy, Reflect)]
 pub enum CurrentMenu {
+    /// no menu spawned
     #[default]
-    NoMenu,
-    StartMenu,
-    PauseMenu,
-    SettingsMenu,
+    None,
+    /// start menu
+    Start,
+    /// pause menu
+    Pause,
+    /// settings menu
+    Settings,
 }
 
+/// ui plugin
 pub struct BevyUiPlugin;
 
 impl Plugin for BevyUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<CurrentMenu>()
             .add_systems(
-                (despawn_with::<OnSplashScreen>, spawn_ui_root)
+                (despawn_with::<OnlySplashScreen>, spawn_ui_root)
                     .in_schedule(OnExit(GameStage::Loading)),
             )
-            .add_system(despawn_with::<StartMenuRoot>.in_schedule(OnExit(GameStage::StartMenu)))
-            .add_system(despawn_with::<PauseMenuRoot>.in_schedule(OnExit(GameStage::PauseMenu)))
-            .add_system(startmenu::build.in_schedule(OnEnter(GameStage::StartMenu)))
-            .add_system(pausemenu::build.in_schedule(OnEnter(GameStage::PauseMenu)))
-            .add_systems((pausemenu::button_system,).in_set(OnUpdate(GameStage::PauseMenu)))
-            .add_systems((startmenu::button_system,).in_set(OnUpdate(GameStage::StartMenu)))
+            .add_system(despawn_with::<StartMenuRoot>.in_schedule(OnExit(CurrentMenu::Start)))
+            .add_system(despawn_with::<PauseMenuRoot>.in_schedule(OnExit(CurrentMenu::Pause)))
+            .add_system(startmenu::build.in_schedule(OnEnter(CurrentMenu::Start)))
+            .add_system(pausemenu::build.in_schedule(OnEnter(CurrentMenu::Pause)))
+            .add_systems((pausemenu::button_system,).in_set(OnUpdate(CurrentMenu::Pause)))
+            .add_systems((startmenu::button_system,).in_set(OnUpdate(CurrentMenu::Start)))
             .add_system(control_menu_state);
     }
 }
 
+/// spawns ui root
 fn spawn_ui_root(mut cmds: Commands) {
     cmds.spawn((
         NodeBundle {
@@ -51,17 +61,23 @@ fn spawn_ui_root(mut cmds: Commands) {
     ));
 }
 
+/// updates menu state based on gamestage
 fn control_menu_state(mut cmds: Commands, game_state: Res<State<GameStage>>) {
-    match game_state.0 {
-        GameStage::StartMenu => cmds.insert_resource(NextState(Some(CurrentMenu::StartMenu))),
-        GameStage::PauseMenu => cmds.insert_resource(NextState(Some(CurrentMenu::PauseMenu))),
-        GameStage::PlayingGame => cmds.insert_resource(NextState(Some(CurrentMenu::NoMenu))),
-        _ => {}
+    if game_state.is_changed() {
+        match game_state.0 {
+            GameStage::StartMenu => cmds.insert_resource(NextState(Some(CurrentMenu::Start))),
+            GameStage::PauseMenu => cmds.insert_resource(NextState(Some(CurrentMenu::Pause))),
+            GameStage::PlayingGame => cmds.insert_resource(NextState(Some(CurrentMenu::None))),
+            _ => {}
+        }
     }
 }
 
+/// no interaction button color
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+/// button hovered color
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+/// button pressed color
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 //     parent.spawn((

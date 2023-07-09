@@ -51,7 +51,7 @@ fn embedwindowicons() {
     let target = env::var("TARGET").unwrap();
     if target.contains("windows") {
         println!("embedding icon.rc ");
-        embed_resource::compile("data/assets/ico/windows/icon.rc", embed_resource::NONE);
+        embed_resource::compile("gamedata/assets/ico/windows/icon.rc", embed_resource::NONE);
     }
 }
 

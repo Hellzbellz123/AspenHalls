@@ -1,4 +1,6 @@
+/// holds systems that are used by commands
 mod command_systems;
+/// holds definitions of commands
 pub mod commands;
 
 use bevy::prelude::*;

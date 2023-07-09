@@ -1,8 +1,12 @@
-use crate::components::MainCameraTag;
 use bevy::{prelude::*, window::PrimaryWindow};
 use std::ops::Mul;
 
+use crate::loading::splashscreen::MainCameraTag;
+
+/// custom logger
+/// logs too file
 pub mod logging;
+/// sets window icon and title
 pub mod window;
 
 /// holds general game utilities
@@ -74,6 +78,7 @@ fn eager_cursor_pos(
     }
 }
 
+/// despawns any entity with T: Component
 pub fn despawn_with<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     to_despawn.for_each(|entity| {
         info!("despawning entity recursively: {:#?}", entity);

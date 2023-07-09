@@ -7,6 +7,7 @@ use clap::Parser;
 pub struct SpawnWeaponCommand {
     /// type of w to spawn
     pub weapon_type: String,
+    /// z transform of weapon
     pub loc_x: Option<i64>,
     /// y transform
     pub loc_y: Option<i64>,
@@ -37,6 +38,8 @@ pub struct SpawnEnemyCommand {
 #[derive(ConsoleCommand, Parser)]
 #[command(name = "teleport")]
 pub struct TeleportPlayerCommand {
+    /// x pos to teleport too
     pub loc_x: i64,
+    /// y pos to teleport too
     pub loc_y: i64,
 }

@@ -1,57 +1,71 @@
 use bevy::{
-    prelude::{Bundle, Component, Entity, Handle, Name, ReflectComponent, SpatialBundle, Vec3},
+    prelude::{Bundle, Component, Deref, Entity, Name, ReflectComponent, Vec3},
     reflect::{FromReflect, Reflect},
-    sprite::{SpriteBundle, TextureAtlas, TextureAtlasSprite},
-    time::Timer,
+    sprite::{SpriteBundle, SpriteSheetBundle},
     transform::TransformBundle,
     utils::hashbrown::HashMap,
 };
 
 use bevy_rapier2d::prelude::{Collider, CollisionGroups};
 
-use crate::components::actors::{bundles::RigidBodyBundle, spawners::WeaponType};
+use crate::{bundles::RigidBodyBundle, game::actors::spawners::components::WeaponType};
 
-#[derive(Debug, Component)]
-pub struct Damaged {
-    pub amount: f32,
-    pub damage_timer: Timer,
-}
+/// new type around f32, fir danage
+#[derive(Debug, Component, Deref)]
+pub struct Damage(pub f32);
 
-#[derive(Debug, Component)]
-pub struct Destroyed;
-
+/// bundle for spawning weapons
 #[derive(Bundle)]
 pub struct WeaponBundle {
+    /// weapon name
     pub name: Name,
+    /// weapon stored slot
     pub tag: WeaponTag,
+    /// weapon type
     pub weapontype: WeaponType,
+    /// weapon stats
     pub weaponstats: WeaponStats,
+    /// damage type
     pub damagetype: DamageType,
-    pub sprite: TextureAtlasSprite,
-    pub texture: Handle<TextureAtlas>,
-    pub spatial: SpatialBundle,
+    /// sprite for weapon
+    #[bundle]
+    pub sprite: SpriteSheetBundle,
+    /// weapon physics
+    #[bundle]
     pub rigidbodybundle: RigidBodyBundle,
 }
 
+/// collider tag for weapons
 #[derive(Debug, Component)]
 pub struct WeaponColliderTag;
 
+/// weapon collider
 #[derive(Bundle)]
 pub struct WeaponColliderBundle {
+    /// collider name
     pub name: Name,
+    /// collider tag
     pub tag: WeaponColliderTag,
+    /// collider shape
     pub collider: Collider,
+    /// collision groups
     pub cgroups: CollisionGroups,
+    /// collider transform
     pub transformbundle: TransformBundle,
 }
 
+/// tag for easy query on bullet endpoint
 #[derive(Debug, Component)]
 pub struct BarrelPointTag;
 
+/// location where bullet spawns on weapon
 #[derive(Bundle)]
 pub struct WeaponBarrelEndPoint {
+    /// barrel endpoint name
     pub name: Name,
+    /// barrel point tag
     pub tag: BarrelPointTag,
+    /// barrel point visual
     pub sprite: SpriteBundle,
 }
 
@@ -70,32 +84,45 @@ pub struct WeaponTag {
 #[reflect(Component)]
 pub struct CurrentlySelectedWeapon;
 
+/// type of damage
 #[derive(Debug, Clone, Copy, Component, Reflect, Default)]
 #[reflect(Component)]
 pub enum DamageType {
     #[default]
+    /// physical ranged
     KineticRanged,
+    /// physical melee
     KineticMelee,
 }
 
+/// weapon stats
 #[derive(Debug, Clone, Copy, Component, Reflect, Default)]
 #[reflect(Component)]
 pub struct WeaponStats {
+    /// where bullet spawns on weapon
     pub barreloffset: Vec3,
+    /// amount of damage bullet does
     pub damage: f32,
-    pub firing_speed: f32,
+    /// how often too spawn bullet
+    pub attack_speed: f32,
+    /// how fast bullet travels
     pub bullet_speed: f32,
+    /// how large is projectile
     pub projectile_size: f32,
 }
 
-#[derive(Debug, Clone, Copy, Component, Hash, PartialEq, Eq, Reflect, FromReflect, Default)]
-#[reflect(Component)]
+/// weapon slots that can be filled
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Reflect, FromReflect, Default)]
 pub enum WeaponSlots {
     #[reflect(default)]
     #[default]
+    /// first slot
     Slot1,
+    /// second slot
     Slot2,
+    /// third slot
     Slot3,
+    /// fourth slot
     Slot4,
 }
 
@@ -106,5 +133,5 @@ pub struct WeaponSocket {
     /// hashmap with weapon slots and entitys that are in those slots
     pub weapon_slots: HashMap<WeaponSlots, Option<Entity>>,
     /// weapon that should be visible from weaponslots hashmap
-    pub drawn_slot: WeaponSlots,
+    pub drawn_slot: Option<WeaponSlots>,
 }

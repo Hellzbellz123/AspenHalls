@@ -1,35 +1,52 @@
-// disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![feature(stmt_expr_attributes)]
 #![feature(type_ascription)]
 #![feature(lint_reasons)]
 #![feature(trivial_bounds)]
-// #![forbid(missing_docs)]
+#![doc = r"
+Vanilla Coffee, My video game.
+it kinda sucks but itll be finished eventually
+A Dungeon Crawler in the vibes of Into The Gungeon
+"]
+// disable console on windows for release builds
+// #![doc = include_str!("../README.md")]
 #![allow(clippy::module_name_repetitions)]
-#![feature(drain_filter)]
+#![warn(
+    clippy::missing_docs_in_private_items,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::missing_safety_doc
+)]
 
 use bevy::prelude::{default, Vec2};
 
 use bevy_prototype_lyon::prelude::ShapePlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 
-use crate::app_config::configure_logging;
+use crate::app_config::app_with_logging;
 
-#[cfg(feature = "dev")]
-use crate::dev_tools::debug_plugin::debug_dump_graphs;
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
 #[cfg(feature = "dev")]
 use tracing_log::log::warn;
 
-mod components;
-mod console;
-mod dev_tools;
-mod game;
-
+/// holds app settings logic and systems
 mod app_config;
+/// general component store
+mod bundles;
+/// things related too command_console
+mod console;
+/// general consts file, if it gets used more than
+/// twice it should be here
 mod consts;
+/// Debug and Development related functions
+mod dev_tools;
+/// actual game plugin, ui and all "game" functionality
+mod game;
+/// Holds all Asset Collections and handles loading them
+/// also holds failstate
 mod loading;
+/// misc util functions that cant find a place
 mod utilities;
 
 // TODO: Convert items and weapon definitions too ron assets in gamedata/definitions and gamedata/custom (for custom user content) from the game folder.
@@ -37,8 +54,11 @@ mod utilities;
 // world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a playthrough should
 // have the [Loot] component/tag and should be added too a "leveled list" (skyrim) like system
 
+/// main app fn, configures app loop with logging, then
+/// then loads settings from config.toml and adds
+/// general game plugins
 fn main() {
-    let mut vanillacoffee = configure_logging();
+    let mut vanillacoffee = app_with_logging();
 
     // add third party plugins
     vanillacoffee
@@ -60,11 +80,6 @@ fn main() {
 
     #[cfg(feature = "dev")]
     vanillacoffee.add_plugin(DebugPlugin);
-
-    #[cfg(feature = "dev")]
-    debug_dump_graphs(&mut vanillacoffee);
-    #[cfg(feature = "dev")]
-    warn!("Dumping graphs");
 
     vanillacoffee.run();
 }

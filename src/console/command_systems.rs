@@ -3,22 +3,23 @@ use std::str::FromStr;
 use strum::VariantNames;
 
 use bevy::{
-    math::vec3,
-    prelude::{info, Camera, EventWriter, Query, Transform, Vec3, With, Without},
+    math::vec2,
+    prelude::{info, Camera, EventWriter, Query, Transform, Vec2, Vec3, With, Without},
 };
 
 use bevy_console::{reply, ConsoleCommand};
 
 use crate::{
-    components::actors::{
-        general::Player,
-        spawners::{EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, WeaponType},
-    },
     consts::ACTOR_Z_INDEX,
+    game::actors::{
+        components::Player,
+        spawners::components::{EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, WeaponType},
+    },
 };
 
 use super::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand};
 
+/// recieves spawnweapon command and sens spawn event
 pub fn spawnweapon_command(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnWeaponCommand>,
@@ -36,11 +37,7 @@ pub fn spawnweapon_command(
     })) = spawn.take()
     {
         let cspawn_atplayer = atplayer.unwrap_or(true);
-        let mut cspawn_location = Vec3::new(
-            loc_x.unwrap_or(0) as f32,
-            loc_y.unwrap_or(0) as f32,
-            ACTOR_Z_INDEX,
-        );
+        let mut cspawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
         let cspawn_count = amount.unwrap_or(1);
         let cspawn_type = WeaponType::from_str(&weapon_type);
 
@@ -49,7 +46,7 @@ pub fn spawnweapon_command(
                 for _ in 0..cspawn_count {
                     if cspawn_atplayer {
                         cspawn_location =
-                            player_transform.single().translation + vec3(offset, offset, 0.0)
+                            player_transform.single().translation.truncate() + vec2(offset, offset)
                     }
 
                     ew.send(SpawnWeaponEvent {
@@ -76,6 +73,7 @@ pub fn spawnweapon_command(
     }
 }
 
+/// recieves spawnenemy command and send spawnevent
 pub fn spawnenemy_command(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnEnemyCommand>,
@@ -94,11 +92,7 @@ pub fn spawnenemy_command(
     {
         let cspawn_atplayer = atplayer.unwrap_or(true);
         let cspawn_count = amount.unwrap_or(1);
-        let mut cspawn_location = Vec3::new(
-            loc_x.unwrap_or(0) as f32,
-            loc_y.unwrap_or(0) as f32,
-            ACTOR_Z_INDEX,
-        );
+        let mut cspawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
         let cspawn_type = EnemyType::from_str(&enemy_type);
 
         match cspawn_type {
@@ -106,7 +100,7 @@ pub fn spawnenemy_command(
                 for _ in 0..cspawn_count {
                     if cspawn_atplayer {
                         cspawn_location =
-                            player_transform.single().translation + vec3(offset, offset, 0.0)
+                            player_transform.single().translation.truncate() + vec2(offset, offset)
                     }
 
                     ew.send(SpawnEnemyEvent {
@@ -133,6 +127,7 @@ pub fn spawnenemy_command(
     }
 }
 
+/// receives tp command and teleports player too location
 pub fn teleportplayer_command(
     mut player_transform: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<TeleportPlayerCommand>,

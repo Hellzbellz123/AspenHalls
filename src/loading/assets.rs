@@ -6,27 +6,29 @@ use bevy_ecs_ldtk::LdtkAsset;
 /// game data folder is data, anything thats not ron/toml/json/etc goes in assets
 pub const SPLASHASSETPATH: &str = "assets/textures/splash/splashL.png";
 
+/// font resources available too use
 #[derive(AssetCollection, Resource, Clone)]
 pub struct FontHandles {
     /// default font
     #[asset(key = "main_font")]
     pub main_font: Handle<Font>,
-
+    /// large fancy font
     #[asset(key = "title_font")]
     pub title_font: Handle<Font>,
 }
 
+/// audio resource available
 #[derive(AssetCollection, Resource, Debug)]
 pub struct AudioHandles {
     /// looping background soundtrack
     #[asset(key = "ost")]
     pub gamesoundtrack: Handle<bevy_kira_audio::AudioSource>,
-
     /// a vector of footstep files, currently 8
     #[asset(key = "footsteps", collection(typed))]
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
 }
 
+/// Actor Textures
 #[derive(AssetCollection, Resource, Clone)]
 pub struct ActorTextureHandles {
     /// player character 1 texture handle
@@ -54,6 +56,7 @@ pub struct ActorTextureHandles {
     pub bevy_icon: Handle<Image>,
 }
 
+/// ui textrues
 #[derive(AssetCollection, Resource, Clone)]
 pub struct UiTextureHandles {
     /// ui containing image
@@ -69,14 +72,13 @@ pub struct UiTextureHandles {
     pub button_blue_pressed: Handle<Image>,
 }
 
+/// map asset handle
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
     /// homeworld level asset
     #[asset(path = "levels/homeworld32x32.ldtk")]
     pub homeworld: Handle<LdtkAsset>,
-    // #[asset(path = "levels/dungeon_rooms.ldtk")]
-    // pub dungeon_set: Handle<LdtkAsset>,
 }
 
 // BEVY ODDIO ASSET CONFIG

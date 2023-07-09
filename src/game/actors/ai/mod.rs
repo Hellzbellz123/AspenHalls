@@ -3,11 +3,16 @@ use big_brain::thinker::Actor;
 
 use crate::game::GameStage;
 
-use self::skeleton_ai::StupidAiPlugin;
+use self::stupid_ai::StupidAiPlugin;
 
-pub mod skeleton_ai;
+/// ai components
+pub mod components;
+/// stupid ai stuff
+pub mod stupid_ai;
+/// util functions
 pub mod utiltiy;
 
+/// handles different AI classes
 pub struct AIPlugin;
 
 impl Plugin for AIPlugin {
@@ -17,6 +22,8 @@ impl Plugin for AIPlugin {
     }
 }
 
+/// entity tag for all big_brain entitys too be parented too
+/// clean heirarchy plz
 #[derive(Debug, Component)]
 struct BigBrainContainerTag;
 

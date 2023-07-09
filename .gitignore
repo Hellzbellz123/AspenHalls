@@ -11,3 +11,11 @@ debug.log
 crates/
 gamedata/levels/homeworld32x32/backups
 Cargo.lock
+config.toml
+gameuimockup.png~
+cyclic.dot
+tiles.png
+zschedulegraph.dot
+Cargo.lock
+cyclic.dot
+tiles.png

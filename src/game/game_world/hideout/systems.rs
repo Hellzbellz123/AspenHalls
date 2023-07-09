@@ -6,18 +6,22 @@ use bevy_ecs_ldtk::{
 use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
-    components::actors::{bundles::PlayerColliderTag, general::Player},
-    game::game_world::dungeon_generator::GeneratorStage,
+    game::{
+        actors::components::{Player, PlayerColliderTag},
+        game_world::dungeonator::GeneratorStage,
+    },
     loading::assets::MapAssetHandles,
 };
 
 use super::map_components::{SanctuaryTeleportSensor, TeleportTimer};
 
+/// tag for map entity
 #[derive(Debug, Component, Clone, Copy, Reflect, Default)]
 #[reflect(Component)]
 pub struct MapContainerTag;
 
-pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
+/// spawns hideout and related resources
+pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
     info!("spawning ldtkworldbundle");
 
     commands.spawn((
@@ -41,13 +45,10 @@ pub fn spawn_mapbundle(mut commands: Commands, maps: Res<MapAssetHandles>) {
         Name::new("MapContainer"),
         MapContainerTag,
     ));
-}
 
-pub fn spawn_homeworld(mut commands: Commands) {
     commands.insert_resource(TeleportTimer {
         timer: Timer::from_seconds(2.0, TimerMode::Once),
     });
-
     commands.insert_resource(LevelSelection::Index(0));
     commands.insert_resource(LdtkSettings {
         level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation {},
@@ -57,7 +58,8 @@ pub fn spawn_homeworld(mut commands: Commands) {
     });
 }
 
-pub fn homeworld_teleport(
+/// system too check for player on teleport pad
+pub fn homeworld_teleporter_collisions(
     mut collision_events: EventReader<CollisionEvent>,
     world_sensors: Query<Entity, With<SanctuaryTeleportSensor>>,
     player_collider_query: Query<Entity, With<PlayerColliderTag>>,
@@ -117,34 +119,34 @@ pub fn homeworld_teleport(
     collision_events.clear();
 }
 
+/// acts on player standing on pad for required time
 pub fn enter_the_dungeon(
     mut commands: Commands,
     time: Res<Time>,
     mut teleport_timer: ResMut<TeleportTimer>,
-    mut player_query: Query<(&mut Transform, &mut Player)>,
+    mut player_query: Query<(&Transform, &mut Player)>,
     _homeworld_container: Query<Entity, With<MapContainerTag>>,
 ) {
-    let (mut ptransform, mut player) = player_query
+    let (_ptransform, mut player) = player_query
         .get_single_mut()
         .expect("should always be a player if we are getting the event");
 
     if !player.wants_to_teleport {
         teleport_timer.reset();
-        player.just_teleported = false;
+        player.enter_dungeon_requested = false;
     }
 
     if !teleport_timer.finished() & player.wants_to_teleport {
         info!("timer not done, ticking timer");
         teleport_timer.tick(time.delta());
-        if teleport_timer.finished() && !player.just_teleported {
+        if teleport_timer.finished() && !player.enter_dungeon_requested {
             commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
-            *ptransform = Transform::from_xyz(816.0, 464.0, 8.0);
-            info!("player teleport/next playing sub-phase");
-            player.just_teleported = true;
+            info!("Starting Dungeon Generation");
+            player.enter_dungeon_requested = true;
         }
-    } else if player.just_teleported {
+    } else if player.enter_dungeon_requested {
         player.wants_to_teleport = false;
-        player.just_teleported = false;
+        player.enter_dungeon_requested = false;
         teleport_timer.reset();
     }
 }

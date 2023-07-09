@@ -6,23 +6,26 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    components::{
+    game::{
         actors::{
-            animation::{AnimState, FacingDirection},
-            general::{MovementState, Player},
+            animation::components::{ActorAnimationType, AnimState},
+            components::{ActorTertiaryAttributes, Player},
         },
-        MainCameraTag,
+        input::actions,
+        TimeInfo,
     },
-    game::{input::actions, TimeInfo},
+    loading::splashscreen::MainCameraTag,
 };
 
+/// adds velocity too player based of what movment keys are pressed
 pub fn player_movement_system(
     timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<actions::Combat>, With<Player>>,
     mut player_query: Query<(
         &mut Velocity,
-        &mut MovementState,
+        &mut AnimState,
         &mut TextureAtlasSprite,
+        &ActorTertiaryAttributes,
         With<Player>,
     )>,
 ) {
@@ -30,9 +33,9 @@ pub fn player_movement_system(
         return;
     }
 
-    let (mut velocity, mut player, mut texture, _) = player_query.single_mut();
+    let (mut velocity, mut anim_state, mut texture, speed_attr, _) = player_query.single_mut();
     let action_state = query_action_state.single();
-    let timeinfo = timeinfo.as_ref();
+    let _timeinfo = timeinfo.as_ref();
     let delta;
 
     if action_state.pressed(actions::Combat::Move) {
@@ -46,40 +49,41 @@ pub fn player_movement_system(
 
         if horizontal < 0.0 {
             texture.flip_x = true;
-            player.facing = FacingDirection::Right;
+            anim_state.facing = ActorAnimationType::Right;
         } else if horizontal > 0.0 {
             texture.flip_x = false;
-            player.facing = FacingDirection::Left;
+            anim_state.facing = ActorAnimationType::Left;
         }
 
         if vertical < 0.0 {
-            player.facing = FacingDirection::Down;
+            anim_state.facing = ActorAnimationType::Down;
         } else if vertical > 0.0 {
-            player.facing = FacingDirection::Up;
+            anim_state.facing = ActorAnimationType::Up;
         }
 
-        let new_velocity =
-            Velocity::linear(delta.normalize_or_zero() * player.speed * timeinfo.time_step);
+        let new_velocity = Velocity::linear(delta.normalize_or_zero() * speed_attr.speed);
 
         *velocity = new_velocity;
     } else if !action_state.pressed(actions::Combat::Move) {
         velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
-        player.facing = FacingDirection::Idle;
+        anim_state.facing = ActorAnimationType::Idle;
     }
 }
 
+/// modifys players movement speed based on sprint button
 pub fn player_sprint(
-    mut input_query: Query<&ActionState<actions::Combat>, With<MovementState>>,
-    mut player_query: Query<&mut MovementState, With<Player>>,
-    mut anim_query: Query<&mut AnimState, With<Player>>,
+    mut player_query: Query<(
+        &mut AnimState,
+        &mut Player,
+        &ActionState<actions::Combat>,
+        &mut ActorTertiaryAttributes,
+    )>,
 ) {
-    if input_query.is_empty() || player_query.is_empty() || anim_query.is_empty() {
+    if player_query.is_empty() {
         return;
     }
 
-    let action_state = input_query.single_mut();
-    let mut animation = anim_query.single_mut();
-    let mut player = player_query.single_mut();
+    let (mut animation, mut player, action_state, mut speed_atr) = player_query.single_mut();
 
     if action_state.pressed(actions::Combat::Sprint) {
         animation.timer.set_duration(Duration::from_millis(100));
@@ -92,12 +96,13 @@ pub fn player_sprint(
     }
 
     if player.sprint_available {
-        player.speed = 255.0;
+        speed_atr.speed = 255.0;
     } else {
-        player.speed = 155.0;
+        speed_atr.speed = 155.0;
     }
 }
 
+/// keeps camera centered on player
 pub fn camera_movement_system(
     mut camera_transform: Query<(&mut Transform, &MainCameraTag), With<Camera>>,
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,

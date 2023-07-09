@@ -1,53 +1,4 @@
 // pub mod actions;
-
-use bevy::{
-    prelude::{Bundle, Handle, Name, SpatialBundle},
-    sprite::{TextureAtlas, TextureAtlasSprite},
-};
-
-use crate::components::actors::{
-    ai::AIEnemy,
-    animation::{AnimState, AnimationSheet},
-    bundles::{RigidBodyBundle, StupidAiBundle},
-    general::{DefenseStats, MovementState},
-};
-
-#[derive(Bundle)]
-pub struct SkeletonBundle {
-    pub name: Name,
-    pub actortype: AIEnemy,
-    pub defensestats: DefenseStats,
-    pub actorstate: MovementState,
-    pub animation_state: AnimState,
-    pub available_animations: AnimationSheet,
-    pub sprite: TextureAtlasSprite,
-    pub texture_atlas: Handle<TextureAtlas>,
-    #[bundle]
-    pub brain: StupidAiBundle,
-    #[bundle]
-    pub spatial: SpatialBundle,
-    #[bundle]
-    pub rigidbody: RigidBodyBundle,
-}
-
-#[derive(Bundle)]
-pub struct SlimeBundle {
-    pub name: Name,
-    pub actortype: AIEnemy,
-    pub defensestats: DefenseStats,
-    pub actorstate: MovementState,
-    pub animation_state: AnimState,
-    pub available_animations: AnimationSheet,
-    pub sprite: TextureAtlasSprite,
-    pub texture_atlas: Handle<TextureAtlas>,
-    #[bundle]
-    pub brain: StupidAiBundle,
-    #[bundle]
-    pub spatial: SpatialBundle,
-    #[bundle]
-    pub rigidbody: RigidBodyBundle,
-}
-
 // pub mod actions {
 //     use bevy::prelude::*;
 //     use bevy_rapier2d::prelude::{
@@ -173,4 +124,4 @@ pub struct SlimeBundle {
 //     }
 // }
 
-pub mod utilities {}
+// pub mod utilities {}

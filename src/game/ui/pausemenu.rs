@@ -1,3 +1,5 @@
+// allow type complexity for whole file because i cant allow it for individual fn arguments
+#![allow(clippy::type_complexity)]
 use bevy::app::AppExit;
 use bevy::prelude::{
     default, AlignContent, AlignItems, BackgroundColor, BuildChildren, ButtonBundle, Changed,
@@ -13,6 +15,7 @@ use super::{
     HOVERED_BUTTON, NORMAL_BUTTON, PRESSED_BUTTON,
 };
 
+/// creates menu as child of ui_root_node
 pub fn build(
     mut commands: Commands,
     fonts: Res<FontHandles>,
@@ -184,6 +187,7 @@ pub fn build(
     });
 }
 
+/// handle button interactions for pausemenu
 pub fn button_system(
     mut nextstate: ResMut<NextState<GameStage>>,
     mut text_query: Query<&mut Text>,

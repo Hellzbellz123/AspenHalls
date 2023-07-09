@@ -1,18 +1,22 @@
 use bevy::prelude::{App, Plugin};
 use big_brain::BigBrainPlugin;
 
+/// all functionality for artifical intellegince on actors is stored here
 pub mod ai;
-/// holds animation plugin
+/// holds animation functionality for actors plugin
 pub mod animation;
+/// game combat functionality
 pub mod combat;
-/// holds enemies
+/// shared actor components
+pub mod components;
+/// holds enemy functionality
 pub mod enemies;
 /// holds player information and functions
 pub mod player;
 /// holds spawner info
 pub mod spawners;
 
-/// all npcs in the game, along with player and spawners
+/// all npcs in the game, along with player and spawners for said npcs
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {

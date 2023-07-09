@@ -2,261 +2,77 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::{
-    components::actors::spawners::{EnemyType, Spawner, SpawnerTimer},
-    consts::PLAYER_LAYER,
-};
+use crate::game::actors::spawners::components::*;
 
-use super::sanctuary::map_components::SanctuaryTeleportSensor;
+use super::hideout::map_components::SanctuaryTeleportSensor;
 
+/// tiles that can collide get this
 #[derive(Clone, Debug, Bundle, LdtkIntCell)]
 pub struct CollisionBundle {
+    /// name of collider
     pub name: Name,
+    /// physics object
     pub rigidbody: RigidBody,
+    /// collision shape
     pub collision_shape: Collider,
+    /// what too collide with
     pub collision_group: CollisionGroups,
 }
 
-#[derive(Bundle, LdtkIntCell)]
-pub struct LdtkCollisionBundle {
-    #[from_int_grid_cell]
-    collisionbundle: CollisionBundle,
-}
-
-impl From<IntGridCell> for CollisionBundle {
-    fn from(int_grid_cell: IntGridCell) -> CollisionBundle {
-        // 90 degrees radian
-        let ndgs = std::f32::consts::FRAC_PI_2;
-        match int_grid_cell.value {
-            1 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0))];
-                CollisionBundle {
-                    name: Name::new("CollideDown"),
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            2 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(0.0, -12.), 0.0, Collider::cuboid(16.0, 4.0))];
-                CollisionBundle {
-                    name: Name::new("CollideUp"),
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            3 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-                CollisionBundle {
-                    name: Name::new("CollideLeft"),
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            4 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-                CollisionBundle {
-                    name: Name::new("CollideRight"),
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            5 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(0.0, 14.0), 0.0, Collider::cuboid(16.0, 4.0))];
-
-                CollisionBundle {
-                    name: Name::new("CollideWall"),
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            6 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-                CollisionBundle {
-                    name: Name::new("CollideCornerUL"), //upper left //FINISHED
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            7 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-                CollisionBundle {
-                    name: Name::new("CollideCornerLL"), //lower left
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            8 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-                CollisionBundle {
-                    name: Name::new("CollideCornerUR"), //upper right   //done
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            9 => {
-                let shape: Vec<(Vect, Rot, Collider)> =
-                    vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-                CollisionBundle {
-                    name: Name::new("CollideCornerLR"), //lower right
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            10 => {
-                let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(-12.0, -4.0), ndgs, Collider::cuboid(12.0, 4.0)),
-                    (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-                ];
-                CollisionBundle {
-                    name: Name::new("CollideInnerUL"), //lower left inverted corner
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            11 => {
-                let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(-12.0, 4.0), ndgs, Collider::cuboid(12.0, 4.0)),
-                    (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-                ];
-                CollisionBundle {
-                    name: Name::new("CollideInnerLL"), //lower left inverted corner
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            12 => {
-                let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(12.0, -4.0), ndgs, Collider::cuboid(12.0, 4.0)),
-                    (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-                ];
-                CollisionBundle {
-                    name: Name::new("CollideInnerUR"), //upper right inverted corner
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            13 => {
-                let shape: Vec<(Vect, Rot, Collider)> = vec![
-                    (Vec2::new(12.0, 4.0), ndgs, Collider::cuboid(12.0, 4.0)),
-                    (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-                ];
-                CollisionBundle {
-                    name: Name::new("CollideInnerLR"), //lower right inverted corner
-                    rigidbody: RigidBody::Fixed,
-                    collision_shape: Collider::compound(shape),
-                    collision_group: CollisionGroups {
-                        memberships: Group::all(),
-                        filters: PLAYER_LAYER,
-                    },
-                }
-            }
-            _ => CollisionBundle {
-                name: Name::new("shouldnt_exist"),
-                rigidbody: RigidBody::Fixed,
-                collision_shape: Collider::cuboid(100.0, 100.0),
-                collision_group: CollisionGroups {
-                    memberships: Group::NONE,
-                    filters: Group::NONE,
-                },
-            },
-        }
-    }
-}
-
+/// sensor components
 #[derive(Clone, Debug, Bundle, LdtkEntity)]
 pub struct SensorBundle {
+    /// sensor component
     name: Name,
+    /// marks this collider as a sensor
     sensor: Sensor,
-    homeworldsensor: SanctuaryTeleportSensor,
+    /// marker
+    tag: SanctuaryTeleportSensor,
+    /// shape of sensor
     collision_shape: Collider,
+    /// events from sensor
     events: ActiveEvents,
 }
 
+/// bundle too bind too ldtkentity instance
 #[derive(Bundle, LdtkEntity)]
 pub struct LdtkSensorBundle {
+    /// sensor
     #[with(sensor_bundle)]
     sensorbundle: SensorBundle,
 }
 
+/// sets up sensor bundle for binding
 fn sensor_bundle(_ent_instance: &EntityInstance) -> SensorBundle {
     SensorBundle {
         name: Name::new("SensorBundle"),
         collision_shape: Collider::cuboid(8., 8.),
         sensor: Sensor,
         events: ActiveEvents::COLLISION_EVENTS,
-        homeworldsensor: SanctuaryTeleportSensor { active: true },
+        tag: SanctuaryTeleportSensor { active: true },
     }
 }
 
+/// spawner components
 #[derive(Clone, Debug, Bundle, LdtkEntity)]
 pub struct SpawnerBundle {
+    /// spawner name
     name: Name,
+    /// spawner data
     state: Spawner,
+    /// spawner timer
     timer: SpawnerTimer,
 }
 
+/// bundle too bind too ldtkentity instance
 #[derive(Bundle, LdtkEntity)]
 pub struct LdtkSpawnerBundle {
+    /// what too add too entity
     #[with(spawner_bundle)]
-    sensorbundle: SpawnerBundle,
+    spawnerbundle: SpawnerBundle,
 }
 
+/// sets up spawner bundle for binding
 fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
     SpawnerBundle {
         name: Name::new("spawnerbundle"),
@@ -270,12 +86,55 @@ fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
     }
 }
 
+/// unfinished player marker
 #[derive(Component, Default)]
 pub struct UnbuiltPlayer;
 
+/// bundle to bind too ldkt entity instnace
 #[derive(Bundle, LdtkEntity)]
 #[worldly]
 pub struct LdtkPlayerBundle {
+    /// player not built yet
     tag: UnbuiltPlayer,
+    /// dont despawn
     world: Worldly,
+}
+
+/// Marks player start location
+#[derive(Component, Default)]
+pub struct PlayerStartLocation;
+
+/// used to spawn player start location
+#[derive(Bundle, LdtkEntity)]
+pub struct LdtkStartLocBundle {
+    /// tag
+    tag: PlayerStartLocation,
+}
+
+/// Marks Exits too dungeon rooms
+#[derive(Component, Default)]
+pub struct RoomExit {
+    // /// is this exit used
+    // map_used: bool,
+    // /// direction of neighbor
+    // neighbor_dir: Vec3,
+}
+
+// impl Default for RoomExit {
+//     fn default() -> Self {
+//         Self {
+//             map_used: false,
+//             neighbor_dir: Vec3::ZERO,
+//         }
+//     }
+// }
+
+/// used too spawn room exit in from LDTK levels
+#[derive(Bundle, LdtkEntity)]
+pub struct LdtkRoomExitBundle {
+    /// tag
+    tag: RoomExit,
+    /// position
+    #[grid_coords]
+    grid_coords: GridCoords,
 }
