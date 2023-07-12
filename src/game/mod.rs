@@ -154,10 +154,17 @@ pub fn zoom_control(
 
     let actions = query_action_state.get_single().expect("no player?");
 
+    let mut multiplier = 1.0;
     if actions.pressed(actions::Combat::ZoomIn) {
-        settings.camera_zoom += 0.01;
+        if actions.pressed(actions::Combat::Sprint) {
+            multiplier = 10.0;
+        }
+        settings.camera_zoom += 0.01 * multiplier;
     } else if actions.pressed(actions::Combat::ZoomOut) {
-        settings.camera_zoom -= 0.01;
+        if actions.pressed(actions::Combat::Sprint) {
+            multiplier = 10.0;
+        }
+        settings.camera_zoom -= 0.01 * multiplier;
     }
 }
 
