@@ -4,6 +4,7 @@ debug/
 /statistics/*
 *.pdb
 .vscode/settings.json
+zmainschedulegraph.dot
 zappschedule.dot
 zrenderschedule.dot
 zrendergraph.dot
