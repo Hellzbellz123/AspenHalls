@@ -28,7 +28,7 @@ winapi = "0.3"
 [dependencies]
 rand = "0.8"
 serde = "1.0"
-strum = { version = "0.24", features = ["derive", "std", "strum_macros"] }
+strum = { version = "0.25.0", features = ["derive", "std", "strum_macros"] }
 toml = "0.7"
 tracing-error = "0.2"
 tracing-log = "0.1"
@@ -39,27 +39,10 @@ image = { version = "0.24", default_features = false, features = ["png"] }
 voronator = "0.2"
 petgraph = "0.6"
 num-integer = "0.1"
+rust-embed = {version = "8.0.0", features = ["debug-embed", "include-exclude"]}
 
-# dot = "0.1.4"
-# rayon = "1.7.0"
-
-# rust_embed = {version = "6.4.2", features = ["debug-embed", "include-exclude"]}
-# chrono = "0.4.23"
-# serde_derive = "1.0.144"
-# [dependencies.bevy_mod_transform2d]
-# version = "0.3"
-# features = ["bevy_rapier2d"]
-# [dependencies.bevy_kindly]
-# # git = https://github.com/Zeenobit/bevy_kindly
-# version = "0.3.1"
-# [dependencies.bevycheck]
-# version = "0.5.2"
-# [dependencies.grid_plane]
-# path = "deps/grid_plane"
-# [dependencies.bevy_debug_grid]
-# path = "deps/bevy_debug_grid"
-# [dependencies.pecs]
-# path = "deps/pecs"
+[dependencies.belly]
+path = "deps/belly"
 
 [dependencies.bevy]
 path = "deps/bevy"
@@ -82,12 +65,6 @@ features = [
   "png",
 ]
 
-[dependencies.bevy_graph]
-path = "deps/bevy_graph"
-
-[dependencies.bevy_console]
-path = "deps/bevy-console"
-
 [dependencies.bevy_asset_loader]
 path = "deps/bevy_asset_loader/bevy_asset_loader"
 features = ["2d", "standard_dynamic_assets"]
@@ -96,24 +73,22 @@ features = ["2d", "standard_dynamic_assets"]
 path = "deps/bevy_common_assets"
 features = ["ron"]
 
-[dependencies.bevy-debug-text-overlay]
-path = "deps/bevy-debug-text-overlay"
-default-features = false
-features = ["builtin-font"]
-
-[dependencies.bevy_ecs_tilemap]
-path = "deps/bevy_ecs_tilemap"
-features = ["atlas", "render"]
-
 [dependencies.bevy_ecs_ldtk]
 path = "deps/bevy_ecs_ldtk"
 features = ["atlas"]
 
+[dependencies.bevy_ecs_tilemap]
+path = "deps/bevy_ecs_tilemap"
+features = ["render"]
+
+[dependencies.bevy_egui]
+path = "deps/bevy_egui"
+
 [dependencies.bevy_framepace]
 path = "deps/bevy_framepace"
 
-[dependencies.bevy-inspector-egui]
-path = "deps/bevy-inspector-egui/crates/bevy-inspector-egui"
+[dependencies.bevy_graph]
+path = "deps/bevy_graph"
 
 [dependencies.bevy_kira_audio]
 path = "deps/bevy_kira_audio"
@@ -122,7 +97,7 @@ features = ["ogg"]
 
 [dependencies.bevy_mod_debugdump]
 path = "deps/bevy_mod_debugdump"
-features = ["bevy_render", "render_graph"]
+features = ["render_graph"]
 
 [dependencies.bevy_prototype_lyon]
 path = "deps/bevy_prototype_lyon"
@@ -131,8 +106,19 @@ path = "deps/bevy_prototype_lyon"
 path = "deps/bevy_rapier/bevy_rapier2d"
 features = [
   # "parallel",
-  "simd-nightly",
+  # "simd-nightly",
 ]
+
+[dependencies.bevy_console]
+path = "deps/bevy-console"
+
+[dependencies.bevy-debug-text-overlay]
+path = "deps/bevy-debug-text-overlay"
+default-features = false
+features = ["builtin-font"]
+
+[dependencies.bevy-inspector-egui]
+path = "deps/bevy-inspector-egui/crates/bevy-inspector-egui"
 
 [dependencies.big-brain]
 path = "deps/big-brain"
@@ -142,8 +128,15 @@ path = "deps/leafwing-input-manager"
 
 [dependencies.seldom_map_nav]
 path = "deps/seldom_map_nav"
+features = ["bevy"]
 
 [patch.crates-io]
+# bevy addon local replacements
+bevy_ecs_tilemap = {path = "deps/bevy_ecs_tilemap"}
+bevy_egui = {path = "deps/bevy_egui"}
+bevy_common_assets ={ path = "deps/bevy_common_assets"}
+
+# Replace bevy core crates with local copy for ALL crates that use them
 bevy = { path = "deps/bevy" }
 bevy_a11y = { path = "deps/bevy/crates/bevy_a11y" }
 bevy_animation = { path = "deps/bevy/crates/bevy_animation" }

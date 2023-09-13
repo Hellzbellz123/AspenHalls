@@ -44,5 +44,12 @@
     "gamedata/levels/homeworld32x32/backups": true
   },
   "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
-  "rust-analyzer.cargo.features": ["dev_linux"]
+  "rust-analyzer.cargo.features": [
+    "dev"
+  ],
+  "cSpell.words": [
+    "cmds",
+    "ldtk",
+    "mastervolume"
+  ]
 }
