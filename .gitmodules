@@ -56,3 +56,7 @@
 [submodule "deps/pecs"]
 	path = deps/pecs
 	url = https://github.com/jkb0o/pecs.git
+[submodule "deps/belly"]
+	path = deps/belly
+	url = https://github.com/jkb0o/belly.git
+	branch = bevy-0.11
