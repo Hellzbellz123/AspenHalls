@@ -15,12 +15,9 @@ pub struct ActorBundle {
     /// available animations
     pub available_animations: AnimationSheet,
     /// texture data
-    #[bundle]
     pub sprite: SpriteSheetBundle,
-    #[bundle]
     /// actor stats
     pub stats: ActorAttributesBundle,
-    #[bundle]
     /// actor collisions and movement
     pub rigidbody: RigidBodyBundle,
 }
@@ -48,10 +45,8 @@ pub struct ProjectileBundle {
     /// projectile lifetime
     pub ttl: TimeToLive,
     /// projectile Sprite
-    #[bundle]
     pub sprite_bundle: SpriteBundle,
     /// projectile collisions and movement
-    #[bundle]
     pub rigidbody_bundle: RigidBodyBundle,
 }
 

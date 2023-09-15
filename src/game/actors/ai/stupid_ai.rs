@@ -18,7 +18,7 @@ use crate::game::{
         animation::components::{ActorAnimationType, AnimState},
         components::*,
     },
-    GameStage, TimeInfo,
+    AppStage, TimeInfo,
 };
 
 /// stupid ai systems and functions
@@ -27,16 +27,18 @@ pub struct StupidAiPlugin;
 impl Plugin for StupidAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
+            PreUpdate,
             (
-                wander_score_system.run_if(in_state(GameStage::PlayingGame)),
-                aggro_score_system.run_if(in_state(GameStage::PlayingGame)),
+                wander_score_system.run_if(in_state(AppStage::PlayingGame)),
+                aggro_score_system.run_if(in_state(AppStage::PlayingGame)),
             )
                 .in_set(BigBrainSet::Scorers),
         )
         .add_systems(
+            Update,
             (
-                wander_action.run_if(in_state(GameStage::PlayingGame)),
-                chase_action.run_if(in_state(GameStage::PlayingGame)), // shoot_action,
+                wander_action.run_if(in_state(AppStage::PlayingGame)),
+                chase_action.run_if(in_state(AppStage::PlayingGame)), // shoot_action,
             )
                 .in_set(BigBrainSet::Actions),
         );
@@ -58,7 +60,8 @@ fn aggro_score_system(
             let distance = player_transform.translation.truncate().distance(
                 enemy_query
                     .get_component::<Transform>(*actor)
-                    .unwrap()
+                    // TODO! this is an error
+                    .unwrap_or(&Transform::IDENTITY)
                     .translation
                     .truncate(),
             );

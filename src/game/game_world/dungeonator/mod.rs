@@ -1,5 +1,5 @@
-use bevy::prelude::*;
-use bevy_ecs_ldtk::{GridCoords, LdtkLevel};
+use bevy::{prelude::*, utils::HashMap};
+use bevy_ecs_ldtk::{prelude::LdtkLevel, GridCoords};
 use bevy_ecs_tilemap::{
     prelude::{
         get_tilemap_center_transform, TilemapId, TilemapSize, TilemapTexture, TilemapTileSize,
@@ -12,7 +12,6 @@ use bevy_rapier2d::prelude::Collider;
 use image::{ImageBuffer, Rgba};
 use leafwing_input_manager::prelude::ActionState;
 use seldom_map_nav::prelude::{NavPathMode, NavQuery, NavVec3, Navability, Navmeshes};
-use std::collections::HashMap;
 
 use crate::{
     consts::TILE_SIZE,
@@ -57,25 +56,65 @@ impl Plugin for DungeonGeneratorPlugin {
         .register_type::<RoomInstance>()
         .register_type::<DungeonGeneratorSettings>()
         .register_type::<NavMeshTest>()
-        .add_systems((
-            generator::setup_dungeon_environment.in_set(OnUpdate(GeneratorStage::Initialization)),
-            generator::create_dungeons_list.in_set(OnUpdate(GeneratorStage::Initialization)),
-            generator::layout_dungeon_and_place_skeleton
-                .in_set(OnUpdate(GeneratorStage::GenerateRooms)),
-            hallways::wait_for_ldtk_finish.in_set(OnUpdate(GeneratorStage::PlaceRooms)),
-            hallways::create_mst_from_rooms
-                .in_schedule(OnEnter(GeneratorStage::GenerateConnections)),
-            hallways::spawn_hallway_roots.in_schedule(OnExit(GeneratorStage::GenerateConnections)),
-            hallways::pathfind_and_build_hallways
-                .in_schedule(OnEnter(GeneratorStage::PathfindConnections)),
-            spawn_weapons_startloc.in_schedule(OnEnter(GeneratorStage::Finished)),
-            teleport_player_too_startloc.in_schedule(OnEnter(GeneratorStage::Finished)),
-            regeneration_system.in_set(OnUpdate(GeneratorStage::Finished)),
-            spawn_navigation_grid.in_schedule(OnEnter(GeneratorStage::Finished)),
-            test_navmesh.in_set(OnUpdate(GeneratorStage::Finished)),
-        ));
+        .add_systems(
+            Update,
+            (
+                // TODO: fix the scheduling for these systems
+                (
+                    generator::setup_dungeon_environment,
+                    generator::create_dungeons_list,
+                )
+                    .run_if(state_exists_and_equals(GeneratorStage::Initialization)),
+                (generator::layout_dungeon_and_place_skeleton)
+                    .run_if(state_exists_and_equals(GeneratorStage::GenerateRooms)),
+                (regeneration_system).run_if(state_exists_and_equals(GeneratorStage::Finished)),
+                (hallways::wait_for_ldtk_finish)
+                    .run_if(state_exists_and_equals(GeneratorStage::PlaceRooms)),
+            ),
+        )
+        .add_systems(
+            OnEnter(GeneratorStage::GenerateConnections),
+            (hallways::create_mst_from_rooms),
+        )
+        .add_systems(
+            OnExit(GeneratorStage::GenerateConnections),
+            (hallways::spawn_hallway_roots),
+        )
+        .add_systems(
+            OnEnter(GeneratorStage::PathfindConnections),
+            (hallways::pathfind_and_build_hallways),
+        )
+        .add_systems(
+            OnEnter(GeneratorStage::Finished),
+            (
+                teleport_player_too_startloc,
+                spawn_weapons_startloc,
+                spawn_navigation_grid,
+            ),
+        );
     }
 }
+
+// generator::layout_dungeon_and_place_skeleton,
+//     // .in_set(OnUpdate(GeneratorStage::GenerateRooms)),
+// hallways::wait_for_ldtk_finish,
+//     // .in_set(OnUpdate(GeneratorStage::PlaceRooms)),
+// hallways::create_mst_from_rooms,
+//     // .in_schedule(OnEnter(GeneratorStage::GenerateConnections)),
+// hallways::spawn_hallway_roots,
+//     // .in_schedule(OnExit(GeneratorStage::GenerateConnections)),
+// hallways::pathfind_and_build_hallways,
+//     // .in_schedule(OnEnter(GeneratorStage::PathfindConnections)),
+// spawn_weapons_startloc,
+//     // .in_schedule(OnEnter(GeneratorStage::Finished)),
+// teleport_player_too_startloc,
+//     // .in_schedule(OnEnter(GeneratorStage::Finished)),
+// regeneration_system,
+//     // .in_set(OnUpdate(GeneratorStage::Finished)),
+// spawn_navigation_grid,
+//     // .in_schedule(OnEnter(GeneratorStage::Finished)),
+// test_navmesh
+//     // .in_set(OnUpdate(GeneratorStage::Finished)),
 
 /// different states of the DungeonGenerator
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
@@ -107,7 +146,7 @@ pub enum GeneratorStage {
 
 /// settings to configure the dungeon generator,
 /// useable_rooms and hallways are filled by other systems
-#[derive(Debug, Clone, Resource, Default, Reflect, FromReflect)]
+#[derive(Debug, Clone, Resource, Default, Reflect)]
 pub struct DungeonGeneratorSettings {
     /// amount of rooms
     dungeon_room_amount: i32,
@@ -180,7 +219,7 @@ fn regeneration_system(
     dungeon_settings.hallways = None;
     dungeon_settings.useable_rooms = None;
 
-    cmds.entity(dungeon).despawn_recursive();
+    cmds.entity(dungeon).despawn_descendants();
 
     nav_mesh.for_each(|navmesh| {
         cmds.entity(navmesh).despawn_recursive();
@@ -202,7 +241,7 @@ fn regeneration_system(
 pub struct NavMeshTag;
 
 /// holds start/end point too generate
-#[derive(Debug, Component, Reflect, FromReflect)]
+#[derive(Debug, Component, Reflect)]
 pub struct NavMeshTest {
     /// start of path
     start: Vec3,

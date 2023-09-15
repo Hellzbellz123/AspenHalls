@@ -1,3 +1,4 @@
+// disable console on windows for release builds
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![feature(stmt_expr_attributes)]
 #![feature(type_ascription)]
@@ -8,7 +9,6 @@ Vanilla Coffee, My video game.
 it kinda sucks but itll be finished eventually
 A Dungeon Crawler in the vibes of Into The Gungeon
 "]
-// disable console on windows for release builds
 // #![doc = include_str!("../README.md")]
 #![allow(clippy::module_name_repetitions)]
 #![warn(
@@ -18,12 +18,9 @@ A Dungeon Crawler in the vibes of Into The Gungeon
     clippy::missing_safety_doc
 )]
 
+use crate::launch_config::app_with_logging;
 use bevy::prelude::{default, Vec2};
-
-use bevy_prototype_lyon::prelude::ShapePlugin;
-use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
-
-use crate::app_config::app_with_logging;
+use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
 
 #[cfg(feature = "dev")]
 use crate::dev_tools::debug_plugin::DebugPlugin;
@@ -31,7 +28,7 @@ use crate::dev_tools::debug_plugin::DebugPlugin;
 use tracing_log::log::warn;
 
 /// holds app settings logic and systems
-mod app_config;
+mod launch_config;
 /// general component store
 mod bundles;
 /// things related too command_console
@@ -62,24 +59,28 @@ fn main() {
 
     // add third party plugins
     vanillacoffee
-        .add_plugin(bevy_framepace::FramepacePlugin)
-        .add_plugin(ShapePlugin)
-        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0))
+        .add_plugins((
+            bevy_ecs_ldtk::LdtkPlugin,
+            belly::prelude::BellyPlugin,
+            bevy_framepace::FramepacePlugin,
+            bevy_prototype_lyon::prelude::ShapePlugin,
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
+        ))
         .insert_resource(RapierConfiguration {
             gravity: Vec2::ZERO,
             ..default()
         });
 
     // add vanillacoffee stuff
-    vanillacoffee
-        .add_state::<game::GameStage>()
-        .add_plugin(loading::AssetLoadPlugin)
-        .add_plugin(console::QuakeConPlugin)
-        .add_plugin(game::GamePlugin)
-        .add_plugin(utilities::UtilitiesPlugin);
+    vanillacoffee.add_state::<game::AppStage>().add_plugins((
+        loading::AssetLoadPlugin,
+        console::QuakeConPlugin,
+        game::GamePlugin,
+        utilities::UtilitiesPlugin,
+    ));
 
     #[cfg(feature = "dev")]
-    vanillacoffee.add_plugin(DebugPlugin);
+    vanillacoffee.add_plugins(DebugPlugin);
 
     vanillacoffee.run();
 }

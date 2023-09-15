@@ -6,7 +6,7 @@ use crate::{
     consts::{
         ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER,
     },
-    game::GameStage,
+    game::AppStage,
     loading::assets::ActorTextureHandles,
 };
 
@@ -15,7 +15,7 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems((on_shoot, update_enemy_graphics).in_set(OnUpdate(GameStage::PlayingGame)));
+        app.add_systems(Update, (on_shoot, update_enemy_graphics).run_if(resource_exists::<ActorTextureHandles>()));
     }
 }
 

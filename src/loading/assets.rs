@@ -1,11 +1,15 @@
-use bevy::{prelude::*, reflect::TypeUuid};
-use bevy_asset_loader::prelude::*;
-use bevy_ecs_ldtk::LdtkAsset;
-// use kayak_ui::prelude::KayakFont;
+use bevy::{
+    asset::{AssetServer, Handle},
+    ecs::system::Resource,
+    reflect::TypeUuid,
+    render::texture::Image,
+    sprite::TextureAtlas,
+    text::Font,
+};
+use bevy_asset_loader::prelude::AssetCollection;
+use bevy_ecs_ldtk::prelude::LdtkProject;
 
 /// game data folder is data, anything thats not ron/toml/json/etc goes in assets
-pub const SPLASHASSETPATH: &str = "assets/textures/splash/splashL.png";
-
 /// font resources available too use
 #[derive(AssetCollection, Resource, Clone)]
 pub struct FontHandles {
@@ -16,7 +20,6 @@ pub struct FontHandles {
     #[asset(key = "title_font")]
     pub title_font: Handle<Font>,
 }
-
 /// audio resource available
 #[derive(AssetCollection, Resource, Debug)]
 pub struct AudioHandles {
@@ -27,14 +30,12 @@ pub struct AudioHandles {
     #[asset(key = "footsteps", collection(typed))]
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
 }
-
 /// Actor Textures
 #[derive(AssetCollection, Resource, Clone)]
 pub struct ActorTextureHandles {
     /// player character 1 texture handle
     #[asset(key = "hero_rex")]
     pub rex_sheet: Handle<TextureAtlas>,
-
     /// skeleton enemy asset
     #[asset(key = "skeleton")]
     pub skeleton_sheet: Handle<TextureAtlas>,
@@ -71,14 +72,13 @@ pub struct UiTextureHandles {
     #[asset(key = "button_pressed")]
     pub button_blue_pressed: Handle<Image>,
 }
-
 /// map asset handle
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
     /// homeworld level asset
     #[asset(path = "levels/homeworld32x32.ldtk")]
-    pub homeworld: Handle<LdtkAsset>,
+    pub homeworld: Handle<LdtkProject>,
 }
 
 // BEVY ODDIO ASSET CONFIG

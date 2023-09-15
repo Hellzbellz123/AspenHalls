@@ -1,4 +1,4 @@
-use bevy::prelude::{App, Plugin};
+use bevy::prelude::{App, Plugin, Update};
 use big_brain::BigBrainPlugin;
 
 /// all functionality for artifical intellegince on actors is stored here
@@ -21,7 +21,7 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(BigBrainPlugin)
+        app.add_plugin(BigBrainPlugin::new(Update))
             .add_plugin(spawners::SpawnerPlugin)
             .add_plugin(animation::AnimationPlugin)
             .add_plugin(player::PlayerPlugin)

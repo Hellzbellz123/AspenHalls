@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 use big_brain::thinker::Actor;
 
-use crate::game::GameStage;
-
 use self::stupid_ai::StupidAiPlugin;
 
 /// ai components
@@ -10,7 +8,7 @@ pub mod components;
 /// stupid ai stuff
 pub mod stupid_ai;
 /// util functions
-pub mod utiltiy;
+pub mod utility;
 
 /// handles different AI classes
 pub struct AIPlugin;
@@ -18,12 +16,12 @@ pub struct AIPlugin;
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(StupidAiPlugin)
-            .add_system(parent_brains_to_container.in_set(OnUpdate(GameStage::PlayingGame)));
+            .add_systems(Update, parent_brains_to_container);
     }
 }
 
-/// entity tag for all big_brain entitys too be parented too
-/// clean heirarchy plz
+/// entity tag for all big_brain entity's too be parented too
+/// clean hierarchy plz
 #[derive(Debug, Component)]
 struct BigBrainContainerTag;
 

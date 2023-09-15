@@ -49,9 +49,9 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
     commands.insert_resource(TeleportTimer {
         timer: Timer::from_seconds(2.0, TimerMode::Once),
     });
-    commands.insert_resource(LevelSelection::Index(0));
+    commands.insert_resource(LevelSelection::Identifier("Sanctuary".to_string()));
     commands.insert_resource(LdtkSettings {
-        level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation {},
+        level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation,
         set_clear_color: SetClearColor::No,
         int_grid_rendering: IntGridRendering::Invisible,
         level_background: LevelBackground::Nonexistent,

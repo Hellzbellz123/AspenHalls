@@ -15,15 +15,11 @@ pub struct UtilitiesPlugin;
 
 impl Plugin for UtilitiesPlugin {
     fn build(&self, app: &mut App) {
-        #[cfg(feature = "dev")]
-        app.add_system(window::set_debug_title);
-
-        app.add_startup_system(window::set_window_icon)
+        app.add_systems(Update, (window::set_window_icon, eager_cursor_pos))
             .insert_resource(EagerMousePos {
                 world: Vec2::ZERO,
                 window: Vec2::ZERO,
-            })
-            .add_system(eager_cursor_pos);
+            });
     }
 }
 

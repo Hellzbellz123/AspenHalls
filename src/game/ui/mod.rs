@@ -1,18 +1,18 @@
 use bevy::prelude::*;
 
 use self::components::{PauseMenuRoot, StartMenuRoot, UiRoot};
-use crate::{game::GameStage, loading::splashscreen::OnlySplashScreen, utilities::despawn_with};
+use crate::{game::AppStage, loading::splashscreen::OnlySplashScreen, utilities};
 
 /// common ui components
 pub mod components;
 /// pause menu systems
-pub mod pausemenu;
+pub mod pause_menu;
 /// start menu systems
-pub mod startmenu;
+pub mod start_menu;
 
 /// currently active menu
 #[derive(Debug, Default, States, Hash, PartialEq, Eq, Clone, Copy, Reflect)]
-pub enum CurrentMenu {
+pub enum RequestedMenu {
     /// no menu spawned
     #[default]
     None,
@@ -29,18 +29,33 @@ pub struct BevyUiPlugin;
 
 impl Plugin for BevyUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<CurrentMenu>()
-            .add_systems(
-                (despawn_with::<OnlySplashScreen>, spawn_ui_root)
-                    .in_schedule(OnExit(GameStage::Loading)),
-            )
-            .add_system(despawn_with::<StartMenuRoot>.in_schedule(OnExit(CurrentMenu::Start)))
-            .add_system(despawn_with::<PauseMenuRoot>.in_schedule(OnExit(CurrentMenu::Pause)))
-            .add_system(startmenu::build.in_schedule(OnEnter(CurrentMenu::Start)))
-            .add_system(pausemenu::build.in_schedule(OnEnter(CurrentMenu::Pause)))
-            .add_systems((pausemenu::button_system,).in_set(OnUpdate(CurrentMenu::Pause)))
-            .add_systems((startmenu::button_system,).in_set(OnUpdate(CurrentMenu::Start)))
-            .add_system(control_menu_state);
+        app.add_state::<RequestedMenu>().add_systems(
+            Update,
+            (
+                control_menu_state,
+                spawn_ui_root.run_if(state_exists_and_equals(AppStage::Loading).and_then(run_once())),
+                // start menu systems
+                start_menu::build.run_if(state_exists_and_equals(RequestedMenu::Start).and_then(run_once())),
+                start_menu::button_system.run_if(in_state(RequestedMenu::Start)),
+                utilities::despawn_with::<StartMenuRoot>.run_if(state_exists_and_equals(RequestedMenu::None)),
+                // pause menu systems
+                pause_menu::build.run_if(state_exists_and_equals(RequestedMenu::Pause).and_then(run_once())),
+                pause_menu::button_system.run_if(in_state(RequestedMenu::Pause)),
+                utilities::despawn_with::<PauseMenuRoot>.run_if(state_exists_and_equals(RequestedMenu::None))
+            ),
+        );
+    }
+}
+
+/// updates menu state based on game stage
+fn control_menu_state(mut cmds: Commands, game_state: Res<State<AppStage>>) {
+    if game_state.is_changed() {
+        match game_state.get() {
+            AppStage::StartMenu => cmds.insert_resource(NextState(Some(RequestedMenu::Start))),
+            AppStage::PauseMenu => cmds.insert_resource(NextState(Some(RequestedMenu::Pause))),
+            AppStage::PlayingGame => cmds.insert_resource(NextState(Some(RequestedMenu::None))),
+            _ => {}
+        }
     }
 }
 
@@ -49,28 +64,17 @@ fn spawn_ui_root(mut cmds: Commands) {
     cmds.spawn((
         NodeBundle {
             style: Style {
-                size: Size::width(Val::Percent(100.0)),
-                justify_content: JustifyContent::SpaceBetween,
+                justify_content: JustifyContent::SpaceAround,
+                min_height: Val::Percent(100.0),
+                min_width: Val::Percent(100.0),
                 ..default()
             },
-            z_index: ZIndex::Global(-10),
+            z_index: ZIndex::Global(0),
             ..default()
         },
         Name::new("Ui"),
         UiRoot,
     ));
-}
-
-/// updates menu state based on gamestage
-fn control_menu_state(mut cmds: Commands, game_state: Res<State<GameStage>>) {
-    if game_state.is_changed() {
-        match game_state.0 {
-            GameStage::StartMenu => cmds.insert_resource(NextState(Some(CurrentMenu::Start))),
-            GameStage::PauseMenu => cmds.insert_resource(NextState(Some(CurrentMenu::Pause))),
-            GameStage::PlayingGame => cmds.insert_resource(NextState(Some(CurrentMenu::None))),
-            _ => {}
-        }
-    }
 }
 
 /// no interaction button color

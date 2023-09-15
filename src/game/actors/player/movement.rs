@@ -29,7 +29,7 @@ pub fn player_movement_system(
         With<Player>,
     )>,
 ) {
-    if timeinfo.game_paused {
+    if timeinfo.game_paused || player_query.is_empty() {
         return;
     }
 

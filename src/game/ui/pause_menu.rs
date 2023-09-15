@@ -1,16 +1,21 @@
 // allow type complexity for whole file because i cant allow it for individual fn arguments
 #![allow(clippy::type_complexity)]
+use bevy::app::AppExit;
+use bevy::prelude::{
+    default, AlignContent, AlignItems, BackgroundColor, BuildChildren, ButtonBundle, Changed,
+    Children, Color, Commands, Entity, EventWriter, FlexDirection, Interaction, JustifyContent,
+    Label, Name, NextState, NodeBundle, Query, Res, ResMut, Style, Text, TextBundle,
+    TextStyle, UiRect, Val, With, Without, ZIndex,
+};
 
-use bevy::{app::AppExit, prelude::*};
-
-use crate::{game::GameStage, loading::assets::FontHandles};
+use crate::{game::AppStage, loading::assets::FontHandles};
 
 use super::{
-    components::{ExitButton, PlayButton, SettingsButton, StartMenuRoot, UiRoot},
+    components::{ContinueButton, ExitButton, PauseMenuRoot, SettingsButton, UiRoot},
     HOVERED_BUTTON, NORMAL_BUTTON, PRESSED_BUTTON,
 };
 
-/// spawns startmenu as child of ui_root_node
+/// creates menu as child of ui_root_node
 pub fn build(
     mut commands: Commands,
     fonts: Res<FontHandles>,
@@ -27,14 +32,10 @@ pub fn build(
                         flex_direction: FlexDirection::Column,
                         justify_content: JustifyContent::FlexStart,
                         align_items: AlignItems::Center,
-                        size: Size::width(Val::Percent(20.0)),
+                        width: Val::Percent(20.0),
                         margin: UiRect {
                             top: Val::Percent(10.0),
                             bottom: Val::Percent(5.0),
-                            ..default()
-                        },
-                        position: UiRect {
-                            left: Val::Percent(70.0),
                             ..default()
                         },
                         border: UiRect::all(Val::Px(4.0)),
@@ -45,13 +46,13 @@ pub fn build(
                     ..default()
                 },
                 Name::new("Start Menu"),
-                StartMenuRoot,
+                PauseMenuRoot,
             ))
             .with_children(|parent| {
                 // Title
                 parent.spawn((
                     TextBundle::from_section(
-                        "Vanilla Coffee",
+                        "Game Paused",
                         TextStyle {
                             font: fonts.title_font.clone(),
                             font_size: 40.,
@@ -59,7 +60,7 @@ pub fn build(
                         },
                     )
                     .with_style(Style {
-                        size: Size::height(Val::Px(25.)),
+                        height: Val::Px(25.0),
                         margin: UiRect {
                             top: Val::Percent(5.0),
                             ..default()
@@ -77,14 +78,6 @@ pub fn build(
                                 flex_direction: FlexDirection::Column,
                                 align_content: AlignContent::SpaceEvenly,
                                 justify_content: JustifyContent::SpaceEvenly,
-                                position: UiRect {
-                                    top: Val::Percent(30.0),
-                                    ..default()
-                                },
-                                gap: Size {
-                                    width: Val::Px(20.0),
-                                    height: Val::Px(20.0),
-                                },
                                 ..default()
                             },
                             ..default()
@@ -97,7 +90,8 @@ pub fn build(
                             .spawn((
                                 ButtonBundle {
                                     style: Style {
-                                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                                        width: Val::Px(150.0),
+                                        height: Val::Px(65.0),
                                         // horizontally center child text
                                         justify_content: JustifyContent::Center,
                                         // vertically center child text
@@ -107,12 +101,12 @@ pub fn build(
                                     background_color: NORMAL_BUTTON.into(),
                                     ..default()
                                 },
-                                Name::new("Play Button"),
-                                PlayButton,
+                                Name::new("Continue Button"),
+                                ContinueButton,
                             ))
                             .with_children(|parent| {
                                 parent.spawn(TextBundle::from_section(
-                                    "Play Game",
+                                    "Continue Game",
                                     TextStyle {
                                         font: fonts.main_font.clone(),
                                         font_size: 24.0,
@@ -126,7 +120,8 @@ pub fn build(
                             .spawn((
                                 ButtonBundle {
                                     style: Style {
-                                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                                        width: Val::Px(150.0),
+                                        height: Val::Px(65.0),
                                         // horizontally center child text
                                         justify_content: JustifyContent::Center,
                                         // vertically center child text
@@ -154,7 +149,8 @@ pub fn build(
                             .spawn((
                                 ButtonBundle {
                                     style: Style {
-                                        size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                                        width: Val::Px(150.0),
+                                        height: Val::Px(65.0),
                                         // horizontally center child text
                                         justify_content: JustifyContent::Center,
                                         // vertically center child text
@@ -182,51 +178,51 @@ pub fn build(
     });
 }
 
-/// handles start menu button interactions
+/// handle button interactions for pausemenu
 pub fn button_system(
-    mut nextstate: ResMut<NextState<GameStage>>,
+    mut nextstate: ResMut<NextState<AppStage>>,
     mut text_query: Query<&mut Text>,
     mut appexit: EventWriter<AppExit>,
-    mut play_button_query: Query<
+    mut continue_button_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
         (
             Changed<Interaction>,
             (
-                With<PlayButton>,
+                With<ContinueButton>,
                 Without<ExitButton>,
                 Without<SettingsButton>,
             ),
         ),
     >,
-    #[allow(clippy::type_complexity)] mut exit_button_query: Query<
+    mut exit_button_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
         (
             Changed<Interaction>,
             (
                 With<ExitButton>,
-                Without<PlayButton>,
+                Without<ContinueButton>,
                 Without<SettingsButton>,
             ),
         ),
     >,
-    #[allow(clippy::type_complexity)] mut settings_button_query: Query<
+    mut settings_button_query: Query<
         (&Interaction, &mut BackgroundColor, &Children),
         (
             Changed<Interaction>,
             (
                 With<SettingsButton>,
-                Without<PlayButton>,
+                Without<ContinueButton>,
                 Without<ExitButton>,
             ),
         ),
     >,
 ) {
-    for (interaction, mut color, children) in &mut play_button_query {
+    for (interaction, mut color, children) in &mut continue_button_query {
         let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
-            Interaction::Clicked => {
-                nextstate.set(GameStage::PlayingGame);
-                text.sections[0].value = "Played".to_string();
+            Interaction::Pressed => {
+                nextstate.set(AppStage::PlayingGame);
+                text.sections[0].value = "Continue Game".to_string();
                 *color = PRESSED_BUTTON.into();
             }
             Interaction::Hovered => {
@@ -234,7 +230,7 @@ pub fn button_system(
                 *color = HOVERED_BUTTON.into();
             }
             Interaction::None => {
-                text.sections[0].value = "Play Game".to_string();
+                text.sections[0].value = "Continue Game".to_string();
                 *color = NORMAL_BUTTON.into();
             }
         }
@@ -243,7 +239,7 @@ pub fn button_system(
     for (interaction, mut color, children) in &mut exit_button_query {
         let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 appexit.send(AppExit);
                 text.sections[0].value = "Exit Game".to_string();
                 *color = PRESSED_BUTTON.into();
@@ -262,7 +258,7 @@ pub fn button_system(
     for (interaction, mut color, children) in &mut settings_button_query {
         let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 text.sections[0].value = "Does Nothing".to_string();
                 *color = PRESSED_BUTTON.into();
             }

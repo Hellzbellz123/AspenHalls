@@ -4,13 +4,13 @@ use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    app_config::SoundSettings,
+    launch_config::SoundSettings,
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},
             components::Player,
         },
-        GameStage,
+        AppStage,
     },
     loading::assets::AudioHandles,
 };
@@ -40,7 +40,7 @@ pub struct InternalAudioPlugin;
 // This plugin is responsible to control the game audio
 impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(AudioPlugin)
+        app.add_plugins(AudioPlugin)
             .add_audio_channel::<Music>()
             .add_audio_channel::<Ambience>()
             .add_audio_channel::<Sound>()
@@ -48,9 +48,16 @@ impl Plugin for InternalAudioPlugin {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
             })
-            .add_system(play_background_audio.in_schedule(OnEnter(GameStage::StartMenu)))
-            .add_system(player_walking_sound_system.in_set(OnUpdate(GameStage::PlayingGame)))
-            .add_startup_system(setup_sound_volume);
+            .add_systems(
+                Update,
+                (
+                    player_walking_sound_system
+                        .run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                    play_background_audio.run_if(run_once()),
+                )
+                    .run_if(resource_exists::<AudioHandles>()),
+            )
+            .add_systems(Startup, setup_sound_volume);
     }
 }
 

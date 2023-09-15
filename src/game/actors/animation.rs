@@ -1,4 +1,4 @@
-use crate::game::{actors::animation::components::*, GameStage, TimeInfo};
+use crate::game::{actors::animation::components::*, TimeInfo};
 use bevy::prelude::*;
 
 // TODO: redo player animations to be based on where the mouse cursor is pointing, not player velocity
@@ -9,10 +9,7 @@ pub struct AnimationPlugin;
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems((
-            update_playing_animation.in_set(OnUpdate(GameStage::PlayingGame)),
-            frame_animation.in_set(OnUpdate(GameStage::PlayingGame)),
-        ));
+        app.add_systems(Update, (update_playing_animation, frame_animation));
     }
 }
 
@@ -92,7 +89,7 @@ pub mod components {
         Right,
     }
 
-    /// animation direction, curent frames, current frame, and timer
+    /// animation direction, current frames, current frame, and timer
     #[derive(Component, Default, Reflect)]
     #[reflect(Component)]
     pub struct AnimState {

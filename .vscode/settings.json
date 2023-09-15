@@ -48,8 +48,20 @@
     "dev"
   ],
   "cSpell.words": [
+    "bigbrain",
     "cmds",
+    "debugdir",
+    "debugdump",
+    "dungeonator",
+    "egui",
     "ldtk",
-    "mastervolume"
+    "mastervolume",
+    "spawnenemy",
+    "spawnweapon",
+    "substeps",
+    "teleportplayer",
+    "vanillacoffee",
+    "zmainschedulegraph",
+    "zrendergraph"
   ]
 }

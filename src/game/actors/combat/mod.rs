@@ -26,7 +26,7 @@ use crate::{
         },
         input::actions,
     },
-    game::{GameStage, TimeInfo},
+    game::{AppStage, TimeInfo},
     loading::assets::ActorTextureHandles,
     utilities::{lerp, EagerMousePos},
 };
@@ -70,9 +70,9 @@ impl Plugin for ActorWeaponPlugin {
             player_deaths: 0,
         })
         .insert_resource(WeaponFiringTimer::default())
-        .add_system(remove_cdw_componenet.in_base_set(CoreSet::PreUpdate))
-        .add_system(deal_with_damaged.in_base_set(CoreSet::PostUpdate))
+        .add_systems(PreUpdate, (remove_cdw_component, deal_with_damaged))
         .add_systems(
+            Update,
             (
                 update_equipped_weapon,
                 player_death_system,
@@ -82,8 +82,7 @@ impl Plugin for ActorWeaponPlugin {
                 keep_player_weapons_centered,
                 weapon_visiblity_system,
                 receive_shoot_weapon,
-            )
-                .in_set(OnUpdate(GameStage::PlayingGame)),
+            ).run_if(state_exists_and_equals(AppStage::PlayingGame)),
         );
     }
 }
@@ -193,7 +192,7 @@ fn weapon_visiblity_system(
 
 /// removes `CurrentlyDrawnWeapon` from entitys parented to player that dont
 /// match the entity in `Weaponsocket.drawn_weapon`
-fn remove_cdw_componenet(
+fn remove_cdw_component(
     mut cmds: Commands,
     names: Query<&Name>,
     player_query: Query<&WeaponSocket, With<Player>>,
@@ -318,7 +317,7 @@ pub fn receive_shoot_weapon(
 ) {
     fireingtimer.tick(time.delta());
 
-    if weapon_query.is_empty() | attackreader.is_empty() {
+    if weapon_query.is_empty() {
         return;
     }
 

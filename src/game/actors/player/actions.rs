@@ -15,7 +15,6 @@ use crate::{
     utilities::EagerMousePos,
 };
 use bevy::prelude::*;
-
 use leafwing_input_manager::prelude::ActionState as lfActionState;
 
 /// spawns skeleton near player if debugf1 is pressed
@@ -45,7 +44,10 @@ pub fn spawn_skeleton_button(
     };
 }
 
+
+
 /// event too spawn bullets
+#[derive(Event, Debug)]
 pub struct ShootEvent {
     /// where too spawn
     pub bullet_spawn_loc: Vec2,

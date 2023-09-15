@@ -11,10 +11,10 @@ use self::{
     zweapon_spawner::{spawn_smallpistol, spawn_smallsmg},
 };
 use crate::{
-    app_config::DifficultyScale,
+    launch_config::DifficultyScale,
     game::{
         actors::spawners::components::{EnemyType, WeaponType},
-        GameStage,
+        AppStage,
     },
     loading::assets::ActorTextureHandles,
 };
@@ -35,18 +35,14 @@ impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<SpawnWeaponEvent>()
             .add_event::<SpawnEnemyEvent>()
-            .add_system(
-                spawn_enemy_container
-                    .run_if(|container_q: Query<&EnemyContainerTag>| container_q.is_empty())
-                    .in_schedule(OnEnter(GameStage::PlayingGame)),
-            )
             .add_systems(
+                Update,
                 (
+                    spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()),//run_once()),
                     recieve_enemy_spawns,
                     recieve_weapon_spawns,
                     spawner_timer_system,
-                )
-                    .in_set(OnUpdate(GameStage::PlayingGame)),
+                ).run_if(resource_exists::<ActorTextureHandles>())
             );
     }
 }

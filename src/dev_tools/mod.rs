@@ -9,11 +9,11 @@ mod debug_dirs;
 pub mod debug_plugin {
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-        prelude::{App, *},
+        prelude::{App, *}, app::RunFixedUpdateLoop,
     };
     // use bevy_debug_grid::DebugGridPlugin;
     use bevy_debug_text_overlay::OverlayPlugin;
-    use bevy_ecs_ldtk::{GridCoords, IntGridCell, LayerMetadata, LdtkAsset, LdtkLevel};
+    use bevy_ecs_ldtk::{prelude::LdtkLevel, GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::quick::{
         ResourceInspectorPlugin, StateInspectorPlugin, WorldInspectorPlugin,
     };
@@ -33,7 +33,7 @@ pub mod debug_plugin {
     use std::{fs, time::Duration};
 
     use crate::{
-        app_config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
+        launch_config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
         dev_tools::debug_dirs::debugdir,
         game::{
             actors::combat::components::{
@@ -49,9 +49,9 @@ pub mod debug_plugin {
                 spawners::components::Spawner,
             },
             game_world::dungeonator::GeneratorStage,
-            ui::CurrentMenu,
+            interface::RequestedMenu,
         },
-        game::{GameStage, TimeInfo},
+        game::{AppStage, TimeInfo},
         loading::splashscreen::MainCameraTag,
     };
 
@@ -94,7 +94,6 @@ pub mod debug_plugin {
                 // LDTK debug data
                 .register_type::<LdtkLevel>()
                 .register_type::<Handle<LdtkLevel>>()
-                .register_type::<Handle<LdtkAsset>>()
                 .register_type::<LayerMetadata>()
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
@@ -114,20 +113,20 @@ pub mod debug_plugin {
                     ResourceInspectorPlugin::<DungeonGeneratorSettings>::default()
                         .run_if(state_exists_and_equals(GeneratorStage::Finished)),
                 )
-                .add_plugin(StateInspectorPlugin::<GameStage>::default())
-                .add_plugin(StateInspectorPlugin::<CurrentMenu>::default())
+                .add_plugin(StateInspectorPlugin::<AppStage>::default())
+                .add_plugin(StateInspectorPlugin::<RequestedMenu>::default())
                 .add_plugin(StateInspectorPlugin::<GeneratorStage>::default())
                 .add_plugin(FrameTimeDiagnosticsPlugin)
                 .add_plugin(LogDiagnosticsPlugin {
                     wait_duration: Duration::from_secs(20),
                     ..Default::default()
                 })
-                .add_systems((debug_visualize_spawner, debug_visualize_weapon_spawn_point))
                 // .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
                 // TODO: refactor these systems into nice sets and stages
                 .add_systems(
+                    Update,
                     (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                        .in_set(OnUpdate(GameStage::PlayingGame)),
+                        .run_if(state_exists_and_equals(AppStage::PlayingGame)),
                 );
 
             debug_dump_graphs(app);
@@ -211,14 +210,14 @@ pub mod debug_plugin {
             style: render_theme,
         };
 
-        let schedule_graph = bevy_mod_debugdump::schedule_graph_dot(
-            app,
-            CoreSchedule::Main,
-            &schedule_graph_settings,
-        );
+        let update_schedule_graph = bevy_mod_debugdump::schedule_graph_dot(app, Update, &schedule_graph_settings);
+
+        // let startup_schedule_graph =
+        //     bevy_mod_debugdump::schedule_graph_dot(app, Main, &schedule_graph_settings);
+
         let render_graph = bevy_mod_debugdump::render_graph_dot(app, &render_graph_settings);
 
-        fs::write("zschedulegraph.dot", schedule_graph)
+        fs::write("zmainschedulegraph.dot", update_schedule_graph)
             .expect("couldnt write render schedule to file");
         fs::write("zrendergraph.dot", render_graph).expect("couldnt write render schedule to file");
     }

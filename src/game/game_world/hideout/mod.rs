@@ -1,16 +1,15 @@
 use bevy::prelude::{
-    info, warn, Commands, DespawnRecursiveExt, Entity, IntoSystemAppConfig, IntoSystemConfig,
-    OnEnter, OnUpdate, Plugin, Query, With,
+    info, warn, Commands, DespawnRecursiveExt, Entity, OnEnter, Plugin, Query, With, Update, Event, IntoSystemConfigs, resource_exists, run_once, state_exists_and_equals, Condition, App,
 };
 
-use crate::game::{
+use crate::{game::{
     actors::{ai::components::Enemy, spawners::components::WeaponType},
     game_world::{
         dungeonator::GeneratorStage,
-        hideout::systems::{enter_the_dungeon, homeworld_teleporter_collisions},
+        hideout::{systems::{enter_the_dungeon, homeworld_teleporter_collisions}, map_components::TeleportTimer},
     },
-    GameStage,
-};
+    AppStage,
+}, loading::assets::MapAssetHandles};
 
 use self::systems::MapContainerTag;
 
@@ -20,6 +19,7 @@ pub mod map_components;
 pub mod systems;
 
 /// event for player teleportation
+#[derive(Event)]
 pub struct PlayerTeleportEvent;
 
 /// plugin for safe house
@@ -28,12 +28,19 @@ pub struct HideOutPlugin;
 impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
-        app.add_event::<PlayerTeleportEvent>().add_systems((
-            systems::spawn_hideout.in_schedule(OnEnter(GameStage::StartMenu)),
-            enter_the_dungeon.in_set(OnUpdate(GameStage::PlayingGame)),
-            homeworld_teleporter_collisions.in_set(OnUpdate(GameStage::PlayingGame)),
-            cleanup_start_world.in_schedule(OnEnter(GeneratorStage::Initialization)),
-        ));
+        app.add_event::<PlayerTeleportEvent>().add_systems(
+            Update,
+            (
+                // TODO: fix scheduling
+                systems::spawn_hideout.run_if(state_exists_and_equals(AppStage::StartMenu).and_then(run_once())),
+                // .in_schedule(OnEnter(GameStage::StartMenu)),
+                (enter_the_dungeon, homeworld_teleporter_collisions).run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                // .in_set(OnUpdate(GameStage::PlayingGame)),
+                // .in_set(OnUpdate(GameStage::PlayingGame)),
+                cleanup_start_world.run_if(state_exists_and_equals(GeneratorStage::Initialization)),
+                // .in_schedule(OnEnter(GeneratorStage::Initialization)),
+            ).run_if(resource_exists::<MapAssetHandles>()),
+        );
     }
 }
 

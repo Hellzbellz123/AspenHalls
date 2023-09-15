@@ -1,14 +1,23 @@
 /// functions for loading ConfigFile from filesystem, returns DefaultSettings for the ConfigFile
 mod load_file;
 
+use std::char::TryFromCharError;
+
+use belly::{core::relations::bind::{FromComponent, ToComponent}, widgets::range::RangeValue};
 use bevy::{
     log::LogPlugin,
-    prelude::*,
-    window::{PresentMode, WindowMode, WindowResized, WindowResolution},
+    prelude::{
+        default, App, AssetPlugin, Camera2d, ClearColor, Color, Commands, DefaultPlugins,
+        DetectChanges, Entity, EventReader, Handle, ImagePlugin, OrthographicProjection, Parent,
+        Plugin, PluginGroup, Query, Res, ResMut, Update, Vec2, Window, WindowPlugin,
+        WindowPosition, With, Resource, info, Component, Deref,
+    },
+    ecs::reflect::ReflectResource,
+    window::{PresentMode, WindowMode, WindowResized, WindowResolution}, reflect::Reflect,
 };
-use bevy_ecs_ldtk::LdtkLevel;
+use bevy_ecs_ldtk::prelude::LdtkLevel;
 use bevy_framepace::{FramepaceSettings, Limiter};
-use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
+use bevy_inspector_egui::{InspectorOptions, inspector_options::ReflectInspectorOptions};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +52,6 @@ pub struct WindowSettings {
     /// display resolution
     pub resolution: Vec2,
 }
-
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect)]
 /// game difficulty enum
 pub enum GameDifficulty {
@@ -73,10 +81,9 @@ pub struct GeneralSettings {
 }
 
 /// modify to change sound volume settings
-#[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Resource, Copy, Clone)]
+#[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Resource, Copy, Clone, Component)]
 #[reflect(Resource, InspectorOptions)]
 pub struct SoundSettings {
-    /// Master Volume, scale for all other volumes
     #[inspector(min = 0.0, max = 1.0)]
     pub mastervolume: f64,
     /// sound effects from environment
@@ -135,7 +142,7 @@ impl Default for DifficultyScale {
 impl Default for GeneralSettings {
     fn default() -> Self {
         GeneralSettings {
-            camera_zoom: 0.55,
+            camera_zoom: 3.5,
             game_difficulty: GameDifficulty::Medium,
         }
     }
@@ -200,6 +207,7 @@ impl Plugin for InitAppPlugin {
                                 WindowMode::Windowed
                             }
                         },
+                        window_level: bevy::window::WindowLevel::AlwaysOnBottom,
                         ..default()
                     }),
                     ..default()
@@ -207,7 +215,7 @@ impl Plugin for InitAppPlugin {
                 .set(ImagePlugin::default_nearest())
                 .set(AssetPlugin {
                     asset_folder: "gamedata".to_string(),
-                    watch_for_changes: false,
+                    watch_for_changes: None,
                 })
                 .disable::<LogPlugin>()
         })
@@ -222,13 +230,16 @@ impl Plugin for InitAppPlugin {
         .insert_resource(cfg_file.general_settings)
         .insert_resource(difficulty_settings);
 
-        app.add_systems((
-            apply_window_settings,
-            apply_sound_settings,
-            apply_camera_zoom,
-            update_difficulty_settings,
-            on_resize_system,
-        ));
+        app.add_systems(
+            Update,
+            (
+                apply_window_settings,
+                apply_sound_settings,
+                apply_camera_zoom,
+                update_difficulty_settings,
+                on_resize_system,
+            ),
+        );
     }
 }
 
@@ -239,13 +250,13 @@ pub fn app_with_logging() -> App {
     #[cfg(not(feature = "trace"))]
     {
         println!("Logging without tracing requested");
-        vanillacoffee.add_plugin(VCLogPlugin {
+        vanillacoffee.add_plugins(VCLogPlugin {
             // filters for anything that makies it through the default log level. quiet big loggers
             // filter: "".into(), // an empty filter
             filter:
             "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error"
             .into(),
-            level: bevy::log::Level::DEBUG,
+            level: bevy::log::Level::TRACE,
         });
         info!("Logging Initialized");
     }
@@ -253,7 +264,7 @@ pub fn app_with_logging() -> App {
     #[cfg(feature = "trace")]
     {
         println!("Logging with tracing requested");
-        vanillacoffee.add_plugin(bevy::log::LogPlugin {
+        vanillacoffee.add_plugins(bevy::log::LogPlugin {
             filter: "".into(),
             level: bevy::log::Level::TRACE,
         });
@@ -261,7 +272,7 @@ pub fn app_with_logging() -> App {
     }
 
     // add bevy plugins
-    vanillacoffee.add_plugin(InitAppPlugin);
+    vanillacoffee.add_plugins(InitAppPlugin);
     vanillacoffee
 }
 
@@ -349,7 +360,7 @@ fn on_resize_system(
 
 /// updates DifficultySettings if player changes difficulty settings
 fn update_difficulty_settings(
-    levels: Query<(Entity, &Handle<LdtkLevel>, &Parent)>,
+    levels: Query<(Entity, &Handle<LdtkLevel>), With<Parent>>,
     general_settings: Res<GeneralSettings>,
     mut cmds: Commands,
 ) {

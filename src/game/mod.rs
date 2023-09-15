@@ -6,11 +6,10 @@ pub mod audio;
 pub mod game_world;
 /// input from player
 pub mod input;
-/// ui related functionality
-pub mod ui;
+pub mod interface;
 
 use crate::{
-    app_config::GeneralSettings,
+    launch_config::GeneralSettings,
     game::{
         actors::{
             components::{Player, TimeToLive},
@@ -18,11 +17,11 @@ use crate::{
         },
         audio::InternalAudioPlugin,
         game_world::GameWorldPlugin,
-        input::{actions, ActionsPlugin},
-        ui::BevyUiPlugin,
+        input::{actions, ActionsPlugin}, interface::InterfacePlugin,
     },
 };
 
+use belly::prelude::Element;
 use bevy::{app::App, prelude::*};
 use bevy_rapier2d::prelude::{RapierConfiguration, TimestepMode};
 use leafwing_input_manager::prelude::ActionState;
@@ -40,7 +39,7 @@ pub struct TimeInfo {
 
 /// main game state loop
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
-pub enum GameStage {
+pub enum AppStage {
     /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
     #[default]
     Loading,
@@ -69,22 +68,47 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(TimeInfo {
-            time_step: 1.0,
-            game_paused: false,
-            pause_menu: false,
-        })
-        //game stuff after initial Game State setup
-        .add_plugin(BevyUiPlugin)
-        .add_plugin(ActionsPlugin)
-        .add_plugin(InternalAudioPlugin)
-        .add_plugin(GameWorldPlugin)
-        .add_plugin(ActorPlugin)
-        .add_system(pause_game)
-        .add_system(setup_time_state.in_schedule(OnEnter(GameStage::PlayingGame)))
-        .add_systems((time_to_live, zoom_control).in_set(OnUpdate(GameStage::PlayingGame)));
+        app.add_event::<PausePlayEvent>()
+            .insert_resource(TimeInfo {
+                time_step: 1.0,
+                game_paused: false,
+                pause_menu: false,
+            })
+            //game stuff after initial Game State setup
+            .add_plugins((
+                InterfacePlugin,
+                ActionsPlugin,
+                InternalAudioPlugin,
+                GameWorldPlugin,
+                ActorPlugin,
+            ))
+            .add_systems(
+                Update,
+                (
+                    update_ui_ent_with_elemts,
+                    pause_game.run_if(state_exists::<AppStage>()),
+                    setup_time_state.run_if(
+                        state_exists_and_equals(AppStage::PlayingGame).and_then(run_once()),
+                    ),
+                    (time_to_live, zoom_control).run_if(in_state(AppStage::PlayingGame)),
+                ),
+            );
     }
 }
+
+fn update_ui_ent_with_elemts (
+    mut cmds: Commands,
+    mut elemts: Query<(Entity, &mut Element)>,
+) {
+    elemts.for_each_mut(|(ent, element)| {
+        let mut classes = element.classes.clone();
+        let Some(name) = classes.drain().last() else {
+            return;
+        };
+        cmds.entity(ent).insert(Name::new(name.as_str()));
+    });
+}
+
 
 /// setup initial time state
 pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
@@ -95,30 +119,34 @@ pub fn setup_time_state(mut timeinfo: ResMut<TimeInfo>) {
     }
 }
 
+#[derive(Debug, Event)]
+pub struct PausePlayEvent;
+
 /// pause game and modify timestate
 pub fn pause_game(
     mut cmds: Commands,
-    gamestate: Res<State<GameStage>>,
+    gamestate: Res<State<AppStage>>,
     mut rapiercfg: ResMut<RapierConfiguration>,
     input_query: Query<&ActionState<actions::Combat>, With<Player>>,
+    mut pause_events: EventReader<PausePlayEvent>,
 ) {
     if input_query.is_empty() {
         return;
     }
-
     let input = input_query
         .get_single()
         .expect("should always only be one input");
 
-    match gamestate.0 {
-        GameStage::PlayingGame => {
+
+    match gamestate.get() {
+        AppStage::PlayingGame => {
             rapiercfg.timestep_mode = TimestepMode::Variable {
                 max_dt: 1.0 / 60.0,
                 time_scale: 1.0,
                 substeps: 1,
             };
         }
-        GameStage::PauseMenu => {
+        AppStage::PauseMenu | AppStage::StartMenu => {
             rapiercfg.timestep_mode = TimestepMode::Variable {
                 max_dt: 1.0 / 60.0,
                 time_scale: 0.0,
@@ -129,14 +157,25 @@ pub fn pause_game(
             return;
         }
     }
+    pause_events.iter().for_each(|event|{
+        match gamestate.get() {
+            AppStage::StartMenu => {
+                info!("in [StartMenu], setting [NextState] too [PlayingGame]");
+                cmds.insert_resource(NextState(Some(AppStage::PlayingGame)));
+            }
+            _ => {}
+        }
+    });
 
     if input.just_pressed(actions::Combat::Pause) {
-        match gamestate.0 {
-            GameStage::PlayingGame => {
-                cmds.insert_resource(NextState(Some(GameStage::PauseMenu)));
+        match gamestate.get() {
+            AppStage::PlayingGame => {
+                info!("in [PlayingGame], setting [NextState] too [PauseGame]");
+                cmds.insert_resource(NextState(Some(AppStage::PauseMenu)));
             }
-            GameStage::PauseMenu => {
-                cmds.insert_resource(NextState(Some(GameStage::PlayingGame)));
+            AppStage::PauseMenu => {
+                info!("in [PauseMenu], setting [NextState] too [PlayingGame]");
+                cmds.insert_resource(NextState(Some(AppStage::PlayingGame)));
             }
             _ => {}
         }

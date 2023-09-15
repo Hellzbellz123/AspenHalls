@@ -9,7 +9,7 @@ use crate::{
             animation::components::{ActorAnimationType, AnimState, AnimationSheet},
             components::PlayerColliderTag,
         },
-        GameStage,
+        AppStage,
     },
     game::{
         actors::{
@@ -49,13 +49,10 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<ShootEvent>()
-            .add_system(
-                build_player
-                    .run_if(|player: Query<&Player>| player.is_empty())
-                    .in_schedule(OnEnter(GameStage::PlayingGame)),
-            )
-            .add_systems(
+            .add_systems(Update,
                 (
+                    build_player
+                        .run_if((|player: Query<&Player>| player.is_empty()).and_then(resource_exists::<ActorTextureHandles>())),
                     player_movement_system,
                     camera_movement_system,
                     player_sprint,
@@ -63,7 +60,6 @@ impl Plugin for PlayerPlugin {
                     player_attack_sender,
                     equip_closest_weapon,
                 )
-                    .in_set(OnUpdate(GameStage::PlayingGame)),
             );
     }
 }

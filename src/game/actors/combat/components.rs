@@ -28,10 +28,8 @@ pub struct WeaponBundle {
     /// damage type
     pub damagetype: DamageType,
     /// sprite for weapon
-    #[bundle]
     pub sprite: SpriteSheetBundle,
     /// weapon physics
-    #[bundle]
     pub rigidbodybundle: RigidBodyBundle,
 }
 
@@ -112,7 +110,7 @@ pub struct WeaponStats {
 }
 
 /// weapon slots that can be filled
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Reflect, FromReflect, Default)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Reflect, Default)]
 pub enum WeaponSlots {
     #[reflect(default)]
     #[default]

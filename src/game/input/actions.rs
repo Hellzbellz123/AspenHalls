@@ -5,7 +5,6 @@ use leafwing_input_manager::prelude::*;
 #[derive(Bundle)]
 pub struct PlayerBindings {
     /// actual bindings
-    #[bundle]
     input: InputManagerBundle<Combat>,
 }
 
@@ -29,7 +28,7 @@ impl Default for PlayerBindings {
             DualAxis::symmetric(
                 GamepadAxisType::LeftStickX,
                 GamepadAxisType::LeftStickY,
-                0.01, // TODO: this should probably be a game setting in a control menu so should the rest of this technically but w/e this is defaults
+                DeadZoneShape::Ellipse { radius_x: 0.0, radius_y: 0.0 },
             ),
             Move,
         );
@@ -45,7 +44,7 @@ impl Default for PlayerBindings {
 
         input_map.insert(KeyCode::F, Combat::Melee);
 
-        input_map.insert(KeyCode::LShift, Combat::Sprint);
+        input_map.insert(KeyCode::ShiftLeft, Combat::Sprint);
         input_map.insert(GamepadButtonType::West, Combat::Sprint);
 
         input_map.insert(KeyCode::Escape, Combat::Pause);
@@ -70,7 +69,7 @@ impl Default for PlayerBindings {
 }
 
 /// non menu actions
-#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug)]
+#[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum Combat {
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
     ///

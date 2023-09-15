@@ -1,5 +1,5 @@
 use bevy::{
-    prelude::{Component, Deref, DerefMut, ReflectComponent, Vec2},
+    prelude::{Component, Deref, DerefMut, ReflectComponent, Vec2, Event},
     reflect::Reflect,
     time::Timer,
 };
@@ -72,7 +72,7 @@ pub struct Spawner {
 }
 
 /// event for spawning enemys
-#[derive(Component, Debug, Reflect, Default, Copy, Clone)]
+#[derive(Component, Debug, Reflect, Default, Copy, Clone, Event)]
 #[reflect(Component)]
 pub struct SpawnEnemyEvent {
     /// what too spawn
@@ -84,7 +84,7 @@ pub struct SpawnEnemyEvent {
 }
 
 /// event for spawning weapons
-#[derive(Component, Debug, Reflect, Default)]
+#[derive(Component, Debug, Reflect, Default, Event)]
 #[reflect(Component)]
 pub struct SpawnWeaponEvent {
     /// what too spawn

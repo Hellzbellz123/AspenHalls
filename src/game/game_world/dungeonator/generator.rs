@@ -1,5 +1,11 @@
-use bevy::{asset::HandleId, prelude::*, utils::HashSet};
-use bevy_ecs_ldtk::{LdtkAsset, LdtkLevel};
+use std::time::Duration;
+
+use bevy::{
+    asset::HandleId,
+    prelude::*,
+    utils::{HashMap, HashSet},
+};
+use bevy_ecs_ldtk::prelude::{LdtkLevel, LdtkProject};
 
 use bevy_prototype_lyon::{
     prelude::{Fill, FillOptions, GeometryBuilder, Path},
@@ -7,7 +13,6 @@ use bevy_prototype_lyon::{
 };
 
 use rand::prelude::*;
-use std::collections::HashMap;
 use voronator::delaunator::{Coord, Vector};
 
 use super::{DungeonGeneratorSettings, GeneratorStage};
@@ -25,7 +30,7 @@ pub struct DungeonRoomTag;
 #[derive(Bundle, Default)]
 pub struct DungeonContainerBundle {
     /// dungeon asset
-    pub ldtk_handle: Handle<LdtkAsset>,
+    pub ldtk_handle: Handle<LdtkProject>,
     /// tag
     pub tag: DungeonContainerTag,
     /// dungeon location
@@ -63,16 +68,18 @@ pub struct DungeonRoomBundle {
     pub computed_visibility: ComputedVisibility,
 }
 /// ID for LevelAssets, used too track what dungeons are available too spawn
-#[derive(PartialEq, Component, Eq, Hash, Debug, Clone, Copy, Reflect, FromReflect)]
+#[derive(PartialEq, Component, Eq, Hash, Debug, Clone, Copy, Reflect)]
 pub struct RoomAssetID(pub i32);
 
 /// ID for spawned DungeonRooms
-#[derive(PartialEq, Component, Eq, Hash, Debug, Clone, Copy, Reflect, FromReflect, Default)]
+#[derive(PartialEq, Component, Eq, Hash, Debug, Clone, Copy, Reflect, Default)]
 pub struct RoomID(pub i32);
 
 /// data used for Graphs
 #[derive(Component, Debug, Reflect, Clone, Default)]
 pub struct RoomInstance {
+    /// name of the room layout,
+    pub room_name: String,
     /// ticks up from 0, room 0 is always a StartRoom<LdtkLevel>,
     pub room_id: RoomID,
     /// asset too fill this data from
@@ -125,6 +132,7 @@ impl Coord for RoomInstance {
                 y: y as i32,
             },
             exits: Vec::new(),
+            room_name: String::default(),
         }
     }
 
@@ -157,7 +165,7 @@ impl Default for DungeonRoomBundle {
                 options: FillOptions::default(),
                 color: Color::YELLOW,
             },
-            transform: Default::default(),
+            transform: Transform::from_xyz(0.0,0.0,1.0),
             global_transform: Default::default(),
             visibility: Default::default(),
             computed_visibility: Default::default(),
@@ -203,13 +211,14 @@ pub fn setup_dungeon_environment(
 
 /// iterates over Res<Assets<LdtkLevel>>> and adds them too list on dungeon gen settings
 pub fn create_dungeons_list(
+    mut done: Local<bool>,
     mut cmds: Commands,
     mut gen_settings: ResMut<DungeonGeneratorSettings>,
     level_assets: Res<Assets<LdtkLevel>>,
     assetserver: Res<AssetServer>,
 ) {
     info!("Creating resource for dungeons too be used in dungeon generation");
-    let mut done = false;
+
     let filtered_assets = filter_levels(&level_assets);
     let mut useable_room_assets: HashMap<RoomAssetID, Handle<LdtkLevel>> = HashMap::new();
     let filtered_levels_len = filtered_assets.len() as i32;
@@ -219,30 +228,30 @@ pub fn create_dungeons_list(
         let level_handle = assetserver.get_handle(level_id);
         let level_asset = level_assets.get(&level_handle).unwrap();
 
-        if level_asset.level.identifier == "SmallStartRoom" {
+        if level_asset.data().identifier == "SmallStartRoom" {
             useable_room_assets.insert(RoomAssetID(0), level_handle);
             info!(
                 "Inserted {} into hashmap, {id}/{filtered_levels_len}",
-                level_asset.level.identifier
+                level_asset.data().identifier
             );
             id += 1;
         } else {
             useable_room_assets.insert(RoomAssetID(id), level_handle);
             info!(
                 "Inserted {} into hashmap, {id}/{filtered_levels_len}",
-                level_asset.level.identifier
+                level_asset.data().identifier
             );
             id += 1;
         }
         if id == filtered_levels_len {
-            done = true;
+            *done = true;
         }
     }
 
-    if done {
+    if *done {
         for (id, ldtk_level) in &useable_room_assets {
             let level_asset = level_assets.get(ldtk_level).unwrap();
-            info!("ID: {:?}, Level: {:?}", id, level_asset.level.identifier);
+            info!("ID: {:?}, Level: {:?}", id, level_asset.data().identifier);
         }
         gen_settings.useable_rooms = Some(useable_room_assets);
         cmds.insert_resource(NextState(Some(GeneratorStage::GenerateRooms)))
@@ -254,20 +263,20 @@ pub fn create_dungeons_list(
 pub fn layout_dungeon_and_place_skeleton(
     mut cmds: Commands,
     gen_settings: Res<DungeonGeneratorSettings>,
-    dungeon_container: Query<(Entity, &DungeonContainerTag, &Handle<LdtkAsset>)>,
+    dungeon_container: Query<(Entity, &DungeonContainerTag, &Handle<LdtkProject>)>,
     level_assets: Res<Assets<LdtkLevel>>,
 ) {
     let dungeon_container = dungeon_container.single();
     let rng = thread_rng();
-    let rooms = gen_settings.useable_rooms.clone();
+    let rooms = &gen_settings.useable_rooms;
     let useable_levels = rooms.as_ref().unwrap();
 
     let pre_layout = build_rooms(rng, useable_levels, &gen_settings, &level_assets);
     let rooms = layout_rooms_on_grid(pre_layout, &gen_settings);
 
-    for room in rooms {
-        let name = format!("{:?}", room.room_asset);
-        info!("Placing {:?} : {:?}", room.room_id, name);
+    rooms.iter().for_each(|room| {
+        let name = format!("{} {:?}", &room.room_name, &room.room_asset);
+        info!("Placing {:?} : {:?}", &room.room_id, &name);
         let spawner_box_visual = shapes::Rectangle {
             extents: Vec2 { x: 5.0, y: 5.0 },
             origin: shapes::RectangleOrigin::Center,
@@ -278,8 +287,8 @@ pub fn layout_dungeon_and_place_skeleton(
             parent.spawn(DungeonRoomBundle {
                 name: Name::new(name),
                 ldtk_level: room.room_asset.clone(),
-                transform: Transform::from_translation(room.position.extend(0).as_vec3()),
-                room_info: room,
+                transform: Transform::from_translation(room.position.as_vec2().extend(0.0)),
+                room_info: room.clone(),
                 tag: DungeonRoomTag,
                 dv_shape: spawner_visual_bundle,
                 dv_color: Fill {
@@ -289,12 +298,13 @@ pub fn layout_dungeon_and_place_skeleton(
                 ..default()
             });
         });
-    }
+    });
+
     // if dungeon spots is empty, pop returns none,
     // dungeon spots should be empty when we have spawned all dungeons
     // we can insert the next state
     info!("Done spawning template");
-    cmds.insert_resource(NextState(Some(GeneratorStage::PlaceRooms)));
+        cmds.insert_resource(NextState(Some(GeneratorStage::PlaceRooms)));
 }
 
 //TODO: have this be set by a ron file next too the level asset.
@@ -310,9 +320,9 @@ fn filter_levels(level_assets: &Res<Assets<LdtkLevel>>) -> Vec<HandleId> {
     let mut small_start_room: Option<HandleId> = None;
 
     for (id, level) in level_assets.iter() {
-        if excluded_levels.contains(&level.level.identifier) {
+        if excluded_levels.contains(&level.data().identifier) {
             filtered_levels.push(id);
-        } else if level.level.identifier == "SmallStartRoom" {
+        } else if level.data().identifier == "SmallStartRoom" {
             small_start_room = Some(id);
         } else {
             vec_levels.push(id);
@@ -341,15 +351,17 @@ fn build_rooms(
     for room in 0..room_amount {
         if room == 0 {
             let room_handle = useable_levels.get(&RoomAssetID(0)).expect("msg");
-            let room_asset = level_assets.get(room_handle).unwrap();
+            let room_asset: &LdtkLevel = level_assets.get(room_handle).unwrap();
             info!(
                 "inserting room # {} as {}",
-                room_asset.level.identifier, room
+                room_asset.data().identifier,
+                room
             );
             rooms.push(RoomInstance {
+                room_name: room_asset.data().identifier.clone(),
                 room_id: RoomID(room),
-                width: room_asset.level.px_wid,
-                height: room_asset.level.px_hei,
+                width: room_asset.data().px_wid,
+                height: room_asset.data().px_hei,
                 room_asset: room_handle.clone(),
                 position: IVec2::ZERO,
                 exits: Vec::new(),
@@ -360,19 +372,20 @@ fn build_rooms(
             let room_asset = level_assets.get(room_handle).unwrap();
             info!(
                 "inserting room # {} as {}",
-                room_asset.level.identifier, room
+                room_asset.data().identifier,
+                room
             );
             rooms.push(RoomInstance {
+                room_name: room_asset.data().identifier.clone(),
                 room_id: RoomID(room),
-                width: room_asset.level.px_wid,
-                height: room_asset.level.px_hei,
+                width: room_asset.data().px_wid,
+                height: room_asset.data().px_hei,
                 room_asset: room_handle.clone(),
                 position: IVec2::ZERO,
                 exits: Vec::new(),
             });
         }
     }
-
     rooms
 }
 

@@ -1,14 +1,11 @@
 #![allow(clippy::type_complexity)]
 
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{prelude::LdtkEntityAppExt, LdtkPlugin, TileEnumTags};
+use bevy_ecs_ldtk::{prelude::LdtkEntityAppExt, TileEnumTags};
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 
-use crate::{
-    consts::{ACTOR_Z_INDEX, PLAYER_LAYER},
-    game::GameStage,
-};
+use crate::consts::{ACTOR_Z_INDEX, PLAYER_LAYER};
 
 use self::{
     components::{
@@ -40,7 +37,7 @@ pub struct GameWorldPlugin;
 
 // TODO:
 // Take main ldtk asset, create 3 tile layers from the many tile layers on the ldtk rooms
-// spawn these 3 tile layers on large grid, rooms will have thier own entity for holding data about room
+// spawn these 3 tile layers on large grid, rooms will have their own entity for holding data about room
 // tiles will be set too the main dungeon grid.
 // this should all be done using bevy_ecs_tilemap data structures,
 // Implement PathFinding Algorithms for the tilemap
@@ -54,14 +51,15 @@ impl Plugin for GameWorldPlugin {
                 render_chunk_size: RENDER_CHUNK_SIZE,
                 ..Default::default()
             })
-            .add_plugin(LdtkPlugin)
-            .add_plugin(hideout::HideOutPlugin)
-            .add_plugin(dungeonator::DungeonGeneratorPlugin) //;
+            .add_plugins((hideout::HideOutPlugin, dungeonator::DungeonGeneratorPlugin))
             .register_ldtk_entity::<LdtkSensorBundle>("TeleportSensor")
             .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
             .register_ldtk_entity::<LdtkStartLocBundle>("PlayerStartLoc")
             .register_ldtk_entity::<LdtkRoomExitBundle>("RoomExit")
-            .add_system(process_tile_enum_tags.in_set(OnUpdate(GameStage::PlayingGame)));
+            .add_systems(
+                Update,
+                process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
+            );
     }
 }
 

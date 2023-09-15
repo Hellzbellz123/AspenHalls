@@ -1,7 +1,7 @@
 #![allow(clippy::type_complexity)]
 
 use bevy::prelude::*;
-use bevy_ecs_ldtk::LdtkLevel;
+use bevy_ecs_ldtk::prelude::LdtkLevel;
 use bevy_ecs_tilemap::tiles::TileStorage;
 use bevy_prototype_lyon::prelude::{PathBuilder, ShapeBundle, Stroke};
 use petgraph::{
@@ -12,7 +12,7 @@ use petgraph::{
     stable_graph::{EdgeIndices, StableGraph},
 };
 use rand::Rng;
-use std::{cmp::Ordering, fs::File, io::Write};
+use std::{cmp::Ordering, fs::File, io::Write, time::Duration};
 
 use crate::game::game_world::components::RoomExit;
 
@@ -22,7 +22,7 @@ use super::{
 };
 
 /// hallway representation
-#[derive(Debug, Reflect, FromReflect, Clone, Component)]
+#[derive(Debug, Reflect, Clone, Component)]
 pub struct HallWay {
     /// hallway start pos
     start_pos: IVec2,
@@ -57,29 +57,33 @@ impl<'a> Iterator for Edges<'a, HallWay> {
     }
 }
 
+impl Eq for HallWay {}
+
+impl Ord for HallWay {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.distance.total_cmp(&other.distance)
+    }
+}
+
 impl PartialEq for HallWay {
     fn eq(&self, other: &Self) -> bool {
         self.distance.eq(&other.distance)
     }
 }
 
-impl Eq for HallWay {}
 
 impl PartialOrd for HallWay {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.distance.partial_cmp(&other.distance)
+        Some(self.cmp(other))
     }
 }
 
-impl Ord for HallWay {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
-    }
-}
 
 /// querys for empty levels
 /// if no empty levels ldtk is finished procces
 pub fn wait_for_ldtk_finish(
+    mut timer: Local<Timer>,
+    time: Res<Time>,
     mut cmds: Commands,
     //added explicity childless query for no exit, not sure if its actually faster/better than
     //the matches! childless fn below
@@ -88,9 +92,10 @@ pub fn wait_for_ldtk_finish(
         (With<DungeonRoomTag>, Without<Children>),
     >,
 ) {
+    timer.set_duration(Duration::from_secs(2));
     // we only want too continue if the levels are built, layers get added to levels
     // as children so if the level has no children we know its built
-    if child_less_levels.is_empty() {
+    if child_less_levels.is_empty() && timer.tick(time.delta()).finished() {
         cmds.insert_resource(NextState(Some(GeneratorStage::GenerateConnections)));
     }
 }
@@ -116,6 +121,7 @@ pub fn create_mst_from_rooms(
 
     room_query.for_each_mut(|(r_ent, _r_gtrans, mut r_instance)| {
         let mut pathfind_room_node = RoomInstance {
+            room_name: r_instance.room_name.clone(),
             room_id: r_instance.room_id,
             room_asset: r_instance.room_asset.clone(),
             width: r_instance.width,
@@ -214,7 +220,7 @@ pub fn create_mst_from_rooms(
 
         gen_settings.hallways = Some(hallways);
 
-        // Create a DOT representation of the MST
+        // // Create a DOT representation of the MST
         let cyclic_dot = Dot::with_config(&cyclic_graph, &[Config::NodeIndexLabel]);
         save_dot(cyclic_dot, "cyclic.dot".into());
         cmds.insert_resource(NextState(Some(GeneratorStage::PathfindConnections)));
@@ -253,22 +259,22 @@ pub fn spawn_hallway_roots(
         .with_children(|container_child_builder| {
             for hallway in gen_settings.hallways.as_ref().unwrap() {
                 let name = format!("Hallway {}", i);
-                let mut pathbuilder = PathBuilder::new();
-                pathbuilder.move_to(hallway.start_pos.as_vec2()); //hallway.start_pos.as_vec2());
-                pathbuilder.line_to(hallway.end_pos.as_vec2());
-                pathbuilder.close();
-                let path = pathbuilder.build();
-                container_child_builder.spawn((
-                    Name::new(name.clone()),
-                    HallWayVisualTag,
-                    ShapeBundle {
-                        path,
-                        transform: Transform::from_xyz(0., 0., -0.5),
-                        ..default()
-                    },
-                    Stroke::new(Color::RED, 10.0),
-                    // Fill::color(Color::RED),
-                ));
+                // let mut pathbuilder = PathBuilder::new();
+                // pathbuilder.move_to(hallway.start_pos.as_vec2()); //hallway.start_pos.as_vec2());
+                // pathbuilder.line_to(hallway.end_pos.as_vec2());
+                // pathbuilder.close();
+                // let path = pathbuilder.build();
+                // container_child_builder.spawn((
+                //     Name::new(name.clone()),
+                //     HallWayVisualTag,
+                //     ShapeBundle {
+                //         path,
+                //         transform: Transform::from_xyz(0., 0., -0.5),
+                //         ..default()
+                //     },
+                //     Stroke::new(Color::RED, 10.0),
+                //     // Fill::color(Color::RED),
+                // ));
                 container_child_builder.spawn((
                     Name::new(name),
                     hallway.clone(),
@@ -318,7 +324,7 @@ pub fn pathfind_and_build_hallways(
             );
         });
 
-        if ground.is_some() & decoration.is_some() & building.is_some() {}
+        // if ground.is_some() & decoration.is_some() & building.is_some() {}
     });
 }
 
