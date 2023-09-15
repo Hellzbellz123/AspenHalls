@@ -22,16 +22,16 @@ pub fn create_bullet(
     cmds: &mut Commands,
     assets: &ResMut<ActorTextureHandles>,
     event: &ShootEvent,
-    wstats: &WeaponStats,
+    weapon_stats: &WeaponStats,
 ) {
     cmds.spawn((
         PlayerProjectileTag,
         ProjectileBundle {
             name: Name::new("PlayerProjectile"),
             projectile_stats: ProjectileStats {
-                damage: wstats.damage,
-                speed: wstats.bullet_speed,
-                size: wstats.projectile_size,
+                damage: weapon_stats.damage,
+                speed: weapon_stats.bullet_speed,
+                size: weapon_stats.projectile_size,
             },
             ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
@@ -40,21 +40,21 @@ pub fn create_bullet(
                     event.bullet_spawn_loc.extend(ACTOR_Z_INDEX), //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
                 ),
                 sprite: Sprite {
-                    custom_size: Some(Vec2::splat(wstats.projectile_size)),
+                    custom_size: Some(Vec2::splat(weapon_stats.projectile_size)),
                     ..default()
                 },
                 ..default()
             },
             rigidbody_bundle: RigidBodyBundle {
                 velocity: Velocity::linear(
-                    event.travel_dir * (wstats.bullet_speed * BULLET_SPEED_MODIFIER),
+                    event.travel_dir * (weapon_stats.bullet_speed * BULLET_SPEED_MODIFIER),
                 ),
                 rigidbody: RigidBody::Dynamic,
                 friction: Friction::coefficient(0.2),
-                howbouncy: Restitution::coefficient(0.8),
-                massprop: ColliderMassProperties::Density(2.1),
-                rotationlocks: LockedAxes::ROTATION_LOCKED,
-                dampingprop: Damping {
+                how_bouncy: Restitution::coefficient(0.8),
+                mass_prop: ColliderMassProperties::Density(2.1),
+                rotation_locks: LockedAxes::ROTATION_LOCKED,
+                damping_prop: Damping {
                     linear_damping: 0.1,
                     angular_damping: 0.1,
                 },
@@ -67,7 +67,7 @@ pub fn create_bullet(
             PlayerProjectileColliderTag,
             ProjectileColliderBundle {
                 name: Name::new("PlayerProjectileCollider"),
-                transformbundle: TransformBundle {
+                transform_bundle: TransformBundle {
                     local: (Transform {
                         translation: Vec2::ZERO.extend(ACTOR_PHYSICS_Z_INDEX),
                         ..default()
@@ -75,7 +75,7 @@ pub fn create_bullet(
                     ..default()
                 },
                 collider: Collider::ball(3.0),
-                collisiongroups: CollisionGroups::new(
+                collision_groups: CollisionGroups::new(
                     PLAYER_PROJECTILE_LAYER,
                     Group::from_bits_truncate(0b00101),
                 ),

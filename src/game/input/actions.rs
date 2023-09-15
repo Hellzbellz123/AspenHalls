@@ -72,8 +72,7 @@ impl Default for PlayerBindings {
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum Combat {
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
-    ///
-    /// WASD for keyboard, LeftJoystick For mouse
+    /// W/A/S/D for keyboard, LeftJoystick For mouse
     Move,
     /// Shift for keyboard,
     Sprint,

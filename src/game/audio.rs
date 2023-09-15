@@ -18,10 +18,10 @@ use crate::{
 /// music is played in this channel
 #[derive(Resource, Component)]
 pub struct Music;
-/// nothing is currently played here, inteded for menu sounds/creaking/etc atmospheric sounds
+/// nothing is currently played here, intended for menu sounds/creaking/etc atmospheric sounds
 #[derive(Resource, Component)]
 pub struct Ambience;
-/// this audio is for everything gameplay related, footsteps of npc/enemy can be used to tell if enemys exist?
+/// this audio is for everything gameplay related, footsteps of npc/enemy can be used to tell if enemies exist?
 #[derive(Resource, Component)]
 pub struct Sound;
 
@@ -64,54 +64,54 @@ impl Plugin for InternalAudioPlugin {
 /// initial volume from sound settings
 fn setup_sound_volume(
     sound_settings: ResMut<SoundSettings>,
-    bgm: Res<AudioChannel<Music>>,
-    bga: Res<AudioChannel<Ambience>>,
-    bgs: Res<AudioChannel<Sound>>,
+    music_channel: Res<AudioChannel<Music>>,
+    ambience_channel: Res<AudioChannel<Ambience>>,
+    sound_channel: Res<AudioChannel<Sound>>,
 ) {
-    let mastervolume = sound_settings.mastervolume;
-    bgm.set_volume(sound_settings.musicvolume * mastervolume);
-    bga.set_volume(sound_settings.ambiencevolume * mastervolume);
-    bgs.set_volume(sound_settings.soundvolume * mastervolume);
+    let mastervolume = sound_settings.master_volume;
+    music_channel.set_volume(sound_settings.music_volume * mastervolume);
+    ambience_channel.set_volume(sound_settings.ambience_volume * mastervolume);
+    sound_channel.set_volume(sound_settings.sound_volume * mastervolume);
 }
 
 /// play game soundtrack
 fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<Music>>) {
-    audio.play(audio_assets.gamesoundtrack.clone()).looped();
+    audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
 /// play walking sound
 fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
     mut player_query: Query<(&mut AnimState, &mut Player)>,
-    mut walksound_res: ResMut<WalkingSoundTimer>,
+    mut walk_sound_res: ResMut<WalkingSoundTimer>,
     audio: Res<AudioChannel<Sound>>,
     time: Res<Time>,
 ) {
     let (anim_data, player_data) = player_query.single_mut();
     if anim_data.facing == ActorAnimationType::Idle {
-        walksound_res.timer.reset();
-        walksound_res.is_first_time = true;
+        walk_sound_res.timer.reset();
+        walk_sound_res.is_first_time = true;
     } else {
         if !player_data.sprint_available {
-            walksound_res.timer.set_duration(Duration::from_millis(650));
+            walk_sound_res.timer.set_duration(Duration::from_millis(650));
         } else if player_data.sprint_available {
-            walksound_res.timer.set_duration(Duration::from_millis(150));
+            walk_sound_res.timer.set_duration(Duration::from_millis(150));
         }
 
-        walksound_res.timer.tick(time.delta());
-        if walksound_res.timer.finished() || walksound_res.is_first_time {
-            if walksound_res.is_first_time {
-                walksound_res.is_first_time = false;
-                walksound_res.timer.reset();
+        walk_sound_res.timer.tick(time.delta());
+        if walk_sound_res.timer.finished() || walk_sound_res.is_first_time {
+            if walk_sound_res.is_first_time {
+                walk_sound_res.is_first_time = false;
+                walk_sound_res.timer.reset();
             }
             let mut index = rand::thread_rng();
 
-            let chandle = audio_assets
+            let step_sound_handle = audio_assets
                 .footsteps
                 .choose(&mut index)
                 .expect("SHOULD NEVER BE EMPTY")
                 .clone();
-            audio.play(chandle);
+            audio.play(step_sound_handle);
         }
     }
 }

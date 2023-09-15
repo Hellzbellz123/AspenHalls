@@ -32,7 +32,7 @@ const RENDER_CHUNK_SIZE: UVec2 = UVec2 {
     y: CHUNK_SIZE.y * 2,
 };
 
-/// gameworld plugin handles home area and dungeon generator funtions
+/// game world plugin handles home area and dungeon generator functions
 pub struct GameWorldPlugin;
 
 // TODO:
@@ -63,24 +63,26 @@ impl Plugin for GameWorldPlugin {
     }
 }
 
-/// Holds NavGrid, for easier query
+/// Holds `NavGrid`, for easier query
 #[derive(Component)]
 pub struct GridContainerTag;
 
-/// teleports player to average of startlocationcomponent Transform
-fn teleport_player_too_startloc(
+/// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
+fn teleport_player_too_start_location(
     mut player_query: Query<(&mut Transform, &mut Player)>,
     start_location: Query<
         (Entity, &GlobalTransform, &Transform),
         (With<PlayerStartLocation>, Without<Player>),
     >,
 ) {
-    if !start_location.is_empty() {
+    if start_location.is_empty() {
+        warn!("no start locations");
+    } else {
         let mut sum = Vec2::ZERO;
         let mut count = 0;
 
-        for (_, gtrans, _ltrans) in start_location.iter() {
-            sum += gtrans.translation().truncate();
+        for (_, global_transform, _local_transform) in start_location.iter() {
+            sum += global_transform.translation().truncate();
             count += 1;
         }
 
@@ -91,17 +93,15 @@ fn teleport_player_too_startloc(
                 scale: Vec3::ONE,
             };
             let player = player_query.single_mut();
-            let (mut ptrans, _pdata) = player;
-            *ptrans = average;
+            let (mut player_transform, _player_data) = player;
+            *player_transform = average;
             // Use the calculated average transform as needed
-            println!("Average transform: {:?}", average);
+            println!("Average transform: {average:?}");
         }
-    } else {
-        warn!("no start locations")
     }
 }
 
-/// Takes tileenumtags that is added from ldtk editor
+/// Takes `TileEnumTags` that is added from ldtk editor
 fn process_tile_enum_tags(
     mut commands: Commands,
     mut tiles_with_enums: Query<(Entity, &mut TileEnumTags)>,
@@ -110,99 +110,99 @@ fn process_tile_enum_tags(
         return;
     }
     // 90 degrees radian
-    let ndgs = std::f32::consts::FRAC_PI_2;
-    for (entity, mut tile_enum_tag) in tiles_with_enums.iter_mut() {
+    let ninety_degrees = std::f32::consts::FRAC_PI_2;
+    for (entity, mut tile_enum_tag) in &mut tiles_with_enums {
         let tags = tile_enum_tag.tags.clone();
         if tags.is_empty() {
             info!("Tile has no more tags");
             commands.entity(entity).remove::<TileEnumTags>();
         }
         for tag in tags {
-            check_tag_colliders(tag, &mut commands, entity, &mut tile_enum_tag, ndgs);
+            check_tag_colliders(&tag, &mut commands, entity, &mut tile_enum_tag, ninety_degrees);
         }
     }
 }
 
-/// checks tile enum tag for collider tag, creates shape for collider, passes too insert_collider, tag is then removed from tile_enum_tags
+/// checks tile enum tag for collider tag, creates shape for collider, passes too `insert_collider`, tag is then removed from `tile_enum_tags`
 fn check_tag_colliders(
-    tag: String,
+    tag: &str,
     commands: &mut Commands<'_, '_>,
     entity: Entity,
     tile_enum_tag: &mut Mut<'_, TileEnumTags>,
-    ndgs: f32,
+    degrees: f32,
 ) {
     if "CollideUp" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(0.0, -12.), 0.0, Collider::cuboid(16.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideDown" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideLeft" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideRight" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideWall" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(0.0, 14.0), 0.0, Collider::cuboid(16.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerLR" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerUR" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerLL" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerUL" == tag {
         let shape: Vec<(Vect, Rot, Collider)> =
             vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideInnerUL" == tag {
         let shape: Vec<(Vect, Rot, Collider)> = vec![
-            (Vec2::new(-12.0, -4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+            (Vec2::new(-12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
             (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
         ];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideInnerLL" == tag {
         let shape: Vec<(Vect, Rot, Collider)> = vec![
-            (Vec2::new(-12.0, 4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+            (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
             (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
         ];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideInnerUR" == tag {
         let shape: Vec<(Vect, Rot, Collider)> = vec![
-            (Vec2::new(12.0, -4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+            (Vec2::new(12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
             (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
         ];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideInnerLR" == tag {
         let shape: Vec<(Vect, Rot, Collider)> = vec![
-            (Vec2::new(12.0, 4.0), ndgs, Collider::cuboid(12.0, 4.0)),
+            (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
             (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
         ];
-        insert_collider(commands, entity, shape, &tag, tile_enum_tag);
+        insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
 }
 

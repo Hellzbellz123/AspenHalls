@@ -17,7 +17,7 @@ use super::components::{SpawnWeaponEvent, WeaponType};
 // too allow adding in custom guns.
 
 /// spawns small smg, called from spawner
-pub fn spawn_smallsmg(
+pub fn spawn_small_smg(
     game_assets: ActorTextureHandles,
     cmds: &mut Commands,
     event: &SpawnWeaponEvent,
@@ -28,9 +28,9 @@ pub fn spawn_smallsmg(
             parent: None,
             stored_weapon_slot: None,
         },
-        weapontype: WeaponType::SmallSMG,
-        weaponstats: WeaponStats {
-            barreloffset: Vec3 {
+        weapon_type: WeaponType::SmallSMG,
+        weapon_stats: WeaponStats {
+            barrel_offset: Vec3 {
                 x: 10.0,
                 y: 0.0,
                 z: 0.0,
@@ -40,7 +40,7 @@ pub fn spawn_smallsmg(
             bullet_speed: 6.0,
             projectile_size: 2.0,
         },
-        damagetype: DamageType::KineticRanged,
+        damage_type: DamageType::KineticRanged,
         sprite: SpriteSheetBundle {
             sprite: TextureAtlasSprite {
                 flip_x: false,
@@ -57,14 +57,14 @@ pub fn spawn_smallsmg(
             },
             ..default()
         },
-        rigidbodybundle: RigidBodyBundle {
+        rigidbody_bundle: RigidBodyBundle {
             rigidbody: RigidBody::Dynamic,
             velocity: Velocity::default(),
             friction: Friction::coefficient(0.9),
-            howbouncy: Restitution::new(20.0),
-            massprop: ColliderMassProperties::Density(1.5),
-            rotationlocks: LockedAxes::empty(),
-            dampingprop: Damping {
+            how_bouncy: Restitution::new(20.0),
+            mass_prop: ColliderMassProperties::Density(1.5),
+            rotation_locks: LockedAxes::empty(),
+            damping_prop: Damping {
                 linear_damping: 0.7,
                 angular_damping: 0.2,
             },
@@ -78,8 +78,8 @@ pub fn spawn_smallsmg(
                     Vec2 { x: 0.0, y: 10.0 },
                     2.0,
                 ),
-                cgroups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
-                transformbundle: TransformBundle {
+                collision_groups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
+                transform_bundle: TransformBundle {
                     local: Transform {
                         translation: Vec3 {
                             x: -2.25,
@@ -117,7 +117,7 @@ pub fn spawn_smallsmg(
 }
 
 /// spawns small pistol, called from spawner
-pub fn spawn_smallpistol(
+pub fn spawn_small_pistol(
     game_assets: ActorTextureHandles,
     cmds: &mut Commands,
     event: &SpawnWeaponEvent,
@@ -128,9 +128,9 @@ pub fn spawn_smallpistol(
             parent: None,
             stored_weapon_slot: None,
         },
-        weapontype: WeaponType::SmallPistol,
-        weaponstats: WeaponStats {
-            barreloffset: Vec3 {
+        weapon_type: WeaponType::SmallPistol,
+        weapon_stats: WeaponStats {
+            barrel_offset: Vec3 {
                 x: 6.0,
                 y: 0.0,
                 z: 0.0,
@@ -140,7 +140,7 @@ pub fn spawn_smallpistol(
             projectile_size: 3.0,
             bullet_speed: 8.0,
         },
-        damagetype: DamageType::KineticRanged,
+        damage_type: DamageType::KineticRanged,
         sprite: SpriteSheetBundle {
             sprite: TextureAtlasSprite {
                 flip_x: true,
@@ -157,14 +157,14 @@ pub fn spawn_smallpistol(
             },
             ..default()
         },
-        rigidbodybundle: RigidBodyBundle {
+        rigidbody_bundle: RigidBodyBundle {
             rigidbody: RigidBody::Dynamic,
             velocity: Velocity::default(),
             friction: Friction::coefficient(0.9),
-            howbouncy: Restitution::new(20.0),
-            massprop: ColliderMassProperties::Density(1.1),
-            rotationlocks: LockedAxes::empty(),
-            dampingprop: Damping {
+            how_bouncy: Restitution::new(20.0),
+            mass_prop: ColliderMassProperties::Density(1.1),
+            rotation_locks: LockedAxes::empty(),
+            damping_prop: Damping {
                 linear_damping: 0.4,
                 angular_damping: 0.1,
             },
@@ -178,8 +178,8 @@ pub fn spawn_smallpistol(
                     Vec2 { x: -3.0, y: -4.0 },
                     5.0,
                 ),
-                cgroups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
-                transformbundle: TransformBundle {
+                collision_groups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
+                transform_bundle: TransformBundle {
                     local: Transform {
                         translation: Vec3 {
                             x: 0.0,

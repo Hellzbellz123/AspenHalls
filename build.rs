@@ -3,24 +3,6 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
-// #[cfg(debug_assertions)]
-// fn maybedebug() {
-//     use std::time::Duration;
-//     println!("cargo:warning=maybedebug() should only be included if im debugging app");
-//     let url = format!(
-//         "vscode://vadimcn.vscode-lldb/launch/config?{{'request':'attach','pid':{}}}",
-//         std::process::id()
-
-//     );
-//     std::process::Command::new("/mnt/c/Program Files/Microsoft VS Code Insiders/bin/code-insiders")
-//         .arg("--open-url")
-//         .arg(url)
-//         .output()
-//         .expect("couldnt spawn code");
-//     std::thread::sleep(Duration::from_secs(10));
-// maybedebug();
-// }
-
 fn main() {
     println!("Hello from build.rs");
 
@@ -30,11 +12,11 @@ fn main() {
     );
 
     println!("PROFILE is {:?}", env::var("PROFILE").unwrap());
-    embedwindowicons();
-    copyassets();
+    embed_window_icons();
+    copy_assets();
 }
 
-fn copyassets() {
+fn copy_assets() {
     let output_path = get_output_path();
     println!("Calculated build path: {}", output_path.to_str().unwrap());
 
@@ -44,10 +26,10 @@ fn copyassets() {
 
     let input_path = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("gamedata/");
     let output_path = Path::new(&output_path).join("gamedata/");
-    copy(input_path, output_path).expect("couldnt copy files, maybe the source doesnt exist? {}");
+    copy(input_path, output_path).expect("couldn't copy files, maybe the source doesn't exist? {}");
 }
 
-fn embedwindowicons() {
+fn embed_window_icons() {
     let target = env::var("TARGET").unwrap();
     if target.contains("windows") {
         println!("embedding icon.rc ");
@@ -60,9 +42,9 @@ fn get_output_path() -> PathBuf {
     println!("target is: {target}");
 
     //<root or manifest path>/target/<profile>/
-    let currentworkingdirectory = env::var("CARGO_MANIFEST_DIR").unwrap();
+    let current_working_directory = env::var("CARGO_MANIFEST_DIR").unwrap();
     let build_type = env::var("PROFILE").unwrap();
-    let path = Path::new(&currentworkingdirectory)
+    let path = Path::new(&current_working_directory)
         .join("target")
         .join(target)
         .join(build_type);

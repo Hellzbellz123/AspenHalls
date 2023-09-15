@@ -22,11 +22,11 @@ pub struct MapContainerTag;
 
 /// spawns hideout and related resources
 pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
-    info!("spawning ldtkworldbundle");
+    info!("spawning LdtkWorldBundle");
 
     commands.spawn((
         LdtkWorldBundle {
-            ldtk_handle: maps.homeworld.clone(),
+            ldtk_handle: maps.sanctuary.clone(),
             transform: Transform {
                 translation: Vec3 {
                     x: 0.0,
@@ -59,7 +59,7 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
 }
 
 /// system too check for player on teleport pad
-pub fn homeworld_teleporter_collisions(
+pub fn home_world_teleporter_collisions(
     mut collision_events: EventReader<CollisionEvent>,
     world_sensors: Query<Entity, With<SanctuaryTeleportSensor>>,
     player_collider_query: Query<Entity, With<PlayerColliderTag>>,
@@ -69,7 +69,7 @@ pub fn homeworld_teleporter_collisions(
         return;
     }
 
-    for event in collision_events.iter() {
+    for event in &mut collision_events {
         if let CollisionEvent::Started(a, b, _flags) = event {
             if *a == player_collider_query.single() || *b == player_collider_query.single() {
                 let mut colliding_sensor: Option<Entity>;
@@ -125,9 +125,9 @@ pub fn enter_the_dungeon(
     time: Res<Time>,
     mut teleport_timer: ResMut<TeleportTimer>,
     mut player_query: Query<(&Transform, &mut Player)>,
-    _homeworld_container: Query<Entity, With<MapContainerTag>>,
+    _sanctuary_container: Query<Entity, With<MapContainerTag>>,
 ) {
-    let (_ptransform, mut player) = player_query
+    let (_player_transform, mut player) = player_query
         .get_single_mut()
         .expect("should always be a player if we are getting the event");
 

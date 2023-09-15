@@ -1,4 +1,4 @@
-.root {
+.interface-root {
     width: 100%;
     height: 100%;
 
@@ -6,7 +6,8 @@
     align-content: center;
 }
 
-body.main-menu-root {
+/* ###### Start Menu Styling ###### */
+div.start-menu-root {
     flex-direction: column;
     align-items: center;
 
@@ -14,7 +15,7 @@ body.main-menu-root {
     height: 100%;
 }
 
-div.main-menu-title {
+div.start-menu-title {
     margin-top: 5%;
     margin-left: 5%;
     margin-right: 5%;
@@ -23,7 +24,7 @@ div.main-menu-title {
     height: 250px;
 }
 
-div.main-menu-subtitle {
+div.start-menu-subtitle {
     position-type: absolute;
     top: 15%;
     right: -60px;
@@ -31,12 +32,12 @@ div.main-menu-subtitle {
     justify-content: center;
 }
 
-img.main-menu-logo {
+img.start-menu-logo {
     width: 100%;
     height: 100%;
 }
 
-div.main-menu-buttons {
+div.start-menu-buttons {
     background-color: green;
 
     flex-direction: column;
@@ -49,7 +50,7 @@ div.main-menu-buttons {
     min-height: 125px;
 }
 
-div.main-menu-buttons .button {
+div.start-menu-buttons .button {
     background-color: green;
     color: green;
     height: 48px;
@@ -58,40 +59,33 @@ div.main-menu-buttons .button {
     width: 90%;
 }
 
-div.menu-version {
-    position-type: absolute;
-    bottom: 1px;
-    left: 1px;
-
-    font-size: 28px;
-    flex-wrap: wrap;
-    color: white;
-}
-
-div.menu-disclaimer {
-    position-type: absolute;
-    bottom: 1px;
-    right: 1px;
-
-    font-size: 28px;
-    color: red;
-}
-
-body.settings-menu-root {
+/* ###### Settings Menu Styling ###### */
+div.settings-menu-root {
     flex-direction: column;
     align-items: center;
     width: 100%;
     height: 100%;
 }
 
+span.settings-title {
+    align-self: center;
+    margin-bottom: 2%;
+    margin-top: 3%
+    padding: 0px;
+    font-size: 36px;
+}
 
 div.settings-cfg-box {
-    padding: 5px;
+    padding-top: 0%;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-bottom: 2%;
+    margin-top: 10%;
     flex-wrap: wrap;
     flex-direction: column;
     background-color: tan;
     width: 60%;
-    height: 75%;
+    height: 65%;
 }
 
 div.settings-cfg-box .button {
@@ -118,4 +112,54 @@ div.settings-buttons-bottom .button {
     width: 55%;
     height: 10%;
     margin-bottom: 5%;
+}
+
+/* ####### Pause Menu Styling ######## */
+div.pause-menu-root {
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+span.pause-title {
+    align-self: center;
+    margin-bottom: 10%;
+    padding: 0px;
+    font-size: 36px;
+}
+
+div.pause-menu-buttons {
+    background-color: green;
+    padding-top: 5%;
+    margin-bottom: 0%;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+
+    width: 25%;
+    height: 35%;
+}
+
+/* ###### General Menu Styling ###### */
+div.menu-version {
+    position-type: absolute;
+    bottom: 1px;
+    left: 1px;
+
+    font-size: 28px;
+    flex-wrap: wrap;
+    color: white;
+}
+
+div.menu-disclaimer {
+    position-type: absolute;
+    bottom: 1px;
+    right: 1px;
+
+    font-size: 28px;
+    color: red;
 }

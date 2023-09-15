@@ -12,14 +12,12 @@ use crate::{
             components::{ActorTertiaryAttributes, Player},
         },
         input::actions,
-        TimeInfo,
     },
     loading::splashscreen::MainCameraTag,
 };
 
-/// adds velocity too player based of what movment keys are pressed
+/// adds velocity too player based of what movement keys are pressed
 pub fn player_movement_system(
-    timeinfo: ResMut<TimeInfo>,
     query_action_state: Query<&ActionState<actions::Combat>, With<Player>>,
     mut player_query: Query<(
         &mut Velocity,
@@ -29,13 +27,12 @@ pub fn player_movement_system(
         With<Player>,
     )>,
 ) {
-    if timeinfo.game_paused || player_query.is_empty() {
+    if player_query.is_empty() {
         return;
     }
 
-    let (mut velocity, mut anim_state, mut texture, speed_attr, _) = player_query.single_mut();
+    let (mut velocity, mut anim_state, mut texture, speed_attr, ()) = player_query.single_mut();
     let action_state = query_action_state.single();
-    let _timeinfo = timeinfo.as_ref();
     let delta;
 
     if action_state.pressed(actions::Combat::Move) {
@@ -70,7 +67,7 @@ pub fn player_movement_system(
     }
 }
 
-/// modifys players movement speed based on sprint button
+/// modifies players movement speed based on sprint button
 pub fn player_sprint(
     mut player_query: Query<(
         &mut AnimState,
@@ -111,10 +108,10 @@ pub fn camera_movement_system(
         return;
     }
     let (mut camera_trans, tag) = camera_transform.single_mut();
-    let playertrans = player_transform.single().translation.truncate();
-    let camtrans = camera_trans.translation.truncate();
+    let player_transform = player_transform.single().translation.truncate();
+    let camera_transform = camera_trans.translation.truncate();
 
     if tag.is_active {
-        camera_trans.translation = (camtrans.lerp(playertrans, 0.05)).extend(999.0);
+        camera_trans.translation = (camera_transform.lerp(player_transform, 0.05)).extend(999.0);
     }
 }

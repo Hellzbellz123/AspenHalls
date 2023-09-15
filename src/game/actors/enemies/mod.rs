@@ -6,11 +6,10 @@ use crate::{
     consts::{
         ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER,
     },
-    game::AppStage,
     loading::assets::ActorTextureHandles,
 };
 
-/// shoot and graphics for enemys
+/// shooting and graphics for enemies
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
@@ -33,9 +32,9 @@ use super::{
 };
 use crate::game::TimeInfo;
 
-/// updates enemys animation depending on velocity
+/// updates enemy's animation depending on velocity
 pub fn update_enemy_graphics(
-    timeinfo: ResMut<TimeInfo>,
+    time_info: ResMut<TimeInfo>,
     mut enemy_query: Query<(
         &mut Velocity,
         &mut AnimState,
@@ -44,8 +43,8 @@ pub fn update_enemy_graphics(
         With<Enemy>,
     )>,
 ) {
-    if !timeinfo.game_paused {
-        enemy_query.for_each_mut(|(velocity, mut anim_state, mut sprite, _ent, _)| {
+    if !time_info.game_paused {
+        enemy_query.for_each_mut(|(velocity, mut anim_state, mut sprite, _ent, ())| {
             if velocity.linvel == Vec2::ZERO {
                 anim_state.facing = ActorAnimationType::Idle;
             } else if velocity.linvel.x > 5.0 {
@@ -59,7 +58,7 @@ pub fn update_enemy_graphics(
             } else if velocity.linvel.y > 2.0 {
                 anim_state.facing = ActorAnimationType::Up;
             }
-        })
+        });
     }
 }
 
@@ -72,7 +71,7 @@ pub struct ShootTimer(pub Timer);
 /// checks if enemy can shoot and shoots if check is true
 pub fn on_shoot(
     mut cmds: Commands,
-    _time: Res<Time>,
+    time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<(&Transform, &mut AIAttackState), With<Enemy>>,
@@ -81,22 +80,22 @@ pub fn on_shoot(
         return;
     };
 
-    enemy_query.for_each_mut(|(enemytransform, mut attacking)| {
-        let enemy_loc = enemytransform.translation.truncate();
+    enemy_query.for_each_mut(|(enemy_transform, mut attacking)| {
+        let enemy_loc = enemy_transform.translation.truncate();
         let player_loc = player_transform.translation.truncate();
         let direction: Vec2 = (player_loc - enemy_loc).normalize_or_zero();
 
         // Make sure that the projectiles spawn outside of the body so that it doesn't collide
         let beyond_body_diff: Vec2 = direction * 36.;
-        let modified_spawnloc: Vec2 = enemy_loc + beyond_body_diff;
+        let modified_spawn_location: Vec2 = enemy_loc + beyond_body_diff;
 
-        if attacking.should_shoot && attacking.timer.tick(_time.delta()).finished() {
+        if attacking.should_shoot && attacking.timer.tick(time.delta()).finished() {
             info!("should shoot");
             create_enemy_projectile(
                 &mut cmds,
                 assets.bevy_icon.clone(),
                 direction,
-                modified_spawnloc,
+                modified_spawn_location,
             );
             attacking.timer.reset();
         }
@@ -106,7 +105,7 @@ pub fn on_shoot(
 /// spawns enemy projectile
 pub fn create_enemy_projectile(
     cmds: &mut Commands,
-    projtexture: Handle<Image>,
+    projectile_texture: Handle<Image>,
     direction: Vec2,
     location: Vec2,
 ) {
@@ -121,7 +120,7 @@ pub fn create_enemy_projectile(
             },
             ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
-                texture: projtexture,
+                texture: projectile_texture,
                 transform: Transform::from_translation(location.extend(ACTOR_Z_INDEX)),
                 sprite: Sprite {
                     custom_size: Some(Vec2::splat(5.0)),
@@ -133,10 +132,10 @@ pub fn create_enemy_projectile(
                 velocity: Velocity::linear(direction * (BULLET_SPEED_MODIFIER * 5.0)),
                 rigidbody: RigidBody::Dynamic,
                 friction: Friction::coefficient(0.2),
-                howbouncy: Restitution::coefficient(0.8),
-                massprop: ColliderMassProperties::Density(2.1),
-                rotationlocks: LockedAxes::ROTATION_LOCKED,
-                dampingprop: Damping {
+                how_bouncy: Restitution::coefficient(0.8),
+                mass_prop: ColliderMassProperties::Density(2.1),
+                rotation_locks: LockedAxes::ROTATION_LOCKED,
+                damping_prop: Damping {
                     linear_damping: 0.1,
                     angular_damping: 0.1,
                 },
@@ -149,7 +148,7 @@ pub fn create_enemy_projectile(
             EnemyProjectileColliderTag,
             ProjectileColliderBundle {
                 name: Name::new("EnemyProjectileCollider"),
-                transformbundle: TransformBundle {
+                transform_bundle: TransformBundle {
                     local: (Transform {
                         translation: (Vec3 {
                             x: 0.,
@@ -161,7 +160,7 @@ pub fn create_enemy_projectile(
                     ..default()
                 },
                 collider: Collider::ball(3.0),
-                collisiongroups: CollisionGroups::new(
+                collision_groups: CollisionGroups::new(
                     PLAYER_PROJECTILE_LAYER,
                     Group::from_bits_truncate(0b00101),
                 ),

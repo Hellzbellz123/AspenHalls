@@ -2,51 +2,40 @@ use belly::prelude::*;
 use bevy::{app::AppExit, prelude::*};
 use rand::seq::IteratorRandom;
 
-use crate::game::{AppStage, interface::MenuRoot, PausePlayEvent};
+use crate::game::{AppStage, interface::{InterfaceRoot, menus::{PausePlayEvent, EventType}}};
 
 /// Set up the main menu
 pub fn setup_menu(app: &mut App) {
     app.add_systems(
         OnEnter(AppStage::StartMenu),
         (
-            MainMenu::show.run_if(any_with_component::<MainMenu>()),
-            MainMenu::create.run_if(not(any_with_component::<MainMenu>())),
-        )
+            StartMenu::create.run_if(not(any_with_component::<StartMenu>())),
+            apply_deferred,
+            StartMenu::show.run_if(any_with_component::<StartMenu>()),
+        ).chain()
     );
 }
 
 /// A marker component for the main menu
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Component)]
-pub struct MainMenu;
+pub struct StartMenu;
 
-impl MainMenu {
-    /// Show the main menu
-    #[allow(dead_code)]
-    pub fn show(mut elements: Elements) {
-        elements.select("body.main-menu-root").remove_class("hidden");
-    }
-
-    /// Hide the main menu
-    #[allow(dead_code)]
-    pub fn hide(mut elements: Elements) {
-        elements.select("body.main-menu-root").add_class("hidden");
-    }
-
+impl StartMenu {
     /// Create the main menu
-    fn create(root: Res<MenuRoot>, mut elements: Elements, mut commands: Commands) {
-        commands.entity(**root).insert(MainMenu);
+    fn create(root: Res<InterfaceRoot>, mut elements: Elements, mut commands: Commands) {
+        commands.entity(**root).insert(Self);
 
-        elements.select(".root").add_child(eml! {
-            <body c:main-menu-root>
-                <div c:main-menu-title>
-                    <img c:main-menu-logo src="assets/ico/stonercaticon.png"/>
-                    <div c:main-menu-subtitle><span>{ Self::get_subtitle() }</span></div>
+        elements.select(".interface-root").add_child(eml! {
+            <div c:start-menu-root c:hidden>
+                <div c:start-menu-title>
+                    <img c:start-menu-logo src="assets/ico/stonercaticon.png"/>
+                    <div c:start-menu-subtitle><span>{ Self::get_subtitle() }</span></div>
                 </div>
-                <div c:main-menu-buttons>
-                    <button c:button on:press=|ctx| { ctx.send_event(PausePlayEvent) }>
+                <div c:start-menu-buttons>
+                    <button c:button on:press=|ctx| { ctx.send_event(PausePlayEvent(EventType::Play)) }>
                         "Play"
                     </button>
-                    <button c:button on:press=|ctx| { Self::click_button(ctx, "body.settings-menu-root") }>
+                    <button c:button on:press=|ctx| { Self::click_button(ctx, "div.settings-menu-root") }>
                         "Options"
                     </button>
                     <button c:button on:press=|ctx| { ctx.send_event(AppExit) }>
@@ -60,15 +49,24 @@ impl MainMenu {
                 <div c:menu-disclaimer>
                     "ALPHA SOFTWARE - USE AT YOUR OWN RISK"
                 </div>
-            </body>
+            </div>
         });
+    }
+    /// Show the main menu
+    pub fn show(mut elements: Elements) {
+        elements.select("div.start-menu-root").remove_class("hidden");
+    }
+
+    #[allow(dead_code)]
+    /// Hide the main menu
+    pub fn hide(mut elements: Elements) {
+        elements.select("div.start-menu-root").add_class("hidden");
     }
 
     /// Function to handle button clicks
     fn click_button(ctx: &mut EventContext<impl Event>, query: &str) {
-        ctx.select("body.main-menu-root").add_class("hidden");
-
-        ctx.select(query).remove_class("hidden");
+        ctx.select(query).toggle_class("hidden");
+        ctx.select("div.start-menu-root").add_class("hidden");
     }
 
     /// The list of possible subtitles
@@ -81,6 +79,7 @@ impl MainMenu {
         Self::SUBTITLES
             .lines()
             .choose(&mut rng)
-            .unwrap_or(Self::SUBTITLES.lines().next().expect("No subtitles found"))
+            .unwrap_or_else(|| Self::SUBTITLES.lines().next().expect("No subtitles found"))
+            // .unwrap_or(Self::SUBTITLES.lines().next().expect("No subtitles found"))
     }
 }

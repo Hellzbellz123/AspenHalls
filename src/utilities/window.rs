@@ -9,10 +9,10 @@ use winit::window::Icon;
 /// will panic if it cant find a window to attach icons, or the icon is not present
 pub fn set_window_icon(
     // we have to use `NonSend` here
-    windowquery: Query<Entity, &Window>,
+    window_query: Query<Entity, &Window>,
     windows: NonSend<bevy::winit::WinitWindows>,
 ) {
-    if let Ok(main_window) = windowquery.get_single() {
+    if let Ok(main_window) = window_query.get_single() {
         let Some(winit_window) = windows.get_window(main_window) else {
             warn!("NO WINDOW TOO SET ICON");
             return;
@@ -32,6 +32,6 @@ pub fn set_window_icon(
         let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height)
             .expect("the icon is not the correct size");
 
-        winit_window.set_window_icon(Some(icon))
+        winit_window.set_window_icon(Some(icon));
     }
 }

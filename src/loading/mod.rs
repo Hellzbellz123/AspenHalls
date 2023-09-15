@@ -29,7 +29,7 @@ impl Plugin for AssetLoadPlugin {
         )
         .add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
             AppStage::Loading,
-            "registery.assets",
+            "registry.assets",
         )
         .add_collection_to_loading_state::<_, ActorTextureHandles>(AppStage::Loading)
         .add_collection_to_loading_state::<_, FontHandles>(AppStage::Loading)

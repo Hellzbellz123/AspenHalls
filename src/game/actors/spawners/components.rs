@@ -32,7 +32,6 @@ impl Distribution<EnemyType> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> EnemyType {
         match rng.gen_range(0..=EnemyType::VARIANTS.len()) {
             0 => EnemyType::Skeleton,
-            1 => EnemyType::Slime,
             _ => EnemyType::Slime,
         }
     }
@@ -53,25 +52,25 @@ pub enum SpawnType {
     Item,
     /// spawning weapon
     Weapon,
-    /// spawnuing
+    /// spawning
     Enemy,
 }
 
-/// spawner for enemys
+/// spawner for enemies
 #[derive(Component, Default, Debug, Clone, Reflect)]
 #[reflect(Component)]
 pub struct Spawner {
     /// what too spawn
-    pub enemytype: EnemyType,
-    /// random enemys?
-    pub randomenemy: bool,
+    pub enemy_type: EnemyType,
+    /// random enemies?
+    pub random_enemy: bool,
     /// how far away can spawn
     pub spawn_radius: f32,
-    /// max enemys in spawner radius
+    /// max enemies in spawner radius
     pub max_enemies: i32,
 }
 
-/// event for spawning enemys
+/// event for spawning enemies
 #[derive(Component, Debug, Reflect, Default, Copy, Clone, Event)]
 #[reflect(Component)]
 pub struct SpawnEnemyEvent {

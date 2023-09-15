@@ -44,15 +44,15 @@ use super::{
 pub struct PlayerGameInformation {
     /// total damage dealt by player
     pub damage_dealt: f32,
-    /// enemys killed by player
-    pub enemys_killed: i32,
-    /// damage enemys deal too player
+    /// enemies killed by player
+    pub enemies_killed: i32,
+    /// damage enemy's deal too player
     pub damage_taken: f32,
     /// times player has died
     pub player_deaths: i32,
-    /// amount of damage enemys have fired that hit player and didnt get counted
+    /// amount of damage enemy's have fired that hit player and didn't get counted
     pub enemy_damage_sent: f32,
-    /// amount of damage player have fired that hit enemy and didnt get counted
+    /// amount of damage player have fired that hit enemy and didn't get counted
     pub player_damage_sent: f32,
 }
 
@@ -65,7 +65,7 @@ impl Plugin for ActorWeaponPlugin {
             damage_taken: 0.0,
             damage_dealt: 0.0,
             player_damage_sent: 0.0,
-            enemys_killed: 0,
+            enemies_killed: 0,
             enemy_damage_sent: 0.0,
             player_deaths: 0,
         })
@@ -80,9 +80,10 @@ impl Plugin for ActorWeaponPlugin {
                 hit_detection::hits_on_player,
                 rotate_player_weapon,
                 keep_player_weapons_centered,
-                weapon_visiblity_system,
+                weapon_visibility_system,
                 receive_shoot_weapon,
-            ).run_if(state_exists_and_equals(AppStage::PlayingGame)),
+            )
+                .run_if(state_exists_and_equals(AppStage::PlayingGame)),
         );
     }
 }
@@ -95,35 +96,35 @@ pub struct WeaponFiringTimer(pub Timer);
 
 /// rotates weapon too face wherever the players mouse is
 fn rotate_player_weapon(
-    gametime: Res<TimeInfo>,
+    game_time: Res<TimeInfo>,
     eager_mouse: Res<EagerMousePos>,
     mut player_query: Query<(&AnimState, With<Player>)>,
     mut weapon_query: Query<
-        // this is equivelent to if player has a weapon equipped and out
+        // this is equivalent to if player has a weapon equipped and out
         (&WeaponTag, &GlobalTransform, &mut Transform),
         (With<Parent>, With<CurrentlySelectedWeapon>),
     >,
 ) {
-    if gametime.game_paused || weapon_query.is_empty() {
+    if game_time.game_paused || weapon_query.is_empty() {
         return;
     }
-    let gmouse = eager_mouse.world;
+    let mouse_position_world = eager_mouse.world;
 
-    weapon_query.for_each_mut(|(wtag, wgtransform, mut wtransform)| {
-        if wtag.parent.is_some() {
-            let (_playerstate, _) = player_query.single_mut();
-            let gmousepos = vec2(gmouse.x, gmouse.y);
-            let gweaponpos: Vec2 = wgtransform.compute_transform().translation.truncate();
-            let lookdir: Vec2 = (gmousepos - gweaponpos).normalize_or_zero();
-            let aimangle = lookdir.y.atan2(lookdir.x) + FRAC_PI_2; // add offset too rotation here
+    weapon_query.for_each_mut(|(weapon_tag, weapon_global_transform, mut weapon_transform)| {
+        if weapon_tag.parent.is_some() {
+            let (_player_state, ()) = player_query.single_mut();
+            let global_mouse_pos = vec2(mouse_position_world.x, mouse_position_world.y);
+            let global_weapon_pos: Vec2 = weapon_global_transform.compute_transform().translation.truncate();
+            let look_direction: Vec2 = (global_mouse_pos - global_weapon_pos).normalize_or_zero();
+            let aim_angle = (-look_direction.y).atan2(look_direction.x) + FRAC_PI_2; // add offset too rotation here
 
-            // mirror whole entity by oppositing the scale when were looking left,
-            if aimangle.to_degrees() > 180.0 || aimangle.to_degrees() < -0.0 {
-                wtransform.scale.x = -1.0
+            // mirror whole entity by negating the scale when were looking left,
+            if aim_angle.to_degrees() > 180.0 || aim_angle.to_degrees() < -0.0 {
+                weapon_transform.scale.x = -1.0;
             } else {
-                wtransform.scale.x = 1.0
+                weapon_transform.scale.x = 1.0;
             }
-            wtransform.rotation = Quat::from_euler(EulerRot::ZYX, aimangle, 0.0, 0.0);
+            weapon_transform.rotation = Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
         }
     });
 }
@@ -142,26 +143,26 @@ fn keep_player_weapons_centered(
         return;
     }
 
-    actor_query.for_each_mut(|((_ent, animstate, childs), _)| {
-        weapon_query.for_each_mut(|(went, wtag, mut wtransform, mut wvelocity)| {
-            if wtag.parent.is_some() && childs.contains(&went) {
-                wvelocity.angvel = lerp(wvelocity.angvel, 0.0, 0.3);
-                wvelocity.linvel = Vec2::ZERO;
+    actor_query.for_each_mut(|((_ent, animation_state, children), ())| {
+        weapon_query.for_each_mut(|(weapon_entity, weapon_tag, mut weapon_transform, mut weapon_velocity)| {
+            if weapon_tag.parent.is_some() && children.contains(&weapon_entity) {
+                weapon_velocity.angvel = lerp(weapon_velocity.angvel, 0.0, 0.3);
+                weapon_velocity.linvel = Vec2::ZERO;
                 // modify weapon sprite to be below player when facing up, this
                 // still looks strange but looks better than a back mounted smg
-                if animstate.facing != ActorAnimationType::Up {
+                if animation_state.facing == ActorAnimationType::Up {
                     // this transform is local too players transform of 8
-                    wtransform.translation = Vec3 {
-                        x: 0.0,
-                        y: 1.5,
-                        z: 1.0,
-                    }
-                } else {
-                    // this transform is local too players transform of 8
-                    wtransform.translation = Vec3 {
+                    weapon_transform.translation = Vec3 {
                         x: 0.0,
                         y: 1.5,
                         z: -1.0,
+                    }
+                } else {
+                    // this transform is local too players transform of 8
+                    weapon_transform.translation = Vec3 {
+                        x: 0.0,
+                        y: 1.5,
+                        z: 1.0,
                     }
                 }
             }
@@ -170,28 +171,28 @@ fn keep_player_weapons_centered(
 }
 
 /// check if the weapon is supposed to be visible
-fn weapon_visiblity_system(
+fn weapon_visibility_system(
     player_query: Query<&WeaponSocket, With<Player>>,
-    mut weapon_query: Query<(&WeaponTag, &mut Visibility), With<Parent>>, // query weapons parented to entitys
+    mut weapon_query: Query<(&WeaponTag, &mut Visibility), With<Parent>>, // query weapons parented to entity's
 ) {
     if player_query.is_empty() || weapon_query.is_empty() {
         return;
     }
 
-    let p_weaponsocket = player_query.single();
-    weapon_query.for_each_mut(|(wtag, mut wvisiblity)| {
-        if wtag.stored_weapon_slot == p_weaponsocket.drawn_slot {
-            // TODO: these feels wrong, deref doesnt feel correct here
+    let p_weapon_socket = player_query.single();
+    weapon_query.for_each_mut(|(weapon_tag, mut weapon_visibility)| {
+        if weapon_tag.stored_weapon_slot == p_weapon_socket.drawn_slot {
+            // TODO: these feels wrong, deref doesn't feel correct here
             // find a less gross solution
-            *wvisiblity = Visibility::Inherited
+            *weapon_visibility = Visibility::Inherited;
         } else {
-            *wvisiblity = Visibility::Hidden
+            *weapon_visibility = Visibility::Hidden;
         }
     });
 }
 
-/// removes `CurrentlyDrawnWeapon` from entitys parented to player that dont
-/// match the entity in `Weaponsocket.drawn_weapon`
+/// removes `CurrentlyDrawnWeapon` from entity's parented to player that don't
+/// match the entity in `WeaponSocket.drawn_weapon`
 fn remove_cdw_component(
     mut cmds: Commands,
     names: Query<&Name>,
@@ -207,16 +208,16 @@ fn remove_cdw_component(
         return;
     }
 
-    let playerwsocket = player_query.single();
+    let player_weapon_socket = player_query.single();
 
-    weapon_query.for_each(|(went, wtag)| {
-        if wtag.stored_weapon_slot != playerwsocket.drawn_slot && drawn_weapon.get(went).is_ok() {
-            let wname = names.get(went).expect("entity doesnt have a name");
+    weapon_query.for_each(|(weapon_entity, weapon_tag)| {
+        if weapon_tag.stored_weapon_slot != player_weapon_socket.drawn_slot && drawn_weapon.get(weapon_entity).is_ok() {
+            let weapon_name = names.get(weapon_entity).expect("entity doesn't have a name");
             debug!(
-                "weapon {} {:#?} shouldnt have active component, removing",
-                wname, went
+                "weapon {} {:#?} should not have active component, removing",
+                weapon_name, weapon_entity
             );
-            cmds.entity(went).remove::<CurrentlySelectedWeapon>();
+            cmds.entity(weapon_entity).remove::<CurrentlySelectedWeapon>();
         }
     });
 }
@@ -232,116 +233,115 @@ fn update_equipped_weapon(
         return;
     }
 
-    let mut wsocket = player_query.single_mut();
+    let mut player_weapon_socket = player_query.single_mut();
     let actions = query_action_state.single();
 
     if actions.just_pressed(actions::Combat::EquipSlot1) {
         // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
         // CurrentlyDrawnWeapon from old weapon
-        wsocket.drawn_slot = Some(WeaponSlots::Slot1);
-        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
-        let current_weapon = get_current_weapon(current_weapon_slots, &wsocket);
+        player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot1);
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let current_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
         if let Some(ent) = current_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
-            info!("equipping slot 1")
+            info!("equipping slot 1");
         }
     } else if actions.just_pressed(actions::Combat::EquipSlot2) {
-        wsocket.drawn_slot = Some(WeaponSlots::Slot2);
-        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
-        let newwep = get_current_weapon(current_weapon_slots, &wsocket);
+        player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot2);
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
-        if let Some(ent) = newwep {
+        if let Some(ent) = new_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
-            info!("equipping slot 2")
+            info!("equipping slot 2");
         }
     } else if actions.just_pressed(actions::Combat::EquipSlot3) {
-        wsocket.drawn_slot = Some(WeaponSlots::Slot3);
-        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
-        let newwep = get_current_weapon(current_weapon_slots, &wsocket);
+        player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot3);
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
-        if let Some(ent) = newwep {
+        if let Some(ent) = new_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
-            info!("equipping slot 3")
+            info!("equipping slot 3");
         }
     } else if actions.just_pressed(actions::Combat::EquipSlot4) {
-        wsocket.drawn_slot = Some(WeaponSlots::Slot4);
-        let current_weapon_slots = &mut wsocket.weapon_slots.clone();
-        let newwep = get_current_weapon(current_weapon_slots, &wsocket);
+        player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot4);
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
-        if let Some(ent) = newwep {
+        if let Some(ent) = new_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
-            info!("equipping slot 4")
+            info!("equipping slot 4");
         }
     }
 }
 
 /// gets ent id of weapon in weapon slot
 fn get_current_weapon(
-    weaponslots: &mut bevy::utils::hashbrown::HashMap<WeaponSlots, Option<Entity>>,
-    wsocket: &WeaponSocket,
+    weapon_slots: &mut bevy::utils::hashbrown::HashMap<WeaponSlots, Option<Entity>>,
+    weapon_socket: &WeaponSocket,
 ) -> Option<Entity> {
-    let entity_in_drawn_slot = weaponslots
+    let entity_in_drawn_slot = weapon_slots
         .entry(
-            wsocket
+            weapon_socket
                 .drawn_slot
-                .expect("failed to unwrap wsocket.drawnslot"),
+                .expect("failed to unwrap WeaponSocket.drawn_slot"),
         )
         .or_insert(None);
     let currently_equipped_from_hashmap: Option<Entity> = entity_in_drawn_slot
         .as_mut()
-        .map(|current_equiped_weapon| *current_equiped_weapon);
+        .map(|current_equipped_weapon| *current_equipped_weapon);
 
-    match currently_equipped_from_hashmap {
-        Some(weapon) => Some(weapon),
-        None => {
+    currently_equipped_from_hashmap.map_or_else(
+        || {
             warn!("no currently equipped weapon");
             None
-        }
-    }
+        },
+        Some,
+    )
 }
 
 // TODO: refactor this system and related systems into a module for weapons, add ammo management too new module
-/// recives shoot events and creates bullet at location
+/// receives shoot events and creates bullet at location
 pub fn receive_shoot_weapon(
     mut cmds: Commands,
     time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,
-    mut fireingtimer: ResMut<WeaponFiringTimer>,
-    mut attackreader: EventReader<ShootEvent>,
+    mut firing_timer: ResMut<WeaponFiringTimer>,
+    mut attack_event_reader: EventReader<ShootEvent>,
     weapon_query: Query<
-        // this is equivelent to if player has a weapon equipped and out
+        // this is equivalent to if player has a weapon equipped and out
         (&mut WeaponTag, &WeaponStats, &Transform),
         (With<Parent>, With<CurrentlySelectedWeapon>),
     >,
 ) {
-    fireingtimer.tick(time.delta());
+    firing_timer.tick(time.delta());
 
     if weapon_query.is_empty() {
         return;
     }
 
-    let fireingtimer = &mut fireingtimer.0;
-    let (_wtag, wstats, _wtrans) = weapon_query.single();
+    let firing_timer = &mut firing_timer.0;
+    let (_weapon_tag, weapon_stats, _) = weapon_query.single();
 
-    fireingtimer.set_mode(TimerMode::Once);
-    fireingtimer.set_duration(Duration::from_secs_f32(wstats.attack_speed));
+    firing_timer.set_mode(TimerMode::Once);
+    firing_timer.set_duration(Duration::from_secs_f32(weapon_stats.attack_speed));
 
-    for event in attackreader.iter() {
-        // info!("firing duration: {:#?}", fireingtimer.duration());
-        if fireingtimer.finished() {
-            attacks::create_bullet(&mut cmds, &assets, event, wstats);
-            fireingtimer.reset();
+    for event in &mut attack_event_reader {
+        // info!("firing duration: {:#?}", firing_timer.duration());
+        if firing_timer.finished() {
+            attacks::create_bullet(&mut cmds, &assets, event, weapon_stats);
+            firing_timer.reset();
             // info!("fire timer finished");
             return;
         }
     }
 }
 // TODO: merge both damage application systems into single system that sends an event for player deaths
-// TODO: have damaged enemys use particle effect or red tint when damaged
-
+// TODO: have damaged enemies use particle effect or red tint when damaged
 // TODO: make this a damage queue
-/// takes damaged entitys and applies damage too hit enemy
+/// takes damaged entity's and applies damage too hit enemy
 fn deal_with_damaged(
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,
@@ -358,7 +358,7 @@ fn deal_with_damaged(
 
         if enemy_stats.health <= 0.0 {
             cmds.entity(enemy).despawn_recursive();
-            game_info.enemys_killed += 1;
+            game_info.enemies_killed += 1;
         }
     });
 }
@@ -392,10 +392,10 @@ fn player_death_system(
         game_info.player_deaths += 1;
     }
 
-    let oldcolor = player_sprite.color;
+    let old_color = player_sprite.color;
     player_sprite.color = Color::RED;
 
     player_stats.health -= player_damaged.0;
     cmds.entity(player).remove::<Damage>();
-    player_sprite.color = oldcolor;
+    player_sprite.color = old_color;
 }

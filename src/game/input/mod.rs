@@ -10,6 +10,6 @@ pub struct ActionsPlugin;
 // holds default bindings for game
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(InputManagerPlugin::<actions::Combat>::default());
+        app.add_plugins(InputManagerPlugin::<actions::Combat>::default());
     }
 }

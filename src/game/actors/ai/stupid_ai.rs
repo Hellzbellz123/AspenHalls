@@ -14,9 +14,12 @@ use rand::{thread_rng, Rng};
 
 use crate::game::{
     actors::{
-        ai::components::*,
+        ai::components::{
+            AIAttackState, AICanAggro, AICanWander, AIChaseAction, AIWanderAction, AggroScore,
+            AttackScore, Enemy, WanderScore,
+        },
         animation::components::{ActorAnimationType, AnimState},
-        components::*,
+        components::Player,
     },
     AppStage, TimeInfo,
 };
@@ -51,7 +54,7 @@ fn aggro_score_system(
     enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, // enemies that can aggro
     mut aggro_scorer_query: Query<(&Actor, &mut Score), With<AggroScore>>, // aggro scorer
 ) {
-    for (Actor(actor), mut aggro_score) in aggro_scorer_query.iter_mut() {
+    for (Actor(actor), mut aggro_score) in &mut aggro_scorer_query {
         let mut closest_player_as_distance = f32::INFINITY;
         let mut closest_player_transform: Option<&Transform> = None;
 
@@ -72,11 +75,11 @@ fn aggro_score_system(
         });
 
         if let Some(_player_transform) = closest_player_transform {
-            let (_enemy_transform, aggroable) = enemy_query.get(*actor).unwrap();
-            if closest_player_as_distance < aggroable.aggro_distance.abs() {
+            let (_enemy_transform, aggro_able) = enemy_query.get(*actor).unwrap();
+            if closest_player_as_distance < aggro_able.aggro_distance.abs() {
                 aggro_score.set(1.0);
             } else {
-                aggro_score.set(0.0)
+                aggro_score.set(0.0);
             }
         } else {
             aggro_score.set(0.0);
@@ -84,12 +87,12 @@ fn aggro_score_system(
     }
 }
 
-/// wanderable enemys scorer
+/// wander able enemy's scorer
 /// if player is not within range, score is 1
 fn wander_score_system(
     player_query: Query<&Transform, With<Player>>, //player
-    enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemys that can aggro
-    mut wanderscore_query: Query<
+    enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemy's that can aggro
+    mut wander_score_query: Query<
         (&Actor, &mut Score),
         (With<WanderScore>, Without<AggroScore>, With<AttackScore>),
     >,
@@ -97,38 +100,38 @@ fn wander_score_system(
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
-    wanderscore_query.for_each_mut(|(Actor(actor), mut wander_score)| {
-        if let Ok((transform, aggroable)) = enemy_query.get(*actor) {
+    wander_score_query.for_each_mut(|(Actor(actor), mut wander_score)| {
+        if let Ok((transform, aggro_able)) = enemy_query.get(*actor) {
             let distance = player_transform
                 .translation
                 .truncate()
                 .distance(transform.translation.truncate());
 
-            if distance > aggroable.aggro_distance {
-                wander_score.set(1.0)
+            if distance > aggro_able.aggro_distance {
+                wander_score.set(1.0);
             } else {
-                wander_score.set(0.0)
+                wander_score.set(0.0);
             }
         }
     });
 }
 
-/// TODO: add atacks
+/// TODO: add attacks
 /// if player is within attack range, shoot at player
 #[allow(dead_code)]
 fn attack_score_system(
     _player_query: Query<&Transform, With<Player>>, //player
-    _enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemys that can aggro
-    _attackscore_query: Query<
+    _enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemy's that can aggro
+    _attack_score_query: Query<
         (&Actor, &mut Score),
         (With<AttackScore>, Without<AggroScore>, Without<WanderScore>),
     >,
 ) {
 }
 
-/// handles enemys that can chase
+/// handles enemy's that can chase
 fn chase_action(
-    _timeinfo: ResMut<TimeInfo>,
+    _time_info: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<(
         &Transform,
@@ -138,14 +141,14 @@ fn chase_action(
         &mut AnimState,
         With<Enemy>,
     )>,
-    mut chasing_enemys: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
+    mut chasing_enemies: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
 
-    chasing_enemys.for_each_mut(|(Actor(actor), mut state)| {
-        if let Ok((enemy_transform, mut velocity, aggroable, _attacking, mut anim_state, _)) =
+    chasing_enemies.for_each_mut(|(Actor(actor), mut state)| {
+        if let Ok((enemy_transform, mut velocity, aggro_able, _attacking, mut anim_state, ())) =
             enemy_query.get_mut(*actor)
         {
             let direction = ((player_transform.translation.truncate())
@@ -165,16 +168,16 @@ fn chase_action(
                 }
                 ActionState::Executing => {
                     // move towards the player if player is close enough
-                    if distance <= aggroable.aggro_distance {
+                    if distance <= aggro_able.aggro_distance {
                         *velocity = Velocity::linear(direction * 50.);
                     }
                     // chase target escaped, failed to chase
-                    else if distance < 100.0 || distance >= aggroable.aggro_distance {
+                    else if distance < 100.0 || distance >= aggro_able.aggro_distance {
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3));
                         anim_state.facing = ActorAnimationType::Idle;
                         *state = ActionState::Failure;
                     }
-                    // we really shouldnt hit this block
+                    // we really should not hit this block
                     else {
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3));
                         anim_state.facing = ActorAnimationType::Idle;
@@ -200,7 +203,7 @@ fn chase_action(
     });
 }
 
-/// handles enemys that are doing the wander action
+/// handles enemy's that are doing the wander action
 fn wander_action(
     #[allow(clippy::type_complexity)]
     // trunk-ignore(clippy/type_complexity)
@@ -234,24 +237,21 @@ fn wander_action(
                 ActionState::Requested => {
                     // pick a random target within range of home and current position
                     let t_deviation = rng.gen_range(-50.0..=50.0);
-                    match target_pos {
-                        Some(target_pos) => {
-                            let c_target_pos: Vec2 = target_pos;
-                            let distance = c_target_pos - cur_pos;
-                            if distance.length().abs() <= t_deviation {
-                                can_meander_tag.wander_target = None;
-                                *state = ActionState::Success;
-                            } else {
-                                *state = ActionState::Executing;
-                            }
-                        }
-                        None => {
-                            can_meander_tag.wander_target = Some(Vec2 {
-                                x: (spawn_pos.x + rng.gen_range(-300.0..=300.0)), //Rng::gen_range(&mut )),
-                                y: (spawn_pos.y + rng.gen_range(-300.0..=300.0)),
-                            });
+                    if let Some(target_pos) = target_pos {
+                        let c_target_pos: Vec2 = target_pos;
+                        let distance = c_target_pos - cur_pos;
+                        if distance.length().abs() <= t_deviation {
+                            can_meander_tag.wander_target = None;
+                            *state = ActionState::Success;
+                        } else {
                             *state = ActionState::Executing;
                         }
+                    } else {
+                        can_meander_tag.wander_target = Some(Vec2 {
+                            x: (spawn_pos.x + rng.gen_range(-300.0..=300.0)), //Rng::gen_range(&mut )),
+                            y: (spawn_pos.y + rng.gen_range(-300.0..=300.0)),
+                        });
+                        *state = ActionState::Executing;
                     }
                 }
                 ActionState::Executing => match target_pos {
@@ -269,14 +269,8 @@ fn wander_action(
                         *state = ActionState::Requested;
                     }
                 },
-                ActionState::Success => {
-                    // clear target, set velocity to None  // we actually dont want too succeed at this action because then the ai will just do nothing. if i set it too not be last resort action i bet it would work
-                    *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
-                    can_meander_tag.wander_target = None;
-                    *state = ActionState::Requested;
-                }
-                ActionState::Failure => {
-                    // clear target, set velocity to None
+                ActionState::Success | ActionState::Failure => {
+                    // clear target, set velocity to None  // we actually don't want too succeed at this action because then the ai will just do nothing. if i set it too not be last resort action i bet it would work
                     *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
                     can_meander_tag.wander_target = None;
                     *state = ActionState::Requested;

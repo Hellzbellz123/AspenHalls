@@ -3,14 +3,11 @@ use bevy::{prelude::*, utils::hashbrown::HashMap};
 use crate::{
     bundles::{ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle},
     consts::{ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE, ACTOR_Z_INDEX},
-    game::{
-        actors::{
+    game::actors::{
             ai::components::{ActorType, Faction},
             animation::components::{ActorAnimationType, AnimState, AnimationSheet},
             components::PlayerColliderTag,
         },
-        AppStage,
-    },
     game::{
         actors::{
             combat::components::WeaponSlots,
@@ -39,7 +36,7 @@ pub struct AnimationTimer(Timer);
 
 /// player actions
 pub mod actions;
-/// player movment functions
+/// player movement functions
 mod movement;
 
 /// handles player events, and fn
@@ -82,8 +79,8 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             },
             ActorBundle {
                 name: Name::new("Player"),
-                actortype: ActorType(Faction::Player),
-                animationstate: AnimState {
+                actor_type: ActorType(Faction::Player),
+                animation_state: AnimState {
                     facing: ActorAnimationType::Idle,
                     timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                     animation_frames: vec![0, 1, 2, 3, 4],
@@ -114,14 +111,14 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                     }),
                     ..default()
                 },
-                rigidbody: RigidBodyBundle {
+                rigidbody_bundle: RigidBodyBundle {
                     rigidbody: RigidBody::Dynamic,
                     velocity: Velocity::default(),
                     friction: Friction::coefficient(0.7),
-                    howbouncy: Restitution::coefficient(0.3),
-                    massprop: ColliderMassProperties::Density(0.3),
-                    rotationlocks: LockedAxes::ROTATION_LOCKED,
-                    dampingprop: Damping {
+                    how_bouncy: Restitution::coefficient(0.3),
+                    mass_prop: ColliderMassProperties::Density(0.3),
+                    rotation_locks: LockedAxes::ROTATION_LOCKED,
+                    damping_prop: Damping {
                         linear_damping: 1.0,
                         angular_damping: 1.0,
                     },
@@ -133,7 +130,7 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                 PlayerColliderTag,
                 ActorColliderBundle {
                     name: Name::new("PlayerCollider"),
-                    transformbundle: TransformBundle {
+                    transform_bundle: TransformBundle {
                         local: (Transform {
                             // transform relative to parent
                             translation: (Vec3 {
@@ -150,19 +147,19 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                         ACTOR_COLLIDER.1,
                         ACTOR_COLLIDER.2,
                     ),
-                    collisiongroups: CollisionGroups::new(Group::ALL, Group::GROUP_30),
+                    collision_groups: CollisionGroups::new(Group::ALL, Group::GROUP_30),
                 },
             ));
         });
 }
 
-/// creates empty weaponslots
+/// creates empty weapon slots
 pub fn init_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
-    let mut weaponslots = HashMap::new();
-    weaponslots.insert(WeaponSlots::Slot1, None::<Entity>);
-    weaponslots.insert(WeaponSlots::Slot2, None::<Entity>);
-    weaponslots.insert(WeaponSlots::Slot3, None::<Entity>);
-    weaponslots.insert(WeaponSlots::Slot4, None::<Entity>);
-    warn!("{:#?}", weaponslots);
-    weaponslots
+    let mut weapon_slots = HashMap::new();
+    weapon_slots.insert(WeaponSlots::Slot1, None::<Entity>);
+    weapon_slots.insert(WeaponSlots::Slot2, None::<Entity>);
+    weapon_slots.insert(WeaponSlots::Slot3, None::<Entity>);
+    weapon_slots.insert(WeaponSlots::Slot4, None::<Entity>);
+    warn!("{:#?}", weapon_slots);
+    weapon_slots
 }

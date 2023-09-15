@@ -19,7 +19,7 @@ use crate::{
 
 use super::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand};
 
-/// recieves spawnweapon command and sens spawn event
+/// receives spawnweapon command and sens spawn event
 pub fn spawnweapon_command(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnWeaponCommand>,
@@ -33,31 +33,31 @@ pub fn spawnweapon_command(
         amount,
         loc_x,
         loc_y,
-        atplayer,
+        at_player,
     })) = spawn.take()
     {
-        let cspawn_atplayer = atplayer.unwrap_or(true);
-        let mut cspawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
-        let cspawn_count = amount.unwrap_or(1);
-        let cspawn_type = WeaponType::from_str(&weapon_type);
+        let command_spawn_at_player = at_player.unwrap_or(true);
+        let mut command_spawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
+        let command_spawn_count = amount.unwrap_or(1);
+        let command_spawn_type = WeaponType::from_str(&weapon_type);
 
-        match cspawn_type {
-            Ok(cspawn_type) => {
-                for _ in 0..cspawn_count {
-                    if cspawn_atplayer {
-                        cspawn_location =
-                            player_transform.single().translation.truncate() + vec2(offset, offset)
+        match command_spawn_type {
+            Ok(command_spawn_type) => {
+                for _ in 0..command_spawn_count {
+                    if command_spawn_at_player {
+                        command_spawn_location =
+                            player_transform.single().translation.truncate() + vec2(offset, offset);
                     }
 
                     ew.send(SpawnWeaponEvent {
-                        weapon_to_spawn: cspawn_type.clone(),
-                        spawn_position: cspawn_location,
+                        weapon_to_spawn: command_spawn_type.clone(),
+                        spawn_position: command_spawn_location,
                         spawn_count: 1,
-                    })
+                    });
                 }
                 info!(
                     "console command spawnenemy() called to spawn: {:?}",
-                    cspawn_type
+                    command_spawn_type
                 );
                 spawn.ok();
             }
@@ -73,7 +73,7 @@ pub fn spawnweapon_command(
     }
 }
 
-/// recieves spawnenemy command and send spawnevent
+/// interprets `SpawnEnemyCommand` from console and sends `SpawnEnemyEvent`
 pub fn spawnenemy_command(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnEnemyCommand>,
@@ -87,31 +87,31 @@ pub fn spawnenemy_command(
         amount,
         loc_x,
         loc_y,
-        atplayer,
+        at_player,
     })) = spawn.take()
     {
-        let cspawn_atplayer = atplayer.unwrap_or(true);
-        let cspawn_count = amount.unwrap_or(1);
-        let mut cspawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
-        let cspawn_type = EnemyType::from_str(&enemy_type);
+        let command_spawn_at_player = at_player.unwrap_or(true);
+        let command_spawn_count = amount.unwrap_or(1);
+        let mut command_spawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
+        let command_spawn_type = EnemyType::from_str(&enemy_type);
 
-        match cspawn_type {
-            Ok(cspawn_type) => {
-                for _ in 0..cspawn_count {
-                    if cspawn_atplayer {
-                        cspawn_location =
-                            player_transform.single().translation.truncate() + vec2(offset, offset)
+        match command_spawn_type {
+            Ok(command_spawn_type) => {
+                for _ in 0..command_spawn_count {
+                    if command_spawn_at_player {
+                        command_spawn_location =
+                            player_transform.single().translation.truncate() + vec2(offset, offset);
                     }
 
                     ew.send(SpawnEnemyEvent {
-                        enemy_to_spawn: cspawn_type,
-                        spawn_position: cspawn_location,
+                        enemy_to_spawn: command_spawn_type,
+                        spawn_position: command_spawn_location,
                         spawn_count: 1,
-                    })
+                    });
                 }
                 info!(
                     "console command spawnenemy() called to spawn: {:?}",
-                    cspawn_type
+                    command_spawn_type
                 );
                 spawn.ok();
             }
@@ -128,7 +128,7 @@ pub fn spawnenemy_command(
 }
 
 /// receives tp command and teleports player too location
-pub fn teleportplayer_command(
+pub fn teleport_player_command(
     mut player_transform: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<TeleportPlayerCommand>,
 ) {

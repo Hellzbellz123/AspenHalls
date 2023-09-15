@@ -1,5 +1,5 @@
 #![allow(clippy::type_complexity)]
-/// holds walk_dirs function
+/// holds `walk_dirs` function
 /// outputs cwd too console
 mod debug_dirs;
 
@@ -9,7 +9,7 @@ mod debug_dirs;
 pub mod debug_plugin {
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-        prelude::{App, *}, app::RunFixedUpdateLoop,
+        prelude::{App, *},
     };
     // use bevy_debug_grid::DebugGridPlugin;
     use bevy_debug_text_overlay::OverlayPlugin;
@@ -32,9 +32,9 @@ pub mod debug_plugin {
     // use grid_plane::GridPlanePlugin;
     use std::{fs, time::Duration};
 
+    use crate::game::actors::components::{Player, TimeToLive};
     use crate::{
-        launch_config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
-        dev_tools::debug_dirs::debugdir,
+        dev_tools::debug_dirs::debug_directory,
         game::{
             actors::combat::components::{
                 CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
@@ -45,13 +45,18 @@ pub mod debug_plugin {
         // kayak_ui::MenuState,
         game::{
             actors::{
-                ai::components::*, animation::components::*, components::*,
+                ai::components::{
+                    AIAttackState, AICanAggro, AICanWander, AIChaseAction, AIWanderAction,
+                    ActorType, AggroScore, Faction,
+                },
+                animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 spawners::components::Spawner,
             },
             game_world::dungeonator::GeneratorStage,
             interface::RequestedMenu,
         },
         game::{AppStage, TimeInfo},
+        launch_config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
         loading::splashscreen::MainCameraTag,
     };
 
@@ -60,13 +65,8 @@ pub mod debug_plugin {
 
     impl Plugin for DebugPlugin {
         fn build(&self, app: &mut App) {
-            debugdir();
-            app
-                // .add_plugin(InspectorPlugin::<crate::game_world::homeworld::components::ReflectData>::new())
-                .register_type::<Timer>()
-                //rapier Reflects in this plugin
-                // .add_plugin(ReflectRapierPlugin)
-                .add_plugin(RapierDebugRenderPlugin::default())
+            debug_directory();
+            app.register_type::<Timer>()
                 //custom Reflects not from plugins
                 .register_type::<DifficultyScale>()
                 .register_type::<WindowSettings>()
@@ -104,23 +104,24 @@ pub mod debug_plugin {
                 .register_type::<AIChaseAction>()
                 .register_type::<AIWanderAction>()
                 .register_type::<ActorType>()
-                .add_plugin(OverlayPlugin {
-                    font_size: 32.0,
-                    ..Default::default()
-                })
-                .add_plugin(WorldInspectorPlugin::default())
-                .add_plugin(
+                .add_plugins((
+                    RapierDebugRenderPlugin::default(),
+                    OverlayPlugin {
+                        font_size: 32.0,
+                        ..Default::default()
+                    },
+                    WorldInspectorPlugin::default(),
                     ResourceInspectorPlugin::<DungeonGeneratorSettings>::default()
                         .run_if(state_exists_and_equals(GeneratorStage::Finished)),
-                )
-                .add_plugin(StateInspectorPlugin::<AppStage>::default())
-                .add_plugin(StateInspectorPlugin::<RequestedMenu>::default())
-                .add_plugin(StateInspectorPlugin::<GeneratorStage>::default())
-                .add_plugin(FrameTimeDiagnosticsPlugin)
-                .add_plugin(LogDiagnosticsPlugin {
-                    wait_duration: Duration::from_secs(20),
-                    ..Default::default()
-                })
+                    StateInspectorPlugin::<AppStage>::default(),
+                    StateInspectorPlugin::<RequestedMenu>::default(),
+                    StateInspectorPlugin::<GeneratorStage>::default(),
+                    FrameTimeDiagnosticsPlugin,
+                    LogDiagnosticsPlugin {
+                        wait_duration: Duration::from_secs(20),
+                        ..Default::default()
+                    },
+                ))
                 // .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
                 // TODO: refactor these systems into nice sets and stages
                 .add_systems(
@@ -133,7 +134,7 @@ pub mod debug_plugin {
         }
     }
 
-    /// querys spawners and creates debug representations for spawner area
+    /// query's spawners and creates debug representations for spawner area
     fn debug_visualize_spawner(
         mut cmds: Commands,
         spawner_query: Query<(Entity, &Transform, &Spawner), Without<Fill>>,
@@ -173,12 +174,12 @@ pub mod debug_plugin {
     fn debug_visualize_weapon_spawn_point(
         mut cmds: Commands,
         weapon_query: Query<
-            // this is equivelent to if player has a weapon equipped and out
+            // this is equivalent to if player has a weapon equipped and out
             (Entity, &WeaponStats, &Transform),
             (With<Parent>, With<CurrentlySelectedWeapon>),
         >,
     ) {
-        for (ent, _wstats, _trans) in &weapon_query {
+        for (ent, _w_stats, _trans) in &weapon_query {
             let spawner_box_visual = shapes::Rectangle {
                 extents: Vec2 { x: 2.0, y: 2.0 },
                 origin: shapes::RectangleOrigin::Center,
@@ -210,7 +211,8 @@ pub mod debug_plugin {
             style: render_theme,
         };
 
-        let update_schedule_graph = bevy_mod_debugdump::schedule_graph_dot(app, Update, &schedule_graph_settings);
+        let update_schedule_graph =
+            bevy_mod_debugdump::schedule_graph_dot(app, Update, &schedule_graph_settings);
 
         // let startup_schedule_graph =
         //     bevy_mod_debugdump::schedule_graph_dot(app, Main, &schedule_graph_settings);
@@ -218,11 +220,12 @@ pub mod debug_plugin {
         let render_graph = bevy_mod_debugdump::render_graph_dot(app, &render_graph_settings);
 
         fs::write("zmainschedulegraph.dot", update_schedule_graph)
-            .expect("couldnt write render schedule to file");
-        fs::write("zrendergraph.dot", render_graph).expect("couldnt write render schedule to file");
+            .expect("couldn't write render schedule to file");
+        fs::write("zrendergraph.dot", render_graph)
+            .expect("couldn't write render schedule to file");
     }
 
-    // /// takes all actors and sums z then divied by actor count
+    // /// takes all actors and sums z then divided by actor count
     // pub fn debug_test_transform_z(actor_query: Query<(&ActorType, &GlobalTransform)>) {
     //     let mut total = 0;
     //     let mut z_value = 0.0;

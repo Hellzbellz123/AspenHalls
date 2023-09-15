@@ -9,6 +9,8 @@ name = "vanillacoffee"
 readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 version = "0.0.4"
+keywords = ["videogame", "game", "application", "bin"]
+categories = ["games"]
 
 [features]
 trace = ["bevy/trace", "bevy/trace_tracy", "big-brain/trace", "dev"]

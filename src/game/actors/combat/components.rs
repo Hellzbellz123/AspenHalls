@@ -1,6 +1,6 @@
 use bevy::{
     prelude::{Bundle, Component, Deref, Entity, Name, ReflectComponent, Vec3},
-    reflect::{FromReflect, Reflect},
+    reflect::Reflect,
     sprite::{SpriteBundle, SpriteSheetBundle},
     transform::TransformBundle,
     utils::hashbrown::HashMap,
@@ -10,7 +10,7 @@ use bevy_rapier2d::prelude::{Collider, CollisionGroups};
 
 use crate::{bundles::RigidBodyBundle, game::actors::spawners::components::WeaponType};
 
-/// new type around f32, fir danage
+/// new type around f32, for damage
 #[derive(Debug, Component, Deref)]
 pub struct Damage(pub f32);
 
@@ -22,15 +22,15 @@ pub struct WeaponBundle {
     /// weapon stored slot
     pub tag: WeaponTag,
     /// weapon type
-    pub weapontype: WeaponType,
+    pub weapon_type: WeaponType,
     /// weapon stats
-    pub weaponstats: WeaponStats,
+    pub weapon_stats: WeaponStats,
     /// damage type
-    pub damagetype: DamageType,
+    pub damage_type: DamageType,
     /// sprite for weapon
     pub sprite: SpriteSheetBundle,
     /// weapon physics
-    pub rigidbodybundle: RigidBodyBundle,
+    pub rigidbody_bundle: RigidBodyBundle,
 }
 
 /// collider tag for weapons
@@ -47,9 +47,9 @@ pub struct WeaponColliderBundle {
     /// collider shape
     pub collider: Collider,
     /// collision groups
-    pub cgroups: CollisionGroups,
+    pub collision_groups: CollisionGroups,
     /// collider transform
-    pub transformbundle: TransformBundle,
+    pub transform_bundle: TransformBundle,
 }
 
 /// tag for easy query on bullet endpoint
@@ -98,7 +98,7 @@ pub enum DamageType {
 #[reflect(Component)]
 pub struct WeaponStats {
     /// where bullet spawns on weapon
-    pub barreloffset: Vec3,
+    pub barrel_offset: Vec3,
     /// amount of damage bullet does
     pub damage: f32,
     /// how often too spawn bullet
@@ -126,10 +126,10 @@ pub enum WeaponSlots {
 
 #[derive(Debug, Clone, Component, Reflect, Default)]
 #[reflect(Component)]
-/// actors weaponsocket, holds weapons/weaponslots and currently drawn weapon
+/// actors `WeaponSocket`, holds weapons in `WeaponSlots` and currently drawn weapon
 pub struct WeaponSocket {
-    /// hashmap with weapon slots and entitys that are in those slots
+    /// hashmap with weapon slots and entities that are in those slots
     pub weapon_slots: HashMap<WeaponSlots, Option<Entity>>,
-    /// weapon that should be visible from weaponslots hashmap
+    /// weapon that should be visible from weapon slots hashmap
     pub drawn_slot: Option<WeaponSlots>,
 }

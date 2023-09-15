@@ -20,7 +20,6 @@ use tracing_log::LogTracer;
 /// Adds logging to Apps, logs too text file
 /// * Using [`android_log-sys`](https://crates.io/crates/android_log-sys) on Android,
 /// logging to Android logs.
-
 /// You can configure this plugin.
 /// ```no_run
 /// # use bevy_app::{App, NoopPluginGroup as DefaultPlugins, PluginGroup};
@@ -35,13 +34,11 @@ use tracing_log::LogTracer;
 ///         .run();
 /// }
 /// ```
-///
 /// Log level can also be changed using the `RUST_LOG` environment variable.
 /// For example, using `RUST_LOG=wgpu=error,bevy_render=info,bevy_ecs=trace cargo run ..`
 /// It has the same syntax as the field [`LogPlugin::filter`], see [`EnvFilter`].
 /// If you define the `RUST_LOG` environment variable, the [`LogPlugin`] settings
-/// will be ignored.
-
+/// will be ignored. \
 /// # Panics
 /// This plugin should not be added multiple times in the same process. This plugin
 /// sets up global logging configuration for **all** Apps in a given process, and

@@ -15,7 +15,7 @@ pub struct SpawnWeaponCommand {
     pub amount: Option<i32>,
     /// spawn at/near player
     #[arg(short = '@', long = "at_player")]
-    pub atplayer: Option<bool>,
+    pub at_player: Option<bool>,
 }
 
 ///  spawns enemy [`EnemyType`] x amount of times using `SpawnEnemyEvent`
@@ -31,7 +31,7 @@ pub struct SpawnEnemyCommand {
     /// Number of times to spawn
     pub amount: Option<i32>,
     /// spawn at/near player
-    pub atplayer: Option<bool>,
+    pub at_player: Option<bool>,
 }
 
 /// Teleports the Player to x y coords

@@ -1,4 +1,4 @@
-use crate::game::{actors::animation::components::*, TimeInfo};
+use crate::game::{actors::animation::components::{ActorAnimationType, AnimState, AnimationSheet}, TimeInfo};
 use bevy::prelude::*;
 
 // TODO: redo player animations to be based on where the mouse cursor is pointing, not player velocity
@@ -13,7 +13,7 @@ impl Plugin for AnimationPlugin {
     }
 }
 
-/// iterates over actors with animstate and animsheet and
+/// iterates over actors with `AnimState` and `AnimationSheet` and
 /// updates selected animation based on facing direction
 fn update_playing_animation(
     mut sprites_query: Query<(&mut AnimState, &AnimationSheet), Changed<AnimState>>,
@@ -36,13 +36,13 @@ fn update_playing_animation(
 
 /// play next frame of animations
 fn frame_animation(
-    timeinfo: ResMut<TimeInfo>,
+    time_info: ResMut<TimeInfo>,
     mut sprites_query: Query<(&mut TextureAtlasSprite, &mut AnimState)>,
     time: Res<Time>,
 ) {
     sprites_query.for_each_mut(|(mut sprite, mut animation)| {
         animation.timer.tick(time.delta());
-        if !timeinfo.game_paused && animation.timer.just_finished() {
+        if !time_info.game_paused && animation.timer.just_finished() {
             if animation.animation_frames.is_empty() {
                 warn!("no animations available ?");
             } else {

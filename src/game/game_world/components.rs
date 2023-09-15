@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::game::actors::spawners::components::*;
+use crate::game::actors::spawners::components::{EnemyType, Spawner, SpawnerTimer};
 
 use super::hideout::map_components::SanctuaryTeleportSensor;
 
@@ -34,12 +34,12 @@ pub struct SensorBundle {
     events: ActiveEvents,
 }
 
-/// bundle too bind too ldtkentity instance
+/// bundle too bind too `LdtkEntity` instance
 #[derive(Bundle, LdtkEntity)]
 pub struct LdtkSensorBundle {
     /// sensor
     #[with(sensor_bundle)]
-    sensorbundle: SensorBundle,
+    sensor_bundle: SensorBundle,
 }
 
 /// sets up sensor bundle for binding
@@ -64,23 +64,23 @@ pub struct SpawnerBundle {
     timer: SpawnerTimer,
 }
 
-/// bundle too bind too ldtkentity instance
+/// bundle too bind too `LdtkEntity` instance
 #[derive(Bundle, LdtkEntity)]
 pub struct LdtkSpawnerBundle {
     /// what too add too entity
     #[with(spawner_bundle)]
-    spawnerbundle: SpawnerBundle,
+    spawner_bundle: SpawnerBundle,
 }
 
 /// sets up spawner bundle for binding
 fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
     SpawnerBundle {
-        name: Name::new("spawnerbundle"),
+        name: Name::new("Spawner"),
         state: Spawner {
-            enemytype: EnemyType::Skeleton,
+            enemy_type: EnemyType::Skeleton,
             spawn_radius: 100.0,
             max_enemies: 7,
-            randomenemy: true,
+            random_enemy: true,
         },
         timer: SpawnerTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
     }
@@ -88,15 +88,15 @@ fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
 
 /// unfinished player marker
 #[derive(Component, Default)]
-pub struct UnbuiltPlayer;
+pub struct UnBuiltPlayer;
 
-/// bundle to bind too ldkt entity instnace
+/// bundle to bind too `LdtkEntity` instance
 #[derive(Bundle, LdtkEntity)]
 #[worldly]
 pub struct LdtkPlayerBundle {
     /// player not built yet
-    tag: UnbuiltPlayer,
-    /// dont despawn
+    tag: UnBuiltPlayer,
+    /// don't despawn
     world: Worldly,
 }
 

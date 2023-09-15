@@ -25,7 +25,7 @@ pub struct FontHandles {
 pub struct AudioHandles {
     /// looping background soundtrack
     #[asset(key = "ost")]
-    pub gamesoundtrack: Handle<bevy_kira_audio::AudioSource>,
+    pub game_soundtrack: Handle<bevy_kira_audio::AudioSource>,
     /// a vector of footstep files, currently 8
     #[asset(key = "footsteps", collection(typed))]
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
@@ -57,7 +57,7 @@ pub struct ActorTextureHandles {
     pub bevy_icon: Handle<Image>,
 }
 
-/// ui textrues
+/// ui textures
 #[derive(AssetCollection, Resource, Clone)]
 pub struct UiTextureHandles {
     /// ui containing image
@@ -68,7 +68,7 @@ pub struct UiTextureHandles {
     #[asset(key = "button_unpressed")]
     pub button_blue: Handle<Image>,
 
-    /// blue button darkend for pressing
+    /// blue button darkened for pressing
     #[asset(key = "button_pressed")]
     pub button_blue_pressed: Handle<Image>,
 }
@@ -76,19 +76,19 @@ pub struct UiTextureHandles {
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
-    /// homeworld level asset
+    /// default levels asset
     #[asset(path = "levels/homeworld32x32.ldtk")]
-    pub homeworld: Handle<LdtkProject>,
+    pub sanctuary: Handle<LdtkProject>,
 }
 
 // BEVY ODDIO ASSET CONFIG
 // #[derive(AssetCollection, Debug)]
 // pub struct AudioHandles {
 //     #[asset(path = "audio/ost/expansion.wav")]
-//     pub gamesoundtrack: Handle<bevy_oddio::AudioSource<Stereo>>,//Handle<bevy_kira_audio::AudioSource>,
+//     pub game_soundtrack: Handle<bevy_oddio::AudioSource<Stereo>>,//Handle<bevy_kira_audio::AudioSource>,
 //     #[asset(path = "audio/footstep", collection(typed))]
 //     pub footsteps: Vec<Handle<bevy_oddio::AudioSource<Stereo>>>, //Vec<Handle<bevy_kira_audio::AudioSource>>,
 
 //     #[asset(path = "audio/ost/expansion.wav")]
-//     pub gamesoundtracktwo: Handle<bevy_oddio::AudioSource<Stereo>>
+//     pub game_soundtrack_two: Handle<bevy_oddio::AudioSource<Stereo>>
 // }

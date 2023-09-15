@@ -28,7 +28,7 @@ use bevy::prelude::*;
 
 use super::combat::components::Damage;
 
-/// newtype for `Timer` for use with bullet lifetimes
+/// new type for `Timer` for use with bullet lifetimes
 #[derive(Component, Default, Reflect, Deref, DerefMut)]
 #[reflect(Component)]
 pub struct TimeToLive(pub Timer);
@@ -51,7 +51,7 @@ pub struct Player {
 pub struct ProjectileStats {
     /// damage too apply
     pub damage: f32,
-    /// velocit of projectile
+    /// velocity of projectile
     pub speed: f32,
     /// size of projectile
     pub size: f32,
@@ -73,16 +73,16 @@ pub struct ActorPrimaryAttributes {
 /// secondary attributes affected by Primary attributes
 #[derive(Component, Reflect, Clone, Copy)]
 pub struct ActorSecondaryAttributes {
-    /// gives chance too deal 200% damage, atleast 5% chance, 150% if pvp
+    /// gives chance too deal 200% damage, at least 5% chance, 150% if pvp
     pub critical: f32,
     /// rate at which melee auto-attacks are dealt,
     /// cast time, tick rate of dot, hot, and
-    /// global cooldown, and regen rate of energy
+    /// global cool down, and regeneration rate of energy
     pub haste: f32,
     /// reduces reload time, bow shoot time, and general channeled stuff
     pub mastery: f32,
     /// increases outgoing damage,healing,absorb, and reduce incoming damage.
-    pub versatality: f32,
+    pub versatility: f32,
 }
 
 /// extra attributes given by guns and armor
@@ -94,26 +94,26 @@ pub struct ActorTertiaryAttributes {
     pub leech: f32,
     /// increases movement speed
     pub speed: f32,
-    /// provied chance too hit more than 1 enemy
-    pub multistrike: f32,
+    /// provides chance too hit more than 1 enemy
+    pub multi_strike: f32,
 }
 
 /// actor stats derived from primary and tertiary stats
 #[derive(Component, Reflect, Clone, Copy)]
 pub struct ActorDerivedAttributes {
     // Offensive derived stats
-    /// derived from weapon damage and attackpower
-    pub weapondamage: f32,
+    /// derived from weapon damage and Attack Power
+    pub weapon_damage: f32,
     /// derived from strength and agility,
-    pub attackpower: f32,
+    pub attack_power: f32,
     /// derived from weapon speed or cast time and haste, affects gcd too
-    pub attackspeed: f32,
+    pub attack_speed: f32,
     /// derived from crit on gear + base crit
-    pub criticalstrike: f32,
+    pub critical_strike: f32,
     /// derives from intellect
-    pub spellpower: f32,
+    pub spell_power: f32,
     /// derived from intellect and mastery
-    pub regen_speed: f32,
+    pub regeneration_speed: f32,
 
     // Defensive derived stats
     /// gives damage reduction % + shield points, derived from equipment and stamina
@@ -133,7 +133,7 @@ pub struct ActorCombatStats {
     pub health: f32,
     /// energy points, used for casting and some actions
     pub energy: f32,
-    /// life point buffer, subtracted before lifepoints,
+    /// life point buffer, subtracted before life points,
     pub shield: f32,
 }
 
@@ -158,7 +158,7 @@ impl Default for ActorSecondaryAttributes {
             critical: 0.05,
             haste: 10.0,
             mastery: 10.0,
-            versatality: 10.0,
+            versatility: 10.0,
         }
     }
 }
@@ -168,7 +168,7 @@ impl Default for ActorTertiaryAttributes {
         Self {
             avoidance: 0.0,
             leech: 0.0,
-            multistrike: 0.0,
+            multi_strike: 0.0,
             speed: 100.0,
         }
     }
@@ -177,12 +177,12 @@ impl Default for ActorTertiaryAttributes {
 impl Default for ActorDerivedAttributes {
     fn default() -> Self {
         Self {
-            weapondamage: 5.0,
-            attackpower: 5.0,
-            attackspeed: 1.0,
-            criticalstrike: 0.05,
-            spellpower: 5.0,
-            regen_speed: 5.0,
+            weapon_damage: 5.0,
+            attack_power: 5.0,
+            attack_speed: 1.0,
+            critical_strike: 0.05,
+            spell_power: 5.0,
+            regeneration_speed: 5.0,
             armor: 10.0,
             dodge: 0.05,
             parry: 0.05,

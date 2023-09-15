@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 use big_brain::prelude::{ActionBuilder, ScorerBuilder};
 
-/// enemie chase scorer
+/// enemies chase scorer
 #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
 pub struct AggroScore;
 
-/// enemie shoot scorer
+/// enemies shoot scorer
 #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
 pub struct AttackScore;
 
-/// enemie wander scorer
+/// enemies wander scorer
 #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
 pub struct WanderScore;
 
@@ -56,7 +56,7 @@ pub struct AIAttackState {
     pub timer: Timer,
     /// wether should shoot
     pub should_shoot: bool,
-    /// is player close enoguh too shoot
+    /// is player close enough too shoot
     pub is_near: bool,
 }
 

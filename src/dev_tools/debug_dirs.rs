@@ -1,7 +1,7 @@
 /// prints current working directory too console
-pub fn debugdir() {
+pub fn debug_directory() {
     let dir = std::env::current_dir()
-        .expect("Couldnt get current working directory, No permissions or doesnt exist");
+        .expect("couldn't get current working directory, No permissions or doesn't exist");
 
     println!("Current Working Director is: {dir:?}");
     run(true, true, 2, &dir).expect("could list directory for some reason");
@@ -18,7 +18,7 @@ pub enum ANSIColor {
     Yellow,
     /// is absolute
     Red,
-    /// resets termcolor
+    /// resets terminal color
     Reset,
     /// is directory
     Blue,
@@ -29,19 +29,16 @@ pub enum ANSIColor {
 }
 
 impl ANSIColor {
-    /// converts ansicolor enum too string
+    /// converts `ANSIColor` enum too string
     #[must_use]
-    pub fn as_string(&self) -> &str {
+    pub const fn as_string(&self) -> &str {
         match &self {
-            // ANSIColor::MAGENTA => "\u{001B}[0;35m",
-            // ANSIColor::GREEN => "\u{001B}[0;32m",
-            // ANSIColor::BLACK => "\u{001B}[0;30m",
-            ANSIColor::Red => "\u{001B}[0;31m",
-            ANSIColor::Yellow => "\u{001B}[0;33m",
-            ANSIColor::Blue => "\u{001B}[0;34m",
-            ANSIColor::Cyan => "\u{001B}[0;36m",
-            ANSIColor::White => "\u{001B}[0;37m",
-            ANSIColor::Reset => "\u{001B}[0;0m",
+            Self::Red => "\u{001B}[0;31m",
+            Self::Yellow => "\u{001B}[0;33m",
+            Self::Blue => "\u{001B}[0;34m",
+            Self::Cyan => "\u{001B}[0;36m",
+            Self::White => "\u{001B}[0;37m",
+            Self::Reset => "\u{001B}[0;0m",
         }
     }
 }
@@ -183,17 +180,14 @@ mod linux {
 
     impl IsExecutable for Path {
         fn is_executable(&self) -> bool {
-            let metadata = match self.metadata() {
-                Ok(metadata) => metadata,
-                Err(_) => return false,
-            };
+            let Ok(metadata) = self.metadata() else { return false };
             let permissions = metadata.permissions();
             metadata.is_file() && permissions.mode() & 0o111 != 0
         }
     }
 }
 
-/// check if path is exectable on windows
+/// check if path is executable on windows
 #[cfg(target_os = "windows")]
 mod windows {
     use super::IsExecutable;

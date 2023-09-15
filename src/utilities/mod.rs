@@ -31,9 +31,9 @@ pub struct EagerMousePos {
     /// mouse pos in window coords
     pub window: Vec2,
 }
-/// updates `EagerMousePos` resource with current mouse positon and mouse pos translated to worldspace. no change detection, always runs
+/// updates `EagerMousePos` resource with current mouse position and mouse pos translated to world space. no change detection, always runs
 fn eager_cursor_pos(
-    mut fastmousepos: ResMut<EagerMousePos>,
+    mut fast_mouse_pos: ResMut<EagerMousePos>,
     q_camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
     main_window: Query<&Window, With<PrimaryWindow>>,
 ) {
@@ -64,17 +64,21 @@ fn eager_cursor_pos(
 
         // reduce it to a 2D value
         let world_pos: Vec2 = world_pos.truncate();
-        fastmousepos.world = world_pos;
-        fastmousepos.window = screen_pos;
+
+        // world_pos.y = -world_pos.y;
+        // screen_pos.y = -screen_pos.y;
+
+        fast_mouse_pos.world = world_pos;
+        fast_mouse_pos.window = screen_pos;
         // info!("eager mouse update {}", world_pos);
     } else {
-        fastmousepos.world = Vec2::ZERO;
-        fastmousepos.window = Vec2::ZERO;
+        fast_mouse_pos.world = Vec2::ZERO;
+        fast_mouse_pos.window = Vec2::ZERO;
         // info!("eager mouse not in window");
     }
 }
 
-/// despawns any entity with T: Component
+/// despawn any entity with T: Component
 pub fn despawn_with<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
     to_despawn.for_each(|entity| {
         info!("despawning entity recursively: {:#?}", entity);
@@ -97,4 +101,12 @@ where
         + std::marker::Copy,
 {
     from + ((to - from) * s)
+}
+/// simple macro that generates an add system for OnEnter(state)
+#[allow(unused_macros)]
+macro_rules! state_exists_and_entered {
+    ($system_name:ident, $state:expr) => {
+        app.add_systems(OnEnter($state), $system_name)
+            .run_if(state_exists_and_equals($state))
+    };
 }

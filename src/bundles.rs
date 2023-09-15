@@ -1,4 +1,11 @@
-use crate::game::actors::{ai::components::*, animation::components::*, components::*};
+use crate::game::actors::{
+    ai::components::{AIAttackState, AICanAggro, AICanShoot, AICanWander, ActorType},
+    animation::components::{AnimState, AnimationSheet},
+    components::{
+        ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes, ActorSecondaryAttributes,
+        ActorTertiaryAttributes, ProjectileStats, TimeToLive,
+    },
+};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use big_brain::thinker::ThinkerBuilder;
@@ -9,9 +16,9 @@ pub struct ActorBundle {
     /// actor name
     pub name: Name,
     /// actor type
-    pub actortype: ActorType,
+    pub actor_type: ActorType,
     /// animation state
-    pub animationstate: AnimState,
+    pub animation_state: AnimState,
     /// available animations
     pub available_animations: AnimationSheet,
     /// texture data
@@ -19,7 +26,7 @@ pub struct ActorBundle {
     /// actor stats
     pub stats: ActorAttributesBundle,
     /// actor collisions and movement
-    pub rigidbody: RigidBodyBundle,
+    pub rigidbody_bundle: RigidBodyBundle,
 }
 
 /// collider bundle for actors
@@ -28,11 +35,11 @@ pub struct ActorColliderBundle {
     /// name of collider
     pub name: Name,
     /// location of collider
-    pub transformbundle: TransformBundle,
+    pub transform_bundle: TransformBundle,
     /// collider shape
     pub collider: Collider,
     /// collision groups
-    pub collisiongroups: CollisionGroups,
+    pub collision_groups: CollisionGroups,
 }
 
 /// bundle too spawn projectiles
@@ -57,25 +64,25 @@ pub struct ProjectileColliderBundle {
     pub name: Name,
     /// collider lifetime
     pub ttl: TimeToLive,
-    /// collider transfoorm
-    pub transformbundle: TransformBundle,
+    /// collider transform
+    pub transform_bundle: TransformBundle,
     /// collider shape
     pub collider: Collider,
-    /// collison groups
-    pub collisiongroups: CollisionGroups,
+    /// collision groups
+    pub collision_groups: CollisionGroups,
 }
 
-/// All Componenents needed for 'stupid_ai' functionality
+/// All Components needed for `stupid_ai` functionality
 #[derive(Bundle)]
 pub struct StupidAiBundle {
     /// stupid chase action
-    pub canaggro: AICanAggro,
+    pub can_aggro: AICanAggro,
     /// stupid wander action
-    pub canmeander: AICanWander,
+    pub can_meander: AICanWander,
     /// stupid shoot action
-    pub canshoot: AICanShoot,
+    pub can_shoot: AICanShoot,
     /// shoot data
-    pub aiattacktimer: AIAttackState,
+    pub ai_attack_timer: AIAttackState,
     /// chooses action
     pub thinker: ThinkerBuilder,
 }
@@ -84,10 +91,10 @@ pub struct StupidAiBundle {
 #[derive(Bundle, Default)]
 pub struct ActorAttributesBundle {
     /// derived from attributes, working stats
-    combatstat: ActorCombatStats,
+    combat_stat: ActorCombatStats,
     /// base stats, buffed from equipment
     primary: ActorPrimaryAttributes,
-    /// secondar stats, buffed from primary
+    /// secondary stats, buffed from primary
     secondary: ActorSecondaryAttributes,
     /// buffed from primary and equipment
     tertiary: ActorTertiaryAttributes,
@@ -106,11 +113,11 @@ pub struct RigidBodyBundle {
     /// friction
     pub friction: Friction,
     /// bounciness
-    pub howbouncy: Restitution,
+    pub how_bouncy: Restitution,
     /// RigidBody Mass
-    pub massprop: ColliderMassProperties,
+    pub mass_prop: ColliderMassProperties,
     /// rotation locks
-    pub rotationlocks: LockedAxes,
+    pub rotation_locks: LockedAxes,
     /// velocity damping
-    pub dampingprop: Damping,
+    pub damping_prop: Damping,
 }

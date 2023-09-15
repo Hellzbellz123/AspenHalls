@@ -1,16 +1,16 @@
-/// functions for loading ConfigFile from filesystem, returns DefaultSettings for the ConfigFile
+/// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
 mod load_file;
 
-use std::char::TryFromCharError;
 
-use belly::{core::relations::bind::{FromComponent, ToComponent}, widgets::range::RangeValue};
+
+
 use bevy::{
     log::LogPlugin,
     prelude::{
         default, App, AssetPlugin, Camera2d, ClearColor, Color, Commands, DefaultPlugins,
         DetectChanges, Entity, EventReader, Handle, ImagePlugin, OrthographicProjection, Parent,
         Plugin, PluginGroup, Query, Res, ResMut, Update, Vec2, Window, WindowPlugin,
-        WindowPosition, With, Resource, info, Component, Deref,
+        WindowPosition, With, Resource, info, Component,
     },
     ecs::reflect::ReflectResource,
     window::{PresentMode, WindowMode, WindowResized, WindowResolution}, reflect::Reflect,
@@ -28,7 +28,7 @@ use crate::{
 };
 
 /// Holds game settings deserialized from the config.toml
-#[derive(Reflect, Resource, Serialize, Deserialize, Clone, Default)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Clone, Copy, Default)]
 #[reflect(Resource)]
 pub struct ConfigFile {
     /// game window settings
@@ -43,12 +43,12 @@ pub struct ConfigFile {
 #[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Resource)]
 pub struct WindowSettings {
-    /// enable vsync if true
-    pub vsync: bool,
+    /// enable v_sync if true
+    pub v_sync: bool,
     /// framerate
     pub frame_rate_target: f64,
-    /// fullscreen yes/no
-    pub fullscreen: bool,
+    /// full screen yes/no
+    pub full_screen: bool,
     /// display resolution
     pub resolution: Vec2,
 }
@@ -59,11 +59,11 @@ pub enum GameDifficulty {
     Easy,
     /// 1.0 scale on player/enemy damage/hp
     Medium,
-    /// enemys are a little faster, more enemys, more rooms
+    /// enemy's are a little faster, more enemy's, more rooms
     Hard,
-    /// enemys are faster, even more enemys/rooms, plus enemys do more damage
+    /// enemy's are faster, even more enemy's/rooms, plus enemy's do more damage
     Insane,
-    /// lots of enemys/rooms, like alot. 3x enemy hp/damage
+    /// lots of enemy's/rooms, like a lot. 3x enemy hp/damage
     MegaDeath,
 }
 
@@ -72,7 +72,7 @@ pub enum GameDifficulty {
 #[derive(Reflect, Resource, InspectorOptions, Serialize, Deserialize, Copy, Clone)]
 #[reflect(Resource, InspectorOptions)]
 pub struct GeneralSettings {
-    /// camera zooom
+    /// camera zoom
     #[inspector(min = 0.0, max = 150.0)]
     pub camera_zoom: f32,
     /// game difficulty,
@@ -84,17 +84,18 @@ pub struct GeneralSettings {
 #[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Resource, Copy, Clone, Component)]
 #[reflect(Resource, InspectorOptions)]
 pub struct SoundSettings {
+    /// Total Sound Scale for game
     #[inspector(min = 0.0, max = 1.0)]
-    pub mastervolume: f64,
+    pub master_volume: f64,
     /// sound effects from environment
     #[inspector(min = 0.0, max = 1.0)]
-    pub ambiencevolume: f64,
+    pub ambience_volume: f64,
     /// game soundtrack volume
     #[inspector(min = 0.0, max = 1.0)]
-    pub musicvolume: f64,
+    pub music_volume: f64,
     /// important sounds from game
     #[inspector(min = 0.0, max = 1.0)]
-    pub soundvolume: f64,
+    pub sound_volume: f64,
 }
 
 // TODO: refactor actors module to use this global difficulty resource
@@ -141,7 +142,7 @@ impl Default for DifficultyScale {
 
 impl Default for GeneralSettings {
     fn default() -> Self {
-        GeneralSettings {
+        Self {
             camera_zoom: 3.5,
             game_difficulty: GameDifficulty::Medium,
         }
@@ -151,10 +152,10 @@ impl Default for GeneralSettings {
 //TODO: default app settings if its a setting it goes here, move this too settings plugin
 impl Default for WindowSettings {
     fn default() -> Self {
-        WindowSettings {
-            vsync: true,
+        Self {
+            v_sync: true,
             frame_rate_target: 60.0,
-            fullscreen: false,
+            full_screen: false,
             resolution: Vec2 {
                 x: 1200.0,
                 y: 720.0,
@@ -165,11 +166,11 @@ impl Default for WindowSettings {
 
 impl Default for SoundSettings {
     fn default() -> Self {
-        SoundSettings {
-            mastervolume: 0.2,
-            ambiencevolume: 0.2,
-            musicvolume: 0.2,
-            soundvolume: 0.2,
+        Self {
+            master_volume: 0.2,
+            ambience_volume: 0.2,
+            music_volume: 0.2,
+            sound_volume: 0.2,
         }
     }
 }
@@ -186,7 +187,7 @@ impl Plugin for InitAppPlugin {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        present_mode: if cfg_file.window_settings.vsync {
+                        present_mode: if cfg_file.window_settings.v_sync {
                             PresentMode::AutoVsync
                         } else {
                             PresentMode::AutoNoVsync
@@ -198,8 +199,8 @@ impl Plugin for InitAppPlugin {
                             cfg_file.window_settings.resolution.y,
                         ),
                         mode: {
-                            if cfg_file.window_settings.fullscreen {
-                                // if fullscreen is true, use borderless fullscreen
+                            if cfg_file.window_settings.full_screen {
+                                // if full screen is true, use borderless full screen
                                 // cursor mode is confined to the window so it cant
                                 // leave without alt tab
                                 WindowMode::BorderlessFullscreen
@@ -244,14 +245,14 @@ impl Plugin for InitAppPlugin {
 }
 
 /// creates an App
-/// if feature == "trace" then default logger, else custom logger that logs too file minimaly
+/// if feature == "trace" then default logger, else custom logger that logs too file minimally
 pub fn app_with_logging() -> App {
     let mut vanillacoffee = App::new();
     #[cfg(not(feature = "trace"))]
     {
         println!("Logging without tracing requested");
         vanillacoffee.add_plugins(VCLogPlugin {
-            // filters for anything that makies it through the default log level. quiet big loggers
+            // filters for anything that makes it through the default log level. quiet big loggers
             // filter: "".into(), // an empty filter
             filter:
             "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error"
@@ -277,29 +278,29 @@ pub fn app_with_logging() -> App {
 }
 
 //TODO: move this to loading plugin and only run it when the settings resource changes (clicking apply in the settings menu, or reacting to OS changes), or on game load.
-// (system ordering is imporatant here) the camera needs to be spawned first or we get a panic
+// (system ordering is important here) the camera needs to be spawned first or we get a panic
 // #[bevycheck::system]
 /// updates window settings if changed
 fn apply_window_settings(
     // winit: NonSend<bevy::winit::WinitWindows>,
     window_settings: Res<WindowSettings>,
     mut frame_limiter_cfg: ResMut<FramepaceSettings>,
-    mut mutwindowent: Query<(Entity, &mut Window)>,
+    mut mut_window_entity: Query<(Entity, &mut Window)>,
 ) {
     if window_settings.is_changed() || window_settings.is_added() {
         let requested_limiter = Limiter::from_framerate(window_settings.frame_rate_target);
 
-        let (_w_ent, mut b_window) = mutwindowent.single_mut();
+        let (_w_ent, mut b_window) = mut_window_entity.single_mut();
         // let w_window = winit.get_window(w_ent).unwrap();
 
         if frame_limiter_cfg.limiter != requested_limiter {
             frame_limiter_cfg.limiter = requested_limiter;
         }
 
-        if window_settings.fullscreen && b_window.mode != WindowMode::BorderlessFullscreen {
-            b_window.mode = WindowMode::BorderlessFullscreen
+        if window_settings.full_screen && b_window.mode != WindowMode::BorderlessFullscreen {
+            b_window.mode = WindowMode::BorderlessFullscreen;
         }
-        if !window_settings.fullscreen && b_window.mode == WindowMode::BorderlessFullscreen {
+        if !window_settings.full_screen && b_window.mode == WindowMode::BorderlessFullscreen {
             b_window.mode = WindowMode::Windowed;
             b_window.resolution = window_settings.resolution.into();
         }
@@ -311,20 +312,20 @@ fn apply_window_settings(
     }
 }
 
-/// modifys soundchannel volume if SoundSettings changes
+/// modifies `AudioChannel` volume if `SoundSettings` changes
 fn apply_sound_settings(
     sound_settings: Res<SoundSettings>,
-    bgm: Res<AudioChannel<Music>>,
-    bga: Res<AudioChannel<Ambience>>,
-    bgs: Res<AudioChannel<Sound>>,
+    music_channel: Res<AudioChannel<Music>>,
+    ambience_channel: Res<AudioChannel<Ambience>>,
+    sound_channel: Res<AudioChannel<Sound>>,
 ) {
     if sound_settings.is_changed() {
         //sound settings
         info!("volumes changed, applying settings");
-        let mastervolume = sound_settings.mastervolume;
-        bgm.set_volume(sound_settings.musicvolume * mastervolume);
-        bga.set_volume(sound_settings.ambiencevolume * mastervolume);
-        bgs.set_volume(sound_settings.soundvolume * mastervolume);
+        let mastervolume = sound_settings.master_volume;
+        music_channel.set_volume(sound_settings.music_volume * mastervolume);
+        ambience_channel.set_volume(sound_settings.ambience_volume * mastervolume);
+        sound_channel.set_volume(sound_settings.sound_volume * mastervolume);
     }
 }
 
@@ -344,12 +345,12 @@ fn apply_camera_zoom(
 }
 
 /// sets settings window size too actual size if resized
-/// doesnt run if fullscreen
+/// doesn't run if fullscreen
 fn on_resize_system(
     mut settings: ResMut<WindowSettings>,
     mut resize_reader: EventReader<WindowResized>,
 ) {
-    if !settings.fullscreen {
+    if !settings.full_screen {
         resize_reader.iter().for_each(|event| {
             settings.resolution.x = event.width;
             settings.resolution.y = event.height;
@@ -358,14 +359,14 @@ fn on_resize_system(
     }
 }
 
-/// updates DifficultySettings if player changes difficulty settings
+/// updates `DifficultySettings` if player changes difficulty settings
 fn update_difficulty_settings(
     levels: Query<(Entity, &Handle<LdtkLevel>), With<Parent>>,
     general_settings: Res<GeneralSettings>,
     mut cmds: Commands,
 ) {
     if general_settings.is_changed() || levels.iter().len() >= 1 {
-        let level_amount = levels.iter().len() as i32;
+        let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1000);
         let difficulty_settings: DifficultyScale = match general_settings.game_difficulty {
             GameDifficulty::Easy => DifficultyScale {
                 max_enemies_per_room: 10 * level_amount,

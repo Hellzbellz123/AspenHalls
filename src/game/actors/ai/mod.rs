@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use big_brain::thinker::Actor;
+use big_brain::{thinker::Actor, BigBrainPlugin};
 
 use self::stupid_ai::StupidAiPlugin;
 
@@ -15,12 +15,12 @@ pub struct AIPlugin;
 
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(StupidAiPlugin)
+        app.add_plugins((BigBrainPlugin::new(Update), StupidAiPlugin))
             .add_systems(Update, parent_brains_to_container);
     }
 }
 
-/// entity tag for all big_brain entity's too be parented too
+/// entity tag for all `big_brain` entity's too be parented too
 /// clean hierarchy plz
 #[derive(Debug, Component)]
 struct BigBrainContainerTag;

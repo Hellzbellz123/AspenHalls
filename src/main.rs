@@ -4,9 +4,11 @@
 #![feature(type_ascription)]
 #![feature(lint_reasons)]
 #![feature(trivial_bounds)]
+#![feature(exact_size_is_empty)]
+
 #![doc = r"
 Vanilla Coffee, My video game.
-it kinda sucks but itll be finished eventually
+it kinda sucks but it'll be finished eventually
 A Dungeon Crawler in the vibes of Into The Gungeon
 "]
 // #![doc = include_str!("../README.md")]
@@ -31,7 +33,7 @@ use tracing_log::log::warn;
 mod launch_config;
 /// general component store
 mod bundles;
-/// things related too command_console
+/// things related too `command_console`
 mod console;
 /// general consts file, if it gets used more than
 /// twice it should be here
@@ -41,14 +43,14 @@ mod dev_tools;
 /// actual game plugin, ui and all "game" functionality
 mod game;
 /// Holds all Asset Collections and handles loading them
-/// also holds failstate
+/// also holds fail state
 mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
 // TODO: Convert items and weapon definitions too ron assets in gamedata/definitions and gamedata/custom (for custom user content) from the game folder.
 // add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
-// world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a playthrough should
+// world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a play through should
 // have the [Loot] component/tag and should be added too a "leveled list" (skyrim) like system
 
 /// main app fn, configures app loop with logging, then

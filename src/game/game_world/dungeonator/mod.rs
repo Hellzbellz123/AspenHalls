@@ -30,7 +30,7 @@ use self::{
     hallways::HallWay,
 };
 
-use super::{components::PlayerStartLocation, teleport_player_too_startloc};
+use super::{components::PlayerStartLocation, teleport_player_too_start_location};
 
 /// systems and functions related too generating rooms
 mod generator;
@@ -74,21 +74,21 @@ impl Plugin for DungeonGeneratorPlugin {
         )
         .add_systems(
             OnEnter(GeneratorStage::GenerateConnections),
-            (hallways::create_mst_from_rooms),
+            hallways::create_mst_from_rooms,
         )
         .add_systems(
             OnExit(GeneratorStage::GenerateConnections),
-            (hallways::spawn_hallway_roots),
+            hallways::spawn_hallway_roots,
         )
         .add_systems(
             OnEnter(GeneratorStage::PathfindConnections),
-            (hallways::pathfind_and_build_hallways),
+            hallways::pathfind_and_build_hallways,
         )
         .add_systems(
             OnEnter(GeneratorStage::Finished),
             (
-                teleport_player_too_startloc,
-                spawn_weapons_startloc,
+                teleport_player_too_start_location,
+                spawn_weapons_start_location,
                 spawn_navigation_grid,
             ),
         );
@@ -116,7 +116,7 @@ impl Plugin for DungeonGeneratorPlugin {
 // test_navmesh
 //     // .in_set(OnUpdate(GeneratorStage::Finished)),
 
-/// different states of the DungeonGenerator
+/// different states of the `DungeonGenerator`
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum GeneratorStage {
     /// No Dungeon stuff has been spawned or Computed, \
@@ -145,7 +145,7 @@ pub enum GeneratorStage {
 }
 
 /// settings to configure the dungeon generator,
-/// useable_rooms and hallways are filled by other systems
+/// `useable_rooms` and hallways are filled by other systems
 #[derive(Debug, Clone, Resource, Default, Reflect)]
 pub struct DungeonGeneratorSettings {
     /// amount of rooms
@@ -164,7 +164,7 @@ pub struct DungeonGeneratorSettings {
 }
 
 /// spawn weapons at start location
-fn spawn_weapons_startloc(
+fn spawn_weapons_start_location(
     mut ew: EventWriter<SpawnWeaponEvent>,
     start_location: Query<&GlobalTransform, With<PlayerStartLocation>>,
 ) {
@@ -175,8 +175,8 @@ fn spawn_weapons_startloc(
     let mut sum = Vec2::ZERO;
     let mut count = 0;
 
-    for gtrans in start_location.iter() {
-        sum += gtrans.translation().truncate();
+    for global_transform in start_location.iter() {
+        sum += global_transform.translation().truncate();
         count += 1;
     }
 
@@ -206,7 +206,7 @@ fn regeneration_system(
     dungeon_container: Query<Entity, With<DungeonContainerTag>>,
     nav_mesh: Query<Entity, With<Navmeshes>>,
     weapons: Query<Entity, (With<WeaponTag>, Without<Parent>)>,
-    enemys: Query<Entity, With<Enemy>>,
+    enemies: Query<Entity, With<Enemy>>,
 ) {
     let input = query_action_state.single();
     let dungeon = dungeon_container.single();
@@ -221,22 +221,22 @@ fn regeneration_system(
 
     cmds.entity(dungeon).despawn_descendants();
 
-    nav_mesh.for_each(|navmesh| {
-        cmds.entity(navmesh).despawn_recursive();
+    nav_mesh.for_each(|navigation_mesh| {
+        cmds.entity(navigation_mesh).despawn_recursive();
     });
 
     weapons.for_each(|weapon| {
         cmds.entity(weapon).despawn_recursive();
     });
 
-    enemys.for_each(|enemy| {
+    enemies.for_each(|enemy| {
         cmds.entity(enemy).despawn_recursive();
     });
 
     cmds.insert_resource(NextState(Some(GeneratorStage::Initialization)));
 }
 
-/// NavMesh Entity tag
+/// `NavMesh` Entity tag
 #[derive(Debug, Component)]
 pub struct NavMeshTag;
 
@@ -251,16 +251,15 @@ pub struct NavMeshTest {
     calculate: bool,
 }
 
-/// marker component for tiles in navgrid
+/// marker component for tiles in navigation grid
 #[derive(Debug, Component)]
 pub struct NavTile;
 
 // TODO: add Components too the room exit for querying those tiles,
-// create mst with all roomexits and create hallways with a* pathfinding
+// create mst with all `RoomExit` and create hallways with a* path finding
 // prims algorithm too generate cycles and other fun stuff in dungeon
 // place hallways and walls around hallways with colliders
-
-/// creates the navmesh from spawned tiles
+/// creates the navigation mesh from spawned tiles
 fn spawn_navigation_grid(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -351,14 +350,14 @@ fn spawn_navigation_grid(
             let tile_pos = TilePos { x, y };
             let mut collider_tiles: Vec<(Entity, UVec2)> = Vec::new();
 
-            for (x, f) in global_tile_positions.clone().into_iter() {
+            for (x, f) in global_tile_positions.clone() {
                 if collider_q.get(x).is_ok() && Vec2::from(tile_pos) == f.as_vec2() {
                     collider_tiles.push((x, f));
                 }
             }
 
             if !collider_tiles.is_empty() {
-                collider_tiles.into_iter().for_each(|f| {
+                for f in collider_tiles {
                     let mut tile_entity = None;
                     commands
                         .entity(tilemap_entity)
@@ -380,7 +379,7 @@ fn spawn_navigation_grid(
                     if let Some(entity) = tile_entity {
                         tile_storage.set(&tile_pos, entity);
                     }
-                })
+                }
             }
         }
     }
@@ -428,9 +427,10 @@ fn spawn_navigation_grid(
     // ));
 }
 
-/// function too test generated navmesh
+/// function too test generated navigation mesh
 /// prints path too console
-fn test_navmesh(nav_mesh: Query<(&Navmeshes, &NavMeshTest)>) {
+#[allow(dead_code)] // test function
+fn test_navigation_mesh(nav_mesh: Query<(&Navmeshes, &NavMeshTest)>) {
     nav_mesh.for_each(|(nav_mesh, data)| {
         if data.calculate {
             let start_pos = NavVec3 {
@@ -460,9 +460,7 @@ fn test_navmesh(nav_mesh: Query<(&Navmeshes, &NavMeshTest)>) {
 fn draw_tilemap(
     tilemap: &[Navability],
     map_size: TilemapSize,
-    tile_size: f32,
 ) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
-    let _tile_size = tile_size as u32;
     let width = map_size.x * 2;
     let height = map_size.y * 2;
 
@@ -494,9 +492,7 @@ fn draw_tilemap(
     image
 }
 
-// 1800925-5438
-
-/// draws vec(Entity, Uvec2) too an png
+/// draws `Vec<(Entity, UVec2)>` too an png
 fn draw_tiles(
     tile_map_size: UVec2,
     global_tile_positions: &[(Entity, UVec2)],
@@ -560,7 +556,7 @@ fn set_pixel(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x: u32, y: u32, color: 
     }
 }
 
-/// calculates which corner in a roominstance is furthest from Vec3::Zero
+/// calculates which corner in a `RoomInstance` is furthest from `Vec3::Zero`
 fn calculate_furthest_point_distance(transform: &GlobalTransform, room: &RoomInstance) -> f32 {
     let half_width = room.width as f32 / 2.0;
     let half_height = room.height as f32 / 2.0;

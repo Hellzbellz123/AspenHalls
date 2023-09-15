@@ -17,9 +17,9 @@ use crate::{
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::ActionState as lfActionState;
 
-/// spawns skeleton near player if debugf1 is pressed
+/// spawns skeleton near player if debug_f1 is pressed
 pub fn spawn_skeleton_button(
-    mut eventwriter: EventWriter<SpawnEnemyEvent>,
+    mut spawn_event_writer: EventWriter<SpawnEnemyEvent>,
     mouse: Res<EagerMousePos>,
     query_action_state: Query<&lfActionState<actions::Combat>>,
     player_query: Query<(&Transform, With<Player>)>,
@@ -27,7 +27,7 @@ pub fn spawn_skeleton_button(
     if query_action_state.is_empty() {
         return;
     }
-    let actions = query_action_state.get_single().expect("no ents?");
+    let actions = query_action_state.get_single().expect("no entities?");
 
     if actions.just_released(actions::Combat::DebugF1) {
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
@@ -36,11 +36,11 @@ pub fn spawn_skeleton_button(
             .abs()
             .normalize_or_zero();
 
-        eventwriter.send(SpawnEnemyEvent {
+        spawn_event_writer.send(SpawnEnemyEvent {
             enemy_to_spawn: EnemyType::Skeleton,
             spawn_position: (player_transform + (direction)),
             spawn_count: 1,
-        })
+        });
     };
 }
 
@@ -67,53 +67,50 @@ pub fn player_attack_sender(
         ),
         (With<Parent>, Without<Player>),
     >,
-    query_childbarrelpoint: Query<
+    query_child_barrel_point: Query<
         (Entity, &Parent, &GlobalTransform),
         (With<BarrelPointTag>, Without<Player>),
     >,
 
-    // query_childweaponcollider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
-    // mut weapon_query2: Query<(Entity, &mut WeaponTag, &mut Transform), Without<Player>>,
     player_query: Query<(&mut Player, &mut Transform)>,
     mut input_query: Query<&lfActionState<actions::Combat>>,
     mouse_pos: Res<EagerMousePos>,
-    mut shootwriter: EventWriter<ShootEvent>,
+    mut shoot_event_writer: EventWriter<ShootEvent>,
 ) {
     if player_query.is_empty()
         | weapon_query.is_empty()
         | input_query.is_empty()
-        | query_childbarrelpoint.is_empty()
+        | query_child_barrel_point.is_empty()
     {
         return;
     }
 
-    // weapon_query.for_each(|(went, _wchildren, _wparent, _wactivetag, _wtransform)| {
-    // });
+    let (weapon_entity, _weapon_children, _weapon_parent, _is_weapon_active, _weapon_transform) = weapon_query.single();
 
-    let (went, _wchild, _wparent, _wactive, _wtrans) = weapon_query.single();
-
-    query_childbarrelpoint.for_each(|(_ent, parent, barrel_trans)| {
-        if parent.get() == went {
+    query_child_barrel_point.for_each(|(_ent, parent, barrel_trans)| {
+        if parent.get() == weapon_entity {
             let barrel_loc = barrel_trans.translation().truncate();
-            let playerpos = player_query.single().1.translation.truncate();
-            let direction: Vec2 = (mouse_pos.world - playerpos).normalize_or_zero();
+            let player_position = player_query.single().1.translation.truncate();
+            let mut direction: Vec2 = (mouse_pos.world - player_position).normalize_or_zero();
             let action_state = input_query.single_mut();
 
+            direction.y = -direction.y;
+
             if action_state.pressed(actions::Combat::Shoot) {
-                shootwriter.send(ShootEvent {
+                shoot_event_writer.send(ShootEvent {
                     bullet_spawn_loc: barrel_loc,
                     travel_dir: direction,
-                })
+                });
             }
             if action_state.pressed(actions::Combat::Melee) {
                 // TODO: setup melee system and weapons
-                info!("meleee not implemented yet")
+                info!("melee not implemented yet");
             }
         }
     });
 }
 
-/// equips closest weapon too player if weaponslots is not full
+/// equips closest weapon too player if `WeaponSlots` is not full
 pub fn equip_closest_weapon(
     mut cmds: Commands,
     mut player_query: Query<
@@ -125,25 +122,25 @@ pub fn equip_closest_weapon(
         ),
         With<Player>,
     >,
-    query_childweaponcollider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
+    query_child_weapon_collider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
     mut weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), Without<Player>>,
 ) {
     if player_query.is_empty() {
         return;
     }
 
-    let (playerentity, mut weaponsocket_on_player, ptransform, actions) = player_query.single_mut();
+    let (player_entity, mut weapon_socket_on_player, p_transform, actions) = player_query.single_mut();
 
     // screen_print!(
     //     "{:#?} \n selected slot: {:?}",
-    //     weaponsocket_on_player.weapon_slots,
-    //     weaponsocket_on_player.drawn_slot
+    //     weapon_socket_on_player.weapon_slots,
+    //     weapon_socket_on_player.drawn_slot
     // );
 
     if !actions
         .just_pressed(actions::Combat::Interact)
-        | // if interact isnt pressed BitXor weaponsockets.weaponslots is "full" we can early exit the fn
-        weaponsocket_on_player
+        | // if interact isn't pressed BitXor weapon_socket_on_player.weapon_slots is "full" we can early exit the fn
+        weapon_socket_on_player
             .weapon_slots
             .values()
             .all(|&x| x.is_some())
@@ -152,14 +149,14 @@ pub fn equip_closest_weapon(
     }
 
     debug!("player interact pressed, testing weapon distance");
-    for (weapon, mut weapontag, mut wtransform) in weapon_query.iter_mut() {
+    for (weapon, mut weapon_tag, mut w_transform) in &mut weapon_query {
         // pretty sure i should leave this as an iterator, we want it sequential
-        let distance_to_player = (ptransform.translation - wtransform.translation)
+        let distance_to_player = (p_transform.translation - w_transform.translation)
             .length()
             .abs();
         if distance_to_player < 70.0 {
             // check if player has available weapon sockets
-            let player_weapon_slots = &weaponsocket_on_player.weapon_slots;
+            let player_weapon_slots = &weapon_socket_on_player.weapon_slots;
             let slots_to_check = [
                 WeaponSlots::Slot1,
                 WeaponSlots::Slot2,
@@ -167,47 +164,45 @@ pub fn equip_closest_weapon(
                 WeaponSlots::Slot4,
             ];
             for &slot in &slots_to_check {
-                match player_weapon_slots.get(&slot) {
-                    Some(slot_value) => {
-                        if slot_value.is_none() {
-                            // the slot is empty, we can add the weapon too it and then return
-                            debug!(
-                                "the weapon slot is empty, parenting weapon: {:?} too player: {:?}",
-                                weapon, slot
-                            );
-                            cmds.entity(playerentity).push_children(&[weapon]);
+                if let Some(slot_value) = player_weapon_slots.get(&slot) {
+                    if slot_value.is_none() {
+                        // the slot is empty, we can add the weapon too it and then return
+                        debug!(
+                            "the weapon slot is empty, parenting weapon: {:?} too player: {:?}",
+                            weapon, slot
+                        );
+                        cmds.entity(player_entity).push_children(&[weapon]);
 
-                            for (ent, parent) in query_childweaponcollider.iter() {
-                                if parent.get() == weapon {
-                                    info!("despawning collider for {:?}", parent.get());
-                                    cmds.entity(ent).despawn()
-                                }
+                        for (ent, parent) in query_child_weapon_collider.iter() {
+                            if parent.get() == weapon {
+                                info!("despawning collider for {:?}", parent.get());
+                                cmds.entity(ent).despawn();
                             }
-
-                            weaponsocket_on_player.drawn_slot = Some(slot); // this should make the most recently picked up weapon the currently drawn weapoin
-
-                            cmds.entity(weapon).insert(CurrentlySelectedWeapon);
-                            weapontag.parent = Some(playerentity);
-                            weapontag.stored_weapon_slot = Some(slot);
-
-                            let socket_value = weaponsocket_on_player
-                                .weapon_slots
-                                .entry(slot)
-                                .or_insert(None);
-                            *socket_value = Some(weapon);
-
-                            wtransform.translation = Vec3::ZERO;
-                            return;
                         }
-                        if slot_value.is_some() {
-                            debug!("this slot is full")
-                        }
-                    }
-                    None => {
-                        warn!("This slot doesnt exist?");
+
+                        // this should make the most recently picked up weapon the currently drawn weapon
+                        weapon_socket_on_player.drawn_slot = Some(slot);
+
+                        cmds.entity(weapon).insert(CurrentlySelectedWeapon);
+                        weapon_tag.parent = Some(player_entity);
+                        weapon_tag.stored_weapon_slot = Some(slot);
+
+                        let socket_value = weapon_socket_on_player
+                            .weapon_slots
+                            .entry(slot)
+                            .or_insert(None);
+                        *socket_value = Some(weapon);
+
+                        w_transform.translation = Vec3::ZERO;
                         return;
                     }
-                }
+                    if slot_value.is_some() {
+                        debug!("this slot is full");
+                    }
+                } else {
+                                        warn!("This slot doesn't exist?");
+                                        return;
+                                    }
             }
         }
     }

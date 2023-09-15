@@ -13,11 +13,11 @@ pub struct MainCameraTag {
     pub is_active: bool,
 }
 
-/// tag added too splashscreen entitys that should be despawned after splashscreen
+/// tag added too splashscreen entities that should be de-spawned after splashscreen
 #[derive(Component)]
 pub struct OnlySplashScreen;
 
-/// Newtype to use a `Timer` for splashscreen, if we need transitions we can use this
+/// `NewType` to use a `Timer` for splashscreen, if we need transitions we can use this
 #[derive(Resource, Deref, DerefMut)]
 pub struct SplashTimer(pub Timer);
 
@@ -37,7 +37,7 @@ impl Plugin for SplashPlugin {
     }
 }
 
-/// spawns maincamera
+/// spawns main camera
 fn spawn_main_camera(mut commands: Commands) {
     commands.spawn((
         Camera2dBundle {
@@ -50,7 +50,7 @@ fn spawn_main_camera(mut commands: Commands) {
             tonemapping: Tonemapping::AcesFitted,
             deband_dither: DebandDither::Enabled,
             projection: OrthographicProjection {
-                near: 0.000001,
+                near: 0.001,
                 far: 999.0,
                 viewport_origin: Vec2 { x: 0.5, y: 0.5 },
                 scaling_mode: ScalingMode::WindowSize(10.0),
