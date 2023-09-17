@@ -1,4 +1,7 @@
 {
+    "cSpell.words": [
+        "egui"
+    ],
     "files.exclude": {
         "**/.git": false,
         "**/.svn": false,
@@ -8,13 +11,5 @@
         "**/Thumbs.db": false,
         "**/.trunk/*out": false
     },
-    "explorerExclude.backup": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/.trunk/*out": false
-    }
+    "explorerExclude.backup": {}
 }

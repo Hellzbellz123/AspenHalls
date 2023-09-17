@@ -1,0 +1,15 @@
+[package]
+name = "aspen_halls_native"
+version = "0.0.1"
+authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
+edition = "2021"
+workspace = "../.."
+
+[features]
+default = []
+inspect = ["aspen_halls_game/inspect"]
+
+[dependencies]
+bevy.workspace = true
+aspen_halls_game = { path = "../.." }
+open = "5.0"

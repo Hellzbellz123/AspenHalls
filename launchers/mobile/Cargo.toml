@@ -1,0 +1,24 @@
+[package]
+name = "aspen_halls_mobile"
+version = "0.0.1"
+authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
+edition = "2021"
+workspace = "../../"
+
+[lib]
+name = "game"
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+bevy.workspace = true
+aspen_halls_game = { path = "../../" }
+jni = { version = "0.21.1", features = ["invocation"] }
+ndk-context = "0.1.1"
+
+[package.metadata]
+app_name = "404 - Kill Errors"
+assets = ["../../assets"]
+
+[package.metadata.apple]
+resources = ["../../res/apple"]
+release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
