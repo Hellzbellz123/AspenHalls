@@ -1,0 +1,42 @@
+version: 0.1
+runtimes:
+  enabled:
+    - go@1.18.3
+    - node@16.14.2
+plugins:
+  sources:
+    - id: trunk
+      ref: v0.0.14
+      uri: https://github.com/trunk-io/plugins
+cli:
+  version: 1.8.1
+lint:
+  enabled:
+    - oxipng@8.0.0
+    - clippy@SYSTEM
+    - git-diff-check@SYSTEM
+    - gitleaks@8.16.3
+    - markdownlint@0.33.0
+    - prettier@2.8.8
+    - rustfmt@SYSTEM
+    - shellcheck@0.9.0
+    - shfmt@3.5.0
+    - taplo@0.8.0
+
+  # definitions:
+  #   - name: clippy
+  #     type: clippy
+  #     files:
+  #       - rust
+  #     command:
+  #       - cargo
+  #       - clippy
+  #       - --message-format
+  #       - json
+  #       - --no-deps
+actions:
+  enabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+    - trunk-upgrade-available

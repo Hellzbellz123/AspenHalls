@@ -2,29 +2,12 @@ use bevy::{
     core_pipeline::clear_color::ClearColorConfig, log::LogPlugin, prelude::*,
     render::camera::ScalingMode, window::WindowMode,
 };
-#[cfg(feature = "inspect")]
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_picking::{DefaultPickingPlugins, backends::raycast::RaycastPickCamera};
 use bevy_sprite3d::Sprite3dPlugin;
 use bevy_tweening::TweeningPlugin;
-use lazy_static::lazy_static;
 
-//
-// Game Environment Variables
-//
-lazy_static! {
-    pub(crate) static ref TIME_WAIT_TO_START: u64 = {
-        let time: u64 = 15;
-        time
-    };
-    pub(crate) static ref MAX_BUGS_ON_SCREEN: usize = {
-        let time: usize = 20;
-        time
-    };
-}
-
-#[derive(Resource)]
-pub(crate) struct OpenLinkResource(pub Box<dyn Fn(&str) + Sync + Send + 'static>);
+#[cfg(feature = "inspect")]
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
 #[derive(Clone, Default, Debug, Hash, States, PartialEq, Eq)]
 pub(crate) enum GameState {

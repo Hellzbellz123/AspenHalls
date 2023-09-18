@@ -1,0 +1,41 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'vanillacoffee'",
+      "cargo": {
+        "args": ["build", "--bin=vanillacoffee", "--package=vanillacoffee"],
+        "filter": {
+          "name": "vanillacoffee",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug linux executable 'vanillacoffee'",
+      "cargo": {
+        "args": [
+          "build",
+          "--target=x86_64-unknown-linux-gnu",
+          "--bin=vanillacoffee",
+          "--package=vanillacoffee"
+        ],
+        "filter": {
+          "name": "vanillacoffee",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

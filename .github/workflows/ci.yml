@@ -40,8 +40,8 @@ name: CI
 on:
   pull_request:
     branches:
-      - main
-      - dev
+      - development
+      - release
   push:
     branches:
       - main
