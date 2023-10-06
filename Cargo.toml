@@ -78,7 +78,6 @@ image = {version = "0.24", default_features = false, features = ["png"]}
 voronator = {version = "0.2"}
 petgraph = {version = "0.6"}
 num-integer = {version = "0.1"}
-rust-embed = {version = "8.0.0", features = ["debug-embed", "include-exclude"]}
 
 # Bevy Dependencies are located in deps folder
 bevy_mod_logfu = {path = "deps/bevy_mod_logfu"}
@@ -86,23 +85,14 @@ big-brain = {path = "deps/big_brain"}
 leafwing-input-manager = {path = "deps/leafwing_input_manager"}
 seldom_map_nav = {path = "deps/seldom_map_nav", features = ["bevy"]}
 belly = {path = "deps/belly"}
-iyes_progress = {path = "deps/iyes_progress"}
 bevy = {workspace = true}
-bevy_sprite3d = {path = "deps/bevy_sprite3d"}
-bevy_eventlistener = {path = "deps/bevy_eventlistener"}
 bevy-inspector-egui = {path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true}
 bevy_common_assets = {path = "deps/bevy_common_assets", features = ["ron"]}
 bevy_ecs_ldtk = {path = "deps/bevy_ecs_ldtk", features = ["atlas"]}
 bevy_ecs_tilemap = {path = "deps/bevy_ecs_tilemap", features = ["render"]}
 bevy_framepace = {path = "deps/bevy_framepace"}
 bevy_prototype_lyon = {path = "deps/bevy_prototype_lyon"}
-bevy_mouse_tracking_plugin = { path = "deps/bevy_mouse_tracking"}
-bevy_mod_picking = {path = "deps/bevy_mod_picking", default-features = false, features = [
-    "all"
-]}
-bevy_tweening = {path = "deps/bevy_tweening", default-features = false, features = [
-    "bevy_text",
-]}
+bevy_rapier2d = {path = "deps/bevy_rapier/bevy_rapier2d"}
 bevy_egui = {path = "deps/bevy_egui", default-features = false, features = [
     "default_fonts",
     "serde",
@@ -114,10 +104,6 @@ bevy_asset_loader = {path = "deps/bevy_asset_loader/bevy_asset_loader", features
 bevy_kira_audio = {path = "deps/bevy_kira_audio", default-features = false, features = [
     "ogg",
 ]}
-bevy_rapier2d = {path = "deps/bevy_rapier/bevy_rapier2d", features = [
-    # "parallel",
-    # "simd-nightly",
-]}
 bevy_mod_debugdump = {path = "deps/bevy_mod_debugdump", features = [
     "render_graph",
 ]}
@@ -126,6 +112,18 @@ bevy-debug-text-overlay = {path = "deps/bevy_debug_text_overlay", default-featur
 ]}
 bevy_console = {path = "deps/bevy_console"}
 
+###### Unused dependencies #######
+# rust-embed = {version = "8.0.0", features = ["debug-embed", "include-exclude"]}
+# bevy_mouse_tracking_plugin = { path = "deps/bevy_mouse_tracking"}
+# iyes_progress = {path = "deps/iyes_progress"}
+# bevy_sprite3d = {path = "deps/bevy_sprite3d"}
+# bevy_eventlistener = {path = "deps/bevy_eventlistener"}
+# bevy_mod_picking = {path = "deps/bevy_mod_picking", default-features = false, features = [
+#     "all"
+# ]}
+# bevy_tweening = {path = "deps/bevy_tweening", default-features = false, features = [
+#     "bevy_text",
+# ]}
 
 [patch.crates-io]
 # broken dependencies
