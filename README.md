@@ -1,7 +1,7 @@
-# Aspen Halls
-Took me like 3 years to get around to updating this, time to finally started i guess
+# Aspen Halls (a video game)
+Took me 3 years too get around to updating this, time to finally get started i guess.
 
-funny story, this was originally started as 3d zelda clone in unity but i|
+funny story, this was originally started as 3d zelda clone in unity but i gave up and did not touch it for a really long time
 
 [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/) [![made-with-rust](https://img.shields.io/badge/Made%20with-Rust-1f425f.svg)](https://www.rust-lang.org/) ![Repo Size](https://img.shields.io/github/repo-size/hellzbellz123/AspenHalls?color=2948ff&label=Repo%20Size&style=flat-square)
 <p align="center">
@@ -16,9 +16,9 @@ funny story, this was originally started as 3d zelda clone in unity but i|
 
 ## Platforms
 
-- Native (MacOs, Linux & Windows)
+- Library (The game can be used as a library for porting too other platforms or using other init strategys)
+- Native (MacOs, Linux & Windows, a single launcher built for each target)
 - Web (Wasm)
-- Library (Usable in other rust projects)
 - Mobile
   - Android
   - iOS (⚠️ Soon)
