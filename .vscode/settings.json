@@ -66,6 +66,7 @@
     "leafwing",
     "lerp",
     "linvel",
+    "LOGFU",
     "mastervolume",
     "musicvolume",
     "Navmeshes",
@@ -87,5 +88,5 @@
     "winbase",
     "zmainschedulegraph",
     "zrendergraph"
-  ]
+  ],
 }

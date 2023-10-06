@@ -11,6 +11,7 @@ launchers/mobile/android/local.properties
 ***/publish
 *.pdb
 .vscode/settings.json
-gamedata/levels/homeworld32x32/backups
+***/backups
 debug.log
 config.toml
+cyclic.dot
