@@ -1,0 +1,92 @@
+({
+    // fonts for game
+    "title_font": File (
+        path: "interface/fonts/FantasqueSansMonoNF.ttf",
+    ),
+    "main_font": File (
+        path: "interface/fonts/FiraSans-Bold.ttf",
+    ),
+
+    // heroes go here
+    "hero_rex": TextureAtlas (
+        path: "packs/asha/textures/actors/heroes/rex-sheet32x64.png",
+        tile_size_x: 32.,
+        tile_size_y: 64.,
+        columns: 5,
+        rows: 4,
+    ),
+
+    // enemys go here
+    "skeleton": TextureAtlas (
+        path: "packs/asha/textures/actors/enemies/skeleton-sheet.png",
+        tile_size_x: 18.,
+        tile_size_y: 36.,
+        columns: 5,
+        rows: 4,
+    ),
+
+    "slime": TextureAtlas (
+        path: "packs/asha/textures/actors/enemies/slime-sheet32x64.png",
+        tile_size_x: 32.,
+        tile_size_y: 64.,
+        columns: 5,
+        rows: 4,
+    ),
+
+    //weapons go here
+    "small_smg": TextureAtlas (
+        path: "packs/asha/textures/actors/weapons/smallsmg.png",
+        tile_size_x: 18.,
+        tile_size_y: 36.,
+        columns: 1,
+        rows: 1,
+    ),
+    "small_pistol": TextureAtlas (
+        path: "packs/asha/textures/actors/weapons/smallpistol.png",
+        tile_size_x: 18.,
+        tile_size_y: 36.,
+        columns: 1,
+        rows: 1,
+    ),
+
+    // UI go here
+    "panel_brown": File (
+        path: "interface/textures/panel_brown.png",
+    ),
+    "button_unpressed": File (
+        path: "interface/textures/buttonSquare_blue.png",
+    ),
+    "button_pressed": File (
+        path: "interface/textures/buttonSquare_blue_pressed.png",
+    ),
+
+    // Sound assets go here
+    "ost": File(
+        path: "packs/asha/audio/ost/expansion.ogg",
+    ),
+
+    "footsteps": Files (
+        paths: [
+            "packs/asha/audio/footsteps/footstep-1.ogg",
+            "packs/asha/audio/footsteps/footstep-2.ogg",
+            "packs/asha/audio/footsteps/footstep-3.ogg",
+            "packs/asha/audio/footsteps/footstep-4.ogg",
+            "packs/asha/audio/footsteps/footstep-5.ogg",
+            "packs/asha/audio/footsteps/footstep-6.ogg",
+            "packs/asha/audio/footsteps/footstep-7.ogg",
+        ],
+    ),
+
+    // misc assets go here
+    "bevy_icon": File (
+        path: "packs/asha/textures/bevy.png",
+    ),
+
+    "start_level": File (
+        path: "packs/asha/levels/sanctuary.ldtk",    
+    ),
+
+    "dungeons": File (
+        path: "packs/asha/levels/dungeons.ldtk",
+    )
+})
