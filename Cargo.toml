@@ -146,7 +146,7 @@ bevy_console = {path = "deps/bevy_console"}
 
 [patch.crates-io]
 # broken dependencies
-navmesh ={ path = "deps/adepsdeps/navmesh"}
+# navmesh ={ path = "deps/adepsdeps/navmesh"}
 # bevy addon local replacements
 bevy_ecs_tilemap = {path = "deps/bevy_ecs_tilemap"}
 bevy_egui = {path = "deps/bevy_egui"}

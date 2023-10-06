@@ -8,7 +8,6 @@ launchers/mobile/android/local.properties
 ***/dist/
 ***/target
 ***/Cargo.lock
-***/deps
 ***/publish
 *.pdb
 .vscode/settings.json

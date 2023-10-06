@@ -1,3 +1,6 @@
+[submodule "deps/bevy"]
+	path = deps/bevy
+	url = https://github.com/bevyengine/bevy.git
 [submodule "deps/belly"]
 	path = deps/belly
 	url = https://github.com/jkb0o/belly.git
@@ -67,6 +70,3 @@
 [submodule "deps/bevy_mouse_tracking"]
 	path = deps/bevy_mouse_tracking
 	url = https://github.com/JoJoJet/bevy-mouse-tracking.git
-[submodule "deps/bevy"]
-	path = deps/bevy
-	url = https://github.com/bevyengine/bevy.git
