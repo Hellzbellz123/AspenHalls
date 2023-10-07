@@ -1,0 +1,4 @@
+[profile.asha]
+comment = "AspenHalls rogcat profile for logging"
+highlight = ["panicked"]
+tag = ["Bevy_LogFu", "RustStdoutStderr", "RustPanic", "123.aspen_halls"]

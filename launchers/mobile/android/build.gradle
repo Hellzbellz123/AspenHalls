@@ -43,7 +43,7 @@ android {
     def versionPropsFile = file('version.properties')
 
     if (versionPropsFile.canRead()) {
-        def Properties versionProps = new Properties()
+        Properties versionProps = new Properties()
 
         versionProps.load(new FileInputStream(versionPropsFile))
 
@@ -71,10 +71,6 @@ android {
         throw new GradleException("Could not read version.properties!")
     }
 
-    lintOptions {
-        abortOnError false
-        disable "MissingTranslation", "UnusedResources"
-    }
 
     sourceSets {
         main {
@@ -84,6 +80,10 @@ android {
             res.srcDirs = ["../../../res/android"]
         }
     }
+    lint {
+        abortOnError false
+        disable 'MissingTranslation', 'UnusedResources'
+    }
 }
 
 apply plugin: "org.mozilla.rust-android-gradle.rust-android"
@@ -91,7 +91,7 @@ apply plugin: "org.mozilla.rust-android-gradle.rust-android"
 cargo {
     module  = "../"
     libname = "game"
-    rustupChannel = "nightly-2023-09-16"
+    rustupChannel = "nightly-2023-10-06"
     targetDirectory = "../../../target"
     if (project.gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }) {
         profile = "release"
@@ -117,7 +117,7 @@ cargo {
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-tasks.whenTaskAdded { task ->
+tasks.configureEach { task ->
     if (task.name == 'mergeDebugJniLibFolders' || task.name == 'mergeReleaseJniLibFolders') {
         task.dependsOn 'cargoBuild'
     }

@@ -86,7 +86,7 @@ impl<S: Subscriber + for<'a> LookupSpan<'a>> Layer<S> for AndroidLayer {
             Level::ERROR => android_log_sys::LogPriority::ERROR,
         };
         let message = format!("{}\0", recorder);
-        let tag = format!("BEVY_LOGFU: {}\0", meta.name());
+        let tag = format!("Bevy_LogFu {}\0", meta.name());
         unsafe {
             android_log_sys::__android_log_write(
                 priority as android_log_sys::c_int,
