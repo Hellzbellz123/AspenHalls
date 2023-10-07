@@ -185,7 +185,7 @@ pub fn setup_dungeon_environment(
         cmds.spawn((
             DungeonContainerBundle {
                 tag: DungeonContainerTag,
-                ldtk_handle: dungeons.sanctuary.clone(),
+                ldtk_handle: dungeons.start_level.clone(),
                 transform: Transform {
                     scale: Vec3 {
                         x: 1.0,

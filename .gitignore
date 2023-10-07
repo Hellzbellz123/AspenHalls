@@ -16,3 +16,5 @@ debug.log
 config.toml
 cyclic.dot
 tiles.png
+***/zmainschedulegraph.dot
+***/zrendergraph.dot

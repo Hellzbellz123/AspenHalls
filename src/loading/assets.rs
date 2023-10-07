@@ -77,8 +77,12 @@ pub struct UiTextureHandles {
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
     /// default levels asset
-    #[asset(path = "levels/homeworld32x32.ldtk")]
-    pub sanctuary: Handle<LdtkProject>,
+    #[asset(key = "start_level")]
+    pub start_level: Handle<LdtkProject>,
+
+    /// dungeons
+    #[asset(key = "dungeons")]
+    pub dungeons: Handle<LdtkProject>
 }
 
 // BEVY ODDIO ASSET CONFIG

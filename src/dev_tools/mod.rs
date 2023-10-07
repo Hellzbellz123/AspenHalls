@@ -1,11 +1,12 @@
 #![allow(clippy::type_complexity)]
+#[cfg(feature = "inspect")]
+mod debug_dirs;
 /// holds `walk_dirs` function
 /// outputs cwd too console
-mod debug_dirs;
 
 /// debug plugin for vanillacoffee
 /// holds type registration, diagnostics, and inspector stuff
-#[cfg(feature = "dev")]
+#[cfg(feature = "inspect")]
 pub mod debug_plugin {
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -17,7 +18,7 @@ pub mod debug_plugin {
     use bevy_inspector_egui::quick::{
         ResourceInspectorPlugin, StateInspectorPlugin, WorldInspectorPlugin,
     };
-    use bevy_mod_debugdump::{render_graph, schedule_graph};
+    use bevy_mod_debugdump::{render_graph, schedule_graph, schedule_graph_dot, render_graph_dot};
     use bevy_prototype_lyon::{
         prelude::{
             // DrawMode,
@@ -207,17 +208,17 @@ pub mod debug_plugin {
             ..Default::default()
         };
 
-        let render_graph_settings = bevy_mod_debugdump::render_graph::Settings {
+        let render_graph_settings = render_graph::Settings {
             style: render_theme,
         };
 
         let update_schedule_graph =
-            bevy_mod_debugdump::schedule_graph_dot(app, Update, &schedule_graph_settings);
+            schedule_graph_dot(app, Update, &schedule_graph_settings);
 
         // let startup_schedule_graph =
         //     bevy_mod_debugdump::schedule_graph_dot(app, Main, &schedule_graph_settings);
 
-        let render_graph = bevy_mod_debugdump::render_graph_dot(app, &render_graph_settings);
+        let render_graph = render_graph_dot(app, &render_graph_settings);
 
         fs::write("zmainschedulegraph.dot", update_schedule_graph)
             .expect("couldn't write render schedule to file");

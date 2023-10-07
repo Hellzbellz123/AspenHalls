@@ -28,7 +28,7 @@ impl StartMenu {
         elements.select(".interface-root").add_child(eml! {
             <div c:start-menu-root c:hidden>
                 <div c:start-menu-title>
-                    <img c:start-menu-logo src="assets/ico/stonercaticon.png"/>
+                    <img c:start-menu-logo src="assets/favicon.png"/>
                     <div c:start-menu-subtitle><span>{ Self::get_subtitle() }</span></div>
                 </div>
                 <div c:start-menu-buttons>
@@ -70,7 +70,7 @@ impl StartMenu {
     }
 
     /// The list of possible subtitles
-    const SUBTITLES: &'static str = include_str!("../../../../gamedata/interface/language/menu_subtitle.txt");
+    const SUBTITLES: &'static str = include_str!("../../../../assets/interface/language/menu_subtitle.txt");
 
     /// Get a random subtitle from the list
     fn get_subtitle() -> &'static str {

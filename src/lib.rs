@@ -1,74 +1,85 @@
-use bevy::{
-    core_pipeline::clear_color::ClearColorConfig, log::LogPlugin, prelude::*,
-    render::camera::ScalingMode, window::WindowMode,
-};
-use bevy_mod_picking::{DefaultPickingPlugins, backends::raycast::RaycastPickCamera};
-use bevy_sprite3d::Sprite3dPlugin;
-use bevy_tweening::TweeningPlugin;
+// disable console on windows for release builds
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![feature(stmt_expr_attributes)]
+#![feature(type_ascription)]
+#![feature(lint_reasons)]
+#![feature(trivial_bounds)]
+#![feature(exact_size_is_empty)]
+#![doc = r"
+Vanilla Coffee, My video game.
+it kinda sucks but it'll be finished eventually
+A Dungeon Crawler in the vibes of Into The Gungeon
+"]
+// #![doc = include_str!("../README.md")]
+#![allow(clippy::module_name_repetitions)]
+#![warn(
+    clippy::missing_docs_in_private_items,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::missing_safety_doc
+)]
+
+use crate::launch_config::app_with_logging;
+use bevy::prelude::{default, Vec2, App};
+use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
 
 #[cfg(feature = "inspect")]
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use crate::dev_tools::debug_plugin::DebugPlugin;
 
-#[derive(Clone, Default, Debug, Hash, States, PartialEq, Eq)]
-pub(crate) enum GameState {
-    #[default]
-    MainPage,
-    Game,
-}
+/// general component store
+mod bundles;
+/// things related too `command_console`
+mod console;
+/// general consts file, if it gets used more than
+/// twice it should be here
+mod consts;
+/// Debug and Development related functions
+mod dev_tools;
+/// actual game plugin, ui and all "game" functionality
+mod game;
+/// holds app settings logic and systems
+mod launch_config;
+/// Holds all Asset Collections and handles loading them
+/// also holds fail state
+mod loading;
+/// misc util functions that cant find a place
+mod utilities;
 
-pub fn app(fullscreen: bool) -> App {
-    let mode = if fullscreen {
-        WindowMode::BorderlessFullscreen
-    } else {
-        WindowMode::Windowed
-    };
+// TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
+// add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
+// world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a play through should
+// have the [Loot] component/tag and should be added too a "leveled list" (skyrim) like system
 
-    let mut app = App::new();
-    app.add_plugins(
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        mode,
-                        title: "Aspen Halls".to_string(),
-                        fit_canvas_to_parent: true,
-                        prevent_default_event_handling: true,
-                        present_mode: bevy::window::PresentMode::AutoVsync,
-                        decorations: false,
-                        ..default()
-                    }),
-                    ..default()
-                })
-                .disable::<LogPlugin>(),
-        )
-        .add_plugins(DefaultPickingPlugins)
-        .add_plugins((Sprite3dPlugin, TweeningPlugin));
-    #[cfg(feature = "inspect")]
-    app.add_plugins(WorldInspectorPlugin::new());
-    app.add_state::<GameState>()
-        .add_systems(Startup, setup_camera);
+/// main app fn, configures app loop with logging, then
+/// then loads settings from config.toml and adds
+/// general game plugins
+pub fn start_app(_: bool) -> App {
+    let mut vanillacoffee = app_with_logging();
 
-    app
-}
-
-fn setup_camera(mut cmd: Commands) {
-    cmd.spawn((
-        Camera3dBundle {
-            projection: Projection::Orthographic(OrthographicProjection {
-                scaling_mode: ScalingMode::FixedVertical(25.),
-                ..default()
-            }),
-            transform: Transform::from_xyz(0., 0., 25.),
-            camera_3d: Camera3d {
-                clear_color: ClearColorConfig::Custom(Color::rgb_u8(227, 227, 227)),
-                ..default()
-            },
+    // add third party plugins
+    vanillacoffee
+        .add_plugins((
+            bevy_ecs_ldtk::LdtkPlugin,
+            belly::prelude::BellyPlugin,
+            bevy_framepace::FramepacePlugin,
+            bevy_prototype_lyon::prelude::ShapePlugin,
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
+        ))
+        .insert_resource(RapierConfiguration {
+            gravity: Vec2::ZERO,
             ..default()
-        },
-        RaycastPickCamera,
+        });
+
+    // add vanillacoffee stuff
+    vanillacoffee.add_state::<game::AppStage>().add_plugins((
+        loading::AssetLoadPlugin,
+        console::QuakeConPlugin,
+        game::GamePlugin,
+        utilities::UtilitiesPlugin,
     ));
 
-    cmd.spawn(DirectionalLightBundle {
-        transform: Transform::from_xyz(8., 16., 8.),
-        ..default()
-    });
+    #[cfg(feature = "inspect")]
+    vanillacoffee.add_plugins(DebugPlugin);
+
+    vanillacoffee
 }

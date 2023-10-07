@@ -26,5 +26,5 @@ fn main() {
     yew::Renderer::<Root>::new().render();
     // Start the Bevy App
     log::info!("Starting launcher: WASM");
-    aspen_halls_game::app(false).run();
+    aspen_halls_game::start_app(false).run();
 }

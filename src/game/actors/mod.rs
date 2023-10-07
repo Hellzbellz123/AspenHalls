@@ -16,6 +16,8 @@ pub mod player;
 pub mod spawners;
 
 /// all Characters in the game, along with spawners for spawn able characters
+// TODO: make actors "configurable". load actor types from $PACK/definitions/$ACTORTYPE/ and add them too a database.
+// use this database for "available actors" when spawning
 pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {

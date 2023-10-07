@@ -3,12 +3,8 @@ use std::ops::Mul;
 
 use crate::loading::splashscreen::MainCameraTag;
 
-/// custom logger
-/// logs too file
-pub mod logging;
 /// sets window icon and title
 pub mod window;
-mod android_tracing;
 
 /// holds general game utilities
 /// not particularly related to gameplay

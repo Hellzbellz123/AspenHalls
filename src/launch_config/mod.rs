@@ -1,30 +1,30 @@
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
 mod load_file;
 
-
-
-
 use bevy::{
+    diagnostic::DiagnosticsPlugin,
+    ecs::reflect::ReflectResource,
     log::LogPlugin,
     prelude::{
-        default, App, AssetPlugin, Camera2d, ClearColor, Color, Commands, DefaultPlugins,
-        DetectChanges, Entity, EventReader, Handle, ImagePlugin, OrthographicProjection, Parent,
-        Plugin, PluginGroup, Query, Res, ResMut, Update, Vec2, Window, WindowPlugin,
-        WindowPosition, With, Resource, info, Component,
+        default, info, App, AssetPlugin, Camera2d, ClearColor, Color, Commands, Component,
+        DefaultPlugins, DetectChanges, Entity, EventReader, Handle, ImagePlugin,
+        OrthographicProjection, Parent, Plugin, PluginGroup, Query, Res, ResMut, Resource, Update,
+        Vec2, Window, WindowPlugin, WindowPosition, With,
     },
-    ecs::reflect::ReflectResource,
-    window::{PresentMode, WindowMode, WindowResized, WindowResolution}, reflect::Reflect, diagnostic::DiagnosticsPlugin,
+    reflect::Reflect,
+    window::{PresentMode, WindowMode, WindowResized, WindowResolution},
 };
 use bevy_ecs_ldtk::prelude::LdtkLevel;
 use bevy_framepace::{FramepaceSettings, Limiter};
-use bevy_inspector_egui::{InspectorOptions, inspector_options::ReflectInspectorOptions};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "inspect")]
+use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 use crate::{
     game::audio::{Ambience, Music, Sound},
     loading::splashscreen::MainCameraTag,
-    utilities::logging::VCLogPlugin,
 };
 
 /// Holds game settings deserialized from the config.toml
@@ -52,6 +52,7 @@ pub struct WindowSettings {
     /// display resolution
     pub resolution: Vec2,
 }
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect)]
 /// game difficulty enum
 pub enum GameDifficulty {
@@ -69,11 +70,19 @@ pub enum GameDifficulty {
 
 /// Settings like zoom and difficulty
 /// maybe controls
-#[derive(Reflect, Resource, InspectorOptions, Serialize, Deserialize, Copy, Clone)]
-#[reflect(Resource, InspectorOptions)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone)]
+#[reflect(Resource)]
+#[cfg_attr(
+    feature = "inspect",
+    derive(InspectorOptions),
+    reflect(InspectorOptions)
+)]
 pub struct GeneralSettings {
     /// camera zoom
+    #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 150.0)]
+    pub camera_zoom: f32,
+    #[cfg(not(feature = "inspect"))]
     pub camera_zoom: f32,
     /// game difficulty,
     /// value ranging from 1-4, 1 being easiest, 4 being hardest
@@ -81,20 +90,40 @@ pub struct GeneralSettings {
 }
 
 /// modify to change sound volume settings
-#[derive(Reflect, InspectorOptions, Debug, Serialize, Deserialize, Resource, Copy, Clone, Component)]
-#[reflect(Resource, InspectorOptions)]
+#[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone, Component)]
+#[reflect(Resource)]
+#[cfg_attr(
+    feature = "inspect",
+    derive(InspectorOptions),
+    reflect(InspectorOptions)
+)]
 pub struct SoundSettings {
     /// Total Sound Scale for game
+    #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub master_volume: f64,
+    #[cfg(not(feature = "inspect"))]
+    pub master_volume: f64,
+
     /// sound effects from environment
+    #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub ambience_volume: f64,
+    #[cfg(not(feature = "inspect"))]
+    pub ambience_volume: f64,
+
     /// game soundtrack volume
+    #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub music_volume: f64,
+    #[cfg(not(feature = "inspect"))]
+    pub music_volume: f64,
+
     /// important sounds from game
+    #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
+    pub sound_volume: f64,
+    #[cfg(not(feature = "inspect"))]
     pub sound_volume: f64,
 }
 
@@ -193,7 +222,7 @@ impl Plugin for InitAppPlugin {
                             PresentMode::AutoNoVsync
                         },
                         position: WindowPosition::Automatic,
-                        title: "Vanilla Coffee".to_string(),
+                        title: "Aspen Halls".to_string(),
                         resolution: WindowResolution::new(
                             cfg_file.window_settings.resolution.x,
                             cfg_file.window_settings.resolution.y,
@@ -214,10 +243,6 @@ impl Plugin for InitAppPlugin {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
-                .set(AssetPlugin {
-                    asset_folder: "gamedata".to_string(),
-                    watch_for_changes: None,
-                })
                 .disable::<LogPlugin>()
         })
         .insert_resource(ClearColor(Color::Hsla {
@@ -248,39 +273,17 @@ impl Plugin for InitAppPlugin {
 /// if feature == "trace" then default logger, else custom logger that logs too file minimally
 pub fn app_with_logging() -> App {
     let mut vanillacoffee = App::new();
-    #[cfg(all(not(feature = "trace"), not(target_os = "android")))]
-    {
-        println!("Logging without tracing requested");
-        vanillacoffee.add_plugins(VCLogPlugin {
+    println!("Logging without tracing requested");
+    vanillacoffee.add_plugins(bevy_mod_logfu::LogPlugin {
             // filters for anything that makes it through the default log level. quiet big loggers
             // filter: "".into(), // an empty filter
             filter:
             "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error"
             .into(),
             level: bevy::log::Level::TRACE,
+            log_too_file: true,
         });
-        info!("Logging Initialized");
-    }
-
-    #[cfg(feature = "trace")]
-    {
-        println!("Logging with tracing requested");
-        vanillacoffee.add_plugins(bevy::log::LogPlugin {
-            filter: "".into(),
-            level: bevy::log::Level::TRACE,
-        });
-        info!("Logging Initialized");
-    }
-
-    #[cfg(target_os="android")]
-    {
-        println!("Logging with tracing requested");
-        vanillacoffee.add_plugins(bevy::log::LogPlugin {
-            filter: "".into(),
-            level: bevy::log::Level::TRACE,
-        });
-        info!("Logging Initialized");
-    }
+    info!("Logging Initialized");
     // add bevy plugins
     vanillacoffee.add_plugins(InitAppPlugin);
     vanillacoffee

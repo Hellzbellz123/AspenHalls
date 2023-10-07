@@ -7,7 +7,7 @@ use crate::game::actors::spawners::components::{EnemyType, Spawner, SpawnerTimer
 use super::hideout::map_components::SanctuaryTeleportSensor;
 
 /// tiles that can collide get this
-#[derive(Clone, Debug, Bundle, LdtkIntCell)]
+#[derive(Clone, Debug, Bundle, LdtkIntCell, Default)]
 pub struct CollisionBundle {
     /// name of collider
     pub name: Name,
@@ -20,7 +20,7 @@ pub struct CollisionBundle {
 }
 
 /// sensor components
-#[derive(Clone, Debug, Bundle, LdtkEntity)]
+#[derive(Clone, Debug, Bundle, LdtkEntity, Default)]
 pub struct SensorBundle {
     /// sensor component
     name: Name,
@@ -54,7 +54,7 @@ fn sensor_bundle(_ent_instance: &EntityInstance) -> SensorBundle {
 }
 
 /// spawner components
-#[derive(Clone, Debug, Bundle, LdtkEntity)]
+#[derive(Clone, Debug, Bundle, LdtkEntity, Default)]
 pub struct SpawnerBundle {
     /// spawner name
     name: Name,
@@ -91,7 +91,7 @@ fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
 pub struct UnBuiltPlayer;
 
 /// bundle to bind too `LdtkEntity` instance
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 #[worldly]
 pub struct LdtkPlayerBundle {
     /// player not built yet
@@ -105,7 +105,7 @@ pub struct LdtkPlayerBundle {
 pub struct PlayerStartLocation;
 
 /// used to spawn player start location
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct LdtkStartLocBundle {
     /// tag
     tag: PlayerStartLocation,
@@ -130,7 +130,7 @@ pub struct RoomExit {
 // }
 
 /// used too spawn room exit in from LDTK levels
-#[derive(Bundle, LdtkEntity)]
+#[derive(Bundle, LdtkEntity, Default)]
 pub struct LdtkRoomExitBundle {
     /// tag
     tag: RoomExit,

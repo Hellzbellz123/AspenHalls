@@ -26,7 +26,7 @@ impl PauseMenu {
         elements.select(".interface-root").add_child(eml! {
             <div c:pause-menu-root c: hidden>
                 <div c:pause-menu-buttons>
-                    <span c:pause-title> "Pause Menu" </span>
+                    <span c:pause-menu-title> "Pause Menu" </span>
                     <button c:button on:press=|ctx| { ctx.send_event(PausePlayEvent(EventType::Resume)); }>
                         "Resume Game"
                     </button>

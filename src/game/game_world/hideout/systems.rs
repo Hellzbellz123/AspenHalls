@@ -26,7 +26,7 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
 
     commands.spawn((
         LdtkWorldBundle {
-            ldtk_handle: maps.sanctuary.clone(),
+            ldtk_handle: maps.start_level.clone(),
             transform: Transform {
                 translation: Vec3 {
                     x: 0.0,

@@ -11,7 +11,6 @@ use crate::{
 
 /// shooting and graphics for enemies
 pub struct EnemyPlugin;
-
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, (on_shoot, update_enemy_graphics).run_if(resource_exists::<ActorTextureHandles>()));

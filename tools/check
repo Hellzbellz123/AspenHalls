@@ -12,7 +12,7 @@ if [[ "$*" == *"--no-casts"* ]]; then
 fi
 
 # Run cargo clippy with the specified arguments and extra_args
-cargo clippy --features=dev --no-deps -- \
+cargo clippy --features=inspect --no-deps -- \
     -D clippy::correctness \
     -D clippy::complexity \
     -D clippy::pedantic \
