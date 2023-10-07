@@ -1,3 +1,4 @@
+use aspen_halls_game::ConfigFile;
 use yew::prelude::*;
 
 fn set_window_title(title: &str) {
@@ -26,5 +27,5 @@ fn main() {
     yew::Renderer::<Root>::new().render();
     // Start the Bevy App
     log::info!("Starting launcher: WASM");
-    aspen_halls_game::start_app(false).run();
+    aspen_halls_game::start_app(ConfigFile::default()).run();
 }

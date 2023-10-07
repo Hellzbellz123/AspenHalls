@@ -21,9 +21,13 @@ pub fn set_window_icon(
         // here we use the `image` crate to load our icon data from a png file
         // this is not a very bevy-native solution, but it will do
         let (icon_rgba, icon_width, icon_height) = {
-            let image = image::open("assets/favicon.png")
-                .expect("Failed to open icon path: assets/favicon.png")
-                .into_rgba8();
+            let image = match image::open("assets/favicon.png") {
+                Ok(img) => img.into_rgba8(),
+                Err(e) => {
+                    warn!("couldnt load window icon: {}", e);
+                    return;
+                }
+            };
             let (width, height) = image.dimensions();
             let rgba = image.into_raw();
             (rgba, width, height)

@@ -1,5 +1,6 @@
+pub mod save_load;
+
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-mod load_file;
 
 use bevy::{
     diagnostic::DiagnosticsPlugin,
@@ -32,11 +33,11 @@ use crate::{
 #[reflect(Resource)]
 pub struct ConfigFile {
     /// game window settings
-    window_settings: WindowSettings,
+    pub window_settings: WindowSettings,
     /// sound settings
-    sound_settings: SoundSettings,
+    pub sound_settings: SoundSettings,
     /// general settings like zoom and difficulty
-    general_settings: GeneralSettings,
+    pub general_settings: GeneralSettings,
 }
 
 /// make sure tables are AFTER single fields
@@ -204,75 +205,69 @@ impl Default for SoundSettings {
     }
 }
 
-/// initial setup of the app, load settings and add default plugins
-pub struct InitAppPlugin;
-
-impl Plugin for InitAppPlugin {
-    fn build(&self, app: &mut App) {
-        let cfg_file = load_file::load_settings();
-        let difficulty_settings = DifficultyScale::default();
-
-        app.add_plugins({
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        present_mode: if cfg_file.window_settings.v_sync {
-                            PresentMode::AutoVsync
-                        } else {
-                            PresentMode::AutoNoVsync
-                        },
-                        position: WindowPosition::Automatic,
-                        title: "Aspen Halls".to_string(),
-                        resolution: WindowResolution::new(
-                            cfg_file.window_settings.resolution.x,
-                            cfg_file.window_settings.resolution.y,
-                        ),
-                        mode: {
-                            if cfg_file.window_settings.full_screen {
-                                // if full screen is true, use borderless full screen
-                                // cursor mode is confined to the window so it cant
-                                // leave without alt tab
-                                WindowMode::BorderlessFullscreen
-                            } else {
-                                WindowMode::Windowed
-                            }
-                        },
-                        window_level: bevy::window::WindowLevel::AlwaysOnBottom,
-                        ..default()
-                    }),
-                    ..default()
-                })
-                .set(ImagePlugin::default_nearest())
-                .disable::<LogPlugin>()
-        })
-        .insert_resource(ClearColor(Color::Hsla {
-            hue: 294.0,
-            saturation: 0.71,
-            lightness: 0.08,
-            alpha: 1.0,
-        }))
-        .insert_resource(cfg_file.window_settings)
-        .insert_resource(cfg_file.sound_settings)
-        .insert_resource(cfg_file.general_settings)
-        .insert_resource(difficulty_settings);
-
-        app.add_systems(
-            Update,
-            (
-                apply_window_settings,
-                apply_sound_settings,
-                apply_camera_zoom,
-                update_difficulty_settings,
-                on_resize_system,
-            ),
-        );
-    }
-}
-
 /// creates an App
 /// if feature == "trace" then default logger, else custom logger that logs too file minimally
-pub fn app_with_logging() -> App {
+pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = App::new();
+
+    let difficulty_settings = DifficultyScale::default();
+
+    vanillacoffee.add_plugins({
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    present_mode: if cfg_file.window_settings.v_sync {
+                        PresentMode::AutoVsync
+                    } else {
+                        PresentMode::AutoNoVsync
+                    },
+                    position: WindowPosition::Automatic,
+                    title: "Aspen Halls".to_string(),
+                    resolution: WindowResolution::new(
+                        cfg_file.window_settings.resolution.x,
+                        cfg_file.window_settings.resolution.y,
+                    ),
+                    mode: {
+                        if cfg_file.window_settings.full_screen {
+                            // if full screen is true, use borderless full screen
+                            // cursor mode is confined to the window so it cant
+                            // leave without alt tab
+                            WindowMode::BorderlessFullscreen
+                        } else {
+                            WindowMode::Windowed
+                        }
+                    },
+                    window_level: bevy::window::WindowLevel::Normal,
+                    fit_canvas_to_parent: true,
+                    ..default()
+                }),
+                ..default()
+            })
+            .set(ImagePlugin::default_nearest())
+            .disable::<LogPlugin>()
+    })
+    .insert_resource(ClearColor(Color::Hsla {
+        hue: 294.0,
+        saturation: 0.71,
+        lightness: 0.08,
+        alpha: 1.0,
+    }))
+    .insert_resource(cfg_file.window_settings)
+    .insert_resource(cfg_file.sound_settings)
+    .insert_resource(cfg_file.general_settings)
+    .insert_resource(difficulty_settings);
+
+    vanillacoffee.add_systems(
+        Update,
+        (
+            apply_window_settings,
+            apply_sound_settings,
+            apply_camera_zoom,
+            update_difficulty_settings,
+            on_resize_system,
+        ),
+    );
+
     println!("Logging without tracing requested");
     vanillacoffee.add_plugins(bevy_mod_logfu::LogPlugin {
             // filters for anything that makes it through the default log level. quiet big loggers
@@ -285,7 +280,6 @@ pub fn app_with_logging() -> App {
         });
     info!("Logging Initialized");
     // add bevy plugins
-    vanillacoffee.add_plugins(InitAppPlugin);
     vanillacoffee
 }
 

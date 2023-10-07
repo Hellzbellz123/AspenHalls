@@ -12,7 +12,7 @@ pub struct UtilitiesPlugin;
 
 impl Plugin for UtilitiesPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (window::set_window_icon, eager_cursor_pos))
+        app.add_systems(Update, (window::set_window_icon.run_if(run_once()), eager_cursor_pos))
             .insert_resource(EagerMousePos {
                 world: Vec2::ZERO,
                 window: Vec2::ZERO,

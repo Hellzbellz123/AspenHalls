@@ -11,7 +11,7 @@ use self::{
     z_weapon_spawner::{spawn_small_pistol, spawn_small_smg},
 };
 use crate::{
-    launch_config::DifficultyScale,
+    loading::config::DifficultyScale,
     game::actors::spawners::components::{EnemyType, WeaponType},
     loading::assets::ActorTextureHandles,
 };

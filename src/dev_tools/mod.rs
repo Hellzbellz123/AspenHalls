@@ -57,7 +57,7 @@ pub mod debug_plugin {
             interface::RequestedMenu,
         },
         game::{AppStage, TimeInfo},
-        launch_config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
+        loading::config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
         loading::splashscreen::MainCameraTag,
     };
 

@@ -74,7 +74,7 @@ fn spawn_main_camera(mut commands: Commands) {
 /// spawns splash, inserts splash timer
 fn splash_setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
     info!("loading splash");
-    let img_bytes = include_bytes!("splashL.png");
+    let img_bytes = include_bytes!("../../res/splashL.png");
     let splash_image = Image::from_buffer(
         img_bytes,
         ImageType::Extension("png"),

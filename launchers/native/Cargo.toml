@@ -13,3 +13,4 @@ inspect = ["aspen_halls_game/inspect"]
 bevy.workspace = true
 aspen_halls_game = { path = "../.." }
 open = "5.0"
+toml ={ version = "0.8"}

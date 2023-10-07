@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    launch_config::SoundSettings,
+    loading::config::SoundSettings,
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},

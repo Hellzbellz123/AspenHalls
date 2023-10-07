@@ -3,7 +3,7 @@ use bevy::prelude::bevy_main;
 #[bevy_main]
 fn main() {
     println!("Starting launcher: Mobile");
-    aspen_halls_game::start_app(true).run();
+    aspen_halls_game::start_app(aspen_halls_game::ConfigFile::default()).run();
 }
 
 // TODO: use bevy_fluent for localization, keep below functions

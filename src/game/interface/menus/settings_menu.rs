@@ -9,7 +9,7 @@ use crate::{
         },
         AppStage,
     },
-    launch_config::SoundSettings,
+    loading::config::SoundSettings,
 };
 
 /// Set up the main menu

@@ -19,7 +19,6 @@ A Dungeon Crawler in the vibes of Into The Gungeon
     clippy::missing_safety_doc
 )]
 
-use crate::launch_config::app_with_logging;
 use bevy::prelude::{default, Vec2, App};
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
 
@@ -37,13 +36,14 @@ mod consts;
 mod dev_tools;
 /// actual game plugin, ui and all "game" functionality
 mod game;
-/// holds app settings logic and systems
-mod launch_config;
 /// Holds all Asset Collections and handles loading them
 /// also holds fail state
 mod loading;
 /// misc util functions that cant find a place
 mod utilities;
+
+
+pub use loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings};
 
 // TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
 // add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
@@ -53,8 +53,8 @@ mod utilities;
 /// main app fn, configures app loop with logging, then
 /// then loads settings from config.toml and adds
 /// general game plugins
-pub fn start_app(_: bool) -> App {
-    let mut vanillacoffee = app_with_logging();
+pub fn start_app(cfg_file: ConfigFile) -> App {
+    let mut vanillacoffee = loading::config::create_configured_app(cfg_file);
 
     // add third party plugins
     vanillacoffee

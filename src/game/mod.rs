@@ -20,7 +20,7 @@ use crate::{
         input::{actions, ActionsPlugin},
         interface::InterfacePlugin,
     },
-    launch_config::GeneralSettings,
+    loading::config::GeneralSettings,
 };
 
 use bevy::{app::App, prelude::*};
