@@ -89,4 +89,5 @@
     "zmainschedulegraph",
     "zrendergraph"
   ],
+  "rust-analyzer.showUnlinkedFileNotification": false,
 }
