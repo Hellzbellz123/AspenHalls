@@ -22,8 +22,15 @@ members = ["launchers/wasm", "launchers/native", "launchers/mobile"]
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+# Enable a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1
+incremental = true
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+incremental = false
+opt-level = 3
 
 [profile.release]
 panic = 'abort'
@@ -80,10 +87,10 @@ petgraph = {version = "0.6"}
 num-integer = {version = "0.1"}
 
 # Bevy Dependencies are located in deps folder
-bevy_mod_logfu = {path = "deps/bevy_mod_logfu"}
 big-brain = {path = "deps/big_brain"}
 leafwing-input-manager = {path = "deps/leafwing_input_manager"}
 seldom_map_nav = {path = "deps/seldom_map_nav", features = ["bevy"]}
+virtual_joystick ={ path = "deps/virtual_joystick"}
 belly = {path = "deps/belly"}
 bevy = {workspace = true}
 bevy-inspector-egui = {path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true}
@@ -91,6 +98,7 @@ bevy_common_assets = {path = "deps/bevy_common_assets", features = ["ron"]}
 bevy_ecs_ldtk = {path = "deps/bevy_ecs_ldtk", features = ["atlas"]}
 bevy_ecs_tilemap = {path = "deps/bevy_ecs_tilemap", features = ["render"]}
 bevy_framepace = {path = "deps/bevy_framepace"}
+bevy_mod_logfu = {path = "deps/bevy_mod_logfu"} # not a git dependency
 bevy_prototype_lyon = {path = "deps/bevy_prototype_lyon"}
 bevy_rapier2d = {path = "deps/bevy_rapier/bevy_rapier2d"}
 bevy_egui = {path = "deps/bevy_egui", default-features = false, features = [

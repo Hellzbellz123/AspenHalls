@@ -33,7 +33,9 @@ funny story, this was originally started as 3d zelda clone in unity but i gave u
 ## Development Guide
 
 - Edit the `.env` file if you need
-- Run `cargo make dev` for run as development mode (Native window)
+- Run `cargo make run-native` for run desktop dev mode
+- Run `cargo make run-mobile` too build and install on connected adb device
+- Run `cargo make run-web` too build and install on connected adb device
 - Run `cargo make` for all available tasks
 
 ### Other CargoMake Tasks

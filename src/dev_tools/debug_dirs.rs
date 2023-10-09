@@ -4,13 +4,17 @@ pub fn debug_directory() {
         .expect("couldn't get current working directory, No permissions or doesn't exist");
 
     println!("Current Working Director is: {dir:?}");
-    run(true, true, 2, &dir).expect("could list directory for some reason");
+    match run(true, true, 2, &dir) {
+        Ok(_) => {},
+        Err(e) => warn!("{}", e),
+    } //.expect("could list directory for some reason");
 }
 
 use std::error::Error;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use bevy::prelude::warn;
 
 /// Term Colors that can be used in output
 pub enum ANSIColor {

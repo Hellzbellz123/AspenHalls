@@ -39,7 +39,7 @@ pub fn player_movement_system(
         // Virtual direction pads are one of the types which return an AxisPair
         let axis_pair = action_state.axis_pair(actions::Combat::Move).unwrap();
 
-        delta = axis_pair.xy().clamp_length(-1.0, 1.0);
+        delta = axis_pair.xy();
 
         let horizontal = axis_pair.x();
         let vertical = axis_pair.y();
@@ -58,7 +58,7 @@ pub fn player_movement_system(
             anim_state.facing = ActorAnimationType::Up;
         }
 
-        let new_velocity = Velocity::linear(delta.normalize_or_zero() * speed_attr.speed);
+        let new_velocity = Velocity::linear(delta * speed_attr.speed);
 
         *velocity = new_velocity;
     } else if !action_state.pressed(actions::Combat::Move) {

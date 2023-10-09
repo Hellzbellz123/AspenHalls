@@ -79,7 +79,7 @@ dependencies = ["fmt", "clippy"]
 description = "Try fix all clippy and format issues"
 dependencies = ["fix-fmt", "fix-clippy"]
 
-[tasks.build]
+[tasks.build-release]
 description = "Generate release binary/lib"
 dependencies = [
     "fmt",

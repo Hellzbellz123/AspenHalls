@@ -398,11 +398,19 @@ fn spawn_navigation_grid(
         ..Default::default()
     });
 
-    // let image = draw_tilemap(&tilemap, map_size, tile_size.x);
-    // image.save("tilemap.png").unwrap();
 
-    let img = draw_tiles(map_size.into(), &global_tile_positions);
-    img.save("tiles.png").unwrap();
+    match std::fs::File::create("tiles.png") {
+        Ok(_file) => {
+            let img = draw_tiles(map_size.into(), &global_tile_positions);
+            match img.save("tiles.png") {
+                Ok(_) => info!("successfully wrote dungeon image"),
+                Err(e) => warn!("error saving tiles.png {}", e),
+            }
+        },
+        Err(e) => {
+            warn!("failed too save tile image {}", e)
+        },
+    }
 
     // let navability = |pos: UVec2| tilemap[(pos.y * map_size.x + pos.x) as usize];
     // let navmeshes = Navmeshes::generate(map_size.into(), TILE_SIZE, navability, [0.1]).unwrap();

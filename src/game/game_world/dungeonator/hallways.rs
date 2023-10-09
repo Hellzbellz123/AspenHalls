@@ -347,8 +347,12 @@ const fn spawn_decoration_layer() {}
 /// saves dot graph as file
 fn save_dot(dot: &Dot<'_, &StableGraph<RoomInstance, HallWay, petgraph::Undirected>>, file: String) {
     // Save the DOT representation to a file
-    let mut dot_file = File::create(file).expect("Failed to create DOT file");
-    write!(dot_file, "{dot:?}").expect("Failed to write DOT file");
+    match File::create(file) {
+        Ok(mut file) => {
+            write!(file, "{dot:?}").expect("Failed to write DOT file");
+        },
+        Err(e) => {warn!("error saving dotfile"); return;},
+    }
 }
 
 /// calculates distance between too spots

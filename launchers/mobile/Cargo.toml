@@ -11,9 +11,9 @@ crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
 bevy.workspace = true
-aspen_halls_game = { path = "../../" }
-# jni = { version = "0.21.1", features = ["invocation"] }
-# ndk-context = "0.1.1"
+aspen_halls_game = { path = "../../", features = ["inspect"]}
+jni = { version = "0.21.1", features = ["invocation"] }
+ndk-context = "0.1.1"
 
 [package.metadata]
 app_name = "Aspen Halls"

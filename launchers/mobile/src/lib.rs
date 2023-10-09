@@ -2,6 +2,9 @@ use bevy::prelude::bevy_main;
 
 #[bevy_main]
 fn main() {
+    let ctx = ndk_context::android_context();
+    let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }.unwrap();
+    let env = vm.attach_current_thread().unwrap();
     println!("Starting launcher: Mobile");
     aspen_halls_game::start_app(aspen_halls_game::ConfigFile::default()).run();
 }

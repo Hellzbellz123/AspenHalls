@@ -58,10 +58,4 @@ class MainActivity : NativeActivity() {
         super.onResume()
         hideSystemUI()
     }
-
-    fun openUrl(u: String) {
-        var url = u.replace("\"", "")
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        startActivity(browserIntent)
-    }
 }

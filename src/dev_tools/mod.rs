@@ -220,10 +220,16 @@ pub mod debug_plugin {
 
         let render_graph = render_graph_dot(app, &render_graph_settings);
 
-        fs::write("zmainschedulegraph.dot", update_schedule_graph)
-            .expect("couldn't write render schedule to file");
-        fs::write("zrendergraph.dot", render_graph)
-            .expect("couldn't write render schedule to file");
+        match fs::write("zmainschedulegraph.dot", update_schedule_graph) {
+            Ok(_) => {},
+            Err(e) => warn!("{}", e),
+        }
+            // .expect("couldn't write render schedule to file");
+        match fs::write("zrendergraph.dot", render_graph) {
+            Ok(_) => {},
+            Err(e) => warn!("{}", e),
+        }
+            // .expect("couldn't write render schedule to file");
     }
 
     // /// takes all actors and sums z then divided by actor count
