@@ -59,6 +59,8 @@ fn spawn_software_cursor(mut cmds: Commands) {
     ));
 }
 
+
+//TODO: hide software cursor when close too player (when within margin of screen_dimensions / 2.0)
 fn update_software_cursor(
     window_query: Query<&Window, With<PrimaryWindow>>,
     player_input: Query<&ActionState<actions::Gameplay>, With<Player>>,
