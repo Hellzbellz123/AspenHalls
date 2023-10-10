@@ -24,11 +24,9 @@ use crate::{
             },
             player::actions::ShootEvent,
         },
-        input::actions,
+        input::{actions}, AppStage, TimeInfo,
     },
-    game::{AppStage, TimeInfo},
-    loading::assets::ActorTextureHandles,
-    utilities::{lerp, EagerMousePos},
+    loading::assets::ActorTextureHandles, utilities::lerp,
 };
 
 use self::components::Damage;
@@ -97,8 +95,7 @@ pub struct WeaponFiringTimer(pub Timer);
 /// rotates weapon too face wherever the players mouse is
 fn rotate_player_weapon(
     game_time: Res<TimeInfo>,
-    eager_mouse: Res<EagerMousePos>,
-    mut player_query: Query<(&AnimState, With<Player>)>,
+    mut player_query: Query<((&AnimState, &ActionState<actions::Gameplay>), With<Player>)>,
     mut weapon_query: Query<
         // this is equivalent to if player has a weapon equipped and out
         (&WeaponTag, &GlobalTransform, &mut Transform),
@@ -108,15 +105,14 @@ fn rotate_player_weapon(
     if game_time.game_paused || weapon_query.is_empty() {
         return;
     }
-    let mouse_position_world = eager_mouse.world;
 
     weapon_query.for_each_mut(|(weapon_tag, weapon_global_transform, mut weapon_transform)| {
         if weapon_tag.parent.is_some() {
-            let (_player_state, ()) = player_query.single_mut();
-            let global_mouse_pos = vec2(mouse_position_world.x, mouse_position_world.y);
+            let ((_player_animation_state, player_input), ()) = player_query.single_mut();
+            let global_mouse_pos =  player_input.action_data(actions::Gameplay::LookWorld).axis_pair.unwrap().xy();
             let global_weapon_pos: Vec2 = weapon_global_transform.compute_transform().translation.truncate();
-            let look_direction: Vec2 = (global_mouse_pos - global_weapon_pos).normalize_or_zero();
-            let aim_angle = (-look_direction.y).atan2(look_direction.x) + FRAC_PI_2; // add offset too rotation here
+            let look_direction: Vec2 = (global_weapon_pos - global_mouse_pos).normalize_or_zero();
+            let aim_angle = (-look_direction.y).atan2(-look_direction.x) + FRAC_PI_2; // add offset too rotation here
 
             // mirror whole entity by negating the scale when were looking left,
             if aim_angle.to_degrees() > 180.0 || aim_angle.to_degrees() < -0.0 {
@@ -225,7 +221,7 @@ fn remove_cdw_component(
 /// updates players equipped weapon based on input
 fn update_equipped_weapon(
     mut cmds: Commands,
-    query_action_state: Query<&ActionState<actions::Combat>>,
+    query_action_state: Query<&ActionState<actions::Gameplay>>,
     mut player_query: Query<&mut WeaponSocket, With<Player>>,
     weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), (With<Parent>, Without<Player>)>,
 ) {
@@ -236,7 +232,7 @@ fn update_equipped_weapon(
     let mut player_weapon_socket = player_query.single_mut();
     let actions = query_action_state.single();
 
-    if actions.just_pressed(actions::Combat::EquipSlot1) {
+    if actions.just_pressed(actions::Gameplay::EquipSlot1) {
         // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
         // CurrentlyDrawnWeapon from old weapon
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot1);
@@ -247,7 +243,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 1");
         }
-    } else if actions.just_pressed(actions::Combat::EquipSlot2) {
+    } else if actions.just_pressed(actions::Gameplay::EquipSlot2) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot2);
         let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
         let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
@@ -256,7 +252,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 2");
         }
-    } else if actions.just_pressed(actions::Combat::EquipSlot3) {
+    } else if actions.just_pressed(actions::Gameplay::EquipSlot3) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot3);
         let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
         let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
@@ -265,7 +261,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 3");
         }
-    } else if actions.just_pressed(actions::Combat::EquipSlot4) {
+    } else if actions.just_pressed(actions::Gameplay::EquipSlot4) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot4);
         let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
         let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);

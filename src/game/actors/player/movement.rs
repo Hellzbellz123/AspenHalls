@@ -16,9 +16,59 @@ use crate::{
     loading::splashscreen::MainCameraTag,
 };
 
-/// adds velocity too player based of what movement keys are pressed
+// /// adds velocity too player based of what movement keys are pressed
+// pub fn player_movement_system(
+//     query_action_state: Query<&ActionState<actions::Gameplay>, With<Player>>,
+//     mut player_query: Query<(
+//         &mut Velocity,
+//         &mut AnimState,
+//         &mut TextureAtlasSprite,
+//         &ActorTertiaryAttributes,
+//         With<Player>,
+//     )>,
+// ) {
+//     if player_query.is_empty() {
+//         return;
+//     }
+
+//     let (mut velocity, mut anim_state, mut texture, speed_attr, ()) = player_query.single_mut();
+//     let action_state = query_action_state.single();
+//     let delta;
+
+//     if action_state.pressed(actions::Gameplay::Move) {
+//         // Virtual direction pads are one of the types which return an AxisPair
+//         let axis_pair = action_state.axis_pair(actions::Gameplay::Move).unwrap();
+
+//         delta = axis_pair.xy();
+
+//         let horizontal = axis_pair.x();
+//         let vertical = axis_pair.y();
+
+//         if horizontal < 0.0 {
+//             texture.flip_x = true;
+//             anim_state.facing = ActorAnimationType::Right;
+//         } else if horizontal > 0.0 {
+//             texture.flip_x = false;
+//             anim_state.facing = ActorAnimationType::Left;
+//         }
+
+//         if vertical < 0.0 {
+//             anim_state.facing = ActorAnimationType::Down;
+//         } else if vertical > 0.0 {
+//             anim_state.facing = ActorAnimationType::Up;
+//         }
+
+//         let new_velocity = Velocity::linear(delta * speed_attr.speed);
+
+//         *velocity = new_velocity;
+//     } else if !action_state.pressed(actions::Gameplay::Move) {
+//         velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
+//         anim_state.facing = ActorAnimationType::Idle;
+//     }
+// }
+
 pub fn player_movement_system(
-    query_action_state: Query<&ActionState<actions::Combat>, With<Player>>,
+    query_action_state: Query<&ActionState<actions::Gameplay>, With<Player>>,
     mut player_query: Query<(
         &mut Velocity,
         &mut AnimState,
@@ -35,33 +85,41 @@ pub fn player_movement_system(
     let action_state = query_action_state.single();
     let delta;
 
-    if action_state.pressed(actions::Combat::Move) {
+    if action_state.pressed(actions::Gameplay::Move) {
         // Virtual direction pads are one of the types which return an AxisPair
-        let axis_pair = action_state.axis_pair(actions::Combat::Move).unwrap();
+        let axis_pair = action_state.axis_pair(actions::Gameplay::Move).unwrap();
 
         delta = axis_pair.xy();
 
         let horizontal = axis_pair.x();
         let vertical = axis_pair.y();
 
-        if horizontal < 0.0 {
-            texture.flip_x = true;
-            anim_state.facing = ActorAnimationType::Right;
-        } else if horizontal > 0.0 {
-            texture.flip_x = false;
-            anim_state.facing = ActorAnimationType::Left;
-        }
+        // Calculate absolute values for horizontal and vertical movement
+        let abs_horizontal = horizontal.abs();
+        let abs_vertical = vertical.abs();
 
-        if vertical < 0.0 {
-            anim_state.facing = ActorAnimationType::Down;
-        } else if vertical > 0.0 {
-            anim_state.facing = ActorAnimationType::Up;
+        if abs_horizontal > abs_vertical {
+            // Horizontal movement is greater
+            if horizontal < 0.0 {
+                texture.flip_x = true;
+                anim_state.facing = ActorAnimationType::Right;
+            } else if horizontal > 0.0 {
+                texture.flip_x = false;
+                anim_state.facing = ActorAnimationType::Left;
+            }
+        } else if abs_vertical > abs_horizontal {
+            // Vertical movement is greater
+            if vertical < 0.0 {
+                anim_state.facing = ActorAnimationType::Down;
+            } else if vertical > 0.0 {
+                anim_state.facing = ActorAnimationType::Up;
+            }
         }
 
         let new_velocity = Velocity::linear(delta * speed_attr.speed);
 
         *velocity = new_velocity;
-    } else if !action_state.pressed(actions::Combat::Move) {
+    } else {
         velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
         anim_state.facing = ActorAnimationType::Idle;
     }
@@ -72,7 +130,7 @@ pub fn player_sprint(
     mut player_query: Query<(
         &mut AnimState,
         &mut Player,
-        &ActionState<actions::Combat>,
+        &ActionState<actions::Gameplay>,
         &mut ActorTertiaryAttributes,
     )>,
 ) {
@@ -82,12 +140,12 @@ pub fn player_sprint(
 
     let (mut animation, mut player, action_state, mut speed_atr) = player_query.single_mut();
 
-    if action_state.pressed(actions::Combat::Sprint) {
+    if action_state.pressed(actions::Gameplay::Sprint) {
         animation.timer.set_duration(Duration::from_millis(100));
         player.sprint_available = true;
     }
 
-    if action_state.released(actions::Combat::Sprint) {
+    if action_state.released(actions::Gameplay::Sprint) {
         animation.timer.set_duration(Duration::from_millis(200));
         player.sprint_available = false;
     }

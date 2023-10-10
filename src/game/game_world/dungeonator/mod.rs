@@ -202,7 +202,7 @@ fn spawn_weapons_start_location(
 fn regeneration_system(
     mut cmds: Commands,
     mut dungeon_settings: ResMut<DungeonGeneratorSettings>,
-    query_action_state: Query<&ActionState<actions::Combat>>,
+    query_action_state: Query<&ActionState<actions::Gameplay>>,
     dungeon_container: Query<Entity, With<DungeonContainerTag>>,
     nav_mesh: Query<Entity, With<Navmeshes>>,
     weapons: Query<Entity, (With<WeaponTag>, Without<Parent>)>,
@@ -211,7 +211,7 @@ fn regeneration_system(
     let input = query_action_state.single();
     let dungeon = dungeon_container.single();
 
-    if !input.just_pressed(actions::Combat::DebugF2) {
+    if !input.just_pressed(actions::Gameplay::DebugF2) {
         return;
     }
     info!("regenerate dungeon pressed");

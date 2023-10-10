@@ -57,7 +57,7 @@ pub mod debug_plugin {
             interface::RequestedMenu,
         },
         game::{AppStage, TimeInfo},
-        loading::config::{DifficultyScale, GeneralSettings, SoundSettings, WindowSettings},
+        loading::config::{DifficultyScales, GeneralSettings, SoundSettings, WindowSettings},
         loading::splashscreen::MainCameraTag,
     };
 
@@ -69,7 +69,7 @@ pub mod debug_plugin {
             debug_directory();
             app.register_type::<Timer>()
                 //custom Reflects not from plugins
-                .register_type::<DifficultyScale>()
+                .register_type::<DifficultyScales>()
                 .register_type::<WindowSettings>()
                 .register_type::<GeneralSettings>()
                 .register_type::<SoundSettings>()

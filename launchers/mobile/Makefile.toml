@@ -8,7 +8,7 @@ skip_crate_env_info = true
 env_files = ["../../.env"]
 condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
 script.main = "gradle assembleDebug -p android --warning-mode all"
-script.post = "gradle installDebug -p android"
+script.post = "./debug_android.sh"
 
 [tasks.release-mobile]
 env_files = ["../../.env"]

@@ -5,12 +5,12 @@ use leafwing_input_manager::prelude::*;
 #[derive(Bundle)]
 pub struct PlayerBindings {
     /// actual bindings
-    input: InputManagerBundle<Combat>,
+    input: InputManagerBundle<Gameplay>,
 }
 
 impl Default for PlayerBindings {
     fn default() -> Self {
-        use Combat::Move;
+        use Gameplay::Move;
         let mut input_map = InputMap::default();
         input_map.set_gamepad(Gamepad { id: 0 });
 
@@ -34,33 +34,33 @@ impl Default for PlayerBindings {
         );
 
         // equip slot []
-        input_map.insert(KeyCode::Key1, Combat::EquipSlot1);
-        input_map.insert(KeyCode::Key2, Combat::EquipSlot2);
-        input_map.insert(KeyCode::Key3, Combat::EquipSlot3);
-        input_map.insert(KeyCode::Key4, Combat::EquipSlot4);
+        input_map.insert(KeyCode::Key1, Gameplay::EquipSlot1);
+        input_map.insert(KeyCode::Key2, Gameplay::EquipSlot2);
+        input_map.insert(KeyCode::Key3, Gameplay::EquipSlot3);
+        input_map.insert(KeyCode::Key4, Gameplay::EquipSlot4);
 
-        input_map.insert(KeyCode::Space, Combat::Shoot);
-        input_map.insert(MouseButton::Left, Combat::Shoot);
+        input_map.insert(KeyCode::Space, Gameplay::Shoot);
+        input_map.insert(MouseButton::Left, Gameplay::Shoot);
 
-        input_map.insert(KeyCode::F, Combat::Melee);
+        input_map.insert(KeyCode::F, Gameplay::Melee);
 
-        input_map.insert(KeyCode::ShiftLeft, Combat::Sprint);
-        input_map.insert(GamepadButtonType::West, Combat::Sprint);
+        input_map.insert(KeyCode::ShiftLeft, Gameplay::Sprint);
+        input_map.insert(GamepadButtonType::West, Gameplay::Sprint);
 
-        input_map.insert(KeyCode::Escape, Combat::Pause);
-        input_map.insert(GamepadButtonType::Start, Combat::Pause);
+        input_map.insert(KeyCode::Escape, Gameplay::Pause);
+        input_map.insert(GamepadButtonType::Start, Gameplay::Pause);
 
-        input_map.insert(KeyCode::Q, Combat::Heal);
-        input_map.insert(KeyCode::E, Combat::Interact);
+        input_map.insert(KeyCode::Q, Gameplay::Heal);
+        input_map.insert(KeyCode::E, Gameplay::Interact);
 
         //debug and misc
-        input_map.insert(KeyCode::F1, Combat::DebugF1);
-        input_map.insert(KeyCode::F2, Combat::DebugF2);
-        input_map.insert(KeyCode::NumpadAdd, Combat::ZoomIn);
-        input_map.insert(KeyCode::NumpadSubtract, Combat::ZoomOut);
+        input_map.insert(KeyCode::F1, Gameplay::DebugF1);
+        input_map.insert(KeyCode::F2, Gameplay::DebugF2);
+        input_map.insert(KeyCode::NumpadAdd, Gameplay::ZoomIn);
+        input_map.insert(KeyCode::NumpadSubtract, Gameplay::ZoomOut);
 
         Self {
-            input: InputManagerBundle::<Combat> {
+            input: InputManagerBundle::<Gameplay> {
                 input_map,
                 ..Default::default()
             },
@@ -70,7 +70,11 @@ impl Default for PlayerBindings {
 
 /// non menu actions
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
-pub enum Combat {
+pub enum Gameplay {
+    /// mouse position in  window coordinates.
+    LookLocal,
+    /// mouse position in world space
+    LookWorld,
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
     /// W/A/S/D for keyboard, LeftJoystick For mouse
     Move,

@@ -43,7 +43,7 @@ mod loading;
 mod utilities;
 
 
-pub use loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings};
+pub use loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings, DifficultyScales, GameDifficulty};
 
 // TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
 // add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
@@ -75,7 +75,6 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         loading::AssetLoadPlugin,
         console::QuakeConPlugin,
         game::GamePlugin,
-        utilities::UtilitiesPlugin,
     ));
 
     #[cfg(feature = "inspect")]

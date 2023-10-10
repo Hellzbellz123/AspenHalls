@@ -11,7 +11,7 @@ use self::{
     z_weapon_spawner::{spawn_small_pistol, spawn_small_smg},
 };
 use crate::{
-    loading::config::DifficultyScale,
+    loading::config::DifficultyScales,
     game::actors::spawners::components::{EnemyType, WeaponType},
     loading::assets::ActorTextureHandles,
 };
@@ -163,7 +163,7 @@ pub fn spawn_enemy_container(mut cmds: Commands) {
 /// spawner timer system, send `SpawnEvent` based on spawner type and timer
 pub fn spawner_timer_system(
     time: Res<Time>,
-    hard_settings: Res<DifficultyScale>,
+    hard_settings: Res<DifficultyScales>,
     mut event_writer: EventWriter<SpawnEnemyEvent>,
     mut spawner_query: Query<(&GlobalTransform, &Spawner, &mut SpawnerTimer), With<Spawner>>,
     all_enemies: Query<&Transform, With<Enemy>>,

@@ -1,12 +1,35 @@
-use bevy::prelude::bevy_main;
+use aspen_halls_game::{ConfigFile, GameDifficulty};
+use bevy::prelude::{bevy_main, Vec2};
 
 #[bevy_main]
 fn main() {
     let ctx = ndk_context::android_context();
     let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }.unwrap();
     let env = vm.attach_current_thread().unwrap();
+    let config = ConfigFile {
+        window_settings: aspen_halls_game::WindowSettings {
+            v_sync: true,
+            frame_rate_target: 120.0,
+            full_screen: true,
+            resolution: Vec2 {
+                x: 1920.0,
+                y: 1080.0,
+            },
+            window_scale_override: 1.75,
+        },
+        sound_settings: aspen_halls_game::SoundSettings {
+            master_volume: 1.0,
+            ambience_volume: 0.5,
+            music_volume: 0.5,
+            sound_volume: 0.5,
+        },
+        general_settings: aspen_halls_game::GeneralSettings {
+            camera_zoom: 4.0,
+            game_difficulty: GameDifficulty::Medium,
+        },
+    };
     println!("Starting launcher: Mobile");
-    aspen_halls_game::start_app(aspen_halls_game::ConfigFile::default()).run();
+    aspen_halls_game::start_app(config).run();
 }
 
 // TODO: use bevy_fluent for localization, keep below functions

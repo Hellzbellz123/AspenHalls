@@ -1,18 +1,15 @@
 #![allow(clippy::type_complexity)]
 
-use crate::{
-    game::{
-        actors::{
-            combat::components::{
-                BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots,
-                WeaponSocket, WeaponTag,
-            },
-            components::Player,
-            spawners::components::{EnemyType, SpawnEnemyEvent},
+use crate::game::{
+    actors::{
+        combat::components::{
+            BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
+            WeaponTag,
         },
-        input::actions,
+        components::Player,
+        spawners::components::{EnemyType, SpawnEnemyEvent},
     },
-    utilities::EagerMousePos,
+    input::actions,
 };
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::ActionState as lfActionState;
@@ -20,8 +17,7 @@ use leafwing_input_manager::prelude::ActionState as lfActionState;
 /// spawns skeleton near player if debug_f1 is pressed
 pub fn spawn_skeleton_button(
     mut spawn_event_writer: EventWriter<SpawnEnemyEvent>,
-    mouse: Res<EagerMousePos>,
-    query_action_state: Query<&lfActionState<actions::Combat>>,
+    query_action_state: Query<&lfActionState<actions::Gameplay>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
     if query_action_state.is_empty() {
@@ -29,12 +25,15 @@ pub fn spawn_skeleton_button(
     }
     let actions = query_action_state.get_single().expect("no entities?");
 
-    if actions.just_released(actions::Combat::DebugF1) {
+    if actions.just_released(actions::Gameplay::DebugF1) {
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
+        let mouse_world = actions
+            .action_data(actions::Gameplay::LookWorld)
+            .axis_pair
+            .expect("this should always have an axis pair, its data MAY be zero")
+            .xy();
         let player_transform = player_query.single().0.translation.truncate();
-        let direction: Vec2 = (player_transform - Vec2::new(mouse.world.x, mouse.world.y))
-            .abs()
-            .normalize_or_zero();
+        let direction: Vec2 = (player_transform - mouse_world).abs().normalize_or_zero();
 
         spawn_event_writer.send(SpawnEnemyEvent {
             enemy_to_spawn: EnemyType::Skeleton,
@@ -43,8 +42,6 @@ pub fn spawn_skeleton_button(
         });
     };
 }
-
-
 
 /// event too spawn bullets
 #[derive(Event, Debug)]
@@ -73,8 +70,7 @@ pub fn player_attack_sender(
     >,
 
     player_query: Query<(&mut Player, &mut Transform)>,
-    mut input_query: Query<&lfActionState<actions::Combat>>,
-    mouse_pos: Res<EagerMousePos>,
+    mut input_query: Query<&lfActionState<actions::Gameplay>>,
     mut shoot_event_writer: EventWriter<ShootEvent>,
 ) {
     if player_query.is_empty()
@@ -85,24 +81,27 @@ pub fn player_attack_sender(
         return;
     }
 
-    let (weapon_entity, _weapon_children, _weapon_parent, _is_weapon_active, _weapon_transform) = weapon_query.single();
+    let (weapon_entity, _weapon_children, _weapon_parent, _is_weapon_active, _weapon_transform) =
+        weapon_query.single();
 
     query_child_barrel_point.for_each(|(_ent, parent, barrel_trans)| {
         if parent.get() == weapon_entity {
+            let action_state = input_query.single_mut();
+            let cursor_world = action_state.action_data(actions::Gameplay::LookWorld).axis_pair.expect("msg").xy();
             let barrel_loc = barrel_trans.translation().truncate();
             let player_position = player_query.single().1.translation.truncate();
-            let mut direction: Vec2 = (mouse_pos.world - player_position).normalize_or_zero();
-            let action_state = input_query.single_mut();
+            let direction: Vec2 = (cursor_world - player_position).normalize_or_zero();
 
-            direction.y = -direction.y;
+            // direction.y = -direction.y;A
 
-            if action_state.pressed(actions::Combat::Shoot) {
+            if action_state.pressed(actions::Gameplay::Shoot) {
+                info!("bang");
                 shoot_event_writer.send(ShootEvent {
                     bullet_spawn_loc: barrel_loc,
                     travel_dir: direction,
                 });
             }
-            if action_state.pressed(actions::Combat::Melee) {
+            if action_state.pressed(actions::Gameplay::Melee) {
                 // TODO: setup melee system and weapons
                 info!("melee not implemented yet");
             }
@@ -118,7 +117,7 @@ pub fn equip_closest_weapon(
             Entity,
             &mut WeaponSocket,
             &mut Transform,
-            &lfActionState<actions::Combat>,
+            &lfActionState<actions::Gameplay>,
         ),
         With<Player>,
     >,
@@ -129,7 +128,8 @@ pub fn equip_closest_weapon(
         return;
     }
 
-    let (player_entity, mut weapon_socket_on_player, p_transform, actions) = player_query.single_mut();
+    let (player_entity, mut weapon_socket_on_player, p_transform, actions) =
+        player_query.single_mut();
 
     // screen_print!(
     //     "{:#?} \n selected slot: {:?}",
@@ -138,7 +138,7 @@ pub fn equip_closest_weapon(
     // );
 
     if !actions
-        .just_pressed(actions::Combat::Interact)
+        .just_pressed(actions::Gameplay::Interact)
         | // if interact isn't pressed BitXor weapon_socket_on_player.weapon_slots is "full" we can early exit the fn
         weapon_socket_on_player
             .weapon_slots
@@ -200,9 +200,9 @@ pub fn equip_closest_weapon(
                         debug!("this slot is full");
                     }
                 } else {
-                                        warn!("This slot doesn't exist?");
-                                        return;
-                                    }
+                    warn!("This slot doesn't exist?");
+                    return;
+                }
             }
         }
     }

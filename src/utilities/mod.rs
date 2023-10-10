@@ -1,82 +1,49 @@
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::{
+    ecs::system::NonSend,
+    prelude::{warn, Entity, Query, With, info, DespawnRecursiveExt},
+    window::Window,
+};
+use winit::window::Icon;
 use std::ops::Mul;
 
-use crate::loading::splashscreen::MainCameraTag;
-
-/// sets window icon and title
-pub mod window;
-
-/// holds general game utilities
-/// not particularly related to gameplay
-pub struct UtilitiesPlugin;
-
-impl Plugin for UtilitiesPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Update, (window::set_window_icon.run_if(run_once()), eager_cursor_pos))
-            .insert_resource(EagerMousePos {
-                world: Vec2::ZERO,
-                window: Vec2::ZERO,
-            });
-    }
-}
-
-/// mouse position eagerly updated for latency focused stuff. probably bad, will find out
-#[derive(Debug, Resource, Clone, Copy, PartialEq, Component)]
-pub struct EagerMousePos {
-    /// mouse pos in world space
-    pub world: Vec2,
-    /// mouse pos in window coords
-    pub window: Vec2,
-}
-/// updates `EagerMousePos` resource with current mouse position and mouse pos translated to world space. no change detection, always runs
-fn eager_cursor_pos(
-    mut fast_mouse_pos: ResMut<EagerMousePos>,
-    q_camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
-    main_window: Query<&Window, With<PrimaryWindow>>,
+/// # Panics
+/// will panic if it cant find a window to attach icons, or the icon is not present
+pub fn set_window_icon(
+    // we have to use `NonSend` here
+    window_query: Query<Entity, &Window>,
+    windows: NonSend<bevy::winit::WinitWindows>,
 ) {
-    if q_camera.is_empty() {
-        return;
-    }
-    // get the camera info and transform
-    // assuming there is exactly one main camera entity, so query::single() is OK
-    let (camera, camera_transform) = q_camera.single();
+    if let Ok(main_window) = window_query.get_single() {
+        let Some(winit_window) = windows.get_window(main_window) else {
+            warn!("NO WINDOW TOO SET ICON");
+            return;
+        };
 
-    // // Games typically only have one window (the primary window).
-    // // For multi-window applications, you need to use a specific window ID here.
-    let wnd = main_window.single();
+        // here we use the `image` crate to load our icon data from a png file
+        // this is not a very bevy-native solution, but it will do
+        let (icon_rgba, icon_width, icon_height) = {
+            let image = match image::open("assets/favicon.png") {
+                Ok(img) => img.into_rgba8(),
+                Err(e) => {
+                    warn!("couldnt load window icon: {}", e);
+                    return;
+                }
+            };
+            let (width, height) = image.dimensions();
+            let rgba = image.into_raw();
+            (rgba, width, height)
+        };
 
-    // check if the cursor is inside the window and get its position
-    if let Some(screen_pos) = wnd.cursor_position() {
-        // get the size of the window
-        let window_size = Vec2::new(wnd.width(), wnd.height());
+        let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height)
+            .expect("the icon is not the correct size");
 
-        // convert screen position [0..resolution] to ndc [-1..1] (gpu coordinates)
-        let ndc = (screen_pos / window_size) * 2.0 - Vec2::ONE;
-
-        // matrix for undoing the projection and camera transform
-        let ndc_to_world = camera_transform.compute_matrix() * camera.projection_matrix().inverse();
-
-        // use it to convert ndc to world-space coordinates
-        let world_pos = ndc_to_world.project_point3(ndc.extend(-1.0));
-
-        // reduce it to a 2D value
-        let world_pos: Vec2 = world_pos.truncate();
-
-        // world_pos.y = -world_pos.y;
-        // screen_pos.y = -screen_pos.y;
-
-        fast_mouse_pos.world = world_pos;
-        fast_mouse_pos.window = screen_pos;
-        // info!("eager mouse update {}", world_pos);
-    } else {
-        fast_mouse_pos.world = Vec2::ZERO;
-        fast_mouse_pos.window = Vec2::ZERO;
-        // info!("eager mouse not in window");
+        winit_window.set_window_icon(Some(icon));
     }
 }
+
 
 /// despawn any entity with T: Component
-pub fn despawn_with<T: Component>(to_despawn: Query<Entity, With<T>>, mut commands: Commands) {
+pub fn despawn_with<T: bevy::prelude::Component>(to_despawn: Query<Entity, With<T>>, mut commands: bevy::prelude::Commands) {
     to_despawn.for_each(|entity| {
         info!("despawning entity recursively: {:#?}", entity);
         commands.entity(entity).despawn_recursive();

@@ -21,8 +21,8 @@ apply from: "config.gradle"
 
 dependencies {
     implementation libraries.kotlinStdLib
-    implementation libraries.androidxAppcompat
-    implementation group: 'io.github.astonbitecode', name: 'j4rs', version: '0.13.1-java7'
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation group: 'io.github.astonbitecode', name: 'j4rs', version: '0.17.1'
 }
 
 android {

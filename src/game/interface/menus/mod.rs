@@ -38,7 +38,7 @@ pub fn setup(app: &mut App) {
 /// updates menu state based on game stage
 fn menu_key_control(
     game_state: Res<State<AppStage>>,
-    input: Query<&ActionState<actions::Combat>, With<Player>>,
+    input: Query<&ActionState<actions::Gameplay>, With<Player>>,
     mut ew: EventWriter<PausePlayEvent>,
 ) {
     if input.is_empty() {
@@ -46,7 +46,7 @@ fn menu_key_control(
     }
     let input = input.single();
 
-    if input.just_pressed(actions::Combat::Pause) {
+    if input.just_pressed(actions::Gameplay::Pause) {
         match game_state.get() {
             AppStage::StartMenu => ew.send(PausePlayEvent(EventType::Play)),
             AppStage::PauseMenu => ew.send(PausePlayEvent(EventType::Resume)),

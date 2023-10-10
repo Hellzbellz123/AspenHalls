@@ -20,7 +20,7 @@ use crate::{
         input::{actions, ActionsPlugin},
         interface::InterfacePlugin,
     },
-    loading::config::GeneralSettings,
+    loading::config::GeneralSettings, utilities,
 };
 
 use bevy::{app::App, prelude::*};
@@ -81,6 +81,7 @@ impl Plugin for GamePlugin {
                 GameWorldPlugin,
                 ActorPlugin,
             ))
+            .add_systems(Startup, utilities::set_window_icon)
             .add_systems(
                 Update,
                 (
@@ -106,20 +107,20 @@ pub fn setup_time_state(mut time_info: ResMut<TimeInfo>) {
 pub fn zoom_control(
     mut multiplier: Local<f32>,
     mut settings: ResMut<GeneralSettings>,
-    query_action_state: Query<&ActionState<actions::Combat>>,
+    query_action_state: Query<&ActionState<actions::Gameplay>>,
 ) {
     if query_action_state.is_empty() {
         return;
     }
     let actions = query_action_state.get_single().expect("no player?");
 
-    if actions.pressed(actions::Combat::Sprint) {
+    if actions.pressed(actions::Gameplay::Sprint) {
         *multiplier = 10.0;
     }
 
-    if actions.pressed(actions::Combat::ZoomIn) {
+    if actions.pressed(actions::Gameplay::ZoomIn) {
         settings.camera_zoom += 0.01 * *multiplier;
-    } else if actions.pressed(actions::Combat::ZoomOut) {
+    } else if actions.pressed(actions::Gameplay::ZoomOut) {
         settings.camera_zoom -= 0.01 * *multiplier;
     }
 }

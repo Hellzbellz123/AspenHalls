@@ -1,12 +1,14 @@
 package com.hellzbellz123.aspen_halls
 
 import android.app.NativeActivity
-import android.content.Intent
-import android.net.Uri
+//import android.content.Intent
+//import android.net.Uri
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.view.WindowManager
+import android.media.AudioManager
+import androidx.annotation.RequiresApi
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -22,6 +24,7 @@ class MainActivity : NativeActivity() {
         }
     }
 
+    @RequiresApi(VERSION_CODES.R)
     private fun hideSystemUI() {
         // This will put the game behind any cutouts and waterfalls on devices which have
         // them, so the corresponding insets will be non-zero.
@@ -42,6 +45,7 @@ class MainActivity : NativeActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
+    @RequiresApi(VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         // When true, the app will fit inside any system UI windows.
         // When false, we render behind any system UI windows.
@@ -53,9 +57,12 @@ class MainActivity : NativeActivity() {
         //     IME_ACTION_NONE, IME_FLAG_NO_FULLSCREEN );
         super.onCreate(savedInstanceState)
     }
-
+    
+    @RequiresApi(VERSION_CODES.R)
     override fun onResume() {
         super.onResume()
+
+        volumeControlStream = AudioManager.STREAM_SYSTEM
         hideSystemUI()
     }
 }

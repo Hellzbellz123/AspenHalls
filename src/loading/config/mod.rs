@@ -52,6 +52,8 @@ pub struct WindowSettings {
     pub full_screen: bool,
     /// display resolution
     pub resolution: Vec2,
+    /// window scale factor, only set upon start
+    pub window_scale_override: f64,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect)]
@@ -134,7 +136,7 @@ pub struct SoundSettings {
 #[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone)]
 #[reflect(Resource)]
 /// difficulty resource used globally for settings
-pub struct DifficultyScale {
+pub struct DifficultyScales {
     /// not a scale, just an amount
     pub max_enemies_per_room: i32,
     /// f32 used too scale
@@ -155,7 +157,7 @@ pub struct DifficultyScale {
     pub enemy_speed_scale: f32,
 }
 
-impl Default for DifficultyScale {
+impl Default for DifficultyScales {
     fn default() -> Self {
         Self {
             max_enemies_per_room: 20,
@@ -190,6 +192,7 @@ impl Default for WindowSettings {
                 x: 1200.0,
                 y: 720.0,
             },
+            window_scale_override: 1.0,
         }
     }
 }
@@ -210,7 +213,7 @@ impl Default for SoundSettings {
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = App::new();
 
-    let difficulty_settings = DifficultyScale::default();
+    let difficulty_settings = DifficultyScales::default();
 
     vanillacoffee.add_plugins({
         DefaultPlugins
@@ -226,7 +229,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                     resolution: WindowResolution::new(
                         cfg_file.window_settings.resolution.x,
                         cfg_file.window_settings.resolution.y,
-                    ),
+                    ).with_scale_factor_override(cfg_file.window_settings.window_scale_override),
                     mode: {
                         if cfg_file.window_settings.full_screen {
                             // if full screen is true, use borderless full screen
@@ -373,8 +376,8 @@ fn update_difficulty_settings(
 ) {
     if general_settings.is_changed() || levels.iter().len() >= 1 {
         let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1000);
-        let difficulty_settings: DifficultyScale = match general_settings.game_difficulty {
-            GameDifficulty::Easy => DifficultyScale {
+        let difficulty_settings: DifficultyScales = match general_settings.game_difficulty {
+            GameDifficulty::Easy => DifficultyScales {
                 max_enemies_per_room: 10 * level_amount,
                 player_health_scale: 1.25,
                 player_damage_scale: 1.25,
@@ -384,7 +387,7 @@ fn update_difficulty_settings(
                 enemy_speed_scale: 0.9,
                 player_speed_scale: 1.2,
             },
-            GameDifficulty::Medium => DifficultyScale {
+            GameDifficulty::Medium => DifficultyScales {
                 max_enemies_per_room: 20 * level_amount,
                 player_health_scale: 1.00,
                 player_damage_scale: 1.00,
@@ -394,7 +397,7 @@ fn update_difficulty_settings(
                 enemy_speed_scale: 1.0,
                 player_speed_scale: 1.0,
             },
-            GameDifficulty::Hard => DifficultyScale {
+            GameDifficulty::Hard => DifficultyScales {
                 max_enemies_per_room: 30 * level_amount,
                 player_health_scale: 1.0,
                 player_damage_scale: 1.0,
@@ -404,7 +407,7 @@ fn update_difficulty_settings(
                 enemy_speed_scale: 1.2,
                 player_speed_scale: 1.0,
             },
-            GameDifficulty::Insane => DifficultyScale {
+            GameDifficulty::Insane => DifficultyScales {
                 max_enemies_per_room: 35 * level_amount,
                 player_health_scale: 1.25,
                 player_damage_scale: 1.25,
@@ -414,7 +417,7 @@ fn update_difficulty_settings(
                 enemy_speed_scale: 1.5,
                 player_speed_scale: 1.0,
             },
-            GameDifficulty::MegaDeath => DifficultyScale {
+            GameDifficulty::MegaDeath => DifficultyScales {
                 max_enemies_per_room: 50 * level_amount,
                 player_health_scale: 1.25,
                 player_damage_scale: 1.25,
