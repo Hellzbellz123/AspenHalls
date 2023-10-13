@@ -18,7 +18,7 @@ pub mod debug_plugin {
     use bevy_inspector_egui::quick::{
         ResourceInspectorPlugin, StateInspectorPlugin, WorldInspectorPlugin,
     };
-    use bevy_mod_debugdump::{render_graph, schedule_graph, schedule_graph_dot, render_graph_dot};
+    use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
     use bevy_prototype_lyon::{
         prelude::{
             // DrawMode,
@@ -199,12 +199,12 @@ pub mod debug_plugin {
         let schedule_theme = schedule_graph::settings::Style::dark_github();
         let render_theme = render_graph::settings::Style::dark_github();
 
-        let schedule_graph_settings = schedule_graph::Settings {
+        let settings = schedule_graph::Settings {
             ambiguity_enable: false,
             ambiguity_enable_on_world: false,
             style: schedule_theme,
             collapse_single_system_sets: true,
-            prettify_system_names: false,
+            prettify_system_names: true,
             ..Default::default()
         };
 
@@ -212,24 +212,56 @@ pub mod debug_plugin {
             style: render_theme,
         };
 
-        let update_schedule_graph =
-            schedule_graph_dot(app, Update, &schedule_graph_settings);
-
-        // let startup_schedule_graph =
-        //     bevy_mod_debugdump::schedule_graph_dot(app, Main, &schedule_graph_settings);
+        let pre_startup_graph = schedule_graph_dot(app, PreStartup, &settings);
+        let main_startup_graph = schedule_graph_dot(app, Startup, &settings);
+        let post_startup_graph = schedule_graph_dot(app, PostStartup, &settings);
+        let first_schedule = schedule_graph_dot(app, First, &settings);
+        let pre_update_schedule = schedule_graph_dot(app, PreUpdate, &settings);
+        let main_update_schedule = schedule_graph_dot(app, Update, &settings);
+        let post_update_schedule = schedule_graph_dot(app, PostUpdate, &settings);
+        let last_schedule = schedule_graph_dot(app, Last, &settings);
 
         let render_graph = render_graph_dot(app, &render_graph_settings);
 
-        match fs::write("zmainschedulegraph.dot", update_schedule_graph) {
-            Ok(_) => {},
+        match fs::write(".schedule/0-pre_startup_schedule.dot", pre_startup_graph) {
+            Ok(_) => {}
             Err(e) => warn!("{}", e),
         }
-            // .expect("couldn't write render schedule to file");
-        match fs::write("zrendergraph.dot", render_graph) {
-            Ok(_) => {},
+        match fs::write(".schedule/1-main_startup_schedule.dot", main_startup_graph) {
+            Ok(_) => {}
             Err(e) => warn!("{}", e),
         }
-            // .expect("couldn't write render schedule to file");
+        match fs::write(".schedule/2-post_startup_graph.dot", post_startup_graph) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
+        match fs::write(".schedule/3-first_schedule.dot", first_schedule) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
+        match fs::write(".schedule/4-pre_update_schedule.dot", pre_update_schedule) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
+        match fs::write(".schedule/5-main_update_schedule.dot", main_update_schedule) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
+        match fs::write(".schedule/6-post_update_schedule.dot", post_update_schedule) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
+        match fs::write(".schedule/7-last_schedule.dot", last_schedule) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
+
+
+
+        match fs::write(".schedule/zrendergraph.dot", render_graph) {
+            Ok(_) => {}
+            Err(e) => warn!("{}", e),
+        }
     }
 
     // /// takes all actors and sums z then divided by actor count

@@ -10,7 +10,10 @@ use leafwing_input_manager::{
 };
 use virtual_joystick::*;
 
-use super::actions::{self, Gameplay};
+use super::{
+    actions::{self, Gameplay},
+    InternalInputSet,
+};
 use crate::{
     game::{actors::components::Player, AppStage},
     loading::{assets::FontHandles, splashscreen::MainCameraTag},
@@ -27,15 +30,11 @@ impl Plugin for TouchInputPlugin {
         app.add_systems(
             PreUpdate,
             (update_joysticks, interaction_button_system)
+                .in_set(InternalInputSet::TouchInput)
                 .run_if(
                     leafwing_input_manager::systems::run_if_enabled::<actions::Gameplay>
                         .and_then(any_with_component::<ActionStateDriver<actions::Gameplay>>()),
-                )
-                .in_set(InputManagerSystem::ManualControl)
-                .before(InputManagerSystem::ReleaseOnDisable)
-                .after(InputManagerSystem::Tick)
-                .after(InputManagerSystem::Update)
-                .after(InputSystem),
+                ),
         );
         app.add_systems(
             Update,
@@ -190,11 +189,11 @@ fn spawn_touch_joysticks(mut cmds: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn update_joysticks(
-    window: Query<&Window, (With<PrimaryWindow>,)>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
     mut joystick: EventReader<VirtualJoystickEvent<TouchJoyType>>,
     mut joystick_color: Query<(&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>,
     mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>,
+    window: Query<&Window, (With<PrimaryWindow>,)>,
+    camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
 ) {
     for j in joystick.iter() {
         let Vec2 { x, y } = j.axis();
@@ -250,9 +249,9 @@ fn update_joysticks(
                         Vec2::ZERO
                     });
 
-                    if x.abs() >= 0.6 || y.abs() >= 0.6 {
-                        player_input.press(actions::Gameplay::Shoot)
-                    }
+                if x.abs() >= 0.3 || y.abs() >= 0.3 {
+                    player_input.press(actions::Gameplay::Shoot)
+                }
 
                 player_input.set_action_data(
                     Gameplay::LookLocal,
@@ -300,7 +299,7 @@ fn update_joysticks(
                                 previous_duration: Duration::from_secs(0),
                             },
                         },
-                    )
+                    );
                 }
 
                 player_input.set_action_data(
@@ -365,8 +364,8 @@ fn interaction_button_system(
             Interaction::Pressed => {
                 let mut input = player_input.single_mut();
                 input.press(actions::Gameplay::Interact);
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 }

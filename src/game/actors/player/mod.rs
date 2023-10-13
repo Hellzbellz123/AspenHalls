@@ -28,7 +28,7 @@ use self::{
     actions::{player_attack_sender, ShootEvent},
 };
 
-use super::{combat::components::WeaponSocket, components::Player};
+use super::{combat::components::WeaponSocket, components::Player, ActorSystemsSet};
 
 /// new type for animations
 #[derive(Component, Deref, DerefMut)]

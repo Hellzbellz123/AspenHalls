@@ -297,14 +297,14 @@ fn apply_window_settings(
     mut mut_window_entity: Query<(Entity, &mut Window)>,
 ) {
     if window_settings.is_changed() || window_settings.is_added() {
-        let requested_limiter = Limiter::from_framerate(window_settings.frame_rate_target);
-
+        
         let (_w_ent, mut b_window) = mut_window_entity.single_mut();
         // let w_window = winit.get_window(w_ent).unwrap();
 
-        if frame_limiter_cfg.limiter != requested_limiter {
-            frame_limiter_cfg.limiter = requested_limiter;
-        }
+        // let requested_limiter = Limiter::from_framerate(window_settings.frame_rate_target);
+        // if frame_limiter_cfg.limiter != requested_limiter {
+        //     frame_limiter_cfg.limiter = requested_limiter;
+        // }
 
         if window_settings.full_screen && b_window.mode != WindowMode::BorderlessFullscreen {
             b_window.mode = WindowMode::BorderlessFullscreen;

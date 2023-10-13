@@ -59,6 +59,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
     // add third party plugins
     vanillacoffee
         .add_plugins((
+            bevy_egui::EguiPlugin,
             bevy_ecs_ldtk::LdtkPlugin,
             belly::prelude::BellyPlugin,
             bevy_framepace::FramepacePlugin,
@@ -71,7 +72,8 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         });
 
     // add vanillacoffee stuff
-    vanillacoffee.add_state::<game::AppStage>().add_plugins((
+    vanillacoffee.add_state::<game::AppStage>();
+    vanillacoffee.add_plugins((
         loading::AssetLoadPlugin,
         console::QuakeConPlugin,
         game::GamePlugin,

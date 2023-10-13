@@ -10,7 +10,6 @@ pub struct PlayerBindings {
 
 impl Default for PlayerBindings {
     fn default() -> Self {
-        use Gameplay::Move;
         let mut input_map = InputMap::default();
         input_map.set_gamepad(Gamepad { id: 0 });
 
@@ -22,15 +21,15 @@ impl Default for PlayerBindings {
                 left: QwertyScanCode::A.into(),
                 right: QwertyScanCode::D.into(),
             },
-            Move,
+            Gameplay::Move,
         );
         input_map.insert(
             DualAxis::symmetric(
                 GamepadAxisType::LeftStickX,
                 GamepadAxisType::LeftStickY,
-                DeadZoneShape::Ellipse { radius_x: 0.0, radius_y: 0.0 },
+                DeadZoneShape::Ellipse { radius_x: 0.001, radius_y: 0.001 },
             ),
-            Move,
+            Gameplay::Move,
         );
 
         // equip slot []

@@ -28,7 +28,7 @@ impl Plugin for InterfacePlugin {
         app.add_event::<MenuPopupEvent>()
             .add_state::<RequestedMenu>();
 
-        app.add_systems(Startup, InterfaceRoot::create)
+        app.add_systems(Startup, InterfaceRoot::create_interface_root)
             .add_systems(OnEnter(AppStage::PlayingGame), InterfaceRoot::hide_all)
             .add_systems(
                 Update,
@@ -69,7 +69,7 @@ pub struct InterfaceRoot(pub Entity);
 
 impl InterfaceRoot {
     /// Load the global style-sheet and create the menu root node
-    fn create(mut commands: Commands) {
+    fn create_interface_root(mut commands: Commands) {
         commands.add(StyleSheet::load("interface/style/global.ess"));
         commands.add(StyleSheet::load("interface/style/menu.ess"));
 

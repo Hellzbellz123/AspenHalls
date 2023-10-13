@@ -1,15 +1,13 @@
-use bevy::{input::InputSystem, prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 use leafwing_input_manager::{
-    action_state::ActionStateDriverTarget,
     axislike::DualAxisData,
-    plugin::InputManagerSystem,
     prelude::{ActionState, ActionStateDriver},
     systems::run_if_enabled,
 };
 
 use crate::{game::actors::components::Player, loading::splashscreen::MainCameraTag};
 
-use super::actions::{self};
+use super::{actions::{self}, InternalInputSet};
 
 /// holds general game utilities
 /// not particularly related to gameplay
@@ -28,11 +26,7 @@ impl Plugin for KBMPlugin {
                     run_if_enabled::<actions::Gameplay>
                         .and_then(any_with_component::<ActionStateDriver<actions::Gameplay>>()),
                 )
-                .in_set(InputManagerSystem::ManualControl)
-                .before(InputManagerSystem::ReleaseOnDisable)
-                .after(InputManagerSystem::Tick)
-                .after(InputManagerSystem::Update)
-                .after(InputSystem),
+                .in_set(InternalInputSet::KBMInput),
         );
     }
 }

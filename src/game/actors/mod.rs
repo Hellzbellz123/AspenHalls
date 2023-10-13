@@ -1,4 +1,4 @@
-use bevy::prelude::{App, Plugin};
+use bevy::prelude::{App, Plugin, SystemSet, Update, IntoSystemSetConfig};
 
 /// all functionality for artificial intelligence on actors is stored here
 pub mod ai;
@@ -14,6 +14,11 @@ pub mod enemies;
 pub mod player;
 /// holds spawner info
 pub mod spawners;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, SystemSet)]
+pub enum ActorSystemsSet {
+    UseVelocity,
+}
 
 /// all Characters in the game, along with spawners for spawn able characters
 // TODO: make actors "configurable". load actor types from $PACK/definitions/$ACTORTYPE/ and add them too a database.
