@@ -11,16 +11,14 @@ pub mod interface;
 
 use crate::{
     game::{
-        actors::{
-            components::TimeToLive,
-            ActorPlugin,
-        },
+        actors::{components::TimeToLive, ActorPlugin},
         audio::InternalAudioPlugin,
         game_world::GameWorldPlugin,
         input::{actions, ActionsPlugin},
         interface::InterfacePlugin,
     },
-    loading::config::GeneralSettings, utilities,
+    loading::config::GeneralSettings,
+    utilities,
 };
 
 use bevy::{app::App, prelude::*};
@@ -69,28 +67,27 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TimeInfo {
-                time_step: 1.0,
-                game_paused: false,
-                pause_menu: false,
-            })
-            //game stuff after initial Game State setup
-            .add_plugins((
-                InterfacePlugin,
-                ActionsPlugin,
-                InternalAudioPlugin,
-                GameWorldPlugin,
-                ActorPlugin,
-            ))
-            .add_systems(Startup, utilities::set_window_icon)
-            .add_systems(
-                Update,
-                (
-                    setup_time_state.run_if(
-                        state_exists_and_equals(AppStage::PlayingGame).and_then(run_once()),
-                    ),
-                    (time_to_live, zoom_control).run_if(in_state(AppStage::PlayingGame)),
-                ),
-            );
+            time_step: 1.0,
+            game_paused: false,
+            pause_menu: false,
+        })
+        //game stuff after initial Game State setup
+        .add_plugins((
+            InterfacePlugin,
+            ActionsPlugin,
+            InternalAudioPlugin,
+            GameWorldPlugin,
+            ActorPlugin,
+        ))
+        .add_systems(Startup, utilities::set_window_icon)
+        .add_systems(
+            Update,
+            (
+                setup_time_state
+                    .run_if(state_exists_and_equals(AppStage::PlayingGame).and_then(run_once())),
+                (time_to_live, zoom_control).run_if(in_state(AppStage::PlayingGame)),
+            ),
+        );
     }
 }
 

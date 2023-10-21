@@ -118,7 +118,13 @@ fn process_tile_enum_tags(
             commands.entity(entity).remove::<TileEnumTags>();
         }
         for tag in tags {
-            check_tag_colliders(&tag, &mut commands, entity, &mut tile_enum_tag, ninety_degrees);
+            check_tag_colliders(
+                &tag,
+                &mut commands,
+                entity,
+                &mut tile_enum_tag,
+                ninety_degrees,
+            );
         }
     }
 }

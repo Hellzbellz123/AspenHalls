@@ -13,8 +13,8 @@ use crate::{
     },
     game::actors::{
         ai::components::{
-            AIAttackState, AICanAggro, AICanShoot, AICanWander, AIChaseAction, AIWanderAction,
-            ActorType, AggroScore, Enemy, Faction,
+            AIShootAction, AIChaseAction, AIChaseConfig, AIShootConfig, AIWanderAction,
+            AIWanderConfig, Type, ActorType, AttackScore, ChaseScore, Enemy,
         },
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::EnemyColliderTag,
@@ -22,14 +22,14 @@ use crate::{
     loading::assets::ActorTextureHandles,
 };
 
-use super::components::SpawnEnemyEvent;
+use super::components::SpawnActorEvent;
 
 /// spawn skeleton fn, called from event handler
 pub fn spawn_skeleton(
     enemy_container: Entity,
     commands: &mut Commands,
     enemy_assets: &ActorTextureHandles,
-    event: &SpawnEnemyEvent,
+    event: &SpawnActorEvent,
 ) {
     commands
     .get_entity(enemy_container)
@@ -37,27 +37,27 @@ pub fn spawn_skeleton(
         .with_children(|parent| {
             parent
             .spawn((
-                Enemy,
+                Enemy {can_see_player: false},
                 StupidAiBundle {
-                    can_aggro: AICanAggro { aggro_distance: 200.0 },
-                    can_meander: AICanWander { wander_target: None, spawn_position: Some(event.spawn_position) },
-                    ai_attack_timer: AIAttackState {
+                    aggro_config: AIChaseConfig { aggro_distance: 250.0, chase_distance: 500.0 },
+                    wander_config: AIWanderConfig { wander_target: None, spawn_position: Some(event.spawn_position), wander_distance: 500.0 },
+                    shoot_config: AIShootConfig { find_target_range: 200.0,
                         timer: Timer::new(Duration::from_secs_f32(0.5), TimerMode::Once),
                         should_shoot: false,
-                        is_near: false,
+                        can_shoot: false,
                     },
                     thinker: Thinker::build()
                         .picker(big_brain::pickers::Highest)
-                        .when(AggroScore, AIChaseAction)
+                        .when(ChaseScore, AIChaseAction)
+                        .when(AttackScore, AIShootAction)
                         .otherwise(AIWanderAction),
-                    can_shoot: AICanShoot { shoot_range: 500.0},
                 },
                 ActorBundle {
                     name: Name::new("Skeleton"),
-                    actor_type: ActorType(Faction::Enemy),
+                    actor_type: ActorType(Type::Enemy),
                     stats: ActorAttributesBundle::default(),
                     animation_state: AnimState {
-                        facing: ActorAnimationType::Idle,
+                        animation_type: ActorAnimationType::Idle,
                         timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                         animation_frames: vec![0, 1, 2, 3, 4],
                         active_frame: 0,
@@ -125,7 +125,7 @@ pub fn spawn_slime(
     enemy_container: Entity,
     commands: &mut Commands,
     enemy_assets: &ActorTextureHandles,
-    event: &SpawnEnemyEvent,
+    event: &SpawnActorEvent,
 ) {
     commands
             .get_entity(enemy_container)
@@ -133,27 +133,28 @@ pub fn spawn_slime(
             .with_children(|parent| {
                 parent
                         .spawn((
-                            Enemy,
+                            Enemy {can_see_player: false},
                             StupidAiBundle {
-                                    can_aggro: AICanAggro { aggro_distance: 200.0 },
-                                    can_meander: AICanWander { wander_target: None, spawn_position: Some(event.spawn_position) },
-                                    can_shoot: AICanShoot { shoot_range: 500.0  },
-                                    ai_attack_timer: AIAttackState {
-                                        should_shoot: false,
-                                        is_near: false,
-                                        timer: Timer::new(Duration::from_secs_f32(1.0), TimerMode::Once),
-                                    },
-                                    thinker: Thinker::build()
-                                        .picker(big_brain::pickers::Highest)
-                                        .when(AggroScore, AIChaseAction)
-                                        .otherwise(AIWanderAction),
+                                aggro_config: AIChaseConfig { aggro_distance: 150.0, chase_distance: 300.0 },
+                                wander_config: AIWanderConfig { wander_target: None, spawn_position: Some(event.spawn_position), wander_distance: 300.0 },
+                                shoot_config: AIShootConfig {
+                                    find_target_range: 100.0,
+                                    timer: Timer::new(Duration::from_secs_f32(0.5), TimerMode::Once),
+                                    should_shoot: false,
+                                    can_shoot: false,
                                 },
+                                thinker: Thinker::build()
+                                    .picker(big_brain::pickers::Highest)
+                                    .when(ChaseScore, AIChaseAction)
+                                    .when(AttackScore, AIShootAction)
+                                    .otherwise(AIWanderAction),
+                            },
                             ActorBundle {
                                 name: Name::new("Slime"),
-                                actor_type: ActorType(Faction::Enemy),
+                                actor_type: ActorType(Type::Enemy),
                                 stats: ActorAttributesBundle::default(),
                                     animation_state: AnimState {
-                                        facing: ActorAnimationType::Idle,
+                                        animation_type: ActorAnimationType::Idle,
                                         timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                                         animation_frames: vec![0, 1, 2, 3, 4],
                                         active_frame: 0,

@@ -17,9 +17,9 @@ use crate::{
     consts::TILE_SIZE,
     game::{
         actors::{
-            ai::components::Enemy,
+            ai::components::{Type, ActorType, Enemy},
             combat::components::WeaponTag,
-            spawners::components::{SpawnWeaponEvent, WeaponType},
+            spawners::components::{SpawnActorEvent, WeaponType},
         },
         input::actions,
     },
@@ -165,7 +165,8 @@ pub struct DungeonGeneratorSettings {
 
 /// spawn weapons at start location
 fn spawn_weapons_start_location(
-    mut ew: EventWriter<SpawnWeaponEvent>,
+    mut cmds: Commands,
+    mut ew: EventWriter<SpawnActorEvent>,
     start_location: Query<&GlobalTransform, With<PlayerStartLocation>>,
 ) {
     if start_location.is_empty() {
@@ -180,18 +181,25 @@ fn spawn_weapons_start_location(
         count += 1;
     }
 
+    let weapon1 = cmds.spawn_empty().id();
+    let weapon2 = cmds.spawn_empty().id();
+
     if count >= start_location.iter().len() {
         let spawn_pos = sum / count as f32;
         let tile_width: Vec2 = Vec2 { x: 36.0, y: 0.0 };
 
-        ew.send(SpawnWeaponEvent {
-            weapon_to_spawn: WeaponType::SmallSMG,
+        ew.send(SpawnActorEvent {
+            spawner: None,
+            actor_type: ActorType(Type::Item),
+            what_to_spawn: "SmallSmg".to_string(),
             spawn_position: spawn_pos + (tile_width * 2.0),
             spawn_count: 1,
         });
 
-        ew.send(SpawnWeaponEvent {
-            weapon_to_spawn: WeaponType::SmallPistol,
+        ew.send(SpawnActorEvent {
+            spawner: None,
+            actor_type: ActorType(Type::Item),
+            what_to_spawn: "SmallPistol".to_string(),
             spawn_position: spawn_pos - (tile_width * 2.0),
             spawn_count: 1,
         });
@@ -398,7 +406,6 @@ fn spawn_navigation_grid(
         ..Default::default()
     });
 
-
     match std::fs::File::create("tiles.png") {
         Ok(_file) => {
             let img = draw_tiles(map_size.into(), &global_tile_positions);
@@ -406,10 +413,10 @@ fn spawn_navigation_grid(
                 Ok(_) => info!("successfully wrote dungeon image"),
                 Err(e) => warn!("error saving tiles.png {}", e),
             }
-        },
+        }
         Err(e) => {
             warn!("failed too save tile image {}", e)
-        },
+        }
     }
 
     // let navability = |pos: UVec2| tilemap[(pos.y * map_size.x + pos.x) as usize];
@@ -465,10 +472,7 @@ fn test_navigation_mesh(nav_mesh: Query<(&Navmeshes, &NavMeshTest)>) {
 
 /// draws Vec of tiles too image
 #[allow(dead_code)]
-fn draw_tilemap(
-    tilemap: &[Navability],
-    map_size: TilemapSize,
-) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+fn draw_tilemap(tilemap: &[Navability], map_size: TilemapSize) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let width = map_size.x * 2;
     let height = map_size.y * 2;
 

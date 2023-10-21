@@ -2,8 +2,8 @@ use bevy::prelude::{info, Vec2};
 use std::path::Path;
 
 use crate::{
-    loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings},
     consts,
+    loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings},
 };
 
 /// returns a default `ConfigFile`

@@ -7,7 +7,10 @@ use leafwing_input_manager::{
 
 use crate::{game::actors::components::Player, loading::splashscreen::MainCameraTag};
 
-use super::{actions::{self}, InternalInputSet};
+use super::{
+    actions::{self},
+    InternalInputSet,
+};
 
 /// holds general game utilities
 /// not particularly related to gameplay
@@ -62,7 +65,6 @@ fn update_cursor_state_from_window(
         let (camera, camera_global_transform) = camera.single();
 
         if let Some(cursor_local_pos) = window.cursor_position() {
-
             let cursor_world_pos = camera
                 .viewport_to_world_2d(camera_global_transform, cursor_local_pos)
                 .unwrap_or_else(|| {
@@ -70,9 +72,9 @@ fn update_cursor_state_from_window(
                     Vec2::ZERO
                 });
 
-                action_state
-            .action_data_mut(actions::Gameplay::LookLocal)
-            .axis_pair = Some(DualAxisData::from_xy(cursor_local_pos));
+            action_state
+                .action_data_mut(actions::Gameplay::LookLocal)
+                .axis_pair = Some(DualAxisData::from_xy(cursor_local_pos));
 
             action_state
                 .action_data_mut(actions::Gameplay::LookWorld)
@@ -90,7 +92,9 @@ fn update_cursor_state_from_window(
             // TODO: how does this interact with touch control
             // set point too window center
             let window_size = Vec2::from_array([window.width(), window.height()]);
-            let window_center_world = camera.viewport_to_world_2d(camera_global_transform, window_size / 2.0).unwrap_or(Vec2::ZERO);
+            let window_center_world = camera
+                .viewport_to_world_2d(camera_global_transform, window_size / 2.0)
+                .unwrap_or(Vec2::ZERO);
             action_state
                 .action_data_mut(actions::Gameplay::LookLocal)
                 .axis_pair = Some(DualAxisData::from_xy(window_size / 2.0));

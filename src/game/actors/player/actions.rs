@@ -1,22 +1,26 @@
 #![allow(clippy::type_complexity)]
 
-use crate::game::{
-    actors::{
-        combat::components::{
-            BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots, WeaponSocket,
-            WeaponTag,
+use crate::{
+    consts::TILE_SIZE,
+    game::{
+        actors::{
+            ai::components::{Type, ActorType},
+            combat::components::{
+                BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots,
+                WeaponSocket, WeaponTag,
+            },
+            components::Player,
+            spawners::components::SpawnActorEvent,
         },
-        components::Player,
-        spawners::components::{EnemyType, SpawnEnemyEvent},
+        input::actions,
     },
-    input::actions,
 };
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::ActionState as lfActionState;
 
 /// spawns skeleton near player if debug_f1 is pressed
-pub fn spawn_skeleton_button(
-    mut spawn_event_writer: EventWriter<SpawnEnemyEvent>,
+pub fn spawn_custom_on_button(
+    mut spawn_event_writer: EventWriter<SpawnActorEvent>,
     query_action_state: Query<&lfActionState<actions::Gameplay>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
@@ -33,11 +37,13 @@ pub fn spawn_skeleton_button(
             .expect("this should always have an axis pair, its data MAY be zero")
             .xy();
         let player_transform = player_query.single().0.translation.truncate();
-        let direction: Vec2 = (player_transform - mouse_world).abs().normalize_or_zero();
+        let direction_offset: Vec2 = (player_transform - mouse_world).abs().normalize() * TILE_SIZE;
 
-        spawn_event_writer.send(SpawnEnemyEvent {
-            enemy_to_spawn: EnemyType::Skeleton,
-            spawn_position: (player_transform + (direction)),
+        spawn_event_writer.send(SpawnActorEvent {
+            spawner: None,
+            actor_type: ActorType(Type::Enemy),
+            what_to_spawn: "Skeleton".to_string(),
+            spawn_position: (player_transform + (direction_offset)),
             spawn_count: 1,
         });
     };
@@ -87,12 +93,14 @@ pub fn player_attack_sender(
     query_child_barrel_point.for_each(|(_ent, parent, barrel_trans)| {
         if parent.get() == weapon_entity {
             let action_state = input_query.single_mut();
-            let cursor_world = action_state.action_data(actions::Gameplay::LookWorld).axis_pair.expect("msg").xy();
+            let cursor_world = action_state
+                .action_data(actions::Gameplay::LookWorld)
+                .axis_pair
+                .expect("no axis pair on Gameplay::LookWorld")
+                .xy();
             let barrel_loc = barrel_trans.translation().truncate();
             let player_position = player_query.single().1.translation.truncate();
             let direction: Vec2 = (cursor_world - player_position).normalize_or_zero();
-
-            // direction.y = -direction.y;A
 
             if action_state.pressed(actions::Gameplay::Shoot) {
                 info!("bang");

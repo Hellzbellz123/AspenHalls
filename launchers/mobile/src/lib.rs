@@ -24,7 +24,7 @@ fn main() {
             sound_volume: 0.5,
         },
         general_settings: aspen_halls_game::GeneralSettings {
-            camera_zoom: 4.0,
+            camera_zoom: 3.5,
             game_difficulty: GameDifficulty::Medium,
         },
     };

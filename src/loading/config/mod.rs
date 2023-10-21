@@ -1,14 +1,13 @@
 pub mod save_load;
 
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-
 use bevy::{
     diagnostic::DiagnosticsPlugin,
     ecs::reflect::ReflectResource,
     log::LogPlugin,
     prelude::{
         default, info, App, AssetPlugin, Camera2d, ClearColor, Color, Commands, Component,
-        DefaultPlugins, DetectChanges, Entity, EventReader, Handle, ImagePlugin,
+        DefaultPlugins, DetectChanges, Entity, EventReader, Handle, ImagePlugin, Msaa,
         OrthographicProjection, Parent, Plugin, PluginGroup, Query, Res, ResMut, Resource, Update,
         Vec2, Window, WindowPlugin, WindowPosition, With,
     },
@@ -69,6 +68,7 @@ pub enum GameDifficulty {
     Insane,
     /// lots of enemy's/rooms, like a lot. 3x enemy hp/damage
     MegaDeath,
+    Debug,
 }
 
 /// Settings like zoom and difficulty
@@ -139,7 +139,7 @@ pub struct SoundSettings {
 pub struct DifficultyScales {
     /// not a scale, just an amount
     pub max_enemies_per_room: i32,
-    /// f32 used too scale
+    /// i32 used too scale
     pub max_dungeon_amount: i32,
 
     /// f32 used too scale
@@ -213,52 +213,66 @@ impl Default for SoundSettings {
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = App::new();
 
-    let difficulty_settings = DifficultyScales::default();
+    vanillacoffee.add_plugins(bevy_mod_logfu::LogPlugin {
+        // filters for anything that makes it through the default log level. quiet big loggers
+        // filter: "".into(), // an empty filter
+        filter:
+        "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error"
+        .into(),
+        level: bevy::log::Level::TRACE,
+        log_too_file: true,
+    });
+    info!("Logging Plugin Initialized");
 
-    vanillacoffee.add_plugins({
-        DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    present_mode: if cfg_file.window_settings.v_sync {
-                        PresentMode::AutoVsync
-                    } else {
-                        PresentMode::AutoNoVsync
-                    },
-                    position: WindowPosition::Automatic,
-                    title: "Aspen Halls".to_string(),
-                    resolution: WindowResolution::new(
-                        cfg_file.window_settings.resolution.x,
-                        cfg_file.window_settings.resolution.y,
-                    ).with_scale_factor_override(cfg_file.window_settings.window_scale_override),
-                    mode: {
-                        if cfg_file.window_settings.full_screen {
-                            // if full screen is true, use borderless full screen
-                            // cursor mode is confined to the window so it cant
-                            // leave without alt tab
-                            WindowMode::BorderlessFullscreen
+    let difficulty_settings = convert_settings_too_scales(&cfg_file.general_settings, None);
+
+    vanillacoffee
+        .add_plugins({
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        present_mode: if cfg_file.window_settings.v_sync {
+                            PresentMode::AutoVsync
                         } else {
-                            WindowMode::Windowed
-                        }
-                    },
-                    window_level: bevy::window::WindowLevel::Normal,
-                    fit_canvas_to_parent: true,
+                            PresentMode::AutoNoVsync
+                        },
+                        position: WindowPosition::Automatic,
+                        title: "Aspen Halls".to_string(),
+                        resolution: WindowResolution::new(
+                            cfg_file.window_settings.resolution.x,
+                            cfg_file.window_settings.resolution.y,
+                        )
+                        .with_scale_factor_override(cfg_file.window_settings.window_scale_override),
+                        mode: {
+                            if cfg_file.window_settings.full_screen {
+                                // if full screen is true, use borderless full screen
+                                // cursor mode is confined to the window so it cant
+                                // leave without alt tab
+                                WindowMode::BorderlessFullscreen
+                            } else {
+                                WindowMode::Windowed
+                            }
+                        },
+                        window_level: bevy::window::WindowLevel::Normal,
+                        fit_canvas_to_parent: true,
+                        ..default()
+                    }),
                     ..default()
-                }),
-                ..default()
-            })
-            .set(ImagePlugin::default_nearest())
-            .disable::<LogPlugin>()
-    })
-    .insert_resource(ClearColor(Color::Hsla {
-        hue: 294.0,
-        saturation: 0.71,
-        lightness: 0.08,
-        alpha: 1.0,
-    }))
-    .insert_resource(cfg_file.window_settings)
-    .insert_resource(cfg_file.sound_settings)
-    .insert_resource(cfg_file.general_settings)
-    .insert_resource(difficulty_settings);
+                })
+                .set(ImagePlugin::default_nearest())
+                .disable::<LogPlugin>()
+        })
+        .insert_resource(Msaa::Off)
+        .insert_resource(ClearColor(Color::Hsla {
+            hue: 294.0,
+            saturation: 0.71,
+            lightness: 0.08,
+            alpha: 1.0,
+        }))
+        .insert_resource(cfg_file.window_settings)
+        .insert_resource(cfg_file.sound_settings)
+        .insert_resource(cfg_file.general_settings)
+        .insert_resource(difficulty_settings);
 
     vanillacoffee.add_systems(
         Update,
@@ -271,17 +285,6 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
         ),
     );
 
-    println!("Logging without tracing requested");
-    vanillacoffee.add_plugins(bevy_mod_logfu::LogPlugin {
-            // filters for anything that makes it through the default log level. quiet big loggers
-            // filter: "".into(), // an empty filter
-            filter:
-            "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error"
-            .into(),
-            level: bevy::log::Level::TRACE,
-            log_too_file: true,
-        });
-    info!("Logging Initialized");
     // add bevy plugins
     vanillacoffee
 }
@@ -293,11 +296,10 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 fn apply_window_settings(
     // winit: NonSend<bevy::winit::WinitWindows>,
     window_settings: Res<WindowSettings>,
-    mut frame_limiter_cfg: ResMut<FramepaceSettings>,
+    // mut frame_limiter_cfg: ResMut<FramepaceSettings>,
     mut mut_window_entity: Query<(Entity, &mut Window)>,
 ) {
-    if window_settings.is_changed() || window_settings.is_added() {
-        
+    if window_settings.is_changed() {
         let (_w_ent, mut b_window) = mut_window_entity.single_mut();
         // let w_window = winit.get_window(w_ent).unwrap();
 
@@ -353,6 +355,7 @@ fn apply_camera_zoom(
     }
 }
 
+// TODO: fix logical pixels
 /// sets settings window size too actual size if resized
 /// doesn't run if fullscreen
 fn on_resize_system(
@@ -374,60 +377,82 @@ fn update_difficulty_settings(
     general_settings: Res<GeneralSettings>,
     mut cmds: Commands,
 ) {
-    if general_settings.is_changed() || levels.iter().len() >= 1 {
-        let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1000);
-        let difficulty_settings: DifficultyScales = match general_settings.game_difficulty {
-            GameDifficulty::Easy => DifficultyScales {
-                max_enemies_per_room: 10 * level_amount,
-                player_health_scale: 1.25,
-                player_damage_scale: 1.25,
-                enemy_health_scale: 0.75,
-                enemy_damage_scale: 0.75,
-                max_dungeon_amount: 5,
-                enemy_speed_scale: 0.9,
-                player_speed_scale: 1.2,
-            },
-            GameDifficulty::Medium => DifficultyScales {
-                max_enemies_per_room: 20 * level_amount,
-                player_health_scale: 1.00,
-                player_damage_scale: 1.00,
-                enemy_health_scale: 1.0,
-                enemy_damage_scale: 1.0,
-                max_dungeon_amount: 7,
-                enemy_speed_scale: 1.0,
-                player_speed_scale: 1.0,
-            },
-            GameDifficulty::Hard => DifficultyScales {
-                max_enemies_per_room: 30 * level_amount,
-                player_health_scale: 1.0,
-                player_damage_scale: 1.0,
-                enemy_health_scale: 1.0,
-                enemy_damage_scale: 1.0,
-                max_dungeon_amount: 9,
-                enemy_speed_scale: 1.2,
-                player_speed_scale: 1.0,
-            },
-            GameDifficulty::Insane => DifficultyScales {
-                max_enemies_per_room: 35 * level_amount,
-                player_health_scale: 1.25,
-                player_damage_scale: 1.25,
-                enemy_health_scale: 1.0,
-                enemy_damage_scale: 1.0,
-                max_dungeon_amount: 15,
-                enemy_speed_scale: 1.5,
-                player_speed_scale: 1.0,
-            },
-            GameDifficulty::MegaDeath => DifficultyScales {
-                max_enemies_per_room: 50 * level_amount,
-                player_health_scale: 1.25,
-                player_damage_scale: 1.25,
-                enemy_health_scale: 1.0,
-                enemy_damage_scale: 1.0,
-                max_dungeon_amount: 25,
-                enemy_speed_scale: 1.7,
-                player_speed_scale: 0.8,
-            },
-        };
+    if general_settings.is_changed() {
+        let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
+        let difficulty_settings: DifficultyScales =
+            convert_settings_too_scales(&general_settings, Some(level_amount));
         cmds.insert_resource(difficulty_settings);
+    }
+}
+
+fn convert_settings_too_scales(
+    general_settings: &GeneralSettings,
+    level_amount: Option<i32>,
+) -> DifficultyScales {
+    let level_amount = match level_amount {
+        Some(val) => val,
+        None => 1,
+    };
+    match general_settings.game_difficulty {
+        GameDifficulty::Debug => DifficultyScales {
+            max_enemies_per_room: 1,
+            max_dungeon_amount: 1,
+            player_health_scale: 1.0,
+            player_damage_scale: 1.0,
+            player_speed_scale: 1.0,
+            enemy_health_scale: 1.0,
+            enemy_damage_scale: 1.0,
+            enemy_speed_scale: 1.0,
+        },
+        GameDifficulty::Easy => DifficultyScales {
+            max_enemies_per_room: 10 * level_amount,
+            player_health_scale: 1.25,
+            player_damage_scale: 1.25,
+            enemy_health_scale: 0.75,
+            enemy_damage_scale: 0.75,
+            max_dungeon_amount: 5,
+            enemy_speed_scale: 0.9,
+            player_speed_scale: 1.2,
+        },
+        GameDifficulty::Medium => DifficultyScales {
+            max_enemies_per_room: 20 * level_amount,
+            player_health_scale: 1.00,
+            player_damage_scale: 1.00,
+            enemy_health_scale: 1.0,
+            enemy_damage_scale: 1.0,
+            max_dungeon_amount: 7,
+            enemy_speed_scale: 1.0,
+            player_speed_scale: 1.0,
+        },
+        GameDifficulty::Hard => DifficultyScales {
+            max_enemies_per_room: 30 * level_amount,
+            player_health_scale: 1.0,
+            player_damage_scale: 1.0,
+            enemy_health_scale: 1.0,
+            enemy_damage_scale: 1.0,
+            max_dungeon_amount: 9,
+            enemy_speed_scale: 1.2,
+            player_speed_scale: 1.0,
+        },
+        GameDifficulty::Insane => DifficultyScales {
+            max_enemies_per_room: 35 * level_amount,
+            player_health_scale: 1.25,
+            player_damage_scale: 1.25,
+            enemy_health_scale: 1.0,
+            enemy_damage_scale: 1.0,
+            max_dungeon_amount: 15,
+            enemy_speed_scale: 1.5,
+            player_speed_scale: 1.0,
+        },
+        GameDifficulty::MegaDeath => DifficultyScales {
+            max_enemies_per_room: 50 * level_amount,
+            player_health_scale: 1.25,
+            player_damage_scale: 1.25,
+            enemy_health_scale: 1.0,
+            enemy_damage_scale: 1.0,
+            max_dungeon_amount: 25,
+            enemy_speed_scale: 1.7,
+            player_speed_scale: 0.8,
+        },
     }
 }

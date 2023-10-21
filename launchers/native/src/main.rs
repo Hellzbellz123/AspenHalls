@@ -1,5 +1,5 @@
-use std::path::Path;
 use bevy::prelude::*;
+use std::{fmt, path::Path};
 
 /// this translates too same folder as executable
 pub const APP_SETTINGS_PATH: &str = "./config.toml";
@@ -17,7 +17,7 @@ pub fn load_settings() -> aspen_halls_game::ConfigFile {
     let target_settings = match std::fs::read_to_string(settings_path) {
         // if settings file cant be read cause it doesn't exist, no permissions, or other
         Err(error) => {
-            info!(
+            eprintln!(
                 "There was an error: {} accessing settings file at: {}",
                 error,
                 settings_path.display()
@@ -31,7 +31,7 @@ pub fn load_settings() -> aspen_halls_game::ConfigFile {
     match toml::from_str::<aspen_halls_game::ConfigFile>(target_settings.as_str()) {
         // if malformed settings file, create default
         Err(error) => {
-            info!(
+            eprintln!(
                 "There was an error deserializing `AppSettings`: {} at {}",
                 error,
                 settings_path.display()
@@ -40,7 +40,7 @@ pub fn load_settings() -> aspen_halls_game::ConfigFile {
         }
         // setting file is not malformed, can be loaded
         Ok(cfg) => {
-            info!("Game Settings loaded from file successfully");
+            println!("Game Settings loaded from file successfully");
             aspen_halls_game::ConfigFile {
                 window_settings: aspen_halls_game::WindowSettings {
                     resolution: Vec2 {

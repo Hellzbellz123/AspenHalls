@@ -4,25 +4,31 @@ all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfi
 for being the only real useful example of big-brain as far as im concerned
 */
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::Velocity;
+use bevy_rapier2d::{
+    prelude::{QueryFilter, RapierContext, Real, RigidBody, Velocity},
+    rapier::prelude::ColliderHandle,
+};
 use big_brain::{
     prelude::{ActionState, Actor, Score},
-    BigBrainSet,
+    thinker::ActionSpan,
     // BigBrainStage,
+    BigBrainSet,
 };
 use rand::{thread_rng, Rng};
 
-use crate::game::{
+use crate::{game::{
     actors::{
         ai::components::{
-            AIAttackState, AICanAggro, AICanWander, AIChaseAction, AIWanderAction, AggroScore,
-            AttackScore, Enemy, WanderScore,
+            AIChaseAction, AIChaseConfig, AIWanderAction, AIWanderConfig, AttackScore, ChaseScore,
+            Enemy, WanderScore,
         },
         animation::components::{ActorAnimationType, AnimState},
-        components::Player,
+        components::{Player, PlayerColliderTag},
     },
-    AppStage, TimeInfo,
-};
+    AppStage,
+}, consts::TILE_SIZE};
+
+use super::components::{AIShootAction, AIShootConfig};
 
 /// stupid ai systems and functions
 pub struct StupidAiPlugin;
@@ -31,30 +37,26 @@ impl Plugin for StupidAiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             PreUpdate,
-            (
-                wander_score_system.run_if(in_state(AppStage::PlayingGame)),
-                aggro_score_system.run_if(in_state(AppStage::PlayingGame)),
-            )
+            (chase_score_system, attack_score_system)
+                .run_if(in_state(AppStage::PlayingGame))
                 .in_set(BigBrainSet::Scorers),
         )
         .add_systems(
             Update,
-            (
-                wander_action.run_if(in_state(AppStage::PlayingGame)),
-                chase_action.run_if(in_state(AppStage::PlayingGame)), // shoot_action,
-            )
+            (wander_action, chase_action, attack_action)
+                .run_if(in_state(AppStage::PlayingGame)) // shoot_action,
                 .in_set(BigBrainSet::Actions),
         );
     }
 }
 
-/// aggro score system, if player is in range, aggro score is 1
-fn aggro_score_system(
+/// chase score system, if player is in range, aggro score is 1
+fn chase_score_system(
     player_query: Query<&Transform, With<Player>>, // player
-    enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, // enemies that can aggro
-    mut aggro_scorer_query: Query<(&Actor, &mut Score), With<AggroScore>>, // aggro scorer
+    enemy_query: Query<(&Transform, &AIChaseConfig), With<Enemy>>, // enemies that can aggro
+    mut chase_scorer_query: Query<(&Actor, &mut Score), With<ChaseScore>>, // aggro scorer
 ) {
-    for (Actor(actor), mut aggro_score) in &mut aggro_scorer_query {
+    for (Actor(actor), mut chase_score) in &mut chase_scorer_query {
         let mut closest_player_as_distance = f32::INFINITY;
         let mut closest_player_transform: Option<&Transform> = None;
 
@@ -75,69 +77,88 @@ fn aggro_score_system(
         });
 
         if let Some(_player_transform) = closest_player_transform {
-            let (_enemy_transform, aggro_able) = enemy_query.get(*actor).unwrap();
-            if closest_player_as_distance < aggro_able.aggro_distance.abs() {
-                aggro_score.set(1.0);
+            let (_enemy_transform, chase_able) = enemy_query.get(*actor).unwrap();
+            if closest_player_as_distance < chase_able.aggro_distance.abs() {
+                chase_score.set(0.8);
             } else {
-                aggro_score.set(0.0);
+                chase_score.set(0.0);
             }
         } else {
-            aggro_score.set(0.0);
+            chase_score.set(0.0);
         }
     }
 }
 
-/// wander able enemy's scorer
-/// if player is not within range, score is 1
-fn wander_score_system(
+// /// wander able enemy's scorer
+// /// if player is not within range, score is 1
+// fn wander_score_system(
+//     player_query: Query<&Transform, With<Player>>, //player
+//     enemy_query: Query<(&Transform, &AIChaseConfig), With<Enemy>>, //enemy's that can aggro
+//     mut wander_score_query: Query<
+//         (&Actor, &mut Score),
+//         (With<WanderScore>, Without<ChaseScore>, With<AttackScore>),
+//     >,
+// ) {
+//     let Ok(player_transform) = player_query.get_single() else {
+//         return;
+//     };
+//     wander_score_query.for_each_mut(|(Actor(actor), mut wander_score)| {
+//         if let Ok((transform, chase_config)) = enemy_query.get(*actor) {
+//             let distance = player_transform
+//                 .translation
+//                 .truncate()
+//                 .distance(transform.translation.truncate());
+
+//             if distance > chase_config.aggro_distance {
+//                 wander_score.set(1.0);
+//             } else {
+//                 wander_score.set(0.0);
+//             }
+//         }
+//     });
+// }
+
+/// TODO: add attacks
+/// check if player is in LOS with raycast
+/// if player is within attack range, shoot at player
+// #[allow(dead_code)]
+fn attack_score_system(
     player_query: Query<&Transform, With<Player>>, //player
-    enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemy's that can aggro
-    mut wander_score_query: Query<
+    mut enemy_query: Query<(&Transform, &mut AIShootConfig), With<Enemy>>, //enemy's that can aggro
+    mut attack_score_query: Query<
         (&Actor, &mut Score),
-        (With<WanderScore>, Without<AggroScore>, With<AttackScore>),
+        (With<AttackScore>, Without<ChaseScore>, Without<WanderScore>),
     >,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
-    wander_score_query.for_each_mut(|(Actor(actor), mut wander_score)| {
-        if let Ok((transform, aggro_able)) = enemy_query.get(*actor) {
-            let distance = player_transform
+
+    attack_score_query.for_each_mut(|(Actor(actor), mut attack_score)| {
+        if let Ok((transform, mut attack_config)) = enemy_query.get_mut(*actor) {
+            let distance_too_player = player_transform
                 .translation
                 .truncate()
-                .distance(transform.translation.truncate());
+                .distance(transform.translation.truncate())
+                .abs();
 
-            if distance > aggro_able.aggro_distance {
-                wander_score.set(1.0);
+            if distance_too_player <= attack_config.find_target_range {
+                attack_score.set(1.0);
             } else {
-                wander_score.set(0.0);
+                attack_config.can_shoot = false;
+                attack_score.set(0.0);
             }
         }
     });
 }
 
-/// TODO: add attacks
-/// if player is within attack range, shoot at player
-#[allow(dead_code)]
-fn attack_score_system(
-    _player_query: Query<&Transform, With<Player>>, //player
-    _enemy_query: Query<(&Transform, &AICanAggro), With<Enemy>>, //enemy's that can aggro
-    _attack_score_query: Query<
-        (&Actor, &mut Score),
-        (With<AttackScore>, Without<AggroScore>, Without<WanderScore>),
-    >,
-) {
-}
-
 /// handles enemy's that can chase
 fn chase_action(
-    _time_info: ResMut<TimeInfo>,
     player_query: Query<&Transform, With<Player>>,
     mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
-        &AICanAggro,
-        &mut AIAttackState,
+        &AIChaseConfig,
         &mut AnimState,
         With<Enemy>,
     )>,
@@ -148,7 +169,7 @@ fn chase_action(
     };
 
     chasing_enemies.for_each_mut(|(Actor(actor), mut state)| {
-        if let Ok((enemy_transform, mut velocity, aggro_able, _attacking, mut anim_state, ())) =
+        if let Ok((enemy_transform, mut velocity, chase_able, mut anim_state, ())) =
             enemy_query.get_mut(*actor)
         {
             let direction = ((player_transform.translation.truncate())
@@ -168,35 +189,35 @@ fn chase_action(
                 }
                 ActionState::Executing => {
                     // move towards the player if player is close enough
-                    if distance <= aggro_able.aggro_distance {
+                    if distance <= chase_able.aggro_distance {
                         *velocity = Velocity::linear(direction * 50.);
                     }
                     // chase target escaped, failed to chase
-                    else if distance < 100.0 || distance >= aggro_able.aggro_distance {
+                    else if distance < 100.0 || distance >= chase_able.aggro_distance {
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3));
-                        anim_state.facing = ActorAnimationType::Idle;
+                        anim_state.animation_type = ActorAnimationType::Idle;
                         *state = ActionState::Failure;
                     }
                     // we really should not hit this block
                     else {
                         *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3));
-                        anim_state.facing = ActorAnimationType::Idle;
+                        anim_state.animation_type = ActorAnimationType::Idle;
                         warn!("AI CHASE ACTION HIT UNKNOWN CIRCUMSTANCES");
                         *state = ActionState::Failure;
                     }
                 }
                 ActionState::Cancelled => {
                     *velocity = Velocity::linear(Vec2::ZERO);
-                    anim_state.facing = ActorAnimationType::Idle;
+                    anim_state.animation_type = ActorAnimationType::Idle;
                     *state = ActionState::Failure;
                 }
                 ActionState::Success => {
                     *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 0.3)); // Velocity::linear(Vec2::ZERO);
-                    anim_state.facing = ActorAnimationType::Idle;
+                    anim_state.animation_type = ActorAnimationType::Idle;
                 }
                 ActionState::Failure => {
                     *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
-                    anim_state.facing = ActorAnimationType::Idle;
+                    anim_state.animation_type = ActorAnimationType::Idle;
                 }
             }
         }
@@ -211,7 +232,7 @@ fn wander_action(
         &Transform,
         &mut Velocity,
         &mut TextureAtlasSprite,
-        &mut AICanWander,
+        &mut AIWanderConfig,
         With<Enemy>,
     )>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,
@@ -274,6 +295,82 @@ fn wander_action(
                     *velocity = Velocity::linear(velocity.linvel.lerp(Vec2::ZERO, 1.0));
                     can_meander_tag.wander_target = None;
                     *state = ActionState::Requested;
+                }
+            }
+        }
+    });
+}
+
+/// handles enemy's that can chase
+fn attack_action(
+    names: Query<&Name>,
+    rapier_context: Res<RapierContext>,
+    player_query: Query<(Entity, &Transform), With<Player>>,
+    player_collider_query: Query<Entity, With<PlayerColliderTag>>,
+    mut enemy_query: Query<(&Transform, &mut AIShootConfig, &AnimState), With<Enemy>>,
+    mut shooting_enemies: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
+) {
+    let Ok((player_entity, player_transform)) = player_query.get_single() else {
+        return;
+    };
+
+    shooting_enemies.for_each_mut(|(Actor(actor), mut state)| {
+        if let Ok((enemy_transform, mut shoot_cfg, _anim_state)) = enemy_query.get_mut(*actor) {
+            let direction_too_player = (player_transform.translation.truncate()
+                - enemy_transform.translation.truncate())
+            .normalize_or_zero();
+
+            let distance_to_player = enemy_transform
+                .translation
+                .truncate()
+                .distance(player_transform.translation.truncate())
+                .abs();
+
+            info!("rapier physics scale{}", rapier_context.physics_scale());
+
+            let ray_origin = enemy_transform.translation.truncate() + (direction_too_player * (TILE_SIZE / 2.0));
+            let ray_dir = direction_too_player;
+            let max_toi = shoot_cfg.find_target_range;
+            let solid = true;
+            let filter = QueryFilter::new();
+
+            let player_too_far_away = distance_to_player > shoot_cfg.find_target_range;
+            let ray = rapier_context.cast_ray(ray_origin, ray_dir, max_toi, solid, filter);
+            let raycast_hit_player = match ray {
+                Some((entity, _distance)) => {
+                    if entity == player_collider_query.single() {
+                        true
+                    } else {
+                        false
+                    }
+                }
+                None => {
+                    false
+                }
+            };
+
+            match *state {
+                ActionState::Init => {}
+                ActionState::Requested => {
+                    if player_too_far_away || !raycast_hit_player {
+                        *state = ActionState::Failure;
+                    } else if raycast_hit_player && !player_too_far_away {
+                        shoot_cfg.should_shoot = true;
+                        *state = ActionState::Executing
+                    }
+                }
+                ActionState::Executing | ActionState::Cancelled => {
+                    if player_too_far_away || !raycast_hit_player {
+                        *state = ActionState::Failure;
+                    } else {
+                        *state = ActionState::Success;
+                    }
+                }
+                ActionState::Success => {
+                    shoot_cfg.should_shoot = false;
+                }
+                ActionState::Failure => {
+                    shoot_cfg.should_shoot = false;
                 }
             }
         }

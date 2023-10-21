@@ -19,7 +19,7 @@ A Dungeon Crawler in the vibes of Into The Gungeon
     clippy::missing_safety_doc
 )]
 
-use bevy::prelude::{default, Vec2, App};
+use bevy::prelude::{default, App, Vec2};
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
 
 #[cfg(feature = "inspect")]
@@ -42,8 +42,9 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-
-pub use loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings, DifficultyScales, GameDifficulty};
+pub use loading::config::{
+    ConfigFile, DifficultyScales, GameDifficulty, GeneralSettings, SoundSettings, WindowSettings,
+};
 
 // TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
 // add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
@@ -64,7 +65,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
             belly::prelude::BellyPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
-            bevy_rapier2d::plugin::RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0),
         ))
         .insert_resource(RapierConfiguration {
             gravity: Vec2::ZERO,

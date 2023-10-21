@@ -13,53 +13,21 @@ use crate::{
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (on_shoot, update_enemy_graphics).run_if(resource_exists::<ActorTextureHandles>()));
+        app.add_systems(
+            Update,
+            enemy_can_shoot_check.run_if(resource_exists::<ActorTextureHandles>()),
+        );
     }
 }
 
-use bevy::{
-    prelude::{Entity, Query, ResMut, Vec2, With},
-    sprite::TextureAtlasSprite,
-};
+use bevy::prelude::{Query, ResMut, Vec2, With};
 
 use super::{
-    ai::components::{AIAttackState, Enemy},
-    animation::components::{ActorAnimationType, AnimState},
+    ai::components::{AIShootConfig, Enemy},
     components::{
         EnemyProjectileColliderTag, EnemyProjectileTag, Player, ProjectileStats, TimeToLive,
     },
 };
-use crate::game::TimeInfo;
-
-/// updates enemy's animation depending on velocity
-pub fn update_enemy_graphics(
-    time_info: ResMut<TimeInfo>,
-    mut enemy_query: Query<(
-        &mut Velocity,
-        &mut AnimState,
-        &mut TextureAtlasSprite,
-        Entity,
-        With<Enemy>,
-    )>,
-) {
-    if !time_info.game_paused {
-        enemy_query.for_each_mut(|(velocity, mut anim_state, mut sprite, _ent, ())| {
-            if velocity.linvel == Vec2::ZERO {
-                anim_state.facing = ActorAnimationType::Idle;
-            } else if velocity.linvel.x > 5.0 {
-                sprite.flip_x = false;
-                anim_state.facing = ActorAnimationType::Right;
-            } else if velocity.linvel.x < -5.0 {
-                sprite.flip_x = true;
-                anim_state.facing = ActorAnimationType::Left;
-            } else if velocity.linvel.y < -5.0 {
-                anim_state.facing = ActorAnimationType::Down;
-            } else if velocity.linvel.y > 2.0 {
-                anim_state.facing = ActorAnimationType::Up;
-            }
-        });
-    }
-}
 
 use bevy_rapier2d::prelude::{RigidBody, Velocity};
 
@@ -68,18 +36,18 @@ use bevy_rapier2d::prelude::{RigidBody, Velocity};
 pub struct ShootTimer(pub Timer);
 
 /// checks if enemy can shoot and shoots if check is true
-pub fn on_shoot(
+pub fn enemy_can_shoot_check(
     mut cmds: Commands,
     time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,
     player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<(&Transform, &mut AIAttackState), With<Enemy>>,
+    mut enemy_query: Query<(&Transform, &mut AIShootConfig), With<Enemy>>,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
         return;
     };
 
-    enemy_query.for_each_mut(|(enemy_transform, mut attacking)| {
+    enemy_query.for_each_mut(|(enemy_transform, mut ai_attack_state)| {
         let enemy_loc = enemy_transform.translation.truncate();
         let player_loc = player_transform.translation.truncate();
         let direction: Vec2 = (player_loc - enemy_loc).normalize_or_zero();
@@ -88,21 +56,23 @@ pub fn on_shoot(
         let beyond_body_diff: Vec2 = direction * 36.;
         let modified_spawn_location: Vec2 = enemy_loc + beyond_body_diff;
 
-        if attacking.should_shoot && attacking.timer.tick(time.delta()).finished() {
+        if ai_attack_state.should_shoot {
             info!("should shoot");
-            create_enemy_projectile(
-                &mut cmds,
-                assets.bevy_icon.clone(),
-                direction,
-                modified_spawn_location,
-            );
-            attacking.timer.reset();
+            if ai_attack_state.timer.tick(time.delta()).finished() {
+                spawn_enemy_projectile(
+                    &mut cmds,
+                    assets.bevy_icon.clone(),
+                    direction,
+                    modified_spawn_location,
+                );
+                ai_attack_state.timer.reset();
+            }
         }
     });
 }
 
 /// spawns enemy projectile
-pub fn create_enemy_projectile(
+pub fn spawn_enemy_projectile(
     cmds: &mut Commands,
     projectile_texture: Handle<Image>,
     direction: Vec2,

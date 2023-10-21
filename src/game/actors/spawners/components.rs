@@ -1,14 +1,18 @@
 use bevy::{
-    prelude::{Component, Deref, DerefMut, ReflectComponent, Vec2, Event},
+    prelude::{Component, Deref, DerefMut, Entity, Event, ReflectComponent, Vec2},
     reflect::Reflect,
     time::Timer,
 };
 use rand::{distributions::Standard, prelude::Distribution, Rng};
-use strum::{EnumString, EnumVariantNames, VariantNames};
+use strum::{Display, EnumString, EnumVariantNames, VariantNames};
+
+use crate::game::actors::ai::components::ActorType;
 
 /// different enemy types in the game,
-#[derive(Component, Debug, Reflect, Default, Clone, Copy, EnumVariantNames, EnumString)]
-#[strum(serialize_all = "lowercase")]
+#[derive(
+    Component, Debug, Reflect, Default, Clone, Copy, EnumVariantNames, EnumString, Display,
+)]
+// #[strum(serialize_all = "lowercase")]
 pub enum EnemyType {
     /// bony monster, pretty weak, but can come in large amounts
     #[default]
@@ -18,7 +22,7 @@ pub enum EnemyType {
 }
 
 /// weapons that can be spawned in the game
-#[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString)]
+#[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString, Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum WeaponType {
     /// small smg, fast fire rate, med damage
@@ -68,28 +72,47 @@ pub struct Spawner {
     pub spawn_radius: f32,
     /// max enemies in spawner radius
     pub max_enemies: i32,
+    /// list of enemies spawned by spawner
+    pub spawned_enemies: Vec<Entity>,
 }
 
 /// event for spawning enemies
-#[derive(Component, Debug, Reflect, Default, Copy, Clone, Event)]
-#[reflect(Component)]
-pub struct SpawnEnemyEvent {
-    /// what too spawn
-    pub enemy_to_spawn: EnemyType,
-    /// where too spawn
+#[derive(Debug, Reflect, Clone, Event)]
+pub struct SpawnActorEvent {
+    pub actor_type: ActorType,
+    pub what_to_spawn: String,
     pub spawn_position: Vec2,
-    /// how many too spawn
     pub spawn_count: i32,
+    pub spawner: Option<Entity>,
 }
 
-/// event for spawning weapons
-#[derive(Component, Debug, Reflect, Default, Event)]
-#[reflect(Component)]
-pub struct SpawnWeaponEvent {
-    /// what too spawn
-    pub weapon_to_spawn: WeaponType,
-    /// where too spawn
-    pub spawn_position: Vec2,
-    /// how many too spawn
-    pub spawn_count: i32,
-}
+// /// event for spawning enemies
+// #[derive(Component, Debug, Reflect, Copy, Clone, Event)]
+// #[reflect(Component)]
+// pub struct SpawnEnemyEvent {
+//     /// what too spawn
+//     /// empty entity too build with
+//     pub enemy_to_spawn: Entity,
+//     /// where too spawn
+//     pub spawn_position: Vec2,
+//     /// how many too spawn
+//     pub spawn_count: i32,
+// }
+
+// /// event for spawning weapons
+// #[derive(Component, Debug, Reflect, Default, Event)]
+// #[reflect(Component)]
+// pub struct SpawnWeaponEvent {
+//     /// what too spawn
+//     pub weapon_to_spawn: WeaponType,
+//     /// where too spawn
+//     pub spawn_position: Vec2,
+//     /// how many too spawn
+//     pub spawn_count: i32,
+// }
+
+// impl Default for SpawnEnemyEvent {
+//     fn default() -> Self {
+//         Self { enemy_to_spawn: Entity::PLACEHOLDER, spawn_position: Default::default(), spawn_count: Default::default() }
+//     }
+// }

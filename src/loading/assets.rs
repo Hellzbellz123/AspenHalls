@@ -82,7 +82,7 @@ pub struct MapAssetHandles {
 
     /// dungeons
     #[asset(key = "dungeons")]
-    pub dungeons: Handle<LdtkProject>
+    pub dungeons: Handle<LdtkProject>,
 }
 
 // BEVY ODDIO ASSET CONFIG

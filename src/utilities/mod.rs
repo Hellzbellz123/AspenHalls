@@ -1,10 +1,10 @@
 use bevy::{
     ecs::system::NonSend,
-    prelude::{warn, Entity, Query, With, info, DespawnRecursiveExt},
+    prelude::{info, warn, DespawnRecursiveExt, Entity, Query, With},
     window::Window,
 };
-use winit::window::Icon;
 use std::ops::Mul;
+use winit::window::Icon;
 
 /// # Panics
 /// will panic if it cant find a window to attach icons, or the icon is not present
@@ -41,9 +41,11 @@ pub fn set_window_icon(
     }
 }
 
-
 /// despawn any entity with T: Component
-pub fn despawn_with<T: bevy::prelude::Component>(to_despawn: Query<Entity, With<T>>, mut commands: bevy::prelude::Commands) {
+pub fn despawn_with<T: bevy::prelude::Component>(
+    to_despawn: Query<Entity, With<T>>,
+    mut commands: bevy::prelude::Commands,
+) {
     to_despawn.for_each(|entity| {
         info!("despawning entity recursively: {:#?}", entity);
         commands.entity(entity).despawn_recursive();

@@ -71,13 +71,11 @@ impl PartialEq for HallWay {
     }
 }
 
-
 impl PartialOrd for HallWay {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
-
 
 /// query's for empty levels
 /// if no empty levels ldtk is finished processing
@@ -126,7 +124,8 @@ pub fn create_mst_from_rooms(
             room_asset: room_instance.room_asset.clone(),
             width: room_instance.width,
             height: room_instance.height,
-            position: (room_instance.position + (IVec2::new(room_instance.width, room_instance.height) / 2)),
+            position: (room_instance.position
+                + (IVec2::new(room_instance.width, room_instance.height) / 2)),
             exits: Vec::new(),
         };
 
@@ -345,13 +344,19 @@ const fn spawn_building_layer() {}
 const fn spawn_decoration_layer() {}
 
 /// saves dot graph as file
-fn save_dot(dot: &Dot<'_, &StableGraph<RoomInstance, HallWay, petgraph::Undirected>>, file: String) {
+fn save_dot(
+    dot: &Dot<'_, &StableGraph<RoomInstance, HallWay, petgraph::Undirected>>,
+    file: String,
+) {
     // Save the DOT representation to a file
     match File::create(file) {
         Ok(mut file) => {
             write!(file, "{dot:?}").expect("Failed to write DOT file");
-        },
-        Err(e) => {warn!("error saving dotfile"); return;},
+        }
+        Err(e) => {
+            warn!("error saving dotfile");
+            return;
+        }
     }
 }
 

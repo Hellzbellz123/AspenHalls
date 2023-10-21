@@ -12,8 +12,9 @@ use bevy_console::{reply, ConsoleCommand};
 use crate::{
     consts::ACTOR_Z_INDEX,
     game::actors::{
+        ai::components::{Type, ActorType},
         components::Player,
-        spawners::components::{EnemyType, SpawnEnemyEvent, SpawnWeaponEvent, WeaponType},
+        spawners::components::{EnemyType, SpawnActorEvent, WeaponType},
     },
 };
 
@@ -23,7 +24,7 @@ use super::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerComma
 pub fn spawnweapon_command(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnWeaponCommand>,
-    mut ew: EventWriter<SpawnWeaponEvent>,
+    mut ew: EventWriter<SpawnActorEvent>,
 ) {
     let mut rng = thread_rng();
     let offset = rng.gen_range(-70.0..70.0);
@@ -37,7 +38,8 @@ pub fn spawnweapon_command(
     })) = spawn.take()
     {
         let command_spawn_at_player = at_player.unwrap_or(true);
-        let mut command_spawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
+        let mut command_spawn_location =
+            Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
         let command_spawn_count = amount.unwrap_or(1);
         let command_spawn_type = WeaponType::from_str(&weapon_type);
 
@@ -49,8 +51,10 @@ pub fn spawnweapon_command(
                             player_transform.single().translation.truncate() + vec2(offset, offset);
                     }
 
-                    ew.send(SpawnWeaponEvent {
-                        weapon_to_spawn: command_spawn_type.clone(),
+                    ew.send(SpawnActorEvent {
+                        spawner: None,
+                        actor_type: ActorType(Type::Item),
+                        what_to_spawn: weapon_type.clone(),
                         spawn_position: command_spawn_location,
                         spawn_count: 1,
                     });
@@ -77,7 +81,7 @@ pub fn spawnweapon_command(
 pub fn spawnenemy_command(
     player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnEnemyCommand>,
-    mut ew: EventWriter<SpawnEnemyEvent>,
+    mut ew: EventWriter<SpawnActorEvent>,
 ) {
     let mut rng = thread_rng();
     let offset = rng.gen_range(-70.0..=70.0);
@@ -92,7 +96,8 @@ pub fn spawnenemy_command(
     {
         let command_spawn_at_player = at_player.unwrap_or(true);
         let command_spawn_count = amount.unwrap_or(1);
-        let mut command_spawn_location = Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
+        let mut command_spawn_location =
+            Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
         let command_spawn_type = EnemyType::from_str(&enemy_type);
 
         match command_spawn_type {
@@ -103,8 +108,10 @@ pub fn spawnenemy_command(
                             player_transform.single().translation.truncate() + vec2(offset, offset);
                     }
 
-                    ew.send(SpawnEnemyEvent {
-                        enemy_to_spawn: command_spawn_type,
+                    ew.send(SpawnActorEvent {
+                        actor_type: ActorType(Type::Enemy),
+                        what_to_spawn: enemy_type.clone(),
+                        spawner: None,
                         spawn_position: command_spawn_location,
                         spawn_count: 1,
                     });

@@ -1,4 +1,4 @@
-use bevy::prelude::{App, Plugin, SystemSet, Update, IntoSystemSetConfig};
+use bevy::prelude::{App, IntoSystemSetConfig, Plugin, SystemSet, Update};
 
 /// all functionality for artificial intelligence on actors is stored here
 pub mod ai;

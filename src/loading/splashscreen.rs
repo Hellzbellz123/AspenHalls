@@ -1,8 +1,16 @@
 use bevy::{
-    core_pipeline::{tonemapping::{DebandDither, Tonemapping}, clear_color::ClearColorConfig},
+    core_pipeline::{
+        clear_color::ClearColorConfig,
+        tonemapping::{DebandDither, Tonemapping},
+    },
     prelude::*,
-    render::{texture::{CompressedImageFormats, ImageType}, camera::ScalingMode, primitives::Frustum},
+    render::{
+        camera::ScalingMode,
+        primitives::Frustum,
+        texture::{CompressedImageFormats, ImageType},
+    },
 };
+use image::imageops::FilterType;
 // use rust_embed::RustEmbed;
 use crate::{game::AppStage, utilities::despawn_with};
 
@@ -58,7 +66,9 @@ fn spawn_main_camera(mut commands: Commands) {
                 ..default()
             },
             frustum: Frustum::default(),
-            camera_2d: Camera2d { clear_color: ClearColorConfig::Custom(Color::GRAY) },
+            camera_2d: Camera2d {
+                clear_color: ClearColorConfig::Custom(Color::GRAY),
+            },
             // transform: todo!(),
             // global_transform: todo!(),
             // visible_entities: todo!(),
@@ -72,8 +82,9 @@ fn spawn_main_camera(mut commands: Commands) {
 }
 
 /// spawns splash, inserts splash timer
-fn splash_setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
+fn splash_setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, window: Query<&Window>) {
     info!("loading splash");
+    let window = window.single();
     let img_bytes = include_bytes!("../../res/splashL.png");
     let splash_image = Image::from_buffer(
         img_bytes,
@@ -82,8 +93,13 @@ fn splash_setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
         true,
     )
     .unwrap();
-    let img: Handle<Image> = images.add(splash_image);
-
+    let img: Handle<Image> = images.add(Image::from_dynamic(
+        splash_image
+            .try_into_dynamic()
+            .unwrap_or_default()
+            .resize_exact(window.physical_width(), window.physical_height(), FilterType::Nearest),
+        true,
+    ));
     // Display the logo
     info!("spawning splash ImageBundle");
     commands

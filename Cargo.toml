@@ -135,7 +135,8 @@ bevy_console = {path = "deps/bevy_console"}
 
 [patch.crates-io]
 # broken dependencies
-# navmesh ={ path = "deps/adepsdeps/navmesh"}
+typid = {path = "deps/abrokedeps/typid"} # typid doesnt compile on web with crates version, updated uuid dependency and it works
+
 # bevy addon local replacements
 bevy_ecs_tilemap = {path = "deps/bevy_ecs_tilemap"}
 bevy_egui = {path = "deps/bevy_egui"}

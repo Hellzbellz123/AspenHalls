@@ -1,7 +1,13 @@
 use belly::prelude::*;
 use bevy::{app::AppExit, prelude::*};
 
-use crate::game::{interface::{InterfaceRoot, menus::{PausePlayEvent, EventType}}, AppStage};
+use crate::game::{
+    interface::{
+        menus::{EventType, PausePlayEvent},
+        InterfaceRoot,
+    },
+    AppStage,
+};
 
 /// Set up the main menu
 pub fn setup_menu(app: &mut App) {

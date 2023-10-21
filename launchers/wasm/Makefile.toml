@@ -1,9 +1,7 @@
 [tasks.run-web]
 env_files = ["../../.env"]
-command = "mold"
+command = "trunk"
 args = [
-    "-run",
-    "trunk",
     "serve",
     "--open",
     "--no-default-features",
@@ -13,5 +11,5 @@ args = [
 
 [tasks.release-web]
 env_files = ["../../.env"]
-command = "mold"
-args = ["-run", "trunk", "build", "--release"]
+command = "trunk"
+args = ["build", "--release"]

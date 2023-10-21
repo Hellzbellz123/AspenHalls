@@ -27,7 +27,10 @@ impl Default for PlayerBindings {
             DualAxis::symmetric(
                 GamepadAxisType::LeftStickX,
                 GamepadAxisType::LeftStickY,
-                DeadZoneShape::Ellipse { radius_x: 0.001, radius_y: 0.001 },
+                DeadZoneShape::Ellipse {
+                    radius_x: 0.001,
+                    radius_y: 0.001,
+                },
             ),
             Gameplay::Move,
         );

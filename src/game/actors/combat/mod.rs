@@ -24,9 +24,11 @@ use crate::{
             },
             player::actions::ShootEvent,
         },
-        input::{actions}, AppStage, TimeInfo,
+        input::actions,
+        AppStage, TimeInfo,
     },
-    loading::assets::ActorTextureHandles, utilities::lerp,
+    loading::assets::ActorTextureHandles,
+    utilities::lerp,
 };
 
 use self::components::Damage;
@@ -106,23 +108,33 @@ fn rotate_player_weapon(
         return;
     }
 
-    weapon_query.for_each_mut(|(weapon_tag, weapon_global_transform, mut weapon_transform)| {
-        if weapon_tag.parent.is_some() {
-            let ((_player_animation_state, player_input), ()) = player_query.single_mut();
-            let global_mouse_pos =  player_input.action_data(actions::Gameplay::LookWorld).axis_pair.unwrap().xy();
-            let global_weapon_pos: Vec2 = weapon_global_transform.compute_transform().translation.truncate();
-            let look_direction: Vec2 = (global_weapon_pos - global_mouse_pos).normalize_or_zero();
-            let aim_angle = (-look_direction.y).atan2(-look_direction.x) + FRAC_PI_2; // add offset too rotation here
+    weapon_query.for_each_mut(
+        |(weapon_tag, weapon_global_transform, mut weapon_transform)| {
+            if weapon_tag.parent.is_some() {
+                let ((_player_animation_state, player_input), ()) = player_query.single_mut();
+                let global_mouse_pos = player_input
+                    .action_data(actions::Gameplay::LookWorld)
+                    .axis_pair
+                    .unwrap()
+                    .xy();
+                let global_weapon_pos: Vec2 = weapon_global_transform
+                    .compute_transform()
+                    .translation
+                    .truncate();
+                let look_direction: Vec2 =
+                    (global_weapon_pos - global_mouse_pos).normalize_or_zero();
+                let aim_angle = (-look_direction.y).atan2(-look_direction.x) + FRAC_PI_2; // add offset too rotation here
 
-            // mirror whole entity by negating the scale when were looking left,
-            if aim_angle.to_degrees() > 180.0 || aim_angle.to_degrees() < -0.0 {
-                weapon_transform.scale.x = -1.0;
-            } else {
-                weapon_transform.scale.x = 1.0;
+                // mirror whole entity by negating the scale when were looking left,
+                if aim_angle.to_degrees() > 180.0 || aim_angle.to_degrees() < -0.0 {
+                    weapon_transform.scale.x = -1.0;
+                } else {
+                    weapon_transform.scale.x = 1.0;
+                }
+                weapon_transform.rotation = Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
             }
-            weapon_transform.rotation = Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
-        }
-    });
+        },
+    );
 }
 
 /// keeps all weapons centered too parented entity
@@ -140,29 +152,31 @@ fn keep_player_weapons_centered(
     }
 
     actor_query.for_each_mut(|((_ent, animation_state, children), ())| {
-        weapon_query.for_each_mut(|(weapon_entity, weapon_tag, mut weapon_transform, mut weapon_velocity)| {
-            if weapon_tag.parent.is_some() && children.contains(&weapon_entity) {
-                weapon_velocity.angvel = lerp(weapon_velocity.angvel, 0.0, 0.3);
-                weapon_velocity.linvel = Vec2::ZERO;
-                // modify weapon sprite to be below player when facing up, this
-                // still looks strange but looks better than a back mounted smg
-                if animation_state.facing == ActorAnimationType::Up {
-                    // this transform is local too players transform of 8
-                    weapon_transform.translation = Vec3 {
-                        x: 0.0,
-                        y: 1.5,
-                        z: -1.0,
-                    }
-                } else {
-                    // this transform is local too players transform of 8
-                    weapon_transform.translation = Vec3 {
-                        x: 0.0,
-                        y: 1.5,
-                        z: 1.0,
+        weapon_query.for_each_mut(
+            |(weapon_entity, weapon_tag, mut weapon_transform, mut weapon_velocity)| {
+                if weapon_tag.parent.is_some() && children.contains(&weapon_entity) {
+                    weapon_velocity.angvel = lerp(weapon_velocity.angvel, 0.0, 0.3);
+                    weapon_velocity.linvel = Vec2::ZERO;
+                    // modify weapon sprite to be below player when facing up, this
+                    // still looks strange but looks better than a back mounted smg
+                    if animation_state.animation_type == ActorAnimationType::Up {
+                        // this transform is local too players transform of 8
+                        weapon_transform.translation = Vec3 {
+                            x: 0.0,
+                            y: 1.5,
+                            z: -1.0,
+                        }
+                    } else {
+                        // this transform is local too players transform of 8
+                        weapon_transform.translation = Vec3 {
+                            x: 0.0,
+                            y: 1.5,
+                            z: 1.0,
+                        }
                     }
                 }
-            }
-        });
+            },
+        );
     });
 }
 
@@ -207,13 +221,18 @@ fn remove_cdw_component(
     let player_weapon_socket = player_query.single();
 
     weapon_query.for_each(|(weapon_entity, weapon_tag)| {
-        if weapon_tag.stored_weapon_slot != player_weapon_socket.drawn_slot && drawn_weapon.get(weapon_entity).is_ok() {
-            let weapon_name = names.get(weapon_entity).expect("entity doesn't have a name");
+        if weapon_tag.stored_weapon_slot != player_weapon_socket.drawn_slot
+            && drawn_weapon.get(weapon_entity).is_ok()
+        {
+            let weapon_name = names
+                .get(weapon_entity)
+                .expect("entity doesn't have a name");
             debug!(
                 "weapon {} {:#?} should not have active component, removing",
                 weapon_name, weapon_entity
             );
-            cmds.entity(weapon_entity).remove::<CurrentlySelectedWeapon>();
+            cmds.entity(weapon_entity)
+                .remove::<CurrentlySelectedWeapon>();
         }
     });
 }

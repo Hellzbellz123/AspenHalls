@@ -2,7 +2,13 @@ use belly::prelude::*;
 use bevy::{app::AppExit, prelude::*};
 use rand::seq::IteratorRandom;
 
-use crate::game::{AppStage, interface::{InterfaceRoot, menus::{PausePlayEvent, EventType}}};
+use crate::game::{
+    interface::{
+        menus::{EventType, PausePlayEvent},
+        InterfaceRoot,
+    },
+    AppStage,
+};
 
 /// Set up the main menu
 pub fn setup_menu(app: &mut App) {
@@ -12,7 +18,8 @@ pub fn setup_menu(app: &mut App) {
             StartMenu::create.run_if(not(any_with_component::<StartMenu>())),
             apply_deferred,
             StartMenu::show.run_if(any_with_component::<StartMenu>()),
-        ).chain()
+        )
+            .chain(),
     );
 }
 
@@ -54,7 +61,9 @@ impl StartMenu {
     }
     /// Show the main menu
     pub fn show(mut elements: Elements) {
-        elements.select("div.start-menu-root").remove_class("hidden");
+        elements
+            .select("div.start-menu-root")
+            .remove_class("hidden");
     }
 
     #[allow(dead_code)]
@@ -70,7 +79,8 @@ impl StartMenu {
     }
 
     /// The list of possible subtitles
-    const SUBTITLES: &'static str = include_str!("../../../../assets/interface/language/menu_subtitle.txt");
+    const SUBTITLES: &'static str =
+        include_str!("../../../../assets/interface/language/menu_subtitle.txt");
 
     /// Get a random subtitle from the list
     fn get_subtitle() -> &'static str {
@@ -80,6 +90,6 @@ impl StartMenu {
             .lines()
             .choose(&mut rng)
             .unwrap_or_else(|| Self::SUBTITLES.lines().next().expect("No subtitles found"))
-            // .unwrap_or(Self::SUBTITLES.lines().next().expect("No subtitles found"))
+        // .unwrap_or(Self::SUBTITLES.lines().next().expect("No subtitles found"))
     }
 }

@@ -1,8 +1,8 @@
 /// holds asset definitions
 pub mod assets;
+pub mod config;
 /// splashscreen functions
 pub mod splashscreen;
-pub mod config;
 
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};

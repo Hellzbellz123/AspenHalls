@@ -1,6 +1,8 @@
 #![allow(clippy::type_complexity)]
 #[cfg(feature = "inspect")]
+#[cfg(not(any(target_os = "android", target_family = "wasm")))]
 mod debug_dirs;
+
 /// holds `walk_dirs` function
 /// outputs cwd too console
 
@@ -8,6 +10,10 @@ mod debug_dirs;
 /// holds type registration, diagnostics, and inspector stuff
 #[cfg(feature = "inspect")]
 pub mod debug_plugin {
+    #[cfg(feature = "inspect")]
+    #[cfg(not(any(target_os = "android", target_family = "wasm")))]
+    use crate::dev_tools::debug_dirs::debug_directory;
+
     use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
         prelude::{App, *},
@@ -33,9 +39,10 @@ pub mod debug_plugin {
     // use grid_plane::GridPlanePlugin;
     use std::{fs, time::Duration};
 
-    use crate::game::actors::components::{Player, TimeToLive};
+    use crate::game::actors::{components::{Player, TimeToLive}, ai::components::{AIShootConfig, AIShootAction}};
+
+
     use crate::{
-        dev_tools::debug_dirs::debug_directory,
         game::{
             actors::combat::components::{
                 CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
@@ -47,8 +54,8 @@ pub mod debug_plugin {
         game::{
             actors::{
                 ai::components::{
-                    AIAttackState, AICanAggro, AICanWander, AIChaseAction, AIWanderAction,
-                    ActorType, AggroScore, Faction,
+                    AIChaseAction, AIChaseConfig, AIWanderAction, AIWanderConfig, Type, ActorType,
+                    ChaseScore,
                 },
                 animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 spawners::components::Spawner,
@@ -66,24 +73,23 @@ pub mod debug_plugin {
 
     impl Plugin for DebugPlugin {
         fn build(&self, app: &mut App) {
+            #[cfg(not(any(target_os = "android", target_family = "wasm")))]
             debug_directory();
+
             app.register_type::<Timer>()
                 //custom Reflects not from plugins
                 .register_type::<DifficultyScales>()
                 .register_type::<WindowSettings>()
                 .register_type::<GeneralSettings>()
                 .register_type::<SoundSettings>()
-                // .register_type::<MenuState>()
                 .register_type::<Player>()
-                .register_type::<Faction>()
+                .register_type::<Type>()
                 .register_type::<AnimationSheet>()
                 .register_type::<ActorAnimationType>()
                 .register_type::<TimeInfo>()
                 .register_type::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
                 .register_type::<Spawner>()
-                // .register_type::<actions::Combat>()
                 .register_type::<AnimState>()
-                .register_type::<AIAttackState>()
                 .register_type::<TimeToLive>()
                 .register_type::<WeaponTag>()
                 // weapon stuff
@@ -99,11 +105,13 @@ pub mod debug_plugin {
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
                 // bigbrain AI
-                .register_type::<AggroScore>()
-                .register_type::<AICanWander>()
-                .register_type::<AICanAggro>()
+                .register_type::<ChaseScore>()
+                .register_type::<AIWanderConfig>()
+                .register_type::<AIChaseConfig>()
+                .register_type::<AIShootConfig>()
                 .register_type::<AIChaseAction>()
                 .register_type::<AIWanderAction>()
+                .register_type::<AIShootAction>()
                 .register_type::<ActorType>()
                 .add_plugins((
                     RapierDebugRenderPlugin::default(),
@@ -255,8 +263,6 @@ pub mod debug_plugin {
             Ok(_) => {}
             Err(e) => warn!("{}", e),
         }
-
-
 
         match fs::write(".schedule/zrendergraph.dot", render_graph) {
             Ok(_) => {}

@@ -1,5 +1,9 @@
-use crate::game::{actors::animation::components::{ActorAnimationType, AnimState, AnimationSheet}, TimeInfo};
-use bevy::prelude::*;
+use crate::game::{
+    actors::animation::components::{ActorAnimationType, AnimState, AnimationSheet},
+    TimeInfo,
+};
+use bevy::{math::vec2, prelude::*};
+use bevy_rapier2d::prelude::Velocity;
 
 // TODO: redo player animations to be based on where the mouse cursor is pointing, not player velocity
 // this will probably look better and makes the player animations look a bit less funky
@@ -9,26 +13,71 @@ pub struct AnimationPlugin;
 
 impl Plugin for AnimationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (update_playing_animation, frame_animation));
+        app.add_systems(
+            Update,
+            (
+                update_selected_animation_sheet,
+                update_facing_direction,
+                frame_animation,
+            ),
+        );
     }
+}
+
+/// updates enemy's animation depending on velocity
+pub fn update_facing_direction(
+    mut animation_states: Query<
+        (&mut Velocity, &mut AnimState, &mut TextureAtlasSprite),
+        Changed<Velocity>,
+    >,
+) {
+    animation_states.for_each_mut(|(velocity, mut anim_state, mut sprite)| {
+        if velocity.linvel.abs().length() <= 0.05 || velocity.linvel == Vec2::ZERO {
+            anim_state.animation_type = ActorAnimationType::Idle;
+        }
+        let horizontal = velocity.linvel.x;
+        let vertical = velocity.linvel.y;
+
+        // Calculate absolute values for horizontal and vertical movement
+        let abs_horizontal = horizontal.abs();
+        let abs_vertical = vertical.abs();
+
+        if abs_horizontal > abs_vertical {
+            // Horizontal movement is greater
+            if horizontal < 0.0 {
+                sprite.flip_x = true;
+                anim_state.animation_type = ActorAnimationType::Right;
+            } else if horizontal > 0.0 {
+                sprite.flip_x = false;
+                anim_state.animation_type = ActorAnimationType::Left;
+            }
+        } else if abs_vertical > abs_horizontal {
+            // Vertical movement is greater
+            if vertical < 0.0 {
+                anim_state.animation_type = ActorAnimationType::Down;
+            } else if vertical > 0.0 {
+                anim_state.animation_type = ActorAnimationType::Up;
+            }
+        }
+    });
 }
 
 /// iterates over actors with `AnimState` and `AnimationSheet` and
 /// updates selected animation based on facing direction
-fn update_playing_animation(
+fn update_selected_animation_sheet(
     mut sprites_query: Query<(&mut AnimState, &AnimationSheet), Changed<AnimState>>,
 ) {
     sprites_query.for_each_mut(|(mut animation, anim_sheet)| {
         if matches!(
-            animation.facing,
+            animation.animation_type,
             ActorAnimationType::Right | ActorAnimationType::Left
         ) {
             animation.animation_frames = anim_sheet.right_animation.to_vec();
-        } else if animation.facing == ActorAnimationType::Up {
+        } else if animation.animation_type == ActorAnimationType::Up {
             animation.animation_frames = anim_sheet.up_animation.to_vec();
-        } else if animation.facing == ActorAnimationType::Down {
+        } else if animation.animation_type == ActorAnimationType::Down {
             animation.animation_frames = anim_sheet.down_animation.to_vec();
-        } else if animation.facing == ActorAnimationType::Idle {
+        } else if animation.animation_type == ActorAnimationType::Idle {
             animation.animation_frames = anim_sheet.idle_animation.to_vec();
         }
     });
@@ -87,6 +136,8 @@ pub mod components {
         Up,
         /// walk east
         Right,
+        /// shoot action, per actor
+        Shoot,
     }
 
     /// animation direction, current frames, current frame, and timer
@@ -94,7 +145,7 @@ pub mod components {
     #[reflect(Component)]
     pub struct AnimState {
         /// direction player is facing
-        pub facing: ActorAnimationType,
+        pub animation_type: ActorAnimationType,
         /// animation timer
         pub timer: Timer,
         /// frames belonging too selected AnimationType

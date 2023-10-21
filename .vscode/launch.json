@@ -7,35 +7,21 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'vanillacoffee'",
-      "cargo": {
-        "args": ["build", "--bin=vanillacoffee", "--package=vanillacoffee"],
-        "filter": {
-          "name": "vanillacoffee",
-          "kind": "bin"
-        }
-      },
-      "args": [],
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
       "name": "Debug linux executable 'vanillacoffee'",
       "cargo": {
         "args": [
           "build",
           "--target=x86_64-unknown-linux-gnu",
-          "--bin=vanillacoffee",
-          "--package=vanillacoffee"
+          "--bin=aspen_halls_native",
+          "--package=aspen_halls_native"
         ],
         "filter": {
-          "name": "vanillacoffee",
+          "name": "aspen_halls_native",
           "kind": "bin"
         }
       },
       "args": [],
-      "cwd": "${workspaceFolder}"
+      "cwd": "${workspaceFolder}/launchers/native"
     }
   ]
 }

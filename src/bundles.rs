@@ -1,5 +1,5 @@
 use crate::game::actors::{
-    ai::components::{AIAttackState, AICanAggro, AICanShoot, AICanWander, ActorType},
+    ai::components::{AIChaseConfig, AIShootConfig, AIWanderConfig, ActorType},
     animation::components::{AnimState, AnimationSheet},
     components::{
         ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes, ActorSecondaryAttributes,
@@ -76,13 +76,11 @@ pub struct ProjectileColliderBundle {
 #[derive(Bundle)]
 pub struct StupidAiBundle {
     /// stupid chase action
-    pub can_aggro: AICanAggro,
+    pub aggro_config: AIChaseConfig,
     /// stupid wander action
-    pub can_meander: AICanWander,
+    pub wander_config: AIWanderConfig,
     /// stupid shoot action
-    pub can_shoot: AICanShoot,
-    /// shoot data
-    pub ai_attack_timer: AIAttackState,
+    pub shoot_config: AIShootConfig,
     /// chooses action
     pub thinker: ThinkerBuilder,
 }

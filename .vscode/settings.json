@@ -1,4 +1,17 @@
 {
+    "rust-analyzer.debug.engine": "ms-vscode.cpptools",
+    "rust-analyzer.debug.engineSettings": {
+        "cppdbg": {
+            "miDebuggerPath": "${env:HOME}/.cargo/bin/rust-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false
+                }
+            ],
+        }
+    },
   "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
   "rust-analyzer.cargo.features": [
     "inspect"
@@ -90,4 +103,5 @@
     "zrendergraph"
   ],
   "rust-analyzer.showUnlinkedFileNotification": false,
+  "memory-view.showMemoryPanel": true,
 }

@@ -1,15 +1,19 @@
 use bevy::prelude::{
-    info, warn, Commands, DespawnRecursiveExt, Entity, Plugin, Query, With, Update, Event, IntoSystemConfigs, resource_exists, run_once, state_exists_and_equals, Condition,
+    info, resource_exists, run_once, state_exists_and_equals, warn, Commands, Condition,
+    DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Plugin, Query, Update, With,
 };
 
-use crate::{game::{
-    actors::{ai::components::Enemy, spawners::components::WeaponType},
-    game_world::{
-        dungeonator::GeneratorStage,
-        hideout::systems::{enter_the_dungeon, home_world_teleporter_collisions},
+use crate::{
+    game::{
+        actors::{ai::components::Enemy, spawners::components::WeaponType},
+        game_world::{
+            dungeonator::GeneratorStage,
+            hideout::systems::{enter_the_dungeon, home_world_teleporter_collisions},
+        },
+        AppStage,
     },
-    AppStage,
-}, loading::assets::MapAssetHandles};
+    loading::assets::MapAssetHandles,
+};
 
 use self::systems::MapContainerTag;
 
@@ -32,14 +36,17 @@ impl Plugin for HideOutPlugin {
             Update,
             (
                 // TODO: fix scheduling
-                systems::spawn_hideout.run_if(state_exists_and_equals(AppStage::StartMenu).and_then(run_once())),
+                systems::spawn_hideout
+                    .run_if(state_exists_and_equals(AppStage::StartMenu).and_then(run_once())),
                 // .in_schedule(OnEnter(GameStage::StartMenu)),
-                (enter_the_dungeon, home_world_teleporter_collisions).run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                (enter_the_dungeon, home_world_teleporter_collisions)
+                    .run_if(state_exists_and_equals(AppStage::PlayingGame)),
                 // .in_set(OnUpdate(GameStage::PlayingGame)),
                 // .in_set(OnUpdate(GameStage::PlayingGame)),
                 cleanup_start_world.run_if(state_exists_and_equals(GeneratorStage::Initialization)),
                 // .in_schedule(OnEnter(GeneratorStage::Initialization)),
-            ).run_if(resource_exists::<MapAssetHandles>()),
+            )
+                .run_if(resource_exists::<MapAssetHandles>()),
         );
     }
 }

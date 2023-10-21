@@ -2,7 +2,7 @@
 env_files = ["../../.env"]
 script_runner = "@shell"
 script.pre = "rm -fr ./assets/* && cp -r ../../assets/* ./assets"
-script.main = "mold -run cargo run --features inspect"
+script.main = "cargo run --features inspect"
 watch.watch = [
     "../../src",
     "../../assets",
@@ -14,5 +14,5 @@ watch.watch = [
 
 [tasks.release-native]
 env_files = ["../../.env"]
-command = "mold"
-args = ["-run", "cargo", "build", "--release"]
+command = "cargo"
+args = ["build", "--release"]

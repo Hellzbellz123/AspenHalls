@@ -5,16 +5,16 @@ pub fn debug_directory() {
 
     println!("Current Working Director is: {dir:?}");
     match run(true, true, 2, &dir) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(e) => warn!("{}", e),
     } //.expect("could list directory for some reason");
 }
 
+use bevy::prelude::warn;
 use std::error::Error;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use bevy::prelude::warn;
 
 /// Term Colors that can be used in output
 pub enum ANSIColor {
@@ -184,21 +184,11 @@ mod linux {
 
     impl IsExecutable for Path {
         fn is_executable(&self) -> bool {
-            let Ok(metadata) = self.metadata() else { return false };
+            let Ok(metadata) = self.metadata() else {
+                return false;
+            };
             let permissions = metadata.permissions();
             metadata.is_file() && permissions.mode() & 0o111 != 0
-        }
-    }
-}
-
-#[cfg(target_os = "android")]
-mod android {
-    use std::path::Path;
-    use super::IsExecutable;
-
-    impl IsExecutable for Path {
-        fn is_executable(&self) -> bool {
-            false
         }
     }
 }

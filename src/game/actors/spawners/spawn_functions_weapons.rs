@@ -11,7 +11,7 @@ use crate::{
     loading::assets::ActorTextureHandles,
 };
 
-use super::components::{SpawnWeaponEvent, WeaponType};
+use super::components::{SpawnActorEvent, WeaponType};
 
 //TODO: setup so i can load the guns from a ron file in assets directory. can probably use UntypedCollection
 // too allow adding in custom guns.
@@ -20,7 +20,7 @@ use super::components::{SpawnWeaponEvent, WeaponType};
 pub fn spawn_small_smg(
     game_assets: ActorTextureHandles,
     cmds: &mut Commands,
-    event: &SpawnWeaponEvent,
+    event: &SpawnActorEvent,
 ) {
     cmds.spawn((WeaponBundle {
         name: Name::new("Small SMG"),
@@ -120,7 +120,7 @@ pub fn spawn_small_smg(
 pub fn spawn_small_pistol(
     game_assets: ActorTextureHandles,
     cmds: &mut Commands,
-    event: &SpawnWeaponEvent,
+    event: &SpawnActorEvent,
 ) {
     cmds.spawn((WeaponBundle {
         name: Name::new("Small Pistol"),

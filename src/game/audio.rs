@@ -4,7 +4,6 @@ use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    loading::config::SoundSettings,
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},
@@ -13,6 +12,7 @@ use crate::{
         AppStage,
     },
     loading::assets::AudioHandles,
+    loading::config::SoundSettings,
 };
 
 /// music is played in this channel
@@ -79,6 +79,7 @@ fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChanne
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
+// TODO: make generic across actors and use spatial sound emitters on entitys
 /// play walking sound
 fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
@@ -88,14 +89,18 @@ fn player_walking_sound_system(
     time: Res<Time>,
 ) {
     let (anim_data, player_data) = player_query.single_mut();
-    if anim_data.facing == ActorAnimationType::Idle {
+    if anim_data.animation_type == ActorAnimationType::Idle {
         walk_sound_res.timer.reset();
         walk_sound_res.is_first_time = true;
     } else {
         if !player_data.sprint_available {
-            walk_sound_res.timer.set_duration(Duration::from_millis(650));
+            walk_sound_res
+                .timer
+                .set_duration(Duration::from_millis(650));
         } else if player_data.sprint_available {
-            walk_sound_res.timer.set_duration(Duration::from_millis(150));
+            walk_sound_res
+                .timer
+                .set_duration(Duration::from_millis(150));
         }
 
         walk_sound_res.timer.tick(time.delta());

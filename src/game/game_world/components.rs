@@ -81,6 +81,7 @@ fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
             spawn_radius: 100.0,
             max_enemies: 7,
             random_enemy: true,
+            spawned_enemies: Vec::with_capacity(7),
         },
         timer: SpawnerTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
     }

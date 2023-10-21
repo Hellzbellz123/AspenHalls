@@ -4,10 +4,10 @@ use crate::{
     bundles::{ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle},
     consts::{ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE, ACTOR_Z_INDEX},
     game::actors::{
-            ai::components::{ActorType, Faction},
-            animation::components::{ActorAnimationType, AnimState, AnimationSheet},
-            components::PlayerColliderTag,
-        },
+        ai::components::{Type, ActorType},
+        animation::components::{ActorAnimationType, AnimState, AnimationSheet},
+        components::PlayerColliderTag,
+    },
     game::{
         actors::{
             combat::components::WeaponSlots,
@@ -24,7 +24,7 @@ use bevy_rapier2d::prelude::{
 };
 
 use self::{
-    actions::{equip_closest_weapon, spawn_skeleton_button},
+    actions::{equip_closest_weapon, spawn_custom_on_button},
     actions::{player_attack_sender, ShootEvent},
 };
 
@@ -45,19 +45,21 @@ pub struct PlayerPlugin;
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<ShootEvent>()
-            .add_systems(Update,
-                (
-                    build_player
-                        .run_if((|player: Query<&Player>| player.is_empty()).and_then(resource_exists::<ActorTextureHandles>())),
-                    player_movement_system,
-                    camera_movement_system,
-                    player_sprint,
-                    spawn_skeleton_button,
-                    player_attack_sender,
-                    equip_closest_weapon,
-                )
-            );
+        app.add_event::<ShootEvent>().add_systems(
+            Update,
+            (
+                build_player.run_if(
+                    (|player: Query<&Player>| player.is_empty())
+                        .and_then(resource_exists::<ActorTextureHandles>()),
+                ),
+                player_movement_system,
+                camera_movement_system,
+                player_sprint,
+                spawn_custom_on_button,
+                player_attack_sender,
+                equip_closest_weapon,
+            ),
+        );
     }
 }
 
@@ -79,9 +81,9 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             },
             ActorBundle {
                 name: Name::new("Player"),
-                actor_type: ActorType(Faction::Player),
+                actor_type: ActorType(Type::Player),
                 animation_state: AnimState {
-                    facing: ActorAnimationType::Idle,
+                    animation_type: ActorAnimationType::Idle,
                     timer: Timer::from_seconds(0.2, TimerMode::Repeating),
                     animation_frames: vec![0, 1, 2, 3, 4],
                     active_frame: 0,
