@@ -20,7 +20,7 @@ exclude = ["deps"]
 members = ["launchers/wasm", "launchers/native", "launchers/mobile"]
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib","rlib"]
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
@@ -53,13 +53,11 @@ bevy = {path = "deps/bevy", default-features = false, features = [
     "png",
     "serialize",             # Support for `serde` Serialize/Deserialize
     "subpixel_glyph_atlas",  # Subpixel antialiasing for text/fonts
-    "wayland",               # LinuxL Support Wayland windowing system
+    "x11",                   # Support x11 windowing system
+    "wayland",               # Support Wayland windowing system
     "bevy_gilrs",            # Gamepad input support
     "zstd",
     "bevy_sprite",           # 2D (sprites) rendering
-    # "bevy_audio",
-    # "x11",
-    # "wav",
 ]}
 
 [features]
@@ -95,12 +93,13 @@ belly = {path = "deps/belly"}
 bevy = {workspace = true}
 bevy-inspector-egui = {path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true}
 bevy_common_assets = {path = "deps/bevy_common_assets", features = ["ron"]}
-bevy_ecs_ldtk = {path = "deps/bevy_ecs_ldtk", features = ["atlas"]}
+bevy_ecs_ldtk = {path = "deps/bevy_ecs_ldtk", features = ["atlas", "external_levels"]}
 bevy_ecs_tilemap = {path = "deps/bevy_ecs_tilemap", features = ["render"]}
 bevy_framepace = {path = "deps/bevy_framepace"}
 bevy_mod_logfu = {path = "deps/bevy_mod_logfu"} # not a git dependency
 bevy_prototype_lyon = {path = "deps/bevy_prototype_lyon"}
 bevy_rapier2d = {path = "deps/bevy_rapier/bevy_rapier2d"}
+bevy_tiling_background = {path = "deps/bevy_tiling_background"}
 bevy_egui = {path = "deps/bevy_egui", default-features = false, features = [
     "default_fonts",
     "serde",

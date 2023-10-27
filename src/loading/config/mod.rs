@@ -2,6 +2,7 @@ pub mod save_load;
 
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
 use bevy::{
+    asset::Asset,
     diagnostic::DiagnosticsPlugin,
     ecs::reflect::ReflectResource,
     log::LogPlugin,
@@ -14,7 +15,11 @@ use bevy::{
     reflect::Reflect,
     window::{PresentMode, WindowMode, WindowResized, WindowResolution},
 };
-use bevy_ecs_ldtk::prelude::LdtkLevel;
+use bevy_asset_loader::{
+    loading_state::{LoadingState, LoadingStateAppExt},
+    standard_dynamic_asset::StandardDynamicAssetCollection,
+};
+use bevy_ecs_ldtk::prelude::LdtkProject;
 use bevy_framepace::{FramepaceSettings, Limiter};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use serde::{Deserialize, Serialize};
@@ -23,8 +28,11 @@ use serde::{Deserialize, Serialize};
 use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
 
 use crate::{
-    game::audio::{Ambience, Music, Sound},
-    loading::splashscreen::MainCameraTag,
+    game::{
+        audio::{Ambience, Music, Sound},
+        AppStage,
+    },
+    loading::{assets::InitAssetHandles, splashscreen::MainCameraTag},
 };
 
 /// Holds game settings deserialized from the config.toml
@@ -135,7 +143,7 @@ pub struct SoundSettings {
 // that i32 and inserts this configured
 #[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone)]
 #[reflect(Resource)]
-/// difficulty resource used globally for settings
+/// difficulty resource used globally for configuring actors and dungeons
 pub struct DifficultyScales {
     /// not a scale, just an amount
     pub max_enemies_per_room: i32,
@@ -217,14 +225,28 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
         // filters for anything that makes it through the default log level. quiet big loggers
         // filter: "".into(), // an empty filter
         filter:
-        "bevy_ecs=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error"
+        "bevy_ecs=warn,bevy_asset_loader=warn,bevy_render=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error,belly_widgets=warn"
         .into(),
         level: bevy::log::Level::TRACE,
         log_too_file: true,
     });
     info!("Logging Plugin Initialized");
 
-    let difficulty_settings = convert_settings_too_scales(&cfg_file.general_settings, None);
+    vanillacoffee
+        .add_plugins(AssetPlugin::default())
+        .add_loading_state(
+            LoadingState::new(AppStage::BootingApp)
+                .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
+                .continue_to_state(AppStage::Loading)
+                .on_failure_continue_to_state(AppStage::FailedLoading),
+        )
+        .add_collection_to_loading_state::<_, InitAssetHandles>(AppStage::BootingApp)
+        .add_dynamic_collection_to_loading_state::<AppStage, StandardDynamicAssetCollection>(
+            AppStage::BootingApp,
+            "packs/init/pack.registry",
+        );
+
+    let difficulty_settings = create_difficulty_scales(&cfg_file.general_settings, None);
 
     vanillacoffee
         .add_plugins({
@@ -261,6 +283,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                 })
                 .set(ImagePlugin::default_nearest())
                 .disable::<LogPlugin>()
+                .disable::<AssetPlugin>()
         })
         .insert_resource(Msaa::Off)
         .insert_resource(ClearColor(Color::Hsla {
@@ -373,19 +396,20 @@ fn on_resize_system(
 
 /// updates `DifficultySettings` if player changes difficulty settings
 fn update_difficulty_settings(
-    levels: Query<(Entity, &Handle<LdtkLevel>), With<Parent>>,
+    levels: Query<(Entity, &Handle<LdtkProject>), With<Parent>>,
     general_settings: Res<GeneralSettings>,
     mut cmds: Commands,
 ) {
     if general_settings.is_changed() {
         let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
         let difficulty_settings: DifficultyScales =
-            convert_settings_too_scales(&general_settings, Some(level_amount));
+            create_difficulty_scales(&general_settings, Some(level_amount));
         cmds.insert_resource(difficulty_settings);
     }
 }
 
-fn convert_settings_too_scales(
+/// converts `GeneralSettings.game_difficulty` too `DifficultyScales` too be used elsewhere
+fn create_difficulty_scales(
     general_settings: &GeneralSettings,
     level_amount: Option<i32>,
 ) -> DifficultyScales {

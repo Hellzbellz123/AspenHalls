@@ -9,6 +9,24 @@ use bevy::{
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;
 
+/// ui textures
+#[derive(AssetCollection, Resource, Clone)]
+pub struct InitAssetHandles {
+    #[asset(key = "favicon")]
+    pub img_favicon: Handle<Image>,
+    /// ui containing image
+    #[asset(key = "panel_brown")]
+    pub img_panel_brown: Handle<Image>,
+
+    /// blue button texture
+    #[asset(key = "button_unpressed")]
+    pub img_button_blue: Handle<Image>,
+
+    /// blue button darkened for pressing
+    #[asset(key = "button_pressed")]
+    pub img_button_blue_pressed: Handle<Image>,
+}
+
 /// game data folder is data, anything thats not ron/toml/json/etc goes in assets
 /// font resources available too use
 #[derive(AssetCollection, Resource, Clone)]
@@ -57,21 +75,6 @@ pub struct ActorTextureHandles {
     pub bevy_icon: Handle<Image>,
 }
 
-/// ui textures
-#[derive(AssetCollection, Resource, Clone)]
-pub struct UiTextureHandles {
-    /// ui containing image
-    #[asset(key = "panel_brown")]
-    pub panel_brown: Handle<Image>,
-
-    /// blue button texture
-    #[asset(key = "button_unpressed")]
-    pub button_blue: Handle<Image>,
-
-    /// blue button darkened for pressing
-    #[asset(key = "button_pressed")]
-    pub button_blue_pressed: Handle<Image>,
-}
 /// map asset handle
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
@@ -83,6 +86,17 @@ pub struct MapAssetHandles {
     /// dungeons
     #[asset(key = "dungeons")]
     pub dungeons: Handle<LdtkProject>,
+}
+
+#[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
+#[uuid = "c904a07a-9d11-4a5b-91e3-c6ee60db599a"]
+pub struct SingleTileTextureHandles {
+    #[asset(key = "grass")]
+    pub grass: Handle<Image>,
+    #[asset(key = "dirt")]
+    pub dirt: Handle<Image>,
+    #[asset(key = "grassdirt_top")]
+    pub grassdirt_top: Handle<Image>,
 }
 
 // BEVY ODDIO ASSET CONFIG

@@ -77,13 +77,25 @@
         ],
     ),
 
+    "grass": File (
+        path: "packs/asha/textures/tiles/grass.png",
+    ),
+
+    "dirt": File (
+        path: "packs/asha/textures/tiles/grass.png",
+    ),
+
+    "grassdirt_top": File (
+        path: "packs/asha/textures/tiles/grass.png",
+    ),
+
     // misc assets go here
     "bevy_icon": File (
         path: "packs/asha/textures/bevy.png",
     ),
 
     "start_level": File (
-        path: "packs/asha/levels/sanctuary.ldtk",    
+        path: "packs/asha/levels/sanctuary.ldtk",
     ),
 
     "dungeons": File (

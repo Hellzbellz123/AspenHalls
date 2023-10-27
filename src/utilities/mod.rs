@@ -1,8 +1,11 @@
 use bevy::{
     ecs::system::NonSend,
-    prelude::{info, warn, DespawnRecursiveExt, Entity, Query, With},
-    window::Window,
+    prelude::{
+        info, warn, Assets, Commands, DespawnRecursiveExt, Entity, Query, Res, ResMut, With, Name,
+    },
+    window::Window, render::view::NoFrustumCulling,
 };
+use bevy_tiling_background::{BackgroundImageBundle, BackgroundMaterial, SetImageRepeatingExt};
 use std::ops::Mul;
 use winit::window::Icon;
 
@@ -75,4 +78,65 @@ macro_rules! state_exists_and_entered {
         app.add_systems(OnEnter($state), $system_name)
             .run_if(state_exists_and_equals($state))
     };
+}
+
+
+use bevy::{
+    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
+    prelude::*,
+};
+
+pub trait GetEitherMut<'world, Element, Filter = ()>
+where
+    Element: WorldQuery,
+    Filter: ReadOnlyWorldQuery,
+{
+    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
+}
+
+impl<'world, 'state, Element, Filter> GetEitherMut<'world, Element, Filter>
+    for Query<'world, 'state, Element, Filter>
+where
+    Element: WorldQuery,
+    Filter: ReadOnlyWorldQuery,
+{
+    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
+        let to_query: Entity;
+        if let Ok(_) = self.get(this) {
+            to_query = this;
+        } else if let Ok(_) = self.get(otherwise) {
+            to_query = otherwise;
+        } else {
+            return None;
+        };
+
+        self.get_mut(to_query).ok()
+    }
+}
+
+pub trait GetEither<'world, Element, Filter = ()>
+where
+    Element: ReadOnlyWorldQuery,
+{
+    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
+}
+
+impl<'world, 'state, Element, Filter> GetEither<'world, Element, Filter>
+    for Query<'world, 'state, Element, Filter>
+where
+    Element: ReadOnlyWorldQuery,
+    Filter: ReadOnlyWorldQuery,
+{
+    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
+        let to_query: Entity;
+        if let Ok(_) = self.get(this) {
+            to_query = this;
+        } else if let Ok(_) = self.get(otherwise) {
+            to_query = otherwise;
+        } else {
+            return None;
+        };
+
+        self.get(to_query).ok()
+    }
 }

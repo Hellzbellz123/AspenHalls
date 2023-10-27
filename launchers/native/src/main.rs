@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use std::{fmt, path::Path};
+use std::path::Path;
 
 /// this translates too same folder as executable
 pub const APP_SETTINGS_PATH: &str = "./config.toml";

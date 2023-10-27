@@ -3,6 +3,12 @@ env_files = ["../../.env"]
 script_runner = "@shell"
 script.pre = "rm -fr ./assets/* && cp -r ../../assets/* ./assets"
 script.main = "cargo run --features inspect"
+
+[tasks.watch-native]
+env_files = ["../../.env"]
+script_runner = "@shell"
+script.pre = "rm -fr ./assets/* && cp -r ../../assets/* ./assets"
+script.main = "cargo run --features inspect"
 watch.watch = [
     "../../src",
     "../../assets",

@@ -20,7 +20,7 @@ pub mod debug_plugin {
     };
     // use bevy_debug_grid::DebugGridPlugin;
     use bevy_debug_text_overlay::OverlayPlugin;
-    use bevy_ecs_ldtk::{prelude::LdtkLevel, GridCoords, IntGridCell, LayerMetadata};
+    use bevy_ecs_ldtk::{prelude::LdtkProject, GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::quick::{
         ResourceInspectorPlugin, StateInspectorPlugin, WorldInspectorPlugin,
     };
@@ -48,7 +48,7 @@ pub mod debug_plugin {
                 CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
                 WeaponTag,
             },
-            game_world::dungeonator::DungeonGeneratorSettings,
+            game_world::dungeonator_v2::DungeonSettings,
         },
         // kayak_ui::MenuState,
         game::{
@@ -60,7 +60,7 @@ pub mod debug_plugin {
                 animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 spawners::components::Spawner,
             },
-            game_world::dungeonator::GeneratorStage,
+            // game_world::dungeonator::GeneratorStage,
             interface::RequestedMenu,
         },
         game::{AppStage, TimeInfo},
@@ -99,8 +99,8 @@ pub mod debug_plugin {
                 .register_type::<WeaponSlots>()
                 .register_type::<WeaponSocket>()
                 // LDTK debug data
-                .register_type::<LdtkLevel>()
-                .register_type::<Handle<LdtkLevel>>()
+                .register_type::<LdtkProject>()
+                .register_type::<Handle<LdtkProject>>()
                 .register_type::<LayerMetadata>()
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
@@ -120,11 +120,11 @@ pub mod debug_plugin {
                         ..Default::default()
                     },
                     WorldInspectorPlugin::default(),
-                    ResourceInspectorPlugin::<DungeonGeneratorSettings>::default()
-                        .run_if(state_exists_and_equals(GeneratorStage::Finished)),
+                    // ResourceInspectorPlugin::<DungeonSettings>::default()
+                    //     .run_if(state_exists_and_equals(GeneratorStage::Finished)),
                     StateInspectorPlugin::<AppStage>::default(),
-                    StateInspectorPlugin::<RequestedMenu>::default(),
-                    StateInspectorPlugin::<GeneratorStage>::default(),
+                    // StateInspectorPlugin::<RequestedMenu>::default(),
+                    // StateInspectorPlugin::<GeneratorStage>::default(),
                     FrameTimeDiagnosticsPlugin,
                     LogDiagnosticsPlugin {
                         wait_duration: Duration::from_secs(20),

@@ -8,9 +8,8 @@
 #![doc = r"
 Vanilla Coffee, My video game.
 it kinda sucks but it'll be finished eventually
-A Dungeon Crawler in the vibes of Into The Gungeon
+A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soulknight'
 "]
-// #![doc = include_str!("../README.md")]
 #![allow(clippy::module_name_repetitions)]
 #![warn(
     clippy::missing_docs_in_private_items,
@@ -18,12 +17,6 @@ A Dungeon Crawler in the vibes of Into The Gungeon
     clippy::missing_panics_doc,
     clippy::missing_safety_doc
 )]
-
-use bevy::prelude::{default, App, Vec2};
-use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration};
-
-#[cfg(feature = "inspect")]
-use crate::dev_tools::debug_plugin::DebugPlugin;
 
 /// general component store
 mod bundles;
@@ -42,10 +35,14 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-pub use loading::config::{
-    ConfigFile, DifficultyScales, GameDifficulty, GeneralSettings, SoundSettings, WindowSettings,
-};
+/// TODO: common imports for all modules, maybe make it specific, ie no wildcards. all modules that aren't plugin should probably be defined here
+pub mod ahprelude;
 
+pub use ahprelude::*;
+// pub use loading::config::{
+//     create_configured_app, ConfigFile, GameDifficulty, GeneralSettings, SoundSettings,
+//     WindowSettings,
+// };
 // TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
 // add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
 // world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a play through should
@@ -65,9 +62,9 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
             belly::prelude::BellyPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
-            bevy_rapier2d::plugin::RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0),
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<bevy_rapier2d::prelude::NoUserData>::pixels_per_meter(32.0),
         ))
-        .insert_resource(RapierConfiguration {
+        .insert_resource(bevy_rapier2d::prelude::RapierConfiguration {
             gravity: Vec2::ZERO,
             ..default()
         });
@@ -75,13 +72,19 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
     // add vanillacoffee stuff
     vanillacoffee.add_state::<game::AppStage>();
     vanillacoffee.add_plugins((
-        loading::AssetLoadPlugin,
+        loading::AppAssetsPlugin,
         console::QuakeConPlugin,
         game::GamePlugin,
     ));
 
     #[cfg(feature = "inspect")]
     vanillacoffee.add_plugins(DebugPlugin);
+
+    vanillacoffee.add_systems(
+        ahprelude::Update,
+        (utilities::set_window_icon)
+            .run_if(resource_exists::<SingleTileTextureHandles>().and_then(run_once())),
+    );
 
     vanillacoffee
 }

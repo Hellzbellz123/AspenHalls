@@ -73,3 +73,6 @@
 [submodule "deps/virtual_joystick"]
 	path = deps/virtual_joystick
 	url = https://github.com/SergioRibera/virtual_joystick.git
+[submodule "deps/bevy_tiling_background"]
+	path = deps/bevy_tiling_background
+	url = https://github.com/BraymatterOrg/bevy_tiling_background.git

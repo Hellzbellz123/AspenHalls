@@ -12,17 +12,18 @@ use self::{
         CollisionBundle, LdtkRoomExitBundle, LdtkSensorBundle, LdtkSpawnerBundle,
         LdtkStartLocBundle, PlayerStartLocation,
     },
-    dungeonator::GeneratorStage,
+    // dungeonator_v1::GeneratorStage,
 };
 
 use super::actors::components::Player;
 
 /// shared components for dungeon and home
 pub mod components;
-/// holds dungeon generator functions
-pub mod dungeonator;
+// pub mod dungeonator_v1;
 /// hideout plugin, spawns home area for before and after dungeons
 pub mod hideout;
+/// holds dungeon generator plugin
+pub mod dungeonator_v2;
 
 /// chunk size
 const CHUNK_SIZE: UVec2 = UVec2 { x: 16, y: 16 };
@@ -46,12 +47,13 @@ pub struct GameWorldPlugin;
 
 impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app.add_state::<GeneratorStage>()
+        app
+            //.add_state::<GeneratorStage>()
             .insert_resource(TilemapRenderSettings {
                 render_chunk_size: RENDER_CHUNK_SIZE,
                 ..Default::default()
             })
-            .add_plugins((hideout::HideOutPlugin, dungeonator::DungeonGeneratorPlugin))
+            .add_plugins((hideout::HideOutPlugin, dungeonator_v2::DungeonGeneratorPlugin))
             .register_ldtk_entity::<LdtkSensorBundle>("TeleportSensor")
             .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
             .register_ldtk_entity::<LdtkStartLocBundle>("PlayerStartLoc")

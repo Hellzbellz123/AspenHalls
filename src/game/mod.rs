@@ -18,7 +18,6 @@ use crate::{
         interface::InterfacePlugin,
     },
     loading::config::GeneralSettings,
-    utilities,
 };
 
 use bevy::{app::App, prelude::*};
@@ -38,8 +37,10 @@ pub struct TimeInfo {
 /// main game state loop
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum AppStage {
-    /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
+    /// pre loading state before window is shown.
     #[default]
+    BootingApp,
+    /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
     Loading,
     /// Here the menu is drawn and waiting for player interaction
     StartMenu,
@@ -79,7 +80,6 @@ impl Plugin for GamePlugin {
             GameWorldPlugin,
             ActorPlugin,
         ))
-        .add_systems(Startup, utilities::set_window_icon)
         .add_systems(
             Update,
             (

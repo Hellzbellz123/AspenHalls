@@ -39,8 +39,8 @@ impl Plugin for SplashPlugin {
 
         app.add_systems(Startup, (spawn_main_camera, splash_setup).chain());
         app.add_systems(
-            Update,
-            despawn_with::<OnlySplashScreen>.run_if(not(in_state(AppStage::Loading))),
+            OnExit(AppStage::Loading),
+            despawn_with::<OnlySplashScreen>,
         );
     }
 }

@@ -53,5 +53,8 @@ funny story, this was originally started as 3d zelda clone in unity but i gave u
 - **test** - Check all unit test
 
 ## Usage as Library
->
-> ⚠️ Check the `launchers` folders
+> ⚠️ Check the `launchers` folders for examples
+
+why would you use this as a library?
+  - create ports too new platforms
+  - maybe mods?

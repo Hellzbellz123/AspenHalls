@@ -8,7 +8,7 @@ use bevy_rapier2d::prelude::CollisionEvent;
 use crate::{
     game::{
         actors::components::{Player, PlayerColliderTag},
-        game_world::dungeonator::GeneratorStage,
+        // game_world::dungeonator::GeneratorStage,
     },
     loading::assets::MapAssetHandles,
 };
@@ -140,7 +140,7 @@ pub fn enter_the_dungeon(
         info!("timer not done, ticking timer");
         teleport_timer.tick(time.delta());
         if teleport_timer.finished() && !player.enter_dungeon_requested {
-            commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
+            // commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
             info!("Starting Dungeon Generation");
             player.enter_dungeon_requested = true;
         }
