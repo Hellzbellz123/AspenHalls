@@ -1,0 +1,48 @@
+// this pack holds important data needed for binary too run.
+// it MUST be defined before startup, but can be modified without error
+({
+    // style sheets for ui
+    "global_style": File (
+        path: "init/styles/global.ess",
+    ),
+    "menu_style": File (
+        path: "init/styles/menu.ess",
+    ),
+    // mainly app icon, but used in other places too
+    "favicon": File (
+        path: "init/favicon.png",
+    ),
+    "splash_img": File (
+        path: "init/splash.png",
+    ),
+    "title_font": File (
+        path: "init/fonts/FantasqueSans-MonoNF.ttf",
+    ),
+    "main_font": File (
+        path: "init/fonts/Lato-Regular.ttf",
+    ),
+    "bold_font": File (
+        path: "init/fonts/FiraSans-Bold.ttf",
+    ),
+    "panel_brown": File (
+        path: "init/textures_menu/panel_brown.png",
+    ),
+    "button_unpressed": File (
+        path: "init/textures_menu/buttonSquare_blue.png",
+    ),
+    "button_pressed": File (
+        path: "init/textures_menu/buttonSquare_blue_pressed.png",
+    ),
+    "knob_arrows": File (
+        path: "init/textures_touch/knob_arrows.png"
+    ),
+    "knob_no_arrows": File (
+        path: "init/textures_touch/knob_noarrows.png"
+    ),
+    "outline_arrows": File (
+        path: "init/textures_touch/outline_arrows.png"
+    ),
+    "outline_no_arrows": File (
+        path: "init/textures_touch/outline_noarrows.png"
+    ),
+})

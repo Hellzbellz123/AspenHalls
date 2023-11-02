@@ -13,7 +13,7 @@ use crate::{
             combat::components::WeaponSlots,
             player::movement::{camera_movement_system, player_movement_system, player_sprint},
         },
-        input::actions::PlayerBindings,
+        input::action_maps::PlayerBindings,
     },
     loading::assets::ActorTextureHandles,
 };
@@ -28,7 +28,7 @@ use self::{
     actions::{player_attack_sender, ShootEvent},
 };
 
-use super::{combat::components::WeaponSocket, components::Player, ActorSystemsSet};
+use super::{combat::components::WeaponSocket, components::Player};
 
 /// new type for animations
 #[derive(Component, Deref, DerefMut)]

@@ -1,3 +1,10 @@
+use crate::ahp::engine::warn;
+use std::{
+    error::Error,
+    fs, io,
+    path::{Path, PathBuf},
+};
+
 /// prints current working directory too console
 pub fn debug_directory() {
     let dir = std::env::current_dir()
@@ -5,16 +12,10 @@ pub fn debug_directory() {
 
     println!("Current Working Director is: {dir:?}");
     match run(true, true, 2, &dir) {
-        Ok(_) => {}
+        Ok(()) => {}
         Err(e) => warn!("{}", e),
     } //.expect("could list directory for some reason");
 }
-
-use bevy::prelude::warn;
-use std::error::Error;
-use std::fs;
-use std::io;
-use std::path::{Path, PathBuf};
 
 /// Term Colors that can be used in output
 pub enum ANSIColor {

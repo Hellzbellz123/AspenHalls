@@ -4,13 +4,9 @@ all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfi
 for being the only real useful example of big-brain as far as im concerned
 */
 use bevy::prelude::*;
-use bevy_rapier2d::{
-    prelude::{QueryFilter, RapierContext, Real, RigidBody, Velocity},
-    rapier::prelude::ColliderHandle,
-};
+use bevy_rapier2d::prelude::{QueryFilter, RapierContext, Velocity};
 use big_brain::{
     prelude::{ActionState, Actor, Score},
-    thinker::ActionSpan,
     // BigBrainStage,
     BigBrainSet,
 };
@@ -303,14 +299,13 @@ fn wander_action(
 
 /// handles enemy's that can chase
 fn attack_action(
-    names: Query<&Name>,
     rapier_context: Res<RapierContext>,
     player_query: Query<(Entity, &Transform), With<Player>>,
     player_collider_query: Query<Entity, With<PlayerColliderTag>>,
     mut enemy_query: Query<(&Transform, &mut AIShootConfig, &AnimState), With<Enemy>>,
     mut shooting_enemies: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
 ) {
-    let Ok((player_entity, player_transform)) = player_query.get_single() else {
+    let Ok((_, player_transform)) = player_query.get_single() else {
         return;
     };
 
@@ -336,16 +331,12 @@ fn attack_action(
 
             let player_too_far_away = distance_to_player > shoot_cfg.find_target_range;
             let ray = rapier_context.cast_ray(ray_origin, ray_dir, max_toi, solid, filter);
-            let raycast_hit_player = match ray {
-                Some((entity, _distance)) => {
-                    if entity == player_collider_query.single() {
-                        true
-                    } else {
-                        false
-                    }
-                }
+            let raycast_hit_player: bool = match ray {
                 None => {
                     false
+                }
+                Some((entity, _distance)) => {
+                    entity == player_collider_query.single()
                 }
             };
 
@@ -356,7 +347,7 @@ fn attack_action(
                         *state = ActionState::Failure;
                     } else if raycast_hit_player && !player_too_far_away {
                         shoot_cfg.should_shoot = true;
-                        *state = ActionState::Executing
+                        *state = ActionState::Executing;
                     }
                 }
                 ActionState::Executing | ActionState::Cancelled => {
@@ -366,10 +357,7 @@ fn attack_action(
                         *state = ActionState::Success;
                     }
                 }
-                ActionState::Success => {
-                    shoot_cfg.should_shoot = false;
-                }
-                ActionState::Failure => {
+                ActionState::Success | ActionState::Failure => {
                     shoot_cfg.should_shoot = false;
                 }
             }

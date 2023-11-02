@@ -81,16 +81,16 @@ fn teleport_player_too_start_location(
         warn!("no start locations");
     } else {
         let mut sum = Vec2::ZERO;
-        let mut count = 0;
+        let mut count: i32 = 0;
 
         for (_, global_transform, _local_transform) in start_location.iter() {
             sum += global_transform.translation().truncate();
             count += 1;
         }
 
-        if count >= start_location.iter().len() {
+        if count >= i32::try_from(start_location.iter().len()).unwrap_or(4) {
             let average = Transform {
-                translation: (sum / count as f32).extend(ACTOR_Z_INDEX),
+                translation: (sum / (count as f32)).extend(ACTOR_Z_INDEX),
                 rotation: Quat::IDENTITY,
                 scale: Vec3::ONE,
             };

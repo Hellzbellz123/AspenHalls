@@ -2,7 +2,7 @@ use crate::game::{
     actors::animation::components::{ActorAnimationType, AnimState, AnimationSheet},
     TimeInfo,
 };
-use bevy::{math::vec2, prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::Velocity;
 
 // TODO: redo player animations to be based on where the mouse cursor is pointing, not player velocity

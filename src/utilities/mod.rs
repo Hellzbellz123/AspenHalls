@@ -1,11 +1,11 @@
-use bevy::{
-    ecs::system::NonSend,
-    prelude::{
-        info, warn, Assets, Commands, DespawnRecursiveExt, Entity, Query, Res, ResMut, With, Name,
-    },
-    window::Window, render::view::NoFrustumCulling,
-};
-use bevy_tiling_background::{BackgroundImageBundle, BackgroundMaterial, SetImageRepeatingExt};
+use crate::ahp::{aspen_lib::InitAssetHandles, engine::*};
+// use bevy::{
+//     ecs::system::NonSend,
+//     prelude::{
+//         info, warn, DespawnRecursiveExt, Entity, Query, With,
+//     },
+//     window::Window,
+// };
 use std::ops::Mul;
 use winit::window::Icon;
 
@@ -14,6 +14,8 @@ use winit::window::Icon;
 pub fn set_window_icon(
     // we have to use `NonSend` here
     window_query: Query<Entity, &Window>,
+    init_assets: Res<InitAssetHandles>,
+    image_assets: Res<Assets<Image>>,
     windows: NonSend<bevy::winit::WinitWindows>,
 ) {
     if let Ok(main_window) = window_query.get_single() {
@@ -25,13 +27,17 @@ pub fn set_window_icon(
         // here we use the `image` crate to load our icon data from a png file
         // this is not a very bevy-native solution, but it will do
         let (icon_rgba, icon_width, icon_height) = {
-            let image = match image::open("assets/favicon.png") {
-                Ok(img) => img.into_rgba8(),
-                Err(e) => {
-                    warn!("couldnt load window icon: {}", e);
-                    return;
-                }
-            };
+            let favicon = image_assets
+                .get(&init_assets.img_favicon)
+                .expect("if this system is running this exists");
+            let image = favicon.clone().try_into_dynamic().unwrap().into_rgba8();
+            //  match image::open("assets/favicon.png") {
+            //     Ok(img) => img.into_rgba8(),
+            //     Err(e) => {
+            //         warn!("couldnt load window icon: {}", e);
+            //         return;
+            //     }
+            // };
             let (width, height) = image.dimensions();
             let rgba = image.into_raw();
             (rgba, width, height)
@@ -80,17 +86,15 @@ macro_rules! state_exists_and_entered {
     };
 }
 
+use bevy::ecs::query::{ReadOnlyWorldQuery, WorldQuery};
 
-use bevy::{
-    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
-    prelude::*,
-};
-
+/// get either mutably util function
 pub trait GetEitherMut<'world, Element, Filter = ()>
 where
     Element: WorldQuery,
     Filter: ReadOnlyWorldQuery,
 {
+    /// mutable get either entity
     fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
 }
 
@@ -102,9 +106,9 @@ where
 {
     fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
         let to_query: Entity;
-        if let Ok(_) = self.get(this) {
+        if self.get(this).is_ok() {
             to_query = this;
-        } else if let Ok(_) = self.get(otherwise) {
+        } else if self.get(otherwise).is_ok() {
             to_query = otherwise;
         } else {
             return None;
@@ -114,10 +118,12 @@ where
     }
 }
 
+/// trait allowing get either for a readonly world query
 pub trait GetEither<'world, Element, Filter = ()>
 where
     Element: ReadOnlyWorldQuery,
 {
+    /// returns one of two elements from world query
     fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
 }
 
@@ -129,9 +135,9 @@ where
 {
     fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
         let to_query: Entity;
-        if let Ok(_) = self.get(this) {
+        if self.get(this).is_ok() {
             to_query = this;
-        } else if let Ok(_) = self.get(otherwise) {
+        } else if self.get(otherwise).is_ok() {
             to_query = otherwise;
         } else {
             return None;

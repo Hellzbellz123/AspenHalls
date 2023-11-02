@@ -1,16 +1,6 @@
-use crate::game::actors::{
-    ai::components::{AIChaseConfig, AIShootConfig, AIWanderConfig, ActorType},
-    animation::components::{AnimState, AnimationSheet},
-    components::{
-        ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes, ActorSecondaryAttributes,
-        ActorTertiaryAttributes, ProjectileStats, TimeToLive,
-    },
-};
-use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
-use big_brain::thinker::ThinkerBuilder;
+use crate::ahp::{engine::*,aspen_lib::*};
 
-/// bundle used too spawn actors
+/// bundle used too spawn "actors"
 #[derive(Bundle)]
 pub struct ActorBundle {
     /// actor name
@@ -102,6 +92,7 @@ pub struct ActorAttributesBundle {
 }
 
 /// bundle for collisions and movement
+/// REQUIRES child collider too work properly
 #[derive(Bundle)]
 pub struct RigidBodyBundle {
     /// rigidbody

@@ -2,13 +2,13 @@ use bevy::{
     ecs::bundle::Bundle,
     prelude::{
         default, info, resource_exists, run_once, Commands, Component, Condition, Handle,
-        IntoSystemConfigs, Name, OnEnter, Plugin, Res, SpatialBundle, Transform, Update,
+        IntoSystemConfigs, Name, Plugin, Res, SpatialBundle, Transform, Update,
     },
     reflect::Reflect,
 };
 use bevy_ecs_ldtk::{prelude::LdtkProject, LevelIid};
 
-use crate::{game::AppStage, loading::assets::MapAssetHandles};
+use crate::loading::assets::MapAssetHandles;
 
 /// generates dungeons from ldtk level files
 pub struct DungeonGeneratorPlugin;
@@ -26,6 +26,7 @@ impl Plugin for DungeonGeneratorPlugin {
     }
 }
 
+/// spawns dungeon root
 fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<MapAssetHandles>) {
     info!("spawning dungeon container");
     cmds.spawn((DungeonContainerBundle {
@@ -54,15 +55,20 @@ pub struct DungeonSettings {
     min_space_between_rooms: f32,
 }
 
+/// tag too identify dungeons
 #[derive(Component)]
 pub struct DungeonContainerTag;
 
+/// tag too identify dungeon hallways
 #[derive(Component)]
 pub struct DungeonHallwayTag;
 
+/// tag too identify dungeon rooms
 #[derive(Component)]
 pub struct DungeonRoomTag;
 
+/// bundle for easy spawning of dungeon
+/// always 1 per dungeon, all dungeon rooms are children
 #[derive(Bundle)]
 pub struct DungeonContainerBundle {
     /// identifies dungeon root entity
@@ -73,9 +79,11 @@ pub struct DungeonContainerBundle {
     settings: DungeonSettings,
     /// data used too spawn with
     ldtk_project: Handle<LdtkProject>,
+    /// gives dungeons a position
     spatial: SpatialBundle,
 }
 
+/// bundle for easy spawning of Dungeon Rooms
 #[derive(Bundle)]
 pub struct DungeonRoomBundle {
     /// identifies dungeon rooms
@@ -86,6 +94,7 @@ pub struct DungeonRoomBundle {
     id: LevelIid,
 }
 
+/// bundle for easy spawning of Dungeon Hallways
 #[derive(Bundle)]
 pub struct DungeonHallWayBundle {
     /// identifies dungeon hallways

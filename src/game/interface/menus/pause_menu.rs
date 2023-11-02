@@ -31,17 +31,19 @@ impl PauseMenu {
 
         elements.select(".interface-root").add_child(eml! {
             <div c:pause-menu-root c: hidden>
-                <div c:pause-menu-buttons>
+                <div c:pause-menu-body>
                     <span c:pause-menu-title> "Pause Menu" </span>
-                    <button c:button on:press=|ctx| { ctx.send_event(PausePlayEvent(EventType::Resume)); }>
+                    <div c:pause-menu-button-container>
+                        <button c:button on:press=|ctx| { ctx.send_event(PausePlayEvent(EventType::Resume)); }>
                         "Resume Game"
-                    </button>
-                    <button c:button on:press=|ctx| { Self::click_button(ctx, "div.settings-menu-root") }>
+                        </button>
+                        <button c:button on:press=|ctx| { Self::click_button(ctx, "div.settings-menu-root") }>
                         "Options"
-                    </button>
-                    <button c:button on:press=|ctx| { ctx.send_event(AppExit) }>
+                        </button>
+                        <button c:button on:press=|ctx| { ctx.send_event(AppExit) }>
                         "Quit"
-                    </button>
+                        </button>
+                    </div>
                 </div>
             </div>
         });

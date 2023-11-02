@@ -18,7 +18,7 @@ use crate::{
     loading::config::DifficultyScales,
 };
 
-use super::ai::components::{Type, ActorType, Enemy};
+use super::ai::components::{ActorType, Enemy, Type};
 
 /// spawner components
 pub mod components;
@@ -50,7 +50,6 @@ impl Plugin for SpawnerPlugin {
 
 ///TODO: can cause panic if spawn count is larger than 100
 fn receive_enemy_spawns(
-    spawners: Query<&Spawner>,
     entity_container: Query<Entity, With<EnemyContainerTag>>,
     mut events: EventReader<SpawnActorEvent>,
     mut commands: Commands,
@@ -170,7 +169,6 @@ pub fn spawn_enemy_container(mut cmds: Commands) {
 // TODO: add waves too spawners, variable on spawner that is wave count, initialized at value and ticks down per wave
 /// spawner timer system, send `SpawnEvent` based on spawner type and timer
 pub fn spawner_timer_system(
-    mut cmds: Commands,
     time: Res<Time>,
     hard_settings: Res<DifficultyScales>,
     mut event_writer: EventWriter<SpawnActorEvent>,
@@ -203,10 +201,11 @@ pub fn spawner_timer_system(
 
             let mut enemies_in_spawner_area = 0;
 
-            let enemy_type: EnemyType = match spawner_state.random_enemy {
-                true => rand::random(),
-                false => spawner_state.enemy_type,
-            }; //::random();
+            let enemy_type: EnemyType = if spawner_state.random_enemy {
+                rand::random()
+            } else {
+                spawner_state.enemy_type
+            };
 
             all_enemies.for_each(|enemy_transform| {
                 // add buffer for enemies that can maybe walk outside :/

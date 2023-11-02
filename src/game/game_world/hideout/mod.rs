@@ -2,12 +2,12 @@ use bevy::{
     prelude::{
         info, resource_exists, run_once, state_exists_and_equals, warn, Assets, Commands,
         Condition, DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Name, Plugin, Query, Res,
-        ResMut, Update, Vec3, With, Color, Vec2,
+        ResMut, Update, With,
     },
-    render::view::NoFrustumCulling,
+    render::view::NoFrustumCulling, utils::default,
 };
 use bevy_tiling_background::{
-    BackgroundImageBundle, BackgroundMaterial, CustomBackgroundImageBundle, SetImageRepeatingExt,
+    CustomBackgroundImageBundle, SetImageRepeatingExt,
 };
 
 use crate::{
@@ -45,13 +45,9 @@ impl Plugin for HideOutPlugin {
                 // TODO: fix scheduling
                 (systems::spawn_hideout, set_overworld_background)
                     .run_if(state_exists_and_equals(AppStage::StartMenu).and_then(run_once())),
-                // .in_schedule(OnEnter(GameStage::StartMenu)),
                 (enter_the_dungeon, home_world_teleporter_collisions)
                     .run_if(state_exists_and_equals(AppStage::PlayingGame)),
-                // .in_set(OnUpdate(GameStage::PlayingGame)),
-                // .in_set(OnUpdate(GameStage::PlayingGame)),
                 // cleanup_start_world.run_if(state_exists_and_equals(GeneratorStage::Initialization)),
-                // .in_schedule(OnEnter(GeneratorStage::Initialization)),
             )
                 .run_if(resource_exists::<MapAssetHandles>()),
         );
@@ -76,15 +72,16 @@ fn cleanup_start_world(
     enemies_query.for_each(|ent| commands.entity(ent).despawn_recursive());
 }
 
+/// spawns overworld background
 pub fn set_overworld_background(
     mut commands: Commands,
     misc: Res<SingleTileTextureHandles>,
     mut materials: ResMut<Assets<ScaledBackgroundMaterial>>,
 ) {
     let material = ScaledBackgroundMaterial {
-        movement_scale: 1.0,
-        _wasm_padding: Vec3::ZERO,
+        movement_scale: 0.5,
         texture: misc.grass.clone(),
+        ..default()
     };
 
     commands.set_image_repeating(misc.grass.clone());

@@ -10,18 +10,15 @@ pub mod input;
 pub mod interface;
 
 use crate::{
-    game::{
-        actors::{components::TimeToLive, ActorPlugin},
-        audio::InternalAudioPlugin,
-        game_world::GameWorldPlugin,
-        input::{actions, ActionsPlugin},
-        interface::InterfacePlugin,
+    ahp::{
+        aspen_lib::{GeneralSettings, TimeToLive, *},
+        engine::{leafwing_input_manager::prelude::ActionState, *},
     },
-    loading::config::GeneralSettings,
+    game::{
+        actors::ActorPlugin, audio::InternalAudioPlugin, game_world::GameWorldPlugin,
+        input::ActionsPlugin, interface::InterfacePlugin,
+    },
 };
-
-use bevy::{app::App, prelude::*};
-use leafwing_input_manager::prelude::ActionState;
 
 /// time info for game,
 #[derive(Debug, Clone, Component, Default, Resource, Reflect)]
@@ -32,24 +29,6 @@ pub struct TimeInfo {
     pub game_paused: bool,
     /// in pause menu
     pub pause_menu: bool,
-}
-
-/// main game state loop
-#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
-pub enum AppStage {
-    /// pre loading state before window is shown.
-    #[default]
-    BootingApp,
-    /// During the loading State the [`loading::LoadingPlugin`] will load our assets and display splash?!
-    Loading,
-    /// Here the menu is drawn and waiting for player interaction
-    StartMenu,
-    /// playing game, some States are inserted here
-    PlayingGame, //(PlaySubStage),
-    /// Game Paused in this state, rapier timestep set too 0.0, no physics, ai is also stopped
-    PauseMenu,
-    /// game failed to load an asset
-    FailedLoading,
 }
 
 /// are we in dungeon yet?
@@ -99,26 +78,29 @@ pub fn setup_time_state(mut time_info: ResMut<TimeInfo>) {
         pause_menu: false,
     }
 }
-
 /// zoom control
 pub fn zoom_control(
-    mut multiplier: Local<f32>,
     mut settings: ResMut<GeneralSettings>,
-    query_action_state: Query<&ActionState<actions::Gameplay>>,
+    query_action_state: Query<&ActionState<action_maps::Gameplay>, Changed<ActionState<Gameplay>>>,
 ) {
-    if query_action_state.is_empty() {
-        return;
-    }
-    let actions = query_action_state.get_single().expect("no player?");
+    let actions = match query_action_state.get_single() {
+        Ok(action_state) => action_state,
+        Err(error) => {
+            warn!("issue getting player `ActionState<Gameplay>`: {error}");
+            return;
+        }
+    };
 
-    if actions.pressed(actions::Gameplay::Sprint) {
-        *multiplier = 10.0;
-    }
+    let multiplier = if actions.pressed(action_maps::Gameplay::Sprint) {
+        10.0
+    } else {
+        1.0
+    };
 
-    if actions.pressed(actions::Gameplay::ZoomIn) {
-        settings.camera_zoom += 0.01 * *multiplier;
-    } else if actions.pressed(actions::Gameplay::ZoomOut) {
-        settings.camera_zoom -= 0.01 * *multiplier;
+    if actions.pressed(action_maps::Gameplay::ZoomIn) {
+        settings.camera_zoom += 0.05 * multiplier;
+    } else if actions.pressed(action_maps::Gameplay::ZoomOut) {
+        settings.camera_zoom -= 0.05 * multiplier;
     }
 }
 
@@ -129,7 +111,7 @@ fn time_to_live(
     mut query: Query<(Entity, &mut TimeToLive)>,
 ) {
     query.for_each_mut(|(entity, mut timer)| {
-        if timer.0.tick(time.delta()).finished() {
+        if timer.tick(time.delta()).finished() {
             commands.entity(entity).despawn();
         }
     });

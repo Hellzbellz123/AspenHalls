@@ -79,10 +79,18 @@ pub struct Spawner {
 /// event for spawning enemies
 #[derive(Debug, Reflect, Clone, Event)]
 pub struct SpawnActorEvent {
+    /// type of actor
     pub actor_type: ActorType,
+    /// string that is deserialized too variant of ActorType::Actor.value
     pub what_to_spawn: String,
+    /// where too spawn actor, extended too Vec3 later
     pub spawn_position: Vec2,
+    /// how many actors too spawn.
+    /// prefer setting this too amount you want instead of looping till value is reached
+    /// uses spawn batch for actual spawning (not just yet)
+    //TODO impl spawn batch for spawning actors
     pub spawn_count: i32,
+    /// set too spawner that requested this entity, none if its spawned by a player or some other reason
     pub spawner: Option<Entity>,
 }
 

@@ -11,14 +11,14 @@ use crate::{
             animation::components::{ActorAnimationType, AnimState},
             components::{ActorTertiaryAttributes, Player},
         },
-        input::actions,
+        input::action_maps,
     },
     loading::splashscreen::MainCameraTag,
 };
 
 /// adds velocity too player based of what movement keys are pressed
 pub fn player_movement_system(
-    query_action_state: Query<&ActionState<actions::Gameplay>, With<Player>>,
+    query_action_state: Query<&ActionState<action_maps::Gameplay>, With<Player>>,
     mut player_query: Query<(
         &mut Velocity,
         &mut AnimState,
@@ -31,13 +31,13 @@ pub fn player_movement_system(
         return;
     }
 
-    let (mut velocity, mut anim_state, mut texture, speed_attr, ()) = player_query.single_mut();
+    let (mut velocity, mut anim_state, _texture, speed_attr, ()) = player_query.single_mut();
     let action_state = query_action_state.single();
     let delta;
 
-    if action_state.pressed(actions::Gameplay::Move) {
+    if action_state.pressed(action_maps::Gameplay::Move) {
         // Virtual direction pads are one of the types which return an AxisPair
-        let axis_pair = action_state.axis_pair(actions::Gameplay::Move).unwrap();
+        let axis_pair = action_state.axis_pair(action_maps::Gameplay::Move).unwrap();
         delta = axis_pair.xy();
 
         let new_velocity = Velocity::linear(delta * speed_attr.speed);
@@ -58,7 +58,7 @@ pub fn player_sprint(
     mut player_query: Query<(
         &mut AnimState,
         &mut Player,
-        &ActionState<actions::Gameplay>,
+        &ActionState<action_maps::Gameplay>,
         &mut ActorTertiaryAttributes,
     )>,
 ) {
@@ -68,12 +68,12 @@ pub fn player_sprint(
 
     let (mut animation, mut player, action_state, mut speed_atr) = player_query.single_mut();
 
-    if action_state.pressed(actions::Gameplay::Sprint) {
+    if action_state.pressed(action_maps::Gameplay::Sprint) {
         animation.timer.set_duration(Duration::from_millis(100));
         player.sprint_available = true;
     }
 
-    if action_state.released(actions::Gameplay::Sprint) {
+    if action_state.released(action_maps::Gameplay::Sprint) {
         animation.timer.set_duration(Duration::from_millis(200));
         player.sprint_available = false;
     }

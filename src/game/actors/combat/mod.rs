@@ -8,7 +8,7 @@ mod hit_detection;
 
 use std::{f32::consts::FRAC_PI_2, time::Duration};
 
-use bevy::{math::vec2, prelude::*};
+use bevy::prelude::*;
 
 use bevy_debug_text_overlay::screen_print;
 
@@ -24,7 +24,7 @@ use crate::{
             },
             player::actions::ShootEvent,
         },
-        input::actions,
+        input::action_maps,
         AppStage, TimeInfo,
     },
     loading::assets::ActorTextureHandles,
@@ -97,7 +97,7 @@ pub struct WeaponFiringTimer(pub Timer);
 /// rotates weapon too face wherever the players mouse is
 fn rotate_player_weapon(
     game_time: Res<TimeInfo>,
-    mut player_query: Query<((&AnimState, &ActionState<actions::Gameplay>), With<Player>)>,
+    mut player_query: Query<((&AnimState, &ActionState<action_maps::Gameplay>), With<Player>)>,
     mut weapon_query: Query<
         // this is equivalent to if player has a weapon equipped and out
         (&WeaponTag, &GlobalTransform, &mut Transform),
@@ -113,7 +113,7 @@ fn rotate_player_weapon(
             if weapon_tag.parent.is_some() {
                 let ((_player_animation_state, player_input), ()) = player_query.single_mut();
                 let global_mouse_pos = player_input
-                    .action_data(actions::Gameplay::LookWorld)
+                    .action_data(action_maps::Gameplay::LookWorld)
                     .axis_pair
                     .unwrap()
                     .xy();
@@ -240,7 +240,7 @@ fn remove_cdw_component(
 /// updates players equipped weapon based on input
 fn update_equipped_weapon(
     mut cmds: Commands,
-    query_action_state: Query<&ActionState<actions::Gameplay>>,
+    query_action_state: Query<&ActionState<action_maps::Gameplay>>,
     mut player_query: Query<&mut WeaponSocket, With<Player>>,
     weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), (With<Parent>, Without<Player>)>,
 ) {
@@ -251,7 +251,7 @@ fn update_equipped_weapon(
     let mut player_weapon_socket = player_query.single_mut();
     let actions = query_action_state.single();
 
-    if actions.just_pressed(actions::Gameplay::EquipSlot1) {
+    if actions.just_pressed(action_maps::Gameplay::EquipSlot1) {
         // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
         // CurrentlyDrawnWeapon from old weapon
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot1);
@@ -262,7 +262,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 1");
         }
-    } else if actions.just_pressed(actions::Gameplay::EquipSlot2) {
+    } else if actions.just_pressed(action_maps::Gameplay::EquipSlot2) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot2);
         let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
         let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
@@ -271,7 +271,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 2");
         }
-    } else if actions.just_pressed(actions::Gameplay::EquipSlot3) {
+    } else if actions.just_pressed(action_maps::Gameplay::EquipSlot3) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot3);
         let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
         let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
@@ -280,7 +280,7 @@ fn update_equipped_weapon(
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
             info!("equipping slot 3");
         }
-    } else if actions.just_pressed(actions::Gameplay::EquipSlot4) {
+    } else if actions.just_pressed(action_maps::Gameplay::EquipSlot4) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot4);
         let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
         let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);

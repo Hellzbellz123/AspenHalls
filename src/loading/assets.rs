@@ -1,5 +1,6 @@
+use belly::prelude::StyleSheet;
 use bevy::{
-    asset::{AssetServer, Handle},
+    asset::Handle,
     ecs::system::Resource,
     reflect::TypeUuid,
     render::texture::Image,
@@ -12,32 +13,59 @@ use bevy_ecs_ldtk::prelude::LdtkProject;
 /// ui textures
 #[derive(AssetCollection, Resource, Clone)]
 pub struct InitAssetHandles {
+    /// global style sheet
+    #[asset(key = "global_style")]
+    pub global_style_sheet: Handle<StyleSheet>,
+    /// style sheet for game menus
+    #[asset(key = "menu_style")]
+    pub menu_style_sheet: Handle<StyleSheet>,
+    /// game icon
     #[asset(key = "favicon")]
     pub img_favicon: Handle<Image>,
+    /// splash screen
+    #[asset(key = "splash_img")]
+    pub img_splashscreen: Handle<Image>,
+
+    /// large fancy font
+    #[asset(key = "title_font")]
+    pub font_title: Handle<Font>,
+    /// main font, default for all text
+    #[asset(key = "main_font")]
+    pub font_regular: Handle<Font>,
+    /// bold font for EMPHASIS
+    #[asset(key = "bold_font")]
+    pub font_bold: Handle<Font>,
+
     /// ui containing image
     #[asset(key = "panel_brown")]
     pub img_panel_brown: Handle<Image>,
-
     /// blue button texture
     #[asset(key = "button_unpressed")]
     pub img_button_blue: Handle<Image>,
-
     /// blue button darkened for pressing
     #[asset(key = "button_pressed")]
     pub img_button_blue_pressed: Handle<Image>,
 }
 
-/// game data folder is data, anything thats not ron/toml/json/etc goes in assets
-/// font resources available too use
-#[derive(AssetCollection, Resource, Clone)]
-pub struct FontHandles {
-    /// default font
-    #[asset(key = "main_font")]
-    pub main_font: Handle<Font>,
-    /// large fancy font
-    #[asset(key = "title_font")]
-    pub title_font: Handle<Font>,
+#[derive(AssetCollection, Resource, Debug)]
+pub struct TouchControlAssetHandles {
+    /// knob with arrows
+    #[asset(key = "knob_arrows")]
+    pub knob_arrows: Handle<Image>,
+    /// knob with no arrows
+    #[asset(key = "knob_no_arrows")]
+    pub knob_no_arrows: Handle<Image>,
+    /// knob container with arrows
+    #[asset(key = "outline_arrows")]
+    pub outline_arrows: Handle<Image>,
+    /// knob container without arrows
+    #[asset(key = "outline_no_arrows")]
+    pub outline_no_arrows: Handle<Image>,
+    // interact button image handle
+    // #[asset(key = "interact_button")]
+    // pub interact_button: Handle<Image>,
 }
+
 /// audio resource available
 #[derive(AssetCollection, Resource, Debug)]
 pub struct AudioHandles {
@@ -95,18 +123,6 @@ pub struct SingleTileTextureHandles {
     pub grass: Handle<Image>,
     #[asset(key = "dirt")]
     pub dirt: Handle<Image>,
-    #[asset(key = "grassdirt_top")]
-    pub grassdirt_top: Handle<Image>,
+    #[asset(key = "grass_dirt_top")]
+    pub grass_dirt_top: Handle<Image>,
 }
-
-// BEVY ODDIO ASSET CONFIG
-// #[derive(AssetCollection, Debug)]
-// pub struct AudioHandles {
-//     #[asset(path = "audio/ost/expansion.wav")]
-//     pub game_soundtrack: Handle<bevy_oddio::AudioSource<Stereo>>,//Handle<bevy_kira_audio::AudioSource>,
-//     #[asset(path = "audio/footstep", collection(typed))]
-//     pub footsteps: Vec<Handle<bevy_oddio::AudioSource<Stereo>>>, //Vec<Handle<bevy_kira_audio::AudioSource>>,
-
-//     #[asset(path = "audio/ost/expansion.wav")]
-//     pub game_soundtrack_two: Handle<bevy_oddio::AudioSource<Stereo>>
-// }

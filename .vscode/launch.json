@@ -7,11 +7,28 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug linux executable 'vanillacoffee'",
+      "name": "Build and Debug 'Aspen Halls Native'",
       "cargo": {
         "args": [
           "build",
-          "--target=x86_64-unknown-linux-gnu",
+          "--bin=aspen_halls_native",
+          "--package=aspen_halls_native"
+        ],
+        "filter": {
+          "name": "aspen_halls_native",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}/launchers/native"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug 'Aspen Halls Native'",
+      "cargo": {
+        "args": [
+          "run",
           "--bin=aspen_halls_native",
           "--package=aspen_halls_native"
         ],

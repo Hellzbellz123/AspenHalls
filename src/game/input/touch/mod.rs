@@ -1,25 +1,30 @@
 use std::time::Duration;
 
-use bevy::{input::InputSystem, prelude::*, utils::Instant, window::PrimaryWindow};
+use bevy::{prelude::*, utils::Instant, window::PrimaryWindow};
 use leafwing_input_manager::{
     action_state::{ActionData, Timing},
     axislike::DualAxisData,
     buttonlike::ButtonState,
-    plugin::InputManagerSystem,
     prelude::{ActionState, ActionStateDriver},
 };
-use virtual_joystick::*;
+use virtual_joystick::{
+    TintColor, VirtualJoystickAxis, VirtualJoystickBundle, VirtualJoystickEvent,
+    VirtualJoystickEventType, VirtualJoystickInteractionArea, VirtualJoystickNode,
+    VirtualJoystickPlugin, VirtualJoystickType,
+};
 
 use super::{
-    actions::{self, Gameplay},
+    action_maps::{self, Gameplay},
     InternalInputSet,
 };
 use crate::{
     game::{actors::components::Player, AppStage},
-    loading::{assets::FontHandles, splashscreen::MainCameraTag},
+    loading::{assets::{InitAssetHandles, TouchControlAssetHandles}, splashscreen::MainCameraTag},
 };
 
-// TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
+// TODO: handle controllers on mobile properly
+/// adds touch input functionality too the app
+/// also spawns joysticks and buttons for touching
 pub struct TouchInputPlugin;
 
 impl Plugin for TouchInputPlugin {
@@ -32,8 +37,8 @@ impl Plugin for TouchInputPlugin {
             (update_joysticks, interaction_button_system)
                 .in_set(InternalInputSet::TouchInput)
                 .run_if(
-                    leafwing_input_manager::systems::run_if_enabled::<actions::Gameplay>
-                        .and_then(any_with_component::<ActionStateDriver<actions::Gameplay>>()),
+                    leafwing_input_manager::systems::run_if_enabled::<action_maps::Gameplay>
+                        .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
                 ),
         );
         app.add_systems(
@@ -44,9 +49,11 @@ impl Plugin for TouchInputPlugin {
     }
 }
 
+/// tag for touch controls root
 #[derive(Component)]
 pub struct TouchControlsRoot;
 
+/// tag too query interact button
 #[derive(Component)]
 pub struct InteractionButtonTag;
 
@@ -56,7 +63,7 @@ pub struct InteractionButtonTag;
 // action button, pick up nearest/open closest
 // swap weapon button
 // fire weapon button
-
+/// root ui entity that holds all touch input buttons
 fn spawn_touch_controls_root(mut cmds: Commands) {
     cmds.spawn((
         Name::new("TouchControlsRoot"),
@@ -75,17 +82,21 @@ fn spawn_touch_controls_root(mut cmds: Commands) {
     ));
 }
 
+/// type of joystick, cursor input or move input
 #[derive(Default, Reflect, Hash, Clone, PartialEq, Eq)]
 pub enum TouchJoyType {
     #[default]
+    /// joystick controls movement input
     MoveTouchInput,
+    /// joystick controls look/cursor input
     LookTouchInput,
 }
 
+/// spawns buttons related too `GamePlay::*`
 fn spawn_button_controls(
     mut cmds: Commands,
     touch_root_query: Query<Entity, With<TouchControlsRoot>>,
-    ui_handles: Res<FontHandles>,
+    init_handles: Res<InitAssetHandles>,
 ) {
     cmds.entity(touch_root_query.single())
         .with_children(|touch_controls| {
@@ -121,7 +132,7 @@ fn spawn_button_controls(
                         TextBundle::from_section(
                             "Interact Button",
                             TextStyle {
-                                font: ui_handles.main_font.clone(),
+                                font: init_handles.font_regular.clone(),
                                 font_size: 25.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
                             },
@@ -136,14 +147,16 @@ fn spawn_button_controls(
         });
 }
 
-fn spawn_touch_joysticks(mut cmds: Commands, asset_server: Res<AssetServer>) {
+// TODO: convert too init pack
+/// system too spawn joysticks
+fn spawn_touch_joysticks(mut cmds: Commands, touch_assets: Res<TouchControlAssetHandles>, asset_server: Res<AssetServer>) {
     warn!("spawning joysticks");
 
     cmds.spawn((
         Name::new("MovementJoyStickUI"),
         VirtualJoystickBundle::new(VirtualJoystickNode {
-            border_image: asset_server.load("interface/outline_noarrows.png"),
-            knob_image: asset_server.load("interface/knob_arrows.png"),
+            border_image: touch_assets.outline_no_arrows.clone(),
+            knob_image: touch_assets.knob_arrows.clone(),
             knob_size: Vec2::new(80., 80.),
             dead_zone: 0.01,
             id: TouchJoyType::MoveTouchInput,
@@ -166,8 +179,8 @@ fn spawn_touch_joysticks(mut cmds: Commands, asset_server: Res<AssetServer>) {
     cmds.spawn((
         Name::new("CameraStickUI"),
         VirtualJoystickBundle::new(VirtualJoystickNode {
-            border_image: asset_server.load("interface/outline_arrows.png"),
-            knob_image: asset_server.load("interface/knob_noarrows.png"),
+            border_image: touch_assets.outline_arrows.clone(),
+            knob_image: touch_assets.knob_no_arrows.clone(),
             knob_size: Vec2::new(80., 80.),
             dead_zone: 0.,
             id: TouchJoyType::LookTouchInput,
@@ -188,47 +201,50 @@ fn spawn_touch_joysticks(mut cmds: Commands, asset_server: Res<AssetServer>) {
     .insert(VirtualJoystickInteractionArea);
 }
 
+/// updates `actions::GamePlay::Move|Look` using touch joystick events
 fn update_joysticks(
-    mut joystick: EventReader<VirtualJoystickEvent<TouchJoyType>>,
-    mut joystick_color: Query<(&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>,
-    mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>,
-    window: Query<&Window, (With<PrimaryWindow>,)>,
-    camera: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
+    mut joystick_events: EventReader<VirtualJoystickEvent<TouchJoyType>>,
+    mut joystick_color_query: Query<(&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>,
+    mut player_input_query: Query<&mut ActionState<Gameplay>, With<Player>>,
+    window_query: Query<&Window, (With<PrimaryWindow>,)>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
 ) {
-    for j in joystick.iter() {
-        let Vec2 { x, y } = j.axis();
+    for joystick_event in &mut joystick_events {
+        let Vec2 { x, y } = joystick_event.axis();
 
-        match j.get_type() {
+        match joystick_event.get_type() {
             VirtualJoystickEventType::Press | VirtualJoystickEventType::Drag => {
-                for (mut color, node) in joystick_color.iter_mut() {
-                    if node.id == j.id() {
+                for (mut color, node) in &mut joystick_color_query {
+                    if node.id == joystick_event.id() {
                         *color = TintColor(Color::WHITE);
                     }
                 }
             }
             VirtualJoystickEventType::Up => {
-                for (mut color, node) in joystick_color.iter_mut() {
-                    if node.id == j.id() {
+                for (mut color, node) in &mut joystick_color_query {
+                    if node.id == joystick_event.id() {
                         *color = TintColor(Color::WHITE.with_a(0.2));
                     }
                 }
             }
         }
 
-        let mut player_input = player_input.single_mut();
-        match j.id() {
+        let mut player_input = player_input_query.single_mut();
+        match joystick_event.id() {
             TouchJoyType::LookTouchInput => {
-                let window = window.single();
-                let (camera, camera_transform) = camera.single();
+                let window = window_query.single();
+                let (camera, camera_transform) = camera_query.single();
                 let dead_zone = 0.006; // Adjust this threshold as needed
 
                 // Apply dead zone to joystick input
-                let normalized_input = if j.axis().length() < dead_zone {
+                let normalized_input = if joystick_event.axis().length() < dead_zone {
                     Vec2::ZERO // Treat values near (0,0) as zero
                 } else {
                     // Adjust input values to be centered around (0,0)
-                    let centered_x = j.axis().x - dead_zone * j.axis().x.signum();
-                    let centered_y = j.axis().y - dead_zone * j.axis().y.signum();
+                    let centered_x = dead_zone
+                        .mul_add(-joystick_event.axis().x.signum(), joystick_event.axis().x); //j.axis().x - dead_zone * j.axis().x.signum();
+                    let centered_y = dead_zone
+                        .mul_add(-joystick_event.axis().y.signum(), joystick_event.axis().y); // j.axis().y - dead_zone * j.axis().y.signum();
 
                     // Normalize input values to [-1.0, 1.0]
                     let normalized_x = centered_x / (1.0 - dead_zone);
@@ -250,7 +266,7 @@ fn update_joysticks(
                     });
 
                 if x.abs() >= 0.3 || y.abs() >= 0.3 {
-                    player_input.press(actions::Gameplay::Shoot)
+                    player_input.press(action_maps::Gameplay::Shoot);
                 }
 
                 player_input.set_action_data(
@@ -323,10 +339,14 @@ fn update_joysticks(
     }
 }
 
+/// color for button with no interactions
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+/// color for hovered button
 const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+/// color for pressed buttons
 const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
+/// links UI interact button too `Gameplay::Interact` action
 fn interaction_button_system(
     mut interaction_query: Query<
         (
@@ -360,12 +380,9 @@ fn interaction_button_system(
             }
         }
 
-        match *interaction {
-            Interaction::Pressed => {
-                let mut input = player_input.single_mut();
-                input.press(actions::Gameplay::Interact);
-            }
-            _ => {}
+        if *interaction == Interaction::Pressed {
+            let mut input = player_input.single_mut();
+            input.press(action_maps::Gameplay::Interact);
         }
     }
 }

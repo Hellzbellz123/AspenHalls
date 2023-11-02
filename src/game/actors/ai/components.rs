@@ -63,6 +63,8 @@ pub struct AIWanderAction;
 /// marks actor as enemy
 #[derive(Component, Default, Clone, Debug, Reflect)]
 pub struct Enemy {
+    // TODO: make this updated for all enemies globally with a raycast and use it
+    /// does raycast too player hit any objects other than the player?
     pub can_see_player: bool
 }
 

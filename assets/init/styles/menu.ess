@@ -16,7 +16,7 @@ div.start-menu-root {
 
 div.start-menu-buttons {
     position-type: absolute;
-    bottom: 0px;
+    bottom: 5%;
 
     flex-direction: column;
     align-items: center;
@@ -61,36 +61,57 @@ div.start-menu-subtitle span {
 
     top: -7.5px;
     right: -60px;
-    rotation: 0, 0, -0.1305262, 0.9914449;
+    /* rotation: 0, 0, -0.1305262, 0.9914449; */
 }
 
 div.pause-menu-root {
     flex-direction: column;
     align-items: center;
-
+    justify-content: center;
     width: 100%;
     height: 100%;
+    padding: 0px 0px 0px 0px;
+    margin: 50px 50px 50px 50px;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
 }
 
-div.pause-menu-buttons {
-    position-type: absolute;
-    bottom: 0px;
-
+div.pause-menu-body {
     flex-direction: column;
+    flex-wrap: no-wrap;
+    flex-grow: 5;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: blue;
+    margin-bottom: 15%;
+    margin-top: 10%;
+    width: 40%;
+    height: 30%;
+}
+
+div.pause-menu-button-container {
+    background-color: red;
+    flex-direction: column;
+    padding-top: 3%;
     align-items: center;
     align-content: center;
 
-    width: 80%;
+    height: 100%;
+    width: 75%;
 }
 
 div.pause-menu-buttons .button {
-    height: 48px;
-
-    max-width: 600px;
-    width: 100%;
+    height: 33%;
+    width: 75%;
 }
 
-div.pause-menu-title {
+span.pause-menu-title {
+    font: italic sans-serif;
+    font-size: 36;
+    margin-top: 3%;
+    margin-bottom: 3%;
     width: auto;
     height: auto;
 }

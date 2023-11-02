@@ -1,39 +1,15 @@
+/// functions too create default file and save file
 pub mod save_load;
 
+use std::default;
+use std::time::Duration;
+
+use bevy::asset::ChangeWatcher;
+
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-use bevy::{
-    asset::Asset,
-    diagnostic::DiagnosticsPlugin,
-    ecs::reflect::ReflectResource,
-    log::LogPlugin,
-    prelude::{
-        default, info, App, AssetPlugin, Camera2d, ClearColor, Color, Commands, Component,
-        DefaultPlugins, DetectChanges, Entity, EventReader, Handle, ImagePlugin, Msaa,
-        OrthographicProjection, Parent, Plugin, PluginGroup, Query, Res, ResMut, Resource, Update,
-        Vec2, Window, WindowPlugin, WindowPosition, With,
-    },
-    reflect::Reflect,
-    window::{PresentMode, WindowMode, WindowResized, WindowResolution},
-};
-use bevy_asset_loader::{
-    loading_state::{LoadingState, LoadingStateAppExt},
-    standard_dynamic_asset::StandardDynamicAssetCollection,
-};
-use bevy_ecs_ldtk::prelude::LdtkProject;
-use bevy_framepace::{FramepaceSettings, Limiter};
-use bevy_kira_audio::{AudioChannel, AudioControl};
-use serde::{Deserialize, Serialize};
+use crate::game::audio::{AmbienceSoundChannel, MusicSoundChannel, GameSoundChannel};
 
-#[cfg(feature = "inspect")]
-use bevy_inspector_egui::{inspector_options::ReflectInspectorOptions, InspectorOptions};
-
-use crate::{
-    game::{
-        audio::{Ambience, Music, Sound},
-        AppStage,
-    },
-    loading::{assets::InitAssetHandles, splashscreen::MainCameraTag},
-};
+use crate::ahp::{aspen_lib::*, engine::*};
 
 /// Holds game settings deserialized from the config.toml
 #[derive(Reflect, Resource, Serialize, Deserialize, Clone, Copy, Default)]
@@ -41,6 +17,8 @@ use crate::{
 pub struct ConfigFile {
     /// game window settings
     pub window_settings: WindowSettings,
+    /// rendering settings
+    pub render_settings: RenderSettings,
     /// sound settings
     pub sound_settings: SoundSettings,
     /// general settings like zoom and difficulty
@@ -57,10 +35,18 @@ pub struct WindowSettings {
     pub frame_rate_target: f64,
     /// full screen yes/no
     pub full_screen: bool,
-    /// display resolution
-    pub resolution: Vec2,
     /// window scale factor, only set upon start
     pub window_scale_override: f64,
+    /// display resolution
+    pub resolution: Vec2,
+}
+
+/// make sure tables are AFTER single fields
+#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default)]
+#[reflect(Resource)]
+pub struct RenderSettings {
+    /// enable v_sync if true
+    pub msaa: bool,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect)]
@@ -76,6 +62,7 @@ pub enum GameDifficulty {
     Insane,
     /// lots of enemy's/rooms, like a lot. 3x enemy hp/damage
     MegaDeath,
+    /// only 1 dungeon and if more than 1 enemy is spawned
     Debug,
 }
 
@@ -221,32 +208,47 @@ impl Default for SoundSettings {
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = App::new();
 
+    //TODO: configure this with a string in the config file
     vanillacoffee.add_plugins(bevy_mod_logfu::LogPlugin {
         // filters for anything that makes it through the default log level. quiet big loggers
         // filter: "".into(), // an empty filter
         filter:
-        "bevy_ecs=warn,bevy_asset_loader=warn,bevy_render=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error,belly_widgets=warn"
+        "bevy_ecs=warn,bevy_render=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error,belly_widgets=warn,gilrs=debug"
         .into(),
         level: bevy::log::Level::TRACE,
         log_too_file: true,
     });
     info!("Logging Plugin Initialized");
 
+    // add vanillacoffee stuff
+    vanillacoffee.add_state::<AppStage>();
+
+    #[cfg(not(feature = "inspect"))]
+    #[cfg(any(target_os = "android", target_family = "wasm"))]
+    vanillacoffee.add_plugins(AssetPlugin::default());
+
+    #[cfg(feature = "inspect")]
+    #[cfg(not(any(target_os = "android", target_family = "wasm")))]
+    vanillacoffee.add_plugins(AssetPlugin {
+        asset_folder: "assets".to_string(),
+        watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs_f32(0.5)),
+    });
+
     vanillacoffee
-        .add_plugins(AssetPlugin::default())
         .add_loading_state(
             LoadingState::new(AppStage::BootingApp)
                 .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
                 .continue_to_state(AppStage::Loading)
                 .on_failure_continue_to_state(AppStage::FailedLoading),
         )
-        .add_collection_to_loading_state::<_, InitAssetHandles>(AppStage::BootingApp)
         .add_dynamic_collection_to_loading_state::<AppStage, StandardDynamicAssetCollection>(
             AppStage::BootingApp,
-            "packs/init/pack.registry",
-        );
+            "init/pack.registry",
+        )
+        .add_collection_to_loading_state::<_, InitAssetHandles>(AppStage::BootingApp)
+        .add_collection_to_loading_state::<_, TouchControlAssetHandles>(AppStage::BootingApp);
 
-    let difficulty_settings = create_difficulty_scales(&cfg_file.general_settings, None);
+    let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
 
     vanillacoffee
         .add_plugins({
@@ -285,7 +287,10 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                 .disable::<LogPlugin>()
                 .disable::<AssetPlugin>()
         })
-        .insert_resource(Msaa::Off)
+        .insert_resource(match cfg_file.render_settings.msaa {
+            true => Msaa::Sample4,
+            false => Msaa::Off,
+        })
         .insert_resource(ClearColor(Color::Hsla {
             hue: 294.0,
             saturation: 0.71,
@@ -349,9 +354,9 @@ fn apply_window_settings(
 /// modifies `AudioChannel` volume if `SoundSettings` changes
 fn apply_sound_settings(
     sound_settings: Res<SoundSettings>,
-    music_channel: Res<AudioChannel<Music>>,
-    ambience_channel: Res<AudioChannel<Ambience>>,
-    sound_channel: Res<AudioChannel<Sound>>,
+    music_channel: Res<AudioChannel<MusicSoundChannel>>,
+    ambience_channel: Res<AudioChannel<AmbienceSoundChannel>>,
+    sound_channel: Res<AudioChannel<GameSoundChannel>>,
 ) {
     if sound_settings.is_changed() {
         //sound settings
@@ -366,7 +371,7 @@ fn apply_sound_settings(
 /// applies camera zoom setting
 fn apply_camera_zoom(
     general_settings: Res<GeneralSettings>,
-    mut camera: Query<(&mut OrthographicProjection, &Camera2d), With<MainCameraTag>>,
+    mut camera: Query<&mut OrthographicProjection, With<MainCameraTag>>,
 ) {
     if camera.is_empty() {
         return;
@@ -374,7 +379,14 @@ fn apply_camera_zoom(
 
     if general_settings.is_changed() {
         //camera zoom
-        camera.get_single_mut().expect("no camera?").0.scale = general_settings.camera_zoom;
+        match camera.get_single_mut() {
+            Ok(mut projection) => {
+                projection.scale = general_settings.camera_zoom;
+            }
+            Err(e) => {
+                warn!("issue getting camera: {e}")
+            }
+        };
     }
 }
 
@@ -403,20 +415,18 @@ fn update_difficulty_settings(
     if general_settings.is_changed() {
         let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
         let difficulty_settings: DifficultyScales =
-            create_difficulty_scales(&general_settings, Some(level_amount));
+            create_difficulty_scales(*general_settings, Some(level_amount));
         cmds.insert_resource(difficulty_settings);
     }
 }
 
 /// converts `GeneralSettings.game_difficulty` too `DifficultyScales` too be used elsewhere
 fn create_difficulty_scales(
-    general_settings: &GeneralSettings,
+    general_settings: GeneralSettings,
     level_amount: Option<i32>,
 ) -> DifficultyScales {
-    let level_amount = match level_amount {
-        Some(val) => val,
-        None => 1,
-    };
+    let level_amount = level_amount.unwrap_or(1);
+
     match general_settings.game_difficulty {
         GameDifficulty::Debug => DifficultyScales {
             max_enemies_per_room: 1,

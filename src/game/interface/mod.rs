@@ -1,7 +1,7 @@
 use belly::prelude::{eml, BodyWidgetExtension, Element, Elements, StyleSheet, Widget};
 use bevy::prelude::*;
 
-use crate::game::AppStage;
+use crate::{game::AppStage, loading::assets::InitAssetHandles};
 
 /// game menu interface data
 mod menus;
@@ -28,21 +28,24 @@ impl Plugin for InterfacePlugin {
         app.add_event::<MenuPopupEvent>()
             .add_state::<RequestedMenu>();
 
-        app.add_systems(Startup, InterfaceRoot::create_interface_root)
-            .add_systems(OnEnter(AppStage::PlayingGame), InterfaceRoot::hide_all)
-            .add_systems(
-                Update,
-                (
-                    update_ui_ent_with_elements.run_if(any_with_component::<Element>()),
-                    InterfaceRoot::show_popups,
-                ),
-            );
+        app.add_systems(
+            OnEnter(AppStage::Loading),
+            InterfaceRoot::create_interface_root,
+        )
+        .add_systems(OnEnter(AppStage::PlayingGame), InterfaceRoot::hide_all)
+        .add_systems(
+            Update,
+            (
+                // update_ui_ent_with_elements.run_if(any_with_component::<Element>()),
+                InterfaceRoot::show_popups,
+            ),
+        );
         menus::setup(app);
     }
 }
 
 /// Iterates over all UI Elements and sets entity 'Name' too element value
-fn update_ui_ent_with_elements(mut cmds: Commands, mut elements: Query<(Entity, &mut Element)>) {
+fn update_ui_ent_with_elements(mut cmds: Commands, mut elements: Query<(Entity, &mut Element), Changed<Element>>) {
     elements.for_each_mut(|(ent, element)| {
         let mut classes = element.classes.clone();
 
@@ -69,9 +72,18 @@ pub struct InterfaceRoot(pub Entity);
 
 impl InterfaceRoot {
     /// Load the global style-sheet and create the menu root node
-    fn create_interface_root(mut commands: Commands) {
-        commands.add(StyleSheet::load("interface/style/global.ess"));
-        commands.add(StyleSheet::load("interface/style/menu.ess"));
+    fn create_interface_root(
+        mut commands: Commands,
+        // init_assets: Res<InitAssetHandles>,
+        // mut strings: Res<Assets<StyleSheet>>,
+    ) {
+        // let global_style: &StyleSheet = strings
+        //     .get(&init_assets.global_style_sheet.clone())
+        //     .expect("global style sheet was not found in Res<Assets<String>");
+        // let menu_style: &StyleSheet = strings
+        //     .get(&init_assets.menu_style_sheet.clone())
+        //     .expect("menu style sheet was not found in Res<Assets<String>>");
+        // style sheet is already loaded and applied from InitAssetsHandles
 
         let entity = commands.spawn_empty().id();
         commands.insert_resource(Self(entity));
@@ -174,9 +186,9 @@ impl PopupIcon {
     /// creates handles from possible icons
     pub fn create_handle(self, asset_server: &AssetServer) -> Handle<Image> {
         match self {
-            Self::Info => asset_server.load("interface/images/info.png"),
-            Self::Warning => asset_server.load("interface/images/warning.png"),
-            Self::Error => asset_server.load("interface/images/error.png"),
+            Self::Info => asset_server.load("interface/textures/info.png"),
+            Self::Warning => asset_server.load("interface/textures/warning.png"),
+            Self::Error => asset_server.load("interface/textures/error.png"),
         }
     }
 }

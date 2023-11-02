@@ -11,9 +11,9 @@ pub struct PlayerBindings {
 impl Default for PlayerBindings {
     fn default() -> Self {
         let mut input_map = InputMap::default();
-        input_map.set_gamepad(Gamepad { id: 0 });
 
-        // movement
+        // ## movement ##
+        // keyboard
         input_map.insert(
             VirtualDPad {
                 up: QwertyScanCode::W.into(), //KeyCode::W.into(),
@@ -23,6 +23,7 @@ impl Default for PlayerBindings {
             },
             Gameplay::Move,
         );
+        // gamepad
         input_map.insert(
             DualAxis::symmetric(
                 GamepadAxisType::LeftStickX,

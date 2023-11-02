@@ -1,5 +1,5 @@
-use aspen_halls_game::{ConfigFile, WindowSettings, SoundSettings, GeneralSettings, GameDifficulty};
-use bevy::prelude::Vec2;
+use aspen_lib::ahp::aspen_lib as asha;
+use aspen_lib::ahp::engine as bevy;
 use yew::prelude::*;
 
 fn set_window_title(title: &str) {
@@ -21,18 +21,32 @@ fn view() -> Html {
 fn main() {
     #[cfg(feature = "inspect")]
     wasm_logger::init(
-        wasm_logger::Config::new(log::Level::Info)
-            // .module_prefix(module_prefix), // .module_prefix("wasm_kill_errors")
+        wasm_logger::Config::new(log::Level::Info), // .module_prefix(module_prefix), // .module_prefix("wasm_kill_errors")
                                                     // .module_prefix("game"),
     );
     // Mount the DOM
     yew::Renderer::<Root>::new().render();
     // Start the Bevy App
     log::info!("Starting launcher: WASM");
-    let cfg_file = ConfigFile {
-        window_settings: WindowSettings { v_sync: true, frame_rate_target: 144.0, full_screen: false, resolution: Vec2::new(1920.0,1080.0), window_scale_override: 1.0 },
-        sound_settings: SoundSettings { master_volume: 0.5, ambience_volume: 1.01, music_volume: 1.0, sound_volume: 1.0 },
-        general_settings: GeneralSettings { camera_zoom: 3.5, game_difficulty: GameDifficulty::Easy },
+    let cfg_file = asha::ConfigFile {
+        window_settings: asha::WindowSettings {
+            v_sync: true,
+            frame_rate_target: 144.0,
+            full_screen: false,
+            resolution: bevy::Vec2::new(1920.0, 1080.0),
+            window_scale_override: 1.0,
+        },
+        sound_settings: asha::SoundSettings {
+            master_volume: 0.5,
+            ambience_volume: 1.01,
+            music_volume: 1.0,
+            sound_volume: 1.0,
+        },
+        general_settings: asha::GeneralSettings {
+            camera_zoom: 3.5,
+            game_difficulty: asha::GameDifficulty::Easy,
+        },
+        render_settings: asha::RenderSettings { msaa: false },
     };
-    aspen_halls_game::start_app(cfg_file).run();
+    aspen_lib::start_app(cfg_file).run();
 }

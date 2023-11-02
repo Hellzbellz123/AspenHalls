@@ -1,12 +1,4 @@
 ({
-    // fonts for game
-    "title_font": File (
-        path: "interface/fonts/FantasqueSansMonoNF.ttf",
-    ),
-    "main_font": File (
-        path: "interface/fonts/FiraSans-Bold.ttf",
-    ),
-
     // heroes go here
     "hero_rex": TextureAtlas (
         path: "packs/asha/textures/actors/heroes/rex-sheet32x64.png",
@@ -15,7 +7,6 @@
         columns: 5,
         rows: 4,
     ),
-
     // enemys go here
     "skeleton": TextureAtlas (
         path: "packs/asha/textures/actors/enemies/skeleton-sheet.png",
@@ -24,7 +15,7 @@
         columns: 5,
         rows: 4,
     ),
-
+    // slime enemy
     "slime": TextureAtlas (
         path: "packs/asha/textures/actors/enemies/slime-sheet32x64.png",
         tile_size_x: 32.,
@@ -47,17 +38,6 @@
         tile_size_y: 36.,
         columns: 1,
         rows: 1,
-    ),
-
-    // UI go here
-    "panel_brown": File (
-        path: "interface/textures/panel_brown.png",
-    ),
-    "button_unpressed": File (
-        path: "interface/textures/buttonSquare_blue.png",
-    ),
-    "button_pressed": File (
-        path: "interface/textures/buttonSquare_blue_pressed.png",
     ),
 
     // Sound assets go here
@@ -85,7 +65,7 @@
         path: "packs/asha/textures/tiles/grass.png",
     ),
 
-    "grassdirt_top": File (
+    "grass_dirt_top": File (
         path: "packs/asha/textures/tiles/grass.png",
     ),
 

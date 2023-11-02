@@ -1,4 +1,4 @@
-use bevy::prelude::{App, IntoSystemSetConfig, Plugin, SystemSet, Update};
+use bevy::prelude::{App, Plugin, SystemSet};
 
 /// all functionality for artificial intelligence on actors is stored here
 pub mod ai;
@@ -15,8 +15,11 @@ pub mod player;
 /// holds spawner info
 pub mod spawners;
 
+/// system set for ordering actor systems
 #[derive(Debug, Clone, PartialEq, Eq, Hash, SystemSet)]
 pub enum ActorSystemsSet {
+    /// systems that use velocity are in this set, this set is ordered
+    /// AFTER any systems that modify velocity in update
     UseVelocity,
 }
 

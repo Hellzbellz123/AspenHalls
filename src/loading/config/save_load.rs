@@ -1,10 +1,7 @@
-use bevy::prelude::{info, Vec2};
+use bevy::prelude::info;
 use std::path::Path;
 
-use crate::{
-    consts,
-    loading::config::{ConfigFile, GeneralSettings, SoundSettings, WindowSettings},
-};
+use crate::loading::config::ConfigFile;
 
 /// returns a default `ConfigFile`
 pub fn create_default_settings() -> ConfigFile {

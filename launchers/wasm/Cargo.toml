@@ -1,19 +1,27 @@
 [package]
 name = "aspen_halls_wasm"
+description = "aspen halls wasm launcher using trunk"
 version = "0.0.1"
 authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
 edition = "2021"
+documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
+homepage = "https://hellzbellz123.github.io/AspenHalls/"
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
+keywords = ["videogame", "game", "application", "bin"]
+categories = ["games"]
 
 workspace = "../.."
 
 [features]
 default = []
-inspect = ["aspen_halls_game/inspect", "wasm-logger"]
+inspect = ["aspen_lib/inspect", "dep:wasm-logger"]
 
 [dependencies]
 bevy.workspace = true
 log.workspace = true
-aspen_halls_game = { path = "../.." }
+aspen_lib = { path = "../.." }
 yew = { version = "0.20", features = ["csr"] }
 
 wasm-logger = { version = "0.2.0", optional = true }

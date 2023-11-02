@@ -12,16 +12,16 @@ use crate::{
             components::Player,
             spawners::components::SpawnActorEvent,
         },
-        input::actions,
+        input::action_maps,
     },
 };
 use bevy::prelude::*;
 use leafwing_input_manager::prelude::ActionState as lfActionState;
 
-/// spawns skeleton near player if debug_f1 is pressed
+/// spawns skeleton near player if `Gameplay::DebugF1` is pressed
 pub fn spawn_custom_on_button(
     mut spawn_event_writer: EventWriter<SpawnActorEvent>,
-    query_action_state: Query<&lfActionState<actions::Gameplay>>,
+    query_action_state: Query<&lfActionState<action_maps::Gameplay>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
     if query_action_state.is_empty() {
@@ -29,10 +29,10 @@ pub fn spawn_custom_on_button(
     }
     let actions = query_action_state.get_single().expect("no entities?");
 
-    if actions.just_released(actions::Gameplay::DebugF1) {
+    if actions.just_released(action_maps::Gameplay::DebugF1) {
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
         let mouse_world = actions
-            .action_data(actions::Gameplay::LookWorld)
+            .action_data(action_maps::Gameplay::LookWorld)
             .axis_pair
             .expect("this should always have an axis pair, its data MAY be zero")
             .xy();
@@ -76,7 +76,7 @@ pub fn player_attack_sender(
     >,
 
     player_query: Query<(&mut Player, &mut Transform)>,
-    mut input_query: Query<&lfActionState<actions::Gameplay>>,
+    mut input_query: Query<&lfActionState<action_maps::Gameplay>>,
     mut shoot_event_writer: EventWriter<ShootEvent>,
 ) {
     if player_query.is_empty()
@@ -94,7 +94,7 @@ pub fn player_attack_sender(
         if parent.get() == weapon_entity {
             let action_state = input_query.single_mut();
             let cursor_world = action_state
-                .action_data(actions::Gameplay::LookWorld)
+                .action_data(action_maps::Gameplay::LookWorld)
                 .axis_pair
                 .expect("no axis pair on Gameplay::LookWorld")
                 .xy();
@@ -102,14 +102,14 @@ pub fn player_attack_sender(
             let player_position = player_query.single().1.translation.truncate();
             let direction: Vec2 = (cursor_world - player_position).normalize_or_zero();
 
-            if action_state.pressed(actions::Gameplay::Shoot) {
+            if action_state.pressed(action_maps::Gameplay::Shoot) {
                 info!("bang");
                 shoot_event_writer.send(ShootEvent {
                     bullet_spawn_loc: barrel_loc,
                     travel_dir: direction,
                 });
             }
-            if action_state.pressed(actions::Gameplay::Melee) {
+            if action_state.pressed(action_maps::Gameplay::Melee) {
                 // TODO: setup melee system and weapons
                 info!("melee not implemented yet");
             }
@@ -125,7 +125,7 @@ pub fn equip_closest_weapon(
             Entity,
             &mut WeaponSocket,
             &mut Transform,
-            &lfActionState<actions::Gameplay>,
+            &lfActionState<action_maps::Gameplay>,
         ),
         With<Player>,
     >,
@@ -146,7 +146,7 @@ pub fn equip_closest_weapon(
     // );
 
     if !actions
-        .just_pressed(actions::Gameplay::Interact)
+        .just_pressed(action_maps::Gameplay::Interact)
         | // if interact isn't pressed BitXor weapon_socket_on_player.weapon_slots is "full" we can early exit the fn
         weapon_socket_on_player
             .weapon_slots

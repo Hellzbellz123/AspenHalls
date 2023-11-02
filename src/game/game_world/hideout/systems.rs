@@ -121,7 +121,7 @@ pub fn home_world_teleporter_collisions(
 
 /// acts on player standing on pad for required time
 pub fn enter_the_dungeon(
-    mut commands: Commands,
+    // mut commands: Commands,
     time: Res<Time>,
     mut teleport_timer: ResMut<TeleportTimer>,
     mut player_query: Query<(&Transform, &mut Player)>,

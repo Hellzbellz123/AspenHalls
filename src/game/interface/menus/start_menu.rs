@@ -34,11 +34,11 @@ impl StartMenu {
 
         elements.select(".interface-root").add_child(eml! {
             <div c:start-menu-root c:hidden>
-                <div c:start-menu-title>
-                    <img c:start-menu-logo src="assets/favicon.png"/>
-                    <div c:start-menu-subtitle><span>{ Self::get_subtitle() }</span></div>
-                </div>
                 <div c:start-menu-buttons>
+                    <div c:start-menu-title>
+                        <img c:start-menu-logo src="init/favicon.png"/>
+                        <div c:start-menu-subtitle><span>{ Self::get_subtitle() }</span></div>
+                    </div>
                     <button c:button on:press=|ctx| { ctx.send_event(PausePlayEvent(EventType::Play)) }>
                         "Play"
                     </button>
@@ -80,7 +80,7 @@ impl StartMenu {
 
     /// The list of possible subtitles
     const SUBTITLES: &'static str =
-        include_str!("../../../../assets/interface/language/menu_subtitle.txt");
+        include_str!("../../../../assets/init/language/menu_subtitle.txt");
 
     /// Get a random subtitle from the list
     fn get_subtitle() -> &'static str {

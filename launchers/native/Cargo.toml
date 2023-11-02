@@ -3,14 +3,22 @@ name = "aspen_halls_native"
 version = "0.0.1"
 authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
 edition = "2021"
+description = "Aspen Halls desktop launcher"
+documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
+homepage = "https://hellzbellz123.github.io/AspenHalls/"
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
+keywords = ["videogame", "game", "application", "bin"]
+categories = ["games"]
 workspace = "../.."
 
 [features]
 default = []
-inspect = ["aspen_halls_game/inspect"]
+inspect = ["aspen_lib/inspect"]
 
 [dependencies]
-bevy.workspace = true
-aspen_halls_game = { path = "../.." }
+# bevy.workspace = true
+aspen_lib = { path = "../.." }
 open = "5.0"
 toml ={ version = "0.8"}

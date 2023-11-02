@@ -14,6 +14,9 @@ CARGO_MAKE_CRATE_WORKSPACE_MEMBERS = ["launchers/native", "launchers/wasm", "lau
 [tasks.default]
 alias = "list"
 
+[tasks.edit_assets]
+description = "Run Native app and save any changes too launchers/native/assets folder back too git tracked assets"
+
 [tasks.run-native]
 description = "Build and run desktop variant of game"
 

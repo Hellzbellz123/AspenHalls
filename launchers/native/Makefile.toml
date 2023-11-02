@@ -1,13 +1,21 @@
 [tasks.run-native]
 env_files = ["../../.env"]
 script_runner = "@shell"
-script.pre = "rm -fr ./assets/* && cp -r ../../assets/* ./assets"
+script.pre = "rm -rf ./assets && cp -r ../../assets ./assets"
 script.main = "cargo run --features inspect"
+
+[tasks.edit_assets]
+env_files = ["../../.env"]
+script_runner = "@shell"
+script.pre = "rm -rf ../../assets_old/*"
+script.main = "cargo run --features inspect"
+script.post = "mv ../../assets/* ../../assets_old/ && cp -r ./assets/* ../../assets/"
+
 
 [tasks.watch-native]
 env_files = ["../../.env"]
 script_runner = "@shell"
-script.pre = "rm -fr ./assets/* && cp -r ../../assets/* ./assets"
+script.pre = "rm -fr ./assets && cp -r ../../assets ./assets"
 script.main = "cargo run --features inspect"
 watch.watch = [
     "../../src",

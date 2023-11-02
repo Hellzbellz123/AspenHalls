@@ -1,7 +1,9 @@
 {
   "cSpell.words": [
     "Actionlike",
+    "ahprelude",
     "angvel",
+    "asha",
     "bigbrain",
     "cmds",
     "consts",
@@ -96,10 +98,34 @@
     "SKINNED",
     "STANDARDMATERIAL_NORMAL_MAP"
   ],
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".cargo": true,
+    ".vscode": true,
+    ".github": true,
+    ".gitmodules": true,
+    "clippy.toml": true,
+    ".gitignore": true,
+    "target": true,
+    ".trunk": true,
+    ".shellcheckrc": true,
+    ".markdownlint.yaml": true,
+    "assets_old": true
+  },
+  "explorerExclude.backup": {},
+  "memory-view.showMemoryPanel": true,
   "rust-analyzer.cargo.target": "x86_64-unknown-linux-gnu",
   "rust-analyzer.cargo.features": ["inspect"],
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.server.path": "/usr/bin/rust-analyzer",
+  "rust-analyzer.cargo.noDefaultFeatures": true,
+  "rust-analyzer.rust.analyzerTargetDir": "true",
   "rust-analyzer.showUnlinkedFileNotification": false,
-  "memory-view.showMemoryPanel": true,
   "rust-analyzer.debug.engine": "ms-vscode.cpptools",
   "rust-analyzer.debug.engineSettings": {
     "cppdbg": {
@@ -113,23 +139,4 @@
       ]
     }
   },
-  "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true,
-    ".cargo": true,
-    ".vscode": false,
-    ".github": true,
-    ".gitmodules": true,
-    "clippy.toml": true,
-    ".gitignore": true,
-    "target": true,
-    ".trunk": true,
-    ".shellcheckrc": true,
-    ".markdownlint.yaml": true
-  },
-  "explorerExclude.backup": {}
 }

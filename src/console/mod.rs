@@ -1,17 +1,16 @@
+use crate::ahp::{engine::*,aspen_lib::*};
+use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
+
 /// holds systems that are used by commands
-mod command_systems;
+pub mod command_systems;
 /// holds definitions of commands
 pub mod commands;
 
-use bevy::prelude::*;
-use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
+pub use command_systems::*;
+pub use commands::*;
 
-use self::{
-    command_systems::{spawnenemy_command, spawnweapon_command, teleport_player_command},
-    commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
-};
-
-/// Holds Debug/Cheat Console functionality
+/// adds Debug/Cheat Console functionality
+/// toggled with `grave` key
 pub struct QuakeConPlugin;
 
 impl Plugin for QuakeConPlugin {

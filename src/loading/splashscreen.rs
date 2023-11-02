@@ -1,18 +1,4 @@
-use bevy::{
-    core_pipeline::{
-        clear_color::ClearColorConfig,
-        tonemapping::{DebandDither, Tonemapping},
-    },
-    prelude::*,
-    render::{
-        camera::ScalingMode,
-        primitives::Frustum,
-        texture::{CompressedImageFormats, ImageType},
-    },
-};
-use image::imageops::FilterType;
-// use rust_embed::RustEmbed;
-use crate::{game::AppStage, utilities::despawn_with};
+use crate::ahp::{engine::*,aspen_lib::*};
 
 /// Identifies the Main Camera
 #[derive(Component, Reflect)]
@@ -35,13 +21,9 @@ pub struct SplashPlugin;
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
         // TODO: do some special trickery to make this system work awesome
-        // As this plugin is managing the splash screen, it will focus on the state `GameState::Splash`
-
-        app.add_systems(Startup, (spawn_main_camera, splash_setup).chain());
-        app.add_systems(
-            OnExit(AppStage::Loading),
-            despawn_with::<OnlySplashScreen>,
-        );
+        app.add_systems(Startup, spawn_main_camera);
+        app.add_systems(OnEnter(AppStage::Loading), splash_setup);
+        app.add_systems(OnExit(AppStage::Loading), despawn_with::<OnlySplashScreen>);
     }
 }
 
@@ -67,11 +49,8 @@ fn spawn_main_camera(mut commands: Commands) {
             },
             frustum: Frustum::default(),
             camera_2d: Camera2d {
-                clear_color: ClearColorConfig::Custom(Color::GRAY),
+                clear_color: ClearColorConfig::Custom(Color::BLACK),
             },
-            // transform: todo!(),
-            // global_transform: todo!(),
-            // visible_entities: todo!(),
             ..default()
         },
         Name::new("MainCamera"),
@@ -82,28 +61,35 @@ fn spawn_main_camera(mut commands: Commands) {
 }
 
 /// spawns splash, inserts splash timer
-fn splash_setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, window: Query<&Window>) {
+fn splash_setup(
+    // mut images: ResMut<Assets<Image>>,
+    // window: Query<&Window>,
+    mut commands: Commands,
+    init_assets: Res<InitAssetHandles>,
+) {
     info!("loading splash");
-    let window = window.single();
-    let img_bytes = include_bytes!("../../res/splashL.png");
-    let splash_image = Image::from_buffer(
-        img_bytes,
-        ImageType::Extension("png"),
-        CompressedImageFormats::empty(),
-        true,
-    )
-    .unwrap();
-    let img: Handle<Image> = images.add(Image::from_dynamic(
-        splash_image
-            .try_into_dynamic()
-            .unwrap_or_default()
-            .resize_exact(window.physical_width(), window.physical_height(), FilterType::Nearest),
-        true,
-    ));
+    // let window = window.single();
+    // let img_bytes = include_bytes!("../../res/splashL.png");
+    // let splash_image = Image::from_buffer(
+    //     img_bytes,
+    //     ImageType::Extension("png"),
+    //     CompressedImageFormats::empty(),
+    //     true,
+    // )
+    // .unwrap();
+    // let img: Handle<Image> = images.add(Image::from_dynamic(
+    //     splash_image
+    //         .try_into_dynamic()
+    //         .unwrap_or_default()
+    //         .resize_exact(window.physical_width(), window.physical_height(), FilterType::Nearest),
+    //     true,
+    // ));
     // Display the logo
     info!("spawning splash ImageBundle");
-    commands
-        .spawn(ImageBundle {
+    commands.spawn((
+        Name::new("SplashScreenImage"),
+        OnlySplashScreen,
+        ImageBundle {
             style: Style {
                 margin: UiRect::all(Val::Px(0.0)),
                 min_width: Val::Percent(100.0),
@@ -113,10 +99,10 @@ fn splash_setup(mut commands: Commands, mut images: ResMut<Assets<Image>>, windo
                 ..default()
             },
             image: UiImage {
-                texture: img,
+                texture: init_assets.img_splashscreen.clone(),
                 ..default()
             },
             ..default()
-        })
-        .insert(OnlySplashScreen);
+        },
+    ));
 }

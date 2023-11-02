@@ -1,10 +1,10 @@
 #![allow(clippy::type_complexity)]
 #[cfg(feature = "inspect")]
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
-mod debug_dirs;
-
+/// dump game directory functions. useful too see what assets that game is trying too load from
 /// holds `walk_dirs` function
 /// outputs cwd too console
+mod debug_dirs;
 
 /// debug plugin for vanillacoffee
 /// holds type registration, diagnostics, and inspector stuff
@@ -21,9 +21,7 @@ pub mod debug_plugin {
     // use bevy_debug_grid::DebugGridPlugin;
     use bevy_debug_text_overlay::OverlayPlugin;
     use bevy_ecs_ldtk::{prelude::LdtkProject, GridCoords, IntGridCell, LayerMetadata};
-    use bevy_inspector_egui::quick::{
-        ResourceInspectorPlugin, StateInspectorPlugin, WorldInspectorPlugin,
-    };
+    use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
     use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
     use bevy_prototype_lyon::{
         prelude::{
@@ -39,36 +37,36 @@ pub mod debug_plugin {
     // use grid_plane::GridPlanePlugin;
     use std::{fs, time::Duration};
 
-    use crate::game::actors::{components::{Player, TimeToLive}, ai::components::{AIShootConfig, AIShootAction}};
-
+    use crate::game::actors::{
+        ai::components::{AIShootAction, AIShootConfig},
+        components::{Player, TimeToLive},
+    };
 
     use crate::{
-        game::{
-            actors::combat::components::{
-                CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
-                WeaponTag,
-            },
-            game_world::dungeonator_v2::DungeonSettings,
-        },
-        // kayak_ui::MenuState,
+        ahp::{engine::*,aspen_lib::*},
         game::{
             actors::{
                 ai::components::{
-                    AIChaseAction, AIChaseConfig, AIWanderAction, AIWanderConfig, Type, ActorType,
-                    ChaseScore,
+                    AIChaseAction, AIChaseConfig, AIWanderAction, AIWanderConfig, ActorType,
+                    ChaseScore, Type,
                 },
                 animation::components::{ActorAnimationType, AnimState, AnimationSheet},
+                combat::components::{
+                    CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
+                    WeaponTag,
+                },
                 spawners::components::Spawner,
             },
-            // game_world::dungeonator::GeneratorStage,
-            interface::RequestedMenu,
+            TimeInfo,
         },
-        game::{AppStage, TimeInfo},
-        loading::config::{DifficultyScales, GeneralSettings, SoundSettings, WindowSettings},
-        loading::splashscreen::MainCameraTag,
+        loading::{
+            config::{DifficultyScales, GeneralSettings, SoundSettings, WindowSettings},
+            splashscreen::MainCameraTag,
+        },
     };
 
-    /// actual plugin too insert
+    /// debug plugin for Aspen Halls.
+    /// registers types from plugins and the game, prints diagnostics too the console, and spawns an `world` inspector and a `state` inspector
     pub struct DebugPlugin;
 
     impl Plugin for DebugPlugin {
@@ -232,40 +230,40 @@ pub mod debug_plugin {
         let render_graph = render_graph_dot(app, &render_graph_settings);
 
         match fs::write(".schedule/0-pre_startup_schedule.dot", pre_startup_graph) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/1-main_startup_schedule.dot", main_startup_graph) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/2-post_startup_graph.dot", post_startup_graph) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/3-first_schedule.dot", first_schedule) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/4-pre_update_schedule.dot", pre_update_schedule) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/5-main_update_schedule.dot", main_update_schedule) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/6-post_update_schedule.dot", post_update_schedule) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
         match fs::write(".schedule/7-last_schedule.dot", last_schedule) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
 
         match fs::write(".schedule/zrendergraph.dot", render_graph) {
-            Ok(_) => {}
+            Ok(()) => {}
             Err(e) => warn!("{}", e),
         }
     }

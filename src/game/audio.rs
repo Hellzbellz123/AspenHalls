@@ -15,15 +15,18 @@ use crate::{
     loading::config::SoundSettings,
 };
 
-/// music is played in this channel
+/// OST music is played on this channel.
 #[derive(Resource, Component)]
-pub struct Music;
-/// nothing is currently played here, intended for menu sounds/creaking/etc atmospheric sounds
+pub struct MusicSoundChannel;
+
+/// Sound Channel intended for menu sounds/creaking/1etc atmospheric sounds
 #[derive(Resource, Component)]
-pub struct Ambience;
-/// this audio is for everything gameplay related, footsteps of npc/enemy can be used to tell if enemies exist?
+pub struct AmbienceSoundChannel;
+
+/// AudioChannel for footsteps/grunts/etc of npc/enemy/player, weapon sounds.
+/// can be used to tell if enemies exist?
 #[derive(Resource, Component)]
-pub struct Sound;
+pub struct GameSoundChannel;
 
 /// footstep timer
 #[derive(Resource)]
@@ -41,9 +44,9 @@ pub struct InternalAudioPlugin;
 impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(AudioPlugin)
-            .add_audio_channel::<Music>()
-            .add_audio_channel::<Ambience>()
-            .add_audio_channel::<Sound>()
+            .add_audio_channel::<MusicSoundChannel>()
+            .add_audio_channel::<AmbienceSoundChannel>()
+            .add_audio_channel::<GameSoundChannel>()
             .insert_resource(WalkingSoundTimer {
                 timer: Timer::from_seconds(0.65, TimerMode::Repeating),
                 is_first_time: true,
@@ -57,16 +60,16 @@ impl Plugin for InternalAudioPlugin {
                 )
                     .run_if(resource_exists::<AudioHandles>()),
             )
-            .add_systems(Startup, setup_sound_volume);
+            .add_systems(OnEnter(AppStage::Loading), setup_sound_volume);
     }
 }
 
 /// initial volume from sound settings
 fn setup_sound_volume(
     sound_settings: ResMut<SoundSettings>,
-    music_channel: Res<AudioChannel<Music>>,
-    ambience_channel: Res<AudioChannel<Ambience>>,
-    sound_channel: Res<AudioChannel<Sound>>,
+    music_channel: Res<AudioChannel<MusicSoundChannel>>,
+    ambience_channel: Res<AudioChannel<AmbienceSoundChannel>>,
+    sound_channel: Res<AudioChannel<GameSoundChannel>>,
 ) {
     let mastervolume = sound_settings.master_volume;
     music_channel.set_volume(sound_settings.music_volume * mastervolume);
@@ -75,7 +78,7 @@ fn setup_sound_volume(
 }
 
 /// play game soundtrack
-fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<Music>>) {
+fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<MusicSoundChannel>>) {
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
@@ -85,7 +88,7 @@ fn player_walking_sound_system(
     audio_assets: Res<AudioHandles>,
     mut player_query: Query<(&mut AnimState, &mut Player)>,
     mut walk_sound_res: ResMut<WalkingSoundTimer>,
-    audio: Res<AudioChannel<Sound>>,
+    audio: Res<AudioChannel<GameSoundChannel>>,
     time: Res<Time>,
 ) {
     let (anim_data, player_data) = player_query.single_mut();

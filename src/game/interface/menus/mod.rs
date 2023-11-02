@@ -8,7 +8,7 @@ use leafwing_input_manager::prelude::ActionState;
 
 use crate::game::{
     actors::components::Player,
-    input::actions::{self},
+    input::action_maps::{self},
     interface::menus::pause_menu::PauseMenu,
     AppStage,
 };
@@ -38,7 +38,7 @@ pub fn setup(app: &mut App) {
 /// updates menu state based on game stage
 fn menu_key_control(
     game_state: Res<State<AppStage>>,
-    input: Query<&ActionState<actions::Gameplay>, With<Player>>,
+    input: Query<&ActionState<action_maps::Gameplay>, With<Player>>,
     mut ew: EventWriter<PausePlayEvent>,
 ) {
     if input.is_empty() {
@@ -46,7 +46,7 @@ fn menu_key_control(
     }
     let input = input.single();
 
-    if input.just_pressed(actions::Gameplay::Pause) {
+    if input.just_pressed(action_maps::Gameplay::Pause) {
         match game_state.get() {
             AppStage::StartMenu => ew.send(PausePlayEvent(EventType::Play)),
             AppStage::PauseMenu => ew.send(PausePlayEvent(EventType::Resume)),

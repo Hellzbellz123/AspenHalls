@@ -1,6 +1,6 @@
 use bevy::{
     core_pipeline::fullscreen_vertex_shader::FULLSCREEN_SHADER_HANDLE,
-    prelude::{Color, Handle, Image, Vec2, Query, Camera, With, Vec3},
+    prelude::{Handle, Image, Vec3},
     reflect::{TypePath, TypeUuid},
     render::{
         mesh::MeshVertexBufferLayout,
@@ -13,17 +13,16 @@ use bevy::{
 };
 use bevy_tiling_background::ScrollingBackground;
 
-use crate::loading::splashscreen::MainCameraTag;
-
 /// background material that is tiled and scaled across the whole screen.
 /// moves with the camera, make sure `NoFrustumCulling` component is added else
 /// you will get strange behavior
 #[derive(AsBindGroup, Debug, Clone, TypeUuid, TypePath, Default)]
 #[uuid = "09756d79-32e9-4dc4-bb95-b373370815e3"]
 pub struct ScaledBackgroundMaterial {
-    #[uniform(0)]
     /// how much image moves relative too camera
+    #[uniform(0)]
     pub movement_scale: f32,
+    /// 3 extra vecs for wasm padding because wasm wants 16byte structs
     #[uniform(0)]
     pub _wasm_padding: Vec3,
     /// This image must have its [`SamplerDescriptor`] address_mode_* fields set to
