@@ -1,4 +1,4 @@
-use aspen_lib::ahp::aspen_lib as asha;
+use aspen_lib::ahp::game as asha;
 use aspen_lib::ahp::engine as bevy;
 use std::path::Path;
 

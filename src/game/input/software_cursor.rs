@@ -1,19 +1,15 @@
-use bevy::{
-    prelude::{
-        default, Color, Commands, Component, IntoSystemConfigs, Name, Plugin, PreUpdate, Query,
-        Startup, Transform, Vec2, With, OnEnter,
+use crate::ahp::{
+    engine::{
+        bevy::window::PrimaryWindow,
+        {
+            leafwing_input_manager::{action_state::ActionState, axislike::DualAxisData},
+            *,
+        },
     },
-    window::{PrimaryWindow, Window},
+    game::*,
 };
-use bevy_prototype_lyon::{
-    prelude::{Fill, GeometryBuilder, ShapeBundle, Stroke},
-    shapes,
-};
-use leafwing_input_manager::{axislike::DualAxisData, prelude::ActionState};
 
-use crate::game::{actors::components::Player, AppStage};
-
-use super::{action_maps::Gameplay, InternalInputSet};
+use super::AspenInputSystemSet;
 
 /// adds software cursor functionality too app
 pub struct SoftwareCursorPlugin;
@@ -24,9 +20,7 @@ impl Plugin for SoftwareCursorPlugin {
 
         app.add_systems(
             PreUpdate,
-            update_software_cursor
-                .in_set(InternalInputSet::SoftwareCursor)
-                .after(InternalInputSet::TouchInput),
+            update_software_cursor.in_set(AspenInputSystemSet::SoftwareCursor),
         );
     }
 }
@@ -37,22 +31,22 @@ pub struct SoftWareCursorTag;
 /// creates software cursor entity
 /// image selected from init_resources.custom_cursor?
 fn spawn_software_cursor(mut cmds: Commands) {
-    let shape = shapes::RegularPolygon {
+    let shape = svg_shapes::RegularPolygon {
         sides: 6,
-        feature: shapes::RegularPolygonFeature::Radius(5.0),
-        ..shapes::RegularPolygon::default()
+        feature: svg_shapes::RegularPolygonFeature::Radius(5.0),
+        ..svg_shapes::RegularPolygon::default()
     };
 
     cmds.spawn((
         Name::new("SoftwareCursor"),
         SoftWareCursorTag,
-        ShapeBundle {
+        SvgBundle {
             path: GeometryBuilder::build_as(&shape),
             transform: Transform::from_xyz(0.0, 0.0, 50.0),
             ..default()
         },
-        Fill::color(Color::CYAN),
-        Stroke::new(Color::BLACK, 2.0),
+        svg_draw::Fill::color(Color::CYAN),
+        svg_draw::Stroke::new(Color::BLACK, 2.0),
     ));
 }
 

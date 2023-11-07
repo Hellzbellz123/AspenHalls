@@ -9,7 +9,7 @@ use crate::{game::actors::components::Player, loading::splashscreen::MainCameraT
 
 use super::{
     action_maps::{self},
-    InternalInputSet,
+    AspenInputSystemSet,
 };
 
 /// adds mouse input functionality too app
@@ -17,7 +17,8 @@ pub struct KBMPlugin;
 
 impl Plugin for KBMPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app
+        .add_systems(
             Update,
             apply_look_driver.run_if(any_with_component::<Player>().and_then(run_once())),
         )
@@ -28,7 +29,7 @@ impl Plugin for KBMPlugin {
                     run_if_enabled::<action_maps::Gameplay>
                         .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
                 )
-                .in_set(InternalInputSet::KBMInput),
+                .in_set(AspenInputSystemSet::KBMInput),
         );
     }
 }

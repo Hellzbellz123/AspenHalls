@@ -15,11 +15,14 @@ use virtual_joystick::{
 
 use super::{
     action_maps::{self, Gameplay},
-    InternalInputSet,
+    AspenInputSystemSet,
 };
 use crate::{
     game::{actors::components::Player, AppStage},
-    loading::{assets::{InitAssetHandles, TouchControlAssetHandles}, splashscreen::MainCameraTag},
+    loading::{
+        assets::{InitAssetHandles, TouchControlAssetHandles},
+        splashscreen::MainCameraTag,
+    },
 };
 
 // TODO: handle controllers on mobile properly
@@ -30,21 +33,19 @@ pub struct TouchInputPlugin;
 impl Plugin for TouchInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(VirtualJoystickPlugin::<TouchJoyType>::default());
-
-        app.add_systems(OnEnter(AppStage::PlayingGame), spawn_touch_controls_root);
+        app.add_systems(OnEnter(AppStage::BootingApp), spawn_touch_controls_root);
+        app.add_systems(
+            OnEnter(AppStage::PlayingGame),
+            (spawn_touch_joysticks, spawn_button_controls),
+        );
         app.add_systems(
             PreUpdate,
             (update_joysticks, interaction_button_system)
-                .in_set(InternalInputSet::TouchInput)
+                .in_set(AspenInputSystemSet::TouchInput)
                 .run_if(
                     leafwing_input_manager::systems::run_if_enabled::<action_maps::Gameplay>
                         .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
                 ),
-        );
-        app.add_systems(
-            Update,
-            (spawn_touch_joysticks, spawn_button_controls)
-                .run_if(any_with_component::<TouchControlsRoot>().and_then(run_once())),
         );
     }
 }
@@ -149,7 +150,11 @@ fn spawn_button_controls(
 
 // TODO: convert too init pack
 /// system too spawn joysticks
-fn spawn_touch_joysticks(mut cmds: Commands, touch_assets: Res<TouchControlAssetHandles>, asset_server: Res<AssetServer>) {
+fn spawn_touch_joysticks(
+    mut cmds: Commands,
+    touch_assets: Res<TouchControlAssetHandles>,
+    asset_server: Res<AssetServer>,
+) {
     warn!("spawning joysticks");
 
     cmds.spawn((

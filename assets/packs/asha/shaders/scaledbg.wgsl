@@ -35,13 +35,13 @@ fn scroll(
     offset: vec2<f32>,
     viewport_size: vec2<f32>,
     view_proj: mat4x4<f32>,
-) -> vec4<f32>{
+) -> vec4<f32> {
     let offset = vec2<f32>(-offset.x, offset.y);
 
     var uv = uv - (offset * movement_scale);
     let tex_dim = textureDimensions(texture);
 
-    uv = uv * ( viewport_size / vec2<f32>(tex_dim) );
+    uv = uv * (viewport_size / vec2<f32>(tex_dim));
     let color = textureSample(texture, texture_sampler, uv);
     return color;
 }

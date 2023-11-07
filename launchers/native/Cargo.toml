@@ -12,6 +12,7 @@ repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 keywords = ["videogame", "game", "application", "bin"]
 categories = ["games"]
 workspace = "../.."
+default-run = "aspen_halls_native"
 
 [features]
 default = []

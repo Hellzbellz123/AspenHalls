@@ -5,6 +5,7 @@
 #![feature(lint_reasons)]
 #![feature(trivial_bounds)]
 #![feature(exact_size_is_empty)]
+#![feature(fs_try_exists)]
 #![doc = r"
 Vanilla Coffee, My video game.
 it kinda sucks but it'll be finished eventually
@@ -44,15 +45,16 @@ mod utilities;
 ///  all modules that aren't plugin should probably be defined here
 pub mod ahp;
 
-use ahp::engine::{
-    bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs, Reflect,
-    Resource, States, Update, Vec2,
+use ahp::{
+    engine::{
+        bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
+        Reflect, Resource, States, Update, Vec2,
+    },
+    game::{ConfigFile, InitAssetHandles},
 };
-use ahp::aspen_lib::{ConfigFile, SingleTileTextureHandles};
 
 #[cfg(feature = "inspect")]
-use ahp::aspen_lib::inspect::*;
-
+use ahp::game::inspect::*;
 
 /// main game state loop
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
@@ -101,10 +103,10 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         });
 
     vanillacoffee.add_plugins((
-        loading::splashscreen::SplashPlugin,
-        loading::AppAssetsPlugin,
-        console::QuakeConPlugin,
-        game::GamePlugin,
+        ahp::plugins::AppAssetsPlugin,
+        ahp::plugins::SplashPlugin,
+        ahp::plugins::QuakeConPlugin,
+        ahp::plugins::DungeonGamePlugin,
     ));
 
     #[cfg(feature = "inspect")]
@@ -114,7 +116,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         Update,
         IntoSystemConfigs::run_if(
             utilities::set_window_icon,
-            Condition::and_then(resource_exists::<SingleTileTextureHandles>(), run_once()),
+            Condition::and_then(resource_exists::<InitAssetHandles>(), run_once()),
         ),
     );
 

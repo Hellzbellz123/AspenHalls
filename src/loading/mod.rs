@@ -7,7 +7,7 @@ pub mod custom_assets;
 /// splashscreen functions
 pub mod splashscreen;
 
-use crate::ahp::{engine::*,aspen_lib::*};
+use crate::ahp::{engine::*,game::*};
 /// This plugin loads all assets using [`AssetLoader`] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html/>

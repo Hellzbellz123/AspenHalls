@@ -11,7 +11,7 @@ pub mod interface;
 
 use crate::{
     ahp::{
-        aspen_lib::{GeneralSettings, TimeToLive, *},
+        game::{GeneralSettings, TimeToLive, *},
         engine::{leafwing_input_manager::prelude::ActionState, *},
     },
     game::{
@@ -41,10 +41,10 @@ pub enum GameProgress {
     Dungeon,
 }
 
-/// plugin for all game functionality
-pub struct GamePlugin;
+/// plugin that holds all game functionality as plugin modules
+pub struct DungeonGamePlugin;
 
-impl Plugin for GamePlugin {
+impl Plugin for DungeonGamePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TimeInfo {
             time_step: 1.0,

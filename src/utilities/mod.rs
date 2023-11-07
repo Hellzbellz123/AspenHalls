@@ -1,4 +1,4 @@
-use crate::ahp::{aspen_lib::InitAssetHandles, engine::*};
+use crate::ahp::{game::InitAssetHandles, engine::*};
 // use bevy::{
 //     ecs::system::NonSend,
 //     prelude::{
@@ -83,6 +83,16 @@ macro_rules! state_exists_and_entered {
     ($system_name:ident, $state:expr) => {
         app.add_systems(OnEnter($state), $system_name)
             .run_if(state_exists_and_equals($state))
+    };
+}
+
+/// takes array of types and runs `app.register_type::<T>()` on each
+#[allow(unused_macros)]
+macro_rules! register_types {
+    ($app:expr, [ $($t:ty),* ]) => {
+        $(
+            $app.register_type::<$t>();
+        )*
     };
 }
 

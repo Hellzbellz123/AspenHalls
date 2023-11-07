@@ -1,7 +1,7 @@
 use crate::ahp::engine::{
-        App, InputManagerPlugin, InputManagerSystem, InputSystem, IntoSystemSetConfigs, Plugin,
-        PreUpdate, SystemSet,
-    };
+    App, InputManagerPlugin, InputManagerSystem, InputSystem, IntoSystemSetConfigs, Plugin,
+    PreUpdate, SystemSet,
+};
 
 /// holds action maps
 pub mod action_maps;
@@ -14,7 +14,7 @@ mod touch;
 
 /// system set for ordering input related systems
 #[derive(SystemSet, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum InternalInputSet {
+pub enum AspenInputSystemSet {
     /// KBM input is collected first
     KBMInput,
     /// Then touch input is collected, overwriting KBM input if touches present
@@ -32,6 +32,7 @@ impl Plugin for ActionsPlugin {
         app.add_plugins(InputManagerPlugin::<action_maps::Gameplay>::default());
         // TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
         app.add_plugins(touch::TouchInputPlugin);
+        //
         app.add_plugins(kbm::KBMPlugin);
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
         app.add_plugins(software_cursor::SoftwareCursorPlugin);
@@ -39,9 +40,9 @@ impl Plugin for ActionsPlugin {
         app.configure_sets(
             PreUpdate,
             (
-                InternalInputSet::KBMInput,
-                InternalInputSet::TouchInput,
-                InternalInputSet::SoftwareCursor,
+                AspenInputSystemSet::KBMInput,
+                AspenInputSystemSet::TouchInput,
+                AspenInputSystemSet::SoftwareCursor,
             )
                 .chain()
                 .in_set(InputManagerSystem::ManualControl)

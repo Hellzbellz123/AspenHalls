@@ -7,14 +7,19 @@ use std::{
 
 /// prints current working directory too console
 pub fn debug_directory() {
-    let dir = std::env::current_dir()
-        .expect("couldn't get current working directory, No permissions or doesn't exist");
+    let dir = match std::env::current_dir() {
+        Ok(path) => path,
+        Err(e) => {
+            warn!("Could not get working directory: {}", e);
+            return;
+        }
+    };
 
     println!("Current Working Director is: {dir:?}");
     match run(true, true, 2, &dir) {
         Ok(()) => {}
         Err(e) => warn!("{}", e),
-    } //.expect("could list directory for some reason");
+    }
 }
 
 /// Term Colors that can be used in output
@@ -145,9 +150,16 @@ fn color_output(colorize: bool, path: &Path) -> std::string::String {
     }
 }
 
+/// Walks through given file tree and outputs all entries in the tree
+///
+/// # Parameters
+/// - `show_all`: If set to true, show all entries in the tree
+/// - `colorize`: output terminal escape codes for color
+/// - `level`: ...
+/// - `dir`: root of directory tree
 /// # Errors
-/// Will return `Err` if `path` does not exist or the user does not have
-/// permission to read it, may also error if theres no where to println too
+/// Will return `Error` if `path` does not exist or the user does not have
+/// permission to read it, may also error if theres no where too output
 pub fn run(show_all: bool, colorize: bool, level: usize, dir: &Path) -> Result<(), Box<dyn Error>> {
     visit_dirs(dir, 0, level, "", colorize, show_all)?;
     Ok(())
@@ -251,7 +263,7 @@ mod windows {
                     | 5 // A 16-bit OS/2-based application
                     | 6 // A 64-bit Windows-based application
                     => return true,
-                    _ => (),
+                    unknown_type => warn!("found unknown executable type on windows platform: {}", unknown_type),
                 }
             }
 

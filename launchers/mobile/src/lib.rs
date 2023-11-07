@@ -1,5 +1,5 @@
 use aspen_lib::ahp::engine as bevy;
-use aspen_lib::ahp::aspen_lib as asha;
+use aspen_lib::ahp::game as asha;
 
 #[bevy::bevy_main]
 fn main() {

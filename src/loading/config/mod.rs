@@ -1,15 +1,11 @@
 /// functions too create default file and save file
 pub mod save_load;
-
-use std::default;
-use std::time::Duration;
-
 use bevy::asset::ChangeWatcher;
 
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-use crate::game::audio::{AmbienceSoundChannel, MusicSoundChannel, GameSoundChannel};
+use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
 
-use crate::ahp::{aspen_lib::*, engine::*};
+use crate::ahp::{engine::*, game::*, plugins::*};
 
 /// Holds game settings deserialized from the config.toml
 #[derive(Reflect, Resource, Serialize, Deserialize, Clone, Copy, Default)]
@@ -209,30 +205,21 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = App::new();
 
     //TODO: configure this with a string in the config file
-    vanillacoffee.add_plugins(bevy_mod_logfu::LogPlugin {
+    vanillacoffee.add_plugins(LogFuPlugin {
         // filters for anything that makes it through the default log level. quiet big loggers
-        // filter: "".into(), // an empty filter
-        filter:
-        "bevy_ecs=warn,bevy_render=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error,belly_widgets=warn,gilrs=debug"
-        .into(),
+        filter: "log=warn,wgpu=error,naga=warn,gilrs=warn,bevy_ecs_tilemap=debug".into(), // an empty filter
+        // filter:
+        // "bevy_ecs=warn,bevy_render=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error,belly_widgets=warn,gilrs=debug"
+        // .into(),
         level: bevy::log::Level::TRACE,
         log_too_file: true,
     });
     info!("Logging Plugin Initialized");
 
+    init_asset_loader(&mut vanillacoffee);
+
     // add vanillacoffee stuff
     vanillacoffee.add_state::<AppStage>();
-
-    #[cfg(not(feature = "inspect"))]
-    #[cfg(any(target_os = "android", target_family = "wasm"))]
-    vanillacoffee.add_plugins(AssetPlugin::default());
-
-    #[cfg(feature = "inspect")]
-    #[cfg(not(any(target_os = "android", target_family = "wasm")))]
-    vanillacoffee.add_plugins(AssetPlugin {
-        asset_folder: "assets".to_string(),
-        watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs_f32(0.5)),
-    });
 
     vanillacoffee
         .add_loading_state(
@@ -284,7 +271,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
-                .disable::<LogPlugin>()
+                .disable::<BevyLogPlugin>()
                 .disable::<AssetPlugin>()
         })
         .insert_resource(match cfg_file.render_settings.msaa {
@@ -315,6 +302,32 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 
     // add bevy plugins
     vanillacoffee
+}
+
+/// adds AssetPlugin too app based on platfor support
+fn init_asset_loader(vanillacoffee: &mut App) {
+    #[cfg(not(feature = "inspect"))]
+    {
+        vanillacoffee.add_plugins(AssetPlugin::default());
+        warn!("adding default AssetPlugin")
+    }
+
+    #[cfg(feature = "inspect")]
+    #[cfg(not(any(target_os = "android", target_family = "wasm")))]
+    {
+        vanillacoffee.add_plugins(AssetPlugin {
+            asset_folder: "assets".to_string(),
+            watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs_f32(0.5)),
+        });
+        warn!("adding AssetPlugin with changewatching")
+    }
+
+    #[cfg(feature = "inspect")]
+    #[cfg(any(target_os = "android", target_family = "wasm"))]
+    {
+        vanillacoffee.add_plugins(AssetPlugin::default());
+        warn!("target platform is mobile/wasm, not using AssetWatching")
+    }
 }
 
 //TODO: move this to loading plugin and only run it when the settings resource changes (clicking apply in the settings menu, or reacting to OS changes), or on game load.
