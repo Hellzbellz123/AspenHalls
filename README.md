@@ -1,10 +1,15 @@
 # Aspen Halls (a video game)
 
+> This projects details can be found at my [page](https://hellzbellz123.github.io/AspenHalls/)
+
 Took me 3 years too get around to updating this, time to finally get started i guess.
 
-funny story, this was originally started as 3d zelda clone in unity but i gave up and did not touch it for a really long time
+funny story, this was originally started as 3d zelda clone in unity.
+However i gave up and did not touch it for a really long time
 
 [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/) [![made-with-rust](https://img.shields.io/badge/Made%20with-Rust-1f425f.svg)](https://www.rust-lang.org/) ![Repo Size](https://img.shields.io/github/repo-size/hellzbellz123/AspenHalls?color=2948ff&label=Repo%20Size&style=flat-square)
+
+## Ci
 
 <p align="center">
     <img alt="GitHub CI Workflow Status" src="https://img.shields.io/github/actions/workflow/status/Hellzbellz123/AspenHalls/ci.yml?label=ci&style=flat-square">
@@ -14,7 +19,6 @@ funny story, this was originally started as 3d zelda clone in unity but i gave u
     <a href="https://github.com/Hellzbellz123/AspenHalls/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/Hellzbellz123/AspenHalls?label=download&style=flat-square"></a>
 </p>
 
-> This projects details can be found at my [page](https://hellzbellz123.github.io/AspenHalls/)
 
 ## Platforms
 
