@@ -1,3 +1,4 @@
+#![feature(lint_reasons)]
 #![allow(clippy::type_complexity)]
 #![warn(missing_docs)]
 //! This crate provides logging functions and configuration for [Bevy](https://bevyengine.org)
@@ -99,8 +100,11 @@ impl Default for LogPlugin {
         }
     }
 }
-
 impl Plugin for LogPlugin {
+    //# cant move bits of this into separate functions
+    //# because i don't understand the borrowing rules
+    //# neither does rust-analyzer apparently
+    #[allow(clippy::too_many_lines)]
     #[cfg_attr(not(feature = "tracing-chrome"), allow(unused_variables))]
     fn build(&self, app: &mut App) {
         #[cfg(feature = "trace")]
@@ -168,12 +172,14 @@ impl Plugin for LogPlugin {
             #[cfg(feature = "tracing-tracy")]
             let subscriber = subscriber.with(tracy_layer);
 
-            // A layer that logs events to a file.
-            #[cfg(not(any(target_arch = "wasm32", target_arch = "android", target_arch = "ios")))]
-            {}
-
-            let file_log_layer = match self.log_too_file {
-                true => {
+            let file_log_layer = if self.log_too_file {
+                // A layer that logs events to a file.
+                #[cfg(not(any(
+                    target_arch = "wasm32",
+                    target_arch = "android",
+                    target_arch = "ios"
+                )))]
+                {
                     let file = File::create("debug.log");
                     let file = match file {
                         Ok(file) => file,
@@ -186,7 +192,16 @@ impl Plugin for LogPlugin {
                             .with_writer(Arc::new(file)),
                     )
                 }
-                false => None,
+                #[cfg(any(
+                    target_arch = "wasm32",
+                    target_arch = "android",
+                    target_arch = "ios"
+                ))]
+                {
+                    None
+                }
+            } else {
+                None
             };
 
             let subscriber = subscriber.with(file_log_layer);

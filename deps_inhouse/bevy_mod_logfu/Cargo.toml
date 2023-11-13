@@ -2,6 +2,9 @@
 name = "bevy_mod_logfu"
 version = "0.1.0"
 edition = "2021"
+readme = "README.md"
+repository = "https://github.com/Hellzbellz123/bevy_mod_logfu"
+categories = ["bevy", "logging", "gamedev", "plugin"]
 description = "Custom bevy logging implementation with file logging"
 license = "MIT OR Apache-2.0"
 keywords = ["bevy"]
