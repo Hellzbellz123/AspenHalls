@@ -30,7 +30,7 @@ android {
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildTools
     ndkVersion versions.ndkVersion
-
+    
     compileOptions {
         sourceCompatibility versions.javaVersion
         targetCompatibility versions.javaVersion
@@ -91,7 +91,7 @@ apply plugin: "org.mozilla.rust-android-gradle.rust-android"
 cargo {
     module  = "../"
     libname = "game"
-    rustupChannel = "nightly-2023-10-06"
+    rustupChannel = "nightly-2023-11-09"
     targetDirectory = "../../../target"
     if (project.gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }) {
         profile = "release"

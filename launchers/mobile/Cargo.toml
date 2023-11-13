@@ -18,9 +18,12 @@ workspace = "../../"
 name = "game"
 crate-type = ["staticlib", "cdylib"]
 
+[features]
+inspect = ["aspen_lib/inspect"]
+trace = ["aspen_lib/trace"]
+
 [dependencies]
-bevy.workspace = true
-aspen_lib = { path = "../../", features = ["inspect"]}
+aspen_lib = { path = "../../" }
 jni = { version = "0.21.1", features = ["invocation"] }
 ndk-context = "0.1.1"
 

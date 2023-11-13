@@ -1,9 +1,20 @@
 [toolchain]
-channel = "nightly-2023-11-01"
-targets = [
-    "x86_64-unknown-linux-gnu",
-    "x86_64-pc-windows-msvc",
-    "aarch64-linux-android",
-]
+channel = "nightly-2023-11-09"
 profile = "default"
-components = ["rust-analyzer", "rust-src", "llvm-tools", "miri", "clippy","cargo","rustfmt","rust-std"]
+components = [
+  "rustc",
+  "rust-std",
+  "cargo",
+  "clippy",
+  "rustfmt",
+  "rust-src",
+  "rust-analyzer",
+  "miri",
+  "llvm-tools",
+]
+targets = [
+  "wasm32-unknown-unknown",
+  "x86_64-unknown-linux-gnu",
+  "x86_64-pc-windows-msvc",
+  "aarch64-linux-android",
+]

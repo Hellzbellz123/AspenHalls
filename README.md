@@ -1,4 +1,5 @@
 # Aspen Halls (a video game)
+
 Took me 3 years too get around to updating this, time to finally get started i guess.
 
 funny story, this was originally started as 3d zelda clone in unity but i gave up and did not touch it for a really long time
@@ -53,8 +54,10 @@ funny story, this was originally started as 3d zelda clone in unity but i gave u
 - **test** - Check all unit test
 
 ## Usage as Library
+>
 > ⚠️ Check the `launchers` folders for examples
 
 why would you use this as a library?
-  - create ports too new platforms
-  - maybe mods?
+
+- create ports too new platforms
+- maybe mods?

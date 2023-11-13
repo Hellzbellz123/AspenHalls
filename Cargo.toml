@@ -21,50 +21,65 @@ members = ["launchers/wasm", "launchers/native", "launchers/mobile"]
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+# [profile.dev.package."*"]
+# codegen-units = 32
+# incremental = false
+# opt-level = 3
+
 # Enable a small amount of optimization in debug mode
 [profile.dev]
 codegen-units = 256
 opt-level = 1
 incremental = true
-
-# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-codegen-units = 32
-incremental = false
-opt-level = 3
+lto = "thin"
 
 [profile.release]
 debug = true
 codegen-units = 1
 opt-level = 'z'
-lto = true
+lto="fat"
 
 [workspace.dependencies]
 log = "0.4.20"
 bevy = { path = "deps/bevy", default-features = false, features = [
-    "bevy_pbr",   # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-    "bevy_ui",    # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-    "bevy_winit", # Support for creating windows
-    "x11",        # Support Linux x11 windowing system
+    "bevy_pbr",     # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+    "bevy_ui",      # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+    "bevy_winit",   # Support for creating windows
+    "x11",                      # Support Linux x11 windowing system
+    # wayland feature currently breaks app startup loop, causing infinite hang
+    # i am unsure as too why, it seems related too mangohud but disabling mangohud via env does not fix the issue
     # "wayland",                  # Support Linux Wayland windowing system
-    "png",                # png is currently my chosen image format
-    "serialize",          # Support for `serde` Serialize/Deserialize
-    "filesystem_watcher",
-    # "bevy_gilrs",               # Gamepad input support
-    # "subpixel_glyph_atlas",     # Subpixel antialiasing for text/fonts
-    # "bevy_gizmos",              # bevy gizmos for linedrawing, not used yet?
-    # "zstd",                   # zstd is for gpu compression iirc
+    "png",                      # png is my preffered image format
+    "serialize",                # Support for `serde` Serialize/Deserialize
+    "tonemapping_luts",         # extra tonemapping utils requires ktx2 & zstd
+    "ktx2",                     # gpu friendly texture format
+    "zstd",                     # zstd is for ktx2 compression
+    # "bevy_gilrs",             # Gamepad input support
+    # "subpixel_glyph_atlas",   # Subpixel antialiasing for text/fonts
+    # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet?
     # "bevy_scene",             # scenes are unused atm
-    # "android_shared_stdcxx",  # this is for bevy_audio, we are not using bevy audio
 ] }
 
 [features]
-default = []
 inspect = ["dep:bevy-inspector-egui", "dep:bevy_egui"]
 trace = ["bevy_mod_logfu/trace_tracy", "bevy_mod_logfu/trace_tracy_memory"]
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-bevy = { workspace = true, features = ["dynamic_linking"] }
+[target.'cfg(not(any(target_family = "wasm", target_os = "android", target_os = "ios")))'.dependencies]
+bevy = { workspace = true, features = [
+    "dynamic_linking",
+    "filesystem_watcher",
+] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+bevy = { workspace = true, features = [
+    "android_shared_stdcxx",  # this is for cpal/oboe
+] }
+
+[target.'cfg(target_family = "wasm")'.dependencies]
+bevy = { workspace = true, features = [
+    "webgl2",  # this is for cpal/oboe
+] }
 
 [build-dependencies]
 embed-resource = "2.3.0"
@@ -76,7 +91,11 @@ log = { workspace = true }
 serde = { version = "1.0" }
 strum = { version = "0.25.0", features = ["derive", "std", "strum_macros"] }
 toml = { version = "0.8.0" }
-winit = { version = "0.28", default-features = false, features = ["x11"] }
+winit = { version = "0.28", default-features = false, features = [
+    "x11",
+    # see above comments about bevy/wayland feature
+    # "wayland"
+] }
 clap = { version = "4.2" }
 image = { version = "0.24", default_features = false, features = ["png"] }
 voronator = { version = "0.2" }
@@ -85,8 +104,10 @@ num-integer = { version = "0.1" }
 bevy = { workspace = true }
 
 # personal bevy plugins
-bevy_mod_logfu = { path = "deps/inhouse/bevy_mod_logfu" }
-bevy_mod_mobiletouchpad = { path = "deps/inhouse/bevy_mod_mobile_touchpad" }
+bevy_mod_logfu = { path = "deps/ainhouse/bevy_mod_logfu" }
+# TODO: move the virtual touchpad into a reuseable bevy plugin
+# so other people can just throw it in and use it
+# bevy_mod_mobiletouchpad = { path = "deps/ainhouse/bevy_mod_mobile_touchpad" }
 
 # Bevy Dependencies are located in deps folder
 big-brain = { path = "deps/big_brain" }

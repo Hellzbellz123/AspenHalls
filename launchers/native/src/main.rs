@@ -1,5 +1,10 @@
-use aspen_lib::ahp::game as asha;
+#![doc = r"
+    Aspen Halls native launcher, deals with loading the configuration.
+    After valid configuration is found/created, starts bevy app
+"]
+
 use aspen_lib::ahp::engine as bevy;
+use aspen_lib::ahp::game as asha;
 use std::path::Path;
 
 /// this translates too same folder as executable
@@ -12,6 +17,9 @@ fn main() {
 }
 
 /// loads app settings from `consts::APP_SETTINGS_PATH` and returns a boxed config file
+///
+/// # Panics
+/// This will panic if the config file
 pub fn load_settings() -> asha::ConfigFile {
     let settings_path = Path::new(APP_SETTINGS_PATH);
     bevy::info!("loading config file from filesystem @ {:?}", settings_path);
@@ -23,7 +31,9 @@ pub fn load_settings() -> asha::ConfigFile {
                 error,
                 settings_path.display()
             );
-            return asha::ConfigFile::default();
+            let new_cfg = asha::ConfigFile::default();
+            asha::save_settings(&new_cfg, settings_path);
+            toml::to_string_pretty(&new_cfg).unwrap()
         }
         // if settings file can be read
         Ok(target_settings) => target_settings,
@@ -33,7 +43,7 @@ pub fn load_settings() -> asha::ConfigFile {
         // if malformed settings file, create default
         Err(error) => {
             eprintln!(
-                "There was an error deserializing `AppSettings`: {} at {}",
+                "The app config file is malformed: {} \n this file: {}",
                 error,
                 settings_path.display()
             );
@@ -68,6 +78,7 @@ pub fn load_settings() -> asha::ConfigFile {
                 render_settings: asha::RenderSettings {
                     msaa: cfg.render_settings.msaa,
                 },
+                log_filter: cfg.log_filter,
             }
         }
     }

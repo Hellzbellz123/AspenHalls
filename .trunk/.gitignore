@@ -1,0 +1,8 @@
+*tools
+*logs
+*out
+*actions
+plugins
+*notifications
+user_trunk.yaml
+user.yaml

@@ -15,11 +15,9 @@ workspace = "../.."
 default-run = "aspen_halls_native"
 
 [features]
-default = []
 inspect = ["aspen_lib/inspect"]
+trace = ["aspen_lib/trace"]
 
 [dependencies]
-# bevy.workspace = true
 aspen_lib = { path = "../.." }
-open = "5.0"
 toml ={ version = "0.8"}

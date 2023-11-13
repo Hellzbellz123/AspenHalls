@@ -1,17 +1,23 @@
-use aspen_lib::ahp::engine as bevy;
+#![doc = r"
+    mobile library too be used by platform specific apps
+    currently only targets android, should be expanded too ios mobile
+"]
+
+use aspen_lib::ahp::engine::{self as engine, bevy};
 use aspen_lib::ahp::game as asha;
 
-#[bevy::bevy_main]
+#[bevy::prelude::bevy_main]
 fn main() {
     let ctx = ndk_context::android_context();
     let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }.unwrap();
     let env = vm.attach_current_thread().unwrap();
     let config = asha::ConfigFile {
+        log_filter: Some("Info,wgpu=error,naga=error".to_string()),
         window_settings: asha::WindowSettings {
             v_sync: true,
             frame_rate_target: 144.0,
             full_screen: true,
-            resolution: bevy::Vec2 {
+            resolution: engine::Vec2 {
                 x: 1920.0,
                 y: 1080.0,
             },

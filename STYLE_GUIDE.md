@@ -1,12 +1,15 @@
 # Bevy Best Practices
 
-stolen from https://github.com/tbillington/bevy_best_practices/
 TODO: convert current code too follow this guide
 
-An opionated set of convensions I stick to in my [Bevy](https://bevyengine.org/) projects.
+stolen from <https://github.com/tbillington/bevy_best_practices/>
+
+An opinionated set of conventions I want too stick to in
+my [Bevy](https://bevyengine.org/) projects.
 Up to date as of Bevy 0.11.
 
 ## Table of Contents
+
 - [Bevy Best Practices](#bevy-best-practices)
   - [Table of Contents](#table-of-contents)
   - [Entities](#entities)
@@ -31,11 +34,14 @@ Up to date as of Bevy 0.11.
 
 ### Name and Cleanup
 
-All entities must be spawned with a `Name` and cleanup component at the front of the bundle.
+All entities must be spawned with a `Name` and
+cleanup component at the front of the bundle.
 
-Names assist with debugging. Cleanup components indicate to which state the entity belongs, and to remove it upon exit of that state.
+Names assist with debugging. Cleanup components
+indicate to which state the entity belongs, and to remove it upon exit of that state.
 
-By always having these two "meta" components at the front it makes it easy to spot entities where they are missing.
+By always having these two "meta" components at the
+front it makes it easy to spot entities where they are missing.
 
 ```rust
 commands
@@ -235,6 +241,7 @@ By creating a prelude module in our project and exporting the various types that
 A nice side effect of this pattern is moving around code or refactoring doesn't require changes in as many places. If you restructure your audio code, you only need to update how it's presented in the prelude, assuming the rest of your project utilises the prelude.
 
 `src/audio.rs`
+
 ```rust
 pub(crate) mod prelude {
   pub(crate) use super::{EventPlaySFX, SFXKind};
@@ -246,6 +253,7 @@ pub(crate) enum SFXKind { /* ... */ }
 ```
 
 `src/prelude.rs`
+
 ```rust
 pub(crate) use bevy::prelude::*;
 pub(crate) use rand::prelude::*;
@@ -262,6 +270,7 @@ pub(crate) mod physics { /* ... */ }
 ```
 
 `src/enemy.rs`
+
 ```rust
 use crate::prelude::*;
 
@@ -286,11 +295,11 @@ Bevy [Plugins](https://docs.rs/bevy/latest/bevy/app/trait.Plugin.html) enable gr
 By constructing your game out of plugins you make it easier to find, work with, and debug subsystems. It also contextualises the setup and configuration of 3rd party crates to where they belong. For example, setting up the resources, plugins, and systems to utilise a 3rd party terrain library would go in your `TerrainPlugin`. That way, disabling your own terrain plugin will also disable the library you've imported, and any other resources that only it needed.
 
 > **Note**
-> 
+>
 > Your mileage may vary with "enabling"/"disabling" plugins in your game. Bevy implements it in engine because it's valuable to disable chunks of the engine. However to achieve this in the game itself is not only more difficult, but the payoff is lower. How often will you realistically want to remove physics or audio from your game?
 
-
 `src/audio.rs`
+
 ```rust
 pub(crate) struct AudioPlugin;
 impl Plugin for AudioPlugin {
@@ -303,6 +312,7 @@ impl Plugin for AudioPlugin {
 ```
 
 `src/physics.rs`
+
 ```rust
 pub(crate) struct PhysicsPlugin;
 impl Plugin for PhysicsPlugin {
@@ -315,6 +325,7 @@ impl Plugin for PhysicsPlugin {
 ```
 
 `src/game.rs`
+
 ```rust
 pub(crate) struct GamePlugin;
 impl Plugin for GamePlugin {
@@ -329,6 +340,7 @@ impl Plugin for GamePlugin {
 ```
 
 `src/main.rs`
+
 ```rust
 fn main() {
     bevy::prelude::App::new()
@@ -341,8 +353,8 @@ fn main() {
 
 Except where noted, all code in this repository is dual-licensed under either:
 
-* MIT License ([LICENSE-MIT](LICENSE-MIT) or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
-* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
+- MIT License ([LICENSE-MIT](LICENSE-MIT) or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
 
 at your option.
 This means you can select the license you prefer!

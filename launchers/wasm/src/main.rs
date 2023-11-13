@@ -1,7 +1,12 @@
+#![doc = r"
+    web app built with yew too hold the bevy application
+"]
+
 use aspen_lib::ahp::game as asha;
 use aspen_lib::ahp::engine as bevy;
 use yew::prelude::*;
 
+/// sets browser window title too passed string
 fn set_window_title(title: &str) {
     web_sys::window()
         .and_then(|w| w.document())
@@ -29,6 +34,7 @@ fn main() {
     // Start the Bevy App
     log::info!("Starting launcher: WASM");
     let cfg_file = asha::ConfigFile {
+        log_filter: Some("Info,wgpu=error,naga=error".to_string()),
         window_settings: asha::WindowSettings {
             v_sync: true,
             frame_rate_target: 144.0,
