@@ -13,7 +13,7 @@ use crate::{
         },
         input::action_maps,
     },
-    loading::splashscreen::MainCameraTag,
+    loading::splashscreen::MainCamera,
 };
 
 /// adds velocity too player based of what movement keys are pressed
@@ -88,23 +88,35 @@ pub fn player_sprint(
 /// keeps camera centered on player
 pub fn camera_movement_system(
     time: Res<Time>,
-    mut camera_transform: Query<(&mut Transform, &MainCameraTag), With<Camera>>,
-    player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
+    mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
+    player_move_query: Query<(&Transform, &Velocity), (With<Player>, Without<MainCamera>)>,
 ) {
-    if player_transform.is_empty() || camera_transform.is_empty() {
+    if player_move_query.is_empty() {
+        debug!("No Players too focus camera on");
         return;
     }
-    let (mut camera_trans, tag) = camera_transform.single_mut();
-    let player_transform = player_transform.single().translation.truncate();
+    if main_camera_query.is_empty() {
+        debug!("No camera too move");
+        return;
+    }
+
+    let (mut camera_trans, camera_data) = main_camera_query.single_mut();
+    let (player_transform, player_velocity) = player_move_query.single();
     let camera_transform = camera_trans.translation.truncate();
 
-    if tag.is_active {
-        // Calculate the movement speed based on time.delta()
-        let movement_speed = 5.0 * time.delta_seconds();
+    let camera_target = player_transform.translation.truncate()
+        + (player_velocity.linvel * camera_data.look_ahead_factor);
 
-        // Interpolate (lerp) between the current camera position and the player's position with the adjusted speed
-        camera_trans.translation = camera_transform
-            .lerp(player_transform, movement_speed)
-            .extend(999.0);
-    }
+    // Calculate the movement speed based on time.delta()
+    let movement_speed: f32 =
+        if player_velocity.linvel.abs().length() > camera_data.lerp_change_magnitude {
+            camera_data.camera_speed * time.delta_seconds()
+        } else {
+            camera_data.changed_speed
+        };
+
+    // Interpolate (lerp) between the current camera position and the player's position with the adjusted speed
+    camera_trans.translation = camera_transform
+        .lerp(camera_target, movement_speed)
+        .extend(999.0);
 }

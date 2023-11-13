@@ -1,4 +1,3 @@
-#![allow(clippy::type_complexity)]
 #[cfg(feature = "inspect")]
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
 /// dump game directory function.
@@ -18,7 +17,27 @@ pub mod debug_plugin {
 
     use std::{fs, time::Duration};
 
-    use crate::ahp::{engine::*, game::*, plugins::*};
+    use crate::ahp::{
+        engine::{
+            info, render_graph, render_graph_dot, schedule_graph, schedule_graph_dot,
+            state_exists_and_equals, svg_shapes, warn, App, Color, Commands, Entity, Fill,
+            FillOptions, First, GeometryBuilder, GridCoords, Handle, IntGridCell,
+            IntoSystemConfigs, Last, LayerMetadata, LdtkProject, Parent, Plugin, PostStartup,
+            PostUpdate, PreStartup, PreUpdate, Query, Startup, Timer, Transform, Update, Vec2,
+            With, Without,
+        },
+        game::{
+            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
+            AIWanderConfig, ActorAnimationType, ActorType, AnimState, AnimationSheet, AppStage,
+            ChaseScore, CurrentlySelectedWeapon, DamageType, DifficultyScales, GeneralSettings,
+            MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive, Type, WeaponSlots,
+            WeaponSocket, WeaponStats, WeaponTag, WindowSettings,
+        },
+        plugins::{
+            FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
+            RapierDebugRenderPlugin, StateInspectorPlugin, WorldInspectorPlugin,
+        },
+    };
 
     /// debug plugin for Aspen Halls.
     /// registers types from plugins and the game, prints diagnostics too the console, and spawns an `world` inspector and a `state` inspector
@@ -40,7 +59,7 @@ pub mod debug_plugin {
                 .register_type::<AnimationSheet>()
                 .register_type::<ActorAnimationType>()
                 .register_type::<TimeInfo>()
-                .register_type::<MainCameraTag>() // tells bevy-inspector-egui how to display the struct in the world inspector
+                .register_type::<MainCamera>() // tells bevy-inspector-egui how to display the struct in the world inspector
                 .register_type::<Spawner>()
                 .register_type::<AnimState>()
                 .register_type::<TimeToLive>()
@@ -162,7 +181,7 @@ pub mod debug_plugin {
                 if !exists {
                     warn!("Not dumping schedules because .schedules directory does not exist");
                     warn!("Create .schedules directory in cwd too dump schedule graphs");
-                return;
+                    return;
                 }
                 warn!("Dumping graphs");
 

@@ -9,12 +9,12 @@ use crate::{
         ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle, StupidAiBundle,
     },
     consts::{
-        ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX, PLAYER_PROJECTILE_LAYER,
+        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX,
     },
     game::actors::{
         ai::components::{
-            AIShootAction, AIChaseAction, AIChaseConfig, AIShootConfig, AIWanderAction,
-            AIWanderConfig, Type, ActorType, AttackScore, ChaseScore, Enemy,
+            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
+            AIWanderConfig, ActorType, AttackScore, ChaseScore, Enemy, Type,
         },
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::EnemyColliderTag,
@@ -114,7 +114,7 @@ pub fn spawn_skeleton(
                         },
                         collider: Collider::capsule(ACTOR_COLLIDER.0, ACTOR_COLLIDER.1, ACTOR_COLLIDER.2),
                         //capsule_y(10.4, 13.12),
-                        collision_groups: CollisionGroups { memberships: Group::all(), filters: PLAYER_PROJECTILE_LAYER },
+                        collision_groups: CollisionGroups { memberships: AspenCollisionLayer::ACTOR, filters: AspenCollisionLayer::EVERYTHING },
                     }));
                 });
         });
@@ -211,7 +211,7 @@ pub fn spawn_slime(
                                     ..default()
                                 },
                                 collider: Collider::capsule(ACTOR_COLLIDER.0 / 4.0, ACTOR_COLLIDER.1, ACTOR_COLLIDER.2),
-                                collision_groups: CollisionGroups { memberships: Group::all(), filters: PLAYER_PROJECTILE_LAYER},
+                                collision_groups: CollisionGroups { memberships: AspenCollisionLayer::ACTOR, filters: AspenCollisionLayer::EVERYTHING},
                             }));
                         });
                 });

@@ -1,5 +1,3 @@
-#![allow(clippy::type_complexity)]
-
 use crate::{
     consts::TILE_SIZE,
     game::{

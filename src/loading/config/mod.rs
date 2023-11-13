@@ -8,9 +8,11 @@ use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChann
 use crate::ahp::{engine::*, game::*, plugins::*};
 
 /// Holds game settings deserialized from the config.toml
-#[derive(Reflect, Resource, Serialize, Deserialize, Clone, Copy, Default)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Clone, Debug)]
 #[reflect(Resource)]
 pub struct ConfigFile {
+    /// preset log filter from cfg
+    pub log_filter: Option<String>,
     /// game window settings
     pub window_settings: WindowSettings,
     /// rendering settings
@@ -21,8 +23,20 @@ pub struct ConfigFile {
     pub general_settings: GeneralSettings,
 }
 
+impl Default for ConfigFile {
+    fn default() -> Self {
+        Self {
+            log_filter: Some("info,wgpu=error".into()),
+            window_settings: WindowSettings::default(),
+            render_settings: RenderSettings::default(),
+            sound_settings: SoundSettings::default(),
+            general_settings: GeneralSettings::default(),
+        }
+    }
+}
+
 /// make sure tables are AFTER single fields
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug)]
 #[reflect(Resource)]
 pub struct WindowSettings {
     /// enable v_sync if true
@@ -38,19 +52,21 @@ pub struct WindowSettings {
 }
 
 /// make sure tables are AFTER single fields
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default, Debug)]
 #[reflect(Resource)]
 pub struct RenderSettings {
     /// enable v_sync if true
     pub msaa: bool,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect, PartialEq, PartialOrd, Default)]
+#[reflect(Default)]
 /// game difficulty enum
 pub enum GameDifficulty {
     /// 0.75 scale on enemy damage/hp, 1.25 on player
     Easy,
     /// 1.0 scale on player/enemy damage/hp
+    #[default]
     Medium,
     /// enemy's are a little faster, more enemy's, more rooms
     Hard,
@@ -60,11 +76,13 @@ pub enum GameDifficulty {
     MegaDeath,
     /// only 1 dungeon and if more than 1 enemy is spawned
     Debug,
+    /// custom
+    Custom(DifficultyScales),
 }
 
 /// Settings like zoom and difficulty
 /// maybe controls
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone)]
+#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug)]
 #[reflect(Resource)]
 #[cfg_attr(
     feature = "inspect",
@@ -76,6 +94,7 @@ pub struct GeneralSettings {
     #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 150.0)]
     pub camera_zoom: f32,
+    /// camera zoom
     #[cfg(not(feature = "inspect"))]
     pub camera_zoom: f32,
     /// game difficulty,
@@ -92,31 +111,35 @@ pub struct GeneralSettings {
     reflect(InspectorOptions)
 )]
 pub struct SoundSettings {
-    /// Total Sound Scale for game
+    /// Total sound scale for game
     #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub master_volume: f64,
+    /// Total sound scale for game
     #[cfg(not(feature = "inspect"))]
     pub master_volume: f64,
 
-    /// sound effects from environment
+    /// Sound effects from environment
     #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub ambience_volume: f64,
+    /// Sound effects from environment
     #[cfg(not(feature = "inspect"))]
     pub ambience_volume: f64,
 
-    /// game soundtrack volume
+    /// Game soundtrack volume
     #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub music_volume: f64,
+    /// Game soundtrack volume
     #[cfg(not(feature = "inspect"))]
     pub music_volume: f64,
 
-    /// important sounds from game
+    /// Important sounds from game
     #[cfg(feature = "inspect")]
     #[inspector(min = 0.0, max = 1.0)]
     pub sound_volume: f64,
+    /// Important sounds from game
     #[cfg(not(feature = "inspect"))]
     pub sound_volume: f64,
 }
@@ -124,13 +147,13 @@ pub struct SoundSettings {
 // TODO: refactor actors module to use this global difficulty resource
 // add a system that takes GeneralSettings.difficulty_settings and matches
 // that i32 and inserts this configured
-#[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone)]
-#[reflect(Resource)]
+#[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone, PartialEq, PartialOrd)]
+#[reflect(Resource, Default)]
 /// difficulty resource used globally for configuring actors and dungeons
 pub struct DifficultyScales {
-    /// not a scale, just an amount
+    /// not a scale, just an amount multiplied by total rooms
     pub max_enemies_per_room: i32,
-    /// i32 used too scale
+    /// i32 used too scale, multiples dungeon amount
     pub max_dungeon_amount: i32,
 
     /// f32 used too scale
@@ -167,7 +190,7 @@ impl Default for GeneralSettings {
     fn default() -> Self {
         Self {
             camera_zoom: 3.5,
-            game_difficulty: GameDifficulty::Medium,
+            game_difficulty: GameDifficulty::Custom(DifficultyScales::default()),
         }
     }
 }
@@ -199,18 +222,12 @@ impl Default for SoundSettings {
     }
 }
 
-/// creates an App
-/// if feature == "trace" then default logger, else custom logger that logs too file minimally
+/// creates an `App` with logging and initialization assets
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = App::new();
 
-    //TODO: configure this with a string in the config file
     vanillacoffee.add_plugins(LogFuPlugin {
-        // filters for anything that makes it through the default log level. quiet big loggers
-        filter: "log=warn,wgpu=error,naga=warn,gilrs=warn,bevy_ecs_tilemap=debug".into(), // an empty filter
-        // filter:
-        // "bevy_ecs=warn,bevy_render=warn,naga=error,wgpu_core=error,wgpu_hal=error,symphonia=warn,big_brain=warn,bevy_rapier2d=error,belly_widgets=warn,gilrs=debug"
-        // .into(),
+        filter: cfg_file.log_filter.unwrap_or_default(),
         level: bevy::log::Level::TRACE,
         log_too_file: true,
     });
@@ -274,9 +291,10 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                 .disable::<BevyLogPlugin>()
                 .disable::<AssetPlugin>()
         })
-        .insert_resource(match cfg_file.render_settings.msaa {
-            true => Msaa::Sample4,
-            false => Msaa::Off,
+        .insert_resource(if cfg_file.render_settings.msaa {
+            Msaa::Sample4
+        } else {
+            Msaa::Off
         })
         .insert_resource(ClearColor(Color::Hsla {
             hue: 294.0,
@@ -304,12 +322,12 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     vanillacoffee
 }
 
-/// adds AssetPlugin too app based on platfor support
+/// adds `AssetPlugin` too app based on platform support
 fn init_asset_loader(vanillacoffee: &mut App) {
     #[cfg(not(feature = "inspect"))]
     {
         vanillacoffee.add_plugins(AssetPlugin::default());
-        warn!("adding default AssetPlugin")
+        warn!("adding default AssetPlugin");
     }
 
     #[cfg(feature = "inspect")]
@@ -319,14 +337,14 @@ fn init_asset_loader(vanillacoffee: &mut App) {
             asset_folder: "assets".to_string(),
             watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs_f32(0.5)),
         });
-        warn!("adding AssetPlugin with changewatching")
+        warn!("adding AssetPlugin with changewatching");
     }
 
     #[cfg(feature = "inspect")]
     #[cfg(any(target_os = "android", target_family = "wasm"))]
     {
         vanillacoffee.add_plugins(AssetPlugin::default());
-        warn!("target platform is mobile/wasm, not using AssetWatching")
+        warn!("target platform is mobile/wasm, not using AssetWatching");
     }
 }
 
@@ -384,7 +402,7 @@ fn apply_sound_settings(
 /// applies camera zoom setting
 fn apply_camera_zoom(
     general_settings: Res<GeneralSettings>,
-    mut camera: Query<&mut OrthographicProjection, With<MainCameraTag>>,
+    mut camera: Query<&mut OrthographicProjection, With<MainCamera>>,
 ) {
     if camera.is_empty() {
         return;
@@ -397,7 +415,7 @@ fn apply_camera_zoom(
                 projection.scale = general_settings.camera_zoom;
             }
             Err(e) => {
-                warn!("issue getting camera: {e}")
+                warn!("issue getting camera: {e}");
             }
         };
     }
@@ -427,9 +445,13 @@ fn update_difficulty_settings(
 ) {
     if general_settings.is_changed() {
         let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
-        let difficulty_settings: DifficultyScales =
-            create_difficulty_scales(*general_settings, Some(level_amount));
-        cmds.insert_resource(difficulty_settings);
+        if let GameDifficulty::Custom(scales) = general_settings.game_difficulty {
+            cmds.insert_resource(scales);
+        } else {
+            let difficulty_settings: DifficultyScales =
+                create_difficulty_scales(*general_settings, Some(level_amount));
+            cmds.insert_resource(difficulty_settings);
+        }
     }
 }
 
@@ -441,6 +463,16 @@ fn create_difficulty_scales(
     let level_amount = level_amount.unwrap_or(1);
 
     match general_settings.game_difficulty {
+        GameDifficulty::Custom(a) => DifficultyScales {
+            max_enemies_per_room: a.max_enemies_per_room,
+            max_dungeon_amount: a.max_dungeon_amount,
+            player_health_scale: a.player_health_scale,
+            player_damage_scale: a.player_damage_scale,
+            player_speed_scale: a.player_speed_scale,
+            enemy_health_scale: a.enemy_health_scale,
+            enemy_damage_scale: a.enemy_damage_scale,
+            enemy_speed_scale: a.enemy_speed_scale,
+        },
         GameDifficulty::Debug => DifficultyScales {
             max_enemies_per_room: 1,
             max_dungeon_amount: 1,

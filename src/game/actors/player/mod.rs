@@ -2,9 +2,12 @@ use bevy::{prelude::*, utils::hashbrown::HashMap};
 
 use crate::{
     bundles::{ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle},
-    consts::{ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE, ACTOR_Z_INDEX},
+    consts::{
+        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE,
+        ACTOR_Z_INDEX,
+    },
     game::actors::{
-        ai::components::{Type, ActorType},
+        ai::components::{ActorType, Type},
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::PlayerColliderTag,
     },
@@ -19,7 +22,7 @@ use crate::{
 };
 
 use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, Group, LockedAxes,
+    Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes,
     Restitution, RigidBody, Velocity,
 };
 
@@ -149,7 +152,10 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                         ACTOR_COLLIDER.1,
                         ACTOR_COLLIDER.2,
                     ),
-                    collision_groups: CollisionGroups::new(Group::ALL, Group::GROUP_30),
+                    collision_groups: CollisionGroups::new(
+                        AspenCollisionLayer::ACTOR,
+                        AspenCollisionLayer::EVERYTHING,
+                    ),
                 },
             ));
         });

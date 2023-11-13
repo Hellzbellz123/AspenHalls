@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     bundles::RigidBodyBundle,
-    consts::{ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX, PLAYER_PROJECTILE_LAYER},
+    consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX},
     game::actors::combat::components::{
         BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
         WeaponColliderTag, WeaponStats, WeaponTag,
@@ -78,7 +78,10 @@ pub fn spawn_small_smg(
                     Vec2 { x: 0.0, y: 10.0 },
                     2.0,
                 ),
-                collision_groups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
+                collision_groups: CollisionGroups::new(
+                    AspenCollisionLayer::ACTOR,
+                    AspenCollisionLayer::EVERYTHING,
+                ),
                 transform_bundle: TransformBundle {
                     local: Transform {
                         translation: Vec3 {
@@ -178,7 +181,10 @@ pub fn spawn_small_pistol(
                     Vec2 { x: -3.0, y: -4.0 },
                     5.0,
                 ),
-                collision_groups: CollisionGroups::new(Group::ALL, PLAYER_PROJECTILE_LAYER),
+                collision_groups: CollisionGroups::new(
+                    AspenCollisionLayer::ACTOR,
+                    AspenCollisionLayer::EVERYTHING,
+                ),
                 transform_bundle: TransformBundle {
                     local: Transform {
                         translation: Vec3 {

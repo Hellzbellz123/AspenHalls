@@ -1,11 +1,7 @@
 use belly::prelude::StyleSheet;
 use bevy::{
-    asset::Handle,
-    ecs::system::Resource,
-    reflect::TypeUuid,
-    render::texture::Image,
-    sprite::TextureAtlas,
-    text::Font,
+    asset::Handle, ecs::system::Resource, reflect::TypeUuid, render::texture::Image,
+    sprite::TextureAtlas, text::Font,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;
@@ -47,6 +43,7 @@ pub struct InitAssetHandles {
     pub img_button_blue_pressed: Handle<Image>,
 }
 
+/// asset handles for touch controls UI
 #[derive(AssetCollection, Resource, Debug)]
 pub struct TouchControlAssetHandles {
     /// knob with arrows
@@ -116,13 +113,17 @@ pub struct MapAssetHandles {
     pub dungeons: Handle<LdtkProject>,
 }
 
+/// miscellaneous texture asset handles for tiles
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "c904a07a-9d11-4a5b-91e3-c6ee60db599a"]
 pub struct SingleTileTextureHandles {
+    /// full tile grass texture
     #[asset(key = "grass")]
     pub grass: Handle<Image>,
+    /// full tile dirt texture
     #[asset(key = "dirt")]
     pub dirt: Handle<Image>,
+    ///grass and dirt on 1 side
     #[asset(key = "grass_dirt_top")]
     pub grass_dirt_top: Handle<Image>,
 }

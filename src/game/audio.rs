@@ -23,7 +23,7 @@ pub struct MusicSoundChannel;
 #[derive(Resource, Component)]
 pub struct AmbienceSoundChannel;
 
-/// AudioChannel for footsteps/grunts/etc of npc/enemy/player, weapon sounds.
+/// `AudioChannel` for footsteps/grunts/etc of npc/enemy/player, weapon sounds.
 /// can be used to tell if enemies exist?
 #[derive(Resource, Component)]
 pub struct GameSoundChannel;

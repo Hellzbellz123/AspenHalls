@@ -11,13 +11,6 @@ Vanilla Coffee, My video game.
 it kinda sucks but it'll be finished eventually
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 "]
-#![allow(clippy::module_name_repetitions)]
-#![warn(
-    clippy::missing_docs_in_private_items,
-    clippy::missing_errors_doc,
-    clippy::missing_panics_doc,
-    clippy::missing_safety_doc
-)]
 
 /// general component store
 mod bundles;
@@ -54,7 +47,7 @@ use ahp::{
 };
 
 #[cfg(feature = "inspect")]
-use ahp::game::inspect::*;
+use ahp::game::inspect::DebugPlugin;
 
 /// main game state loop
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]

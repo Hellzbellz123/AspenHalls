@@ -3,13 +3,15 @@ use strum::VariantNames;
 
 use crate::{
     ahp::{
-        game::*,
-        engine::*,
+        engine::{
+            bevy_console::{reply, ConsoleCommand},
+            info, vec2, Camera, EventWriter, Query, Transform, Vec2, Vec3, With, Without,
+        },
+        game::{ActorType, EnemyType, Player, SpawnActorEvent, Type, WeaponType, ACTOR_Z_INDEX},
         rand::{thread_rng, Rng},
     },
     console::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
 };
-use bevy_console::{reply, ConsoleCommand};
 
 /// receives spawnweapon command and sens spawn event
 pub fn spawnweapon_command(
@@ -29,8 +31,7 @@ pub fn spawnweapon_command(
     })) = spawn.take()
     {
         let command_spawn_at_player = at_player.unwrap_or(true);
-        let mut command_spawn_location =
-            Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
+        let mut command_spawn_location = Vec2::new(loc_x.unwrap_or(0.0), loc_y.unwrap_or(0.0));
         let command_spawn_count = amount.unwrap_or(1);
         let command_spawn_type = WeaponType::from_str(&weapon_type);
 
@@ -87,8 +88,7 @@ pub fn spawnenemy_command(
     {
         let command_spawn_at_player = at_player.unwrap_or(true);
         let command_spawn_count = amount.unwrap_or(1);
-        let mut command_spawn_location =
-            Vec2::new(loc_x.unwrap_or(0) as f32, loc_y.unwrap_or(0) as f32);
+        let mut command_spawn_location = Vec2::new(loc_x.unwrap_or(0.0), loc_y.unwrap_or(0.0));
         let command_spawn_type = EnemyType::from_str(&enemy_type);
 
         match command_spawn_type {
@@ -132,8 +132,8 @@ pub fn teleport_player_command(
 ) {
     if let Some(Ok(TeleportPlayerCommand { loc_x, loc_y })) = spawn.take() {
         player_transform.single_mut().translation = Vec3 {
-            x: loc_x as f32,
-            y: loc_y as f32,
+            x: loc_x,
+            y: loc_y,
             z: ACTOR_Z_INDEX,
         }
     }

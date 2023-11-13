@@ -1,4 +1,3 @@
-#![allow(clippy::type_complexity)]
 /*
 all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfield
 for being the only real useful example of big-brain as far as im concerned
@@ -222,8 +221,6 @@ fn chase_action(
 
 /// handles enemy's that are doing the wander action
 fn wander_action(
-    #[allow(clippy::type_complexity)]
-    // trunk-ignore(clippy/type_complexity)
     mut enemy_query: Query<(
         &Transform,
         &mut Velocity,

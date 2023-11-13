@@ -16,7 +16,9 @@ use crate::{
         game_world::hideout::systems::{enter_the_dungeon, home_world_teleporter_collisions},
         AppStage,
     },
-    loading::{assets::{MapAssetHandles, SingleTileTextureHandles}, custom_assets::background_shader::ScaledBackgroundMaterial},
+    loading::{assets::{MapAssetHandles, SingleTileTextureHandles}, 
+    // custom_assets::background_shader::ScaledBackgroundMaterial
+},
 };
 
 use self::systems::MapContainerTag;
@@ -36,9 +38,9 @@ pub struct HideOutPlugin;
 impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
-        app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<
-            ScaledBackgroundMaterial,
-        >::default());
+        // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<
+            // ScaledBackgroundMaterial,
+        // >::default());
         app.add_event::<PlayerTeleportEvent>().add_systems(
             Update,
             (
@@ -76,18 +78,18 @@ fn cleanup_start_world(
 pub fn set_overworld_background(
     mut commands: Commands,
     misc: Res<SingleTileTextureHandles>,
-    mut materials: ResMut<Assets<ScaledBackgroundMaterial>>,
+    // mut materials: ResMut<Assets<ScaledBackgroundMaterial>>,
 ) {
-    let material = ScaledBackgroundMaterial {
-        movement_scale: 0.5,
-        texture: misc.grass.clone(),
-        ..default()
-    };
+    // let material = ScaledBackgroundMaterial {
+    //     movement_scale: 0.5,
+    //     texture: misc.grass.clone(),
+    //     ..default()
+    // };
 
-    commands.set_image_repeating(misc.grass.clone());
-    commands.spawn((
-        NoFrustumCulling,
-        Name::new("BackgroundImage"),
-        CustomBackgroundImageBundle::with_material(material, &mut materials),
-    ));
+    // commands.set_image_repeating(misc.grass.clone());
+    // commands.spawn((
+    //     NoFrustumCulling,
+    //     Name::new("BackgroundImage"),
+    //     CustomBackgroundImageBundle::with_material(material, &mut materials),
+    // ));
 }

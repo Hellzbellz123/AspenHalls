@@ -1,6 +1,7 @@
-use crate::ahp::engine::*;
-use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
-
+use crate::ahp::engine::{
+    bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey},
+    default, App, KeyCode, Plugin,
+};
 /// holds systems that are used by commands
 pub mod command_systems;
 /// holds definitions of commands
@@ -33,7 +34,7 @@ impl Plugin for QuakeConPlugin {
 }
 
 // TODO: make this a macro or just a simple one shot, is tricky to do events.
-// TODO better idea, make a global subscriber that takes this line and prints it 
+// TODO better idea, make a global subscriber that takes this line and prints it
 // too a tab in the console page, 3 tabs, a repl like tab, cmds tab, and a log tab
 // fn write_to_console(mut console_line: EventWriter<PrintConsoleLine>) {
 //     console_line.send(PrintConsoleLine::new("Hello".to_string()));

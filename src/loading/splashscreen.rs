@@ -1,10 +1,23 @@
-use crate::ahp::{engine::*,game::*};
+use crate::ahp::{engine::*, game::*};
 
 /// Identifies the Main Camera
-#[derive(Component, Reflect)]
-pub struct MainCameraTag {
-    /// true if active, false if not
-    pub is_active: bool,
+#[derive(Component, Reflect, Default)]
+#[reflect(Component)]
+pub struct MainCamera {
+    /// is this main camera used over some other camera?
+    pub in_use: bool,
+
+    /// how fast should this camera move towards the player?
+    pub camera_speed: f32,
+
+    /// multiplied by player velocity then added too the camera target
+    pub look_ahead_factor: f32,
+
+    /// change camera lerp speed when player velocity is below this magnitude
+    pub lerp_change_magnitude: f32,
+
+    /// camera speed when player is standing still
+    pub changed_speed: f32,
 }
 
 /// tag added too splashscreen entities that should be de-spawned after splashscreen
@@ -30,6 +43,14 @@ impl Plugin for SplashPlugin {
 /// spawns main camera
 fn spawn_main_camera(mut commands: Commands) {
     commands.spawn((
+        Name::new("MainCamera"),
+        MainCamera {
+            in_use: true,
+            look_ahead_factor: 1.0,
+            camera_speed: 5.0,
+            lerp_change_magnitude: 0.5,
+            changed_speed: 0.2,
+        },
         Camera2dBundle {
             camera: Camera {
                 is_active: true,
@@ -37,7 +58,7 @@ fn spawn_main_camera(mut commands: Commands) {
                 hdr: true,
                 ..default()
             },
-            tonemapping: Tonemapping::AcesFitted,
+            tonemapping: Tonemapping::TonyMcMapface,
             deband_dither: DebandDither::Enabled,
             projection: OrthographicProjection {
                 near: 0.001,
@@ -53,8 +74,6 @@ fn spawn_main_camera(mut commands: Commands) {
             },
             ..default()
         },
-        Name::new("MainCamera"),
-        MainCameraTag { is_active: true },
         UiCameraConfig { show_ui: true },
     ));
     info!("Main Camera Spawned");

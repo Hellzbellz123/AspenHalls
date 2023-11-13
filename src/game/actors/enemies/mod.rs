@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
     consts::{
-        ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, PLAYER_PROJECTILE_LAYER,
+        ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, AspenCollisionLayer
     },
     loading::assets::ActorTextureHandles,
 };
@@ -130,8 +130,8 @@ pub fn spawn_enemy_projectile(
                 },
                 collider: Collider::ball(3.0),
                 collision_groups: CollisionGroups::new(
-                    PLAYER_PROJECTILE_LAYER,
-                    Group::from_bits_truncate(0b00101),
+                    AspenCollisionLayer::PROJECTILE,
+                    AspenCollisionLayer::EVERYTHING,
                 ),
                 ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             },

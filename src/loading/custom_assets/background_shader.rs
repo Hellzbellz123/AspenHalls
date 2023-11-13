@@ -22,7 +22,7 @@ pub struct ScaledBackgroundMaterial {
     /// how much image moves relative too camera
     #[uniform(0)]
     pub movement_scale: f32,
-    /// 3 extra vecs for wasm padding because wasm wants 16byte structs
+    /// 3 extra f32 for wasm padding because wasm wants 16byte structs
     #[uniform(0)]
     pub _wasm_padding: Vec3,
     /// This image must have its [`SamplerDescriptor`] address_mode_* fields set to

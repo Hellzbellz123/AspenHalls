@@ -10,6 +10,7 @@ pub use serde;
 /// imports for components and resources specifically for aspen halls
 pub mod game {
     #[cfg(feature = "inspect")]
+    /// holds features/tools for inspecting state of application
     pub mod inspect {
         pub use crate::dev_tools::debug_plugin::DebugPlugin;
         pub use bevy_inspector_egui::prelude::{InspectorOptions, ReflectInspectorOptions};
@@ -52,9 +53,9 @@ pub mod game {
             },
             config::{
                 ConfigFile, DifficultyScales, GameDifficulty, GeneralSettings, RenderSettings,
-                SoundSettings, WindowSettings,
+                SoundSettings, WindowSettings, save_load::save_settings,
             },
-            splashscreen::{MainCameraTag, OnlySplashScreen, SplashPlugin, SplashTimer},
+            splashscreen::{MainCamera, OnlySplashScreen, SplashPlugin, SplashTimer},
         },
         utilities::{despawn_with, lerp, set_window_icon, GetEither, GetEitherMut},
         AppStage,
@@ -91,7 +92,6 @@ pub mod engine {
 
     pub use big_brain;
     pub use leafwing_input_manager;
-
     // bevy and bevy plugins
     pub use bevy;
     pub use bevy_common_assets;
@@ -181,7 +181,7 @@ pub mod engine {
             },
             vec2, vec3, IRect, Rect as FRect, URect,
         },
-        prelude::*,
+        prelude::{*, bevy_main},
         reflect::prelude::{
             reflect_trait, FromReflect, GetField, GetTupleStructField, Reflect, ReflectDefault,
             ReflectDeserialize, ReflectFromReflect, ReflectSerialize, Struct, TupleStruct,

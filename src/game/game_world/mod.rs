@@ -1,11 +1,9 @@
-#![allow(clippy::type_complexity)]
-
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{prelude::LdtkEntityAppExt, TileEnumTags};
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 
-use crate::consts::{ACTOR_Z_INDEX, PLAYER_LAYER};
+use crate::consts::{ACTOR_Z_INDEX, AspenCollisionLayer};
 
 use self::{
     components::{
@@ -70,6 +68,8 @@ impl Plugin for GameWorldPlugin {
 pub struct GridContainerTag;
 
 /// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
+// TODO: find all uses of cmds.spawn(()) and add cleanup component
+// cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 fn teleport_player_too_start_location(
     mut player_query: Query<(&mut Transform, &mut Player)>,
     start_location: Query<
@@ -227,8 +227,8 @@ fn insert_collider(
         rigidbody: RigidBody::Fixed,
         collision_shape: Collider::compound(shape),
         collision_group: CollisionGroups {
-            memberships: Group::all(),
-            filters: PLAYER_LAYER,
+            memberships: AspenCollisionLayer::WORLD,
+            filters: Group::ALL,
         },
     });
     remove_value(&mut tags.tags, tag);

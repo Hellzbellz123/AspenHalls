@@ -5,7 +5,7 @@ use leafwing_input_manager::{
     systems::run_if_enabled,
 };
 
-use crate::{game::actors::components::Player, loading::splashscreen::MainCameraTag};
+use crate::{game::actors::components::Player, loading::splashscreen::MainCamera};
 
 use super::{
     action_maps::{self},
@@ -56,7 +56,7 @@ fn apply_look_driver(
 fn update_cursor_state_from_window(
     window_query: Query<&Window>,
     mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
-    camera_query: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {
     // Update each action state with the mouse position from the window
     // by using the referenced entities in ActionStateDriver and the stored action as

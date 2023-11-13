@@ -1,5 +1,3 @@
-#![allow(clippy::type_complexity)]
-
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::LdtkLevel;
 use bevy_ecs_tilemap::tiles::TileStorage;

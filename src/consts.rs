@@ -1,4 +1,4 @@
-use crate::ahp::engine::*;
+use crate::ahp::engine::{bevy, Group, Vec2, Vec3};
 
 /// games tile size as const for easy use
 pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
@@ -35,8 +35,25 @@ pub const ACTOR_COLLIDER: (bevy::prelude::Vec2, bevy::prelude::Vec2, f32) = (
 /// bullet speed
 pub const BULLET_SPEED_MODIFIER: f32 = 100.0;
 
-/// physics layer that player exists on.
-pub const PLAYER_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP_32;
+#[non_exhaustive]
+/// Collision Groups wrapper
+/// created for easy use
+///```
+/// collision_groups: CollisionGroups::new(
+///     AspenCollisionLayer::PROJECTILE, <--- Select Membership
+///     AspenCollisionLayer::WORLD | AspenCollisionLayer::ACTOR | AspenCollisionLayer::PROJECTILE  <---- bitwise-or the groups you want this member too collide with
+///```
+pub struct AspenCollisionLayer;
 
-/// physics layer that player projectile exists on
-pub const PLAYER_PROJECTILE_LAYER: bevy_rapier2d::geometry::Group = Group::GROUP_30;
+impl AspenCollisionLayer {
+    /// entities that provide world collision belong to this group
+    pub const WORLD: Group = Group::GROUP_1;
+    /// entities that can move belong too this group
+    pub const ACTOR: Group = Group::GROUP_2;
+    /// entities that are created from weapons belong too this group
+    pub const PROJECTILE: Group = Group::GROUP_3;
+    /// All possible collision groups
+    ///
+    /// use as the membership and bitwise-or what you do NOT want too collide with
+    pub const EVERYTHING: Group = Group::ALL;
+}

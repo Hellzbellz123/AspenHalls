@@ -21,7 +21,7 @@ use crate::{
     game::{actors::components::Player, AppStage},
     loading::{
         assets::{InitAssetHandles, TouchControlAssetHandles},
-        splashscreen::MainCameraTag,
+        splashscreen::MainCamera,
     },
 };
 
@@ -212,136 +212,168 @@ fn update_joysticks(
     mut joystick_color_query: Query<(&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>,
     mut player_input_query: Query<&mut ActionState<Gameplay>, With<Player>>,
     window_query: Query<&Window, (With<PrimaryWindow>,)>,
-    camera_query: Query<(&Camera, &GlobalTransform), With<MainCameraTag>>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {
     for joystick_event in &mut joystick_events {
-        let Vec2 { x, y } = joystick_event.axis();
+        let Vec2 { x: joy_x, y: joy_y } = joystick_event.axis();
 
-        match joystick_event.get_type() {
-            VirtualJoystickEventType::Press | VirtualJoystickEventType::Drag => {
-                for (mut color, node) in &mut joystick_color_query {
-                    if node.id == joystick_event.id() {
-                        *color = TintColor(Color::WHITE);
-                    }
-                }
-            }
-            VirtualJoystickEventType::Up => {
-                for (mut color, node) in &mut joystick_color_query {
-                    if node.id == joystick_event.id() {
-                        *color = TintColor(Color::WHITE.with_a(0.2));
-                    }
-                }
-            }
-        }
+        handle_joystick_color(joystick_event, &mut joystick_color_query);
 
         let mut player_input = player_input_query.single_mut();
         match joystick_event.id() {
             TouchJoyType::LookTouchInput => {
-                let window = window_query.single();
-                let (camera, camera_transform) = camera_query.single();
-                let dead_zone = 0.006; // Adjust this threshold as needed
-
-                // Apply dead zone to joystick input
-                let normalized_input = if joystick_event.axis().length() < dead_zone {
-                    Vec2::ZERO // Treat values near (0,0) as zero
-                } else {
-                    // Adjust input values to be centered around (0,0)
-                    let centered_x = dead_zone
-                        .mul_add(-joystick_event.axis().x.signum(), joystick_event.axis().x); //j.axis().x - dead_zone * j.axis().x.signum();
-                    let centered_y = dead_zone
-                        .mul_add(-joystick_event.axis().y.signum(), joystick_event.axis().y); // j.axis().y - dead_zone * j.axis().y.signum();
-
-                    // Normalize input values to [-1.0, 1.0]
-                    let normalized_x = centered_x / (1.0 - dead_zone);
-                    let normalized_y = centered_y / (1.0 - dead_zone);
-
-                    Vec2::new(normalized_x, normalized_y)
-                };
-
-                let fake_cursor_position = Vec2::new(
-                    (normalized_input.x * window.width() / 2.0) + (window.width() / 2.0),
-                    (-normalized_input.y * window.height() / 2.0) + (window.height() / 2.0),
-                );
-
-                let fake_world_position = camera
-                    .viewport_to_world_2d(camera_transform, fake_cursor_position)
-                    .unwrap_or_else(|| {
-                        warn!("no cursor");
-                        Vec2::ZERO
-                    });
-
-                if x.abs() >= 0.3 || y.abs() >= 0.3 {
-                    player_input.press(action_maps::Gameplay::Shoot);
-                }
-
-                player_input.set_action_data(
-                    Gameplay::LookLocal,
-                    ActionData {
-                        axis_pair: Some(DualAxisData::from_xy(fake_cursor_position)),
-                        consumed: false,
-                        state: ButtonState::JustPressed,
-                        value: 1.0,
-                        timing: Timing {
-                            instant_started: Some(Instant::now()),
-                            current_duration: Duration::from_secs(1),
-                            previous_duration: Duration::from_secs(0),
-                        },
-                    },
-                );
-
-                player_input.set_action_data(
-                    Gameplay::LookWorld,
-                    ActionData {
-                        axis_pair: Some(DualAxisData::from_xy(fake_world_position)),
-                        consumed: false,
-                        state: ButtonState::JustPressed,
-                        value: 1.0,
-                        timing: Timing {
-                            instant_started: Some(Instant::now()),
-                            current_duration: Duration::from_secs(1),
-                            previous_duration: Duration::from_secs(0),
-                        },
-                    },
+                update_mouse_input(
+                    &window_query,
+                    &camera_query,
+                    joystick_event,
+                    joy_x,
+                    joy_y,
+                    &mut player_input,
                 );
             }
 
             TouchJoyType::MoveTouchInput => {
-                if x.abs() >= 0.7 || y.abs() >= 0.7 {
-                    player_input.set_action_data(
-                        Gameplay::Sprint,
-                        ActionData {
-                            axis_pair: None,
-                            consumed: false,
-                            state: ButtonState::JustPressed,
-                            value: 1.0,
-                            timing: Timing {
-                                instant_started: Some(Instant::now()),
-                                current_duration: Duration::from_secs(1),
-                                previous_duration: Duration::from_secs(0),
-                            },
-                        },
-                    );
-                }
-
-                player_input.set_action_data(
-                    Gameplay::Move,
-                    ActionData {
-                        axis_pair: Some(DualAxisData::from_xy(
-                            Vec2 { x, y }.clamp(Vec2::splat(-1.0), Vec2::splat(1.0)),
-                        )),
-                        consumed: false,
-                        state: ButtonState::JustPressed,
-                        value: 1.0,
-                        timing: Timing {
-                            instant_started: Some(Instant::now()),
-                            current_duration: Duration::from_secs(1),
-                            previous_duration: Duration::from_secs(0),
-                        },
-                    },
-                );
+                update_move_input(joy_x, joy_y, player_input);
             }
         }
     }
+}
+
+/// changes joystick color based on event type
+fn handle_joystick_color(joystick_event: &VirtualJoystickEvent<TouchJoyType>, joystick_color_query: &mut Query<'_, '_, (&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>) {
+    match joystick_event.get_type() {
+        VirtualJoystickEventType::Press | VirtualJoystickEventType::Drag => {
+            for (mut color, node) in joystick_color_query {
+                if node.id == joystick_event.id() {
+                    *color = TintColor(Color::WHITE);
+                }
+            }
+        }
+        VirtualJoystickEventType::Up => {
+            for (mut color, node) in joystick_color_query {
+                if node.id == joystick_event.id() {
+                    *color = TintColor(Color::WHITE.with_a(0.2));
+                }
+            }
+        }
+    }
+}
+
+/// updates player move input with given x/y value
+///
+/// used by joystick handling code
+fn update_move_input(x: f32, y: f32, mut player_input: Mut<'_, ActionState<Gameplay>>) {
+    if x.abs() >= 0.7 || y.abs() >= 0.7 {
+        player_input.set_action_data(
+            Gameplay::Sprint,
+            ActionData {
+                axis_pair: None,
+                consumed: false,
+                state: ButtonState::JustPressed,
+                value: 1.0,
+                timing: Timing {
+                    instant_started: Some(Instant::now()),
+                    current_duration: Duration::from_secs(1),
+                    previous_duration: Duration::from_secs(0),
+                },
+            },
+        );
+    }
+
+    player_input.set_action_data(
+        Gameplay::Move,
+        ActionData {
+            axis_pair: Some(DualAxisData::from_xy(
+                Vec2 { x, y }.clamp(Vec2::splat(-1.0), Vec2::splat(1.0)),
+            )),
+            consumed: false,
+            state: ButtonState::JustPressed,
+            value: 1.0,
+            timing: Timing {
+                instant_started: Some(Instant::now()),
+                current_duration: Duration::from_secs(1),
+                previous_duration: Duration::from_secs(0),
+            },
+        },
+    );
+}
+
+/// updates mouse look for player action state
+fn update_mouse_input(
+    window_query: &Query<'_, '_, &Window, (With<PrimaryWindow>,)>,
+    camera_query: &Query<'_, '_, (&Camera, &GlobalTransform), With<MainCamera>>,
+    joystick_event: &VirtualJoystickEvent<TouchJoyType>,
+    x: f32,
+    y: f32,
+    player_input: &mut Mut<'_, ActionState<Gameplay>>,
+) {
+    let window = window_query.single();
+    let (camera, camera_transform) = camera_query.single();
+    let dead_zone = 0.006;
+    // Adjust this threshold as needed
+
+    // Apply dead zone to joystick input
+    let normalized_input = if joystick_event.axis().length() < dead_zone {
+        Vec2::ZERO // Treat values near (0,0) as zero
+    } else {
+        // Adjust input values to be centered around (0,0)
+        let centered_x =
+            dead_zone.mul_add(-joystick_event.axis().x.signum(), joystick_event.axis().x); //j.axis().x - dead_zone * j.axis().x.signum();
+        let centered_y =
+            dead_zone.mul_add(-joystick_event.axis().y.signum(), joystick_event.axis().y); // j.axis().y - dead_zone * j.axis().y.signum();
+
+        // Normalize input values to [-1.0, 1.0]
+        let normalized_x = centered_x / (1.0 - dead_zone);
+        let normalized_y = centered_y / (1.0 - dead_zone);
+
+        Vec2::new(normalized_x, normalized_y)
+    };
+
+    let fake_cursor_position = Vec2::new(
+        (normalized_input.x * window.width() / 2.0) + (window.width() / 2.0),
+        (-normalized_input.y * window.height() / 2.0) + (window.height() / 2.0),
+    );
+
+    let fake_world_position = camera
+        .viewport_to_world_2d(camera_transform, fake_cursor_position)
+        .unwrap_or_else(|| {
+            warn!("no cursor");
+            Vec2::ZERO
+        });
+
+    if x.abs() >= 0.3 || y.abs() >= 0.3 {
+        player_input.press(action_maps::Gameplay::Shoot);
+    }
+
+    player_input.set_action_data(
+        Gameplay::LookLocal,
+        ActionData {
+            axis_pair: Some(DualAxisData::from_xy(fake_cursor_position)),
+            consumed: false,
+            state: ButtonState::JustPressed,
+            value: 1.0,
+            timing: Timing {
+                instant_started: Some(Instant::now()),
+                current_duration: Duration::from_secs(1),
+                previous_duration: Duration::from_secs(0),
+            },
+        },
+    );
+
+    player_input.set_action_data(
+        Gameplay::LookWorld,
+        ActionData {
+            axis_pair: Some(DualAxisData::from_xy(fake_world_position)),
+            consumed: false,
+            state: ButtonState::JustPressed,
+            value: 1.0,
+            timing: Timing {
+                instant_started: Some(Instant::now()),
+                current_duration: Duration::from_secs(1),
+                previous_duration: Duration::from_secs(0),
+            },
+        },
+    );
 }
 
 /// color for button with no interactions

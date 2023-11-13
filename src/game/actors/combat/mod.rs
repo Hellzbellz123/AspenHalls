@@ -1,4 +1,3 @@
-#![allow(clippy::type_complexity)]
 /// different attacks that can exist in the game
 mod attacks;
 /// combat related components

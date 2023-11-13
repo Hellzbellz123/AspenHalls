@@ -2,11 +2,13 @@ use crate::ahp::{
     engine::{
         bevy::window::PrimaryWindow,
         {
+            bevy, default,
             leafwing_input_manager::{action_state::ActionState, axislike::DualAxisData},
-            *,
+            svg_draw, svg_shapes, Color, Commands, Component, GeometryBuilder, IntoSystemConfigs,
+            Name, OnEnter, Plugin, PreUpdate, Query, SvgBundle, Transform, Vec2, Window, With,
         },
     },
-    game::*,
+    game::{AppStage, Gameplay, Player},
 };
 
 use super::AspenInputSystemSet;
@@ -29,7 +31,7 @@ impl Plugin for SoftwareCursorPlugin {
 pub struct SoftWareCursorTag;
 
 /// creates software cursor entity
-/// image selected from init_resources.custom_cursor?
+/// image selected from `init_resources.custom_cursor` ?
 fn spawn_software_cursor(mut cmds: Commands) {
     let shape = svg_shapes::RegularPolygon {
         sides: 6,
