@@ -14,9 +14,14 @@ categories = ["games"]
 
 [workspace]
 resolver = "2"
-exclude = ["deps"]
+exclude = ["deps", "deps_broke"]
 default-members = ["launchers/native/"]
-members = ["launchers/wasm", "launchers/native", "launchers/mobile"]
+members = [
+    "launchers/wasm",
+    "launchers/native",
+    "launchers/mobile",
+    "deps_inhouse/bevy_mod_logfu",
+]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -38,23 +43,23 @@ lto = "thin"
 debug = true
 codegen-units = 1
 opt-level = 'z'
-lto="fat"
+lto = "fat"
 
 [workspace.dependencies]
 log = "0.4.20"
 bevy = { path = "deps/bevy", default-features = false, features = [
-    "bevy_pbr",     # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-    "bevy_ui",      # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-    "bevy_winit",   # Support for creating windows
-    "x11",                      # Support Linux x11 windowing system
+    "bevy_pbr",   # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+    "bevy_ui",    # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+    "bevy_winit", # Support for creating windows
+    "x11",        # Support Linux x11 windowing system
     # wayland feature currently breaks app startup loop, causing infinite hang
     # i am unsure as too why, it seems related too mangohud but disabling mangohud via env does not fix the issue
     # "wayland",                  # Support Linux Wayland windowing system
-    "png",                      # png is my preffered image format
-    "serialize",                # Support for `serde` Serialize/Deserialize
-    "tonemapping_luts",         # extra tonemapping utils requires ktx2 & zstd
-    "ktx2",                     # gpu friendly texture format
-    "zstd",                     # zstd is for ktx2 compression
+    "png",              # png is my preffered image format
+    "serialize",        # Support for `serde` Serialize/Deserialize
+    "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
+    "ktx2",             # gpu friendly texture format
+    "zstd",             # zstd is for ktx2 compression
     # "bevy_gilrs",             # Gamepad input support
     # "subpixel_glyph_atlas",   # Subpixel antialiasing for text/fonts
     # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet?
@@ -73,12 +78,12 @@ bevy = { workspace = true, features = [
 
 [target.'cfg(target_os = "android")'.dependencies]
 bevy = { workspace = true, features = [
-    "android_shared_stdcxx",  # this is for cpal/oboe
+    "android_shared_stdcxx", # this is for cpal/oboe
 ] }
 
 [target.'cfg(target_family = "wasm")'.dependencies]
 bevy = { workspace = true, features = [
-    "webgl2",  # this is for cpal/oboe
+    "webgl2", # this is for cpal/oboe
 ] }
 
 [build-dependencies]
@@ -104,10 +109,10 @@ num-integer = { version = "0.1" }
 bevy = { workspace = true }
 
 # personal bevy plugins
-bevy_mod_logfu = { path = "deps/ainhouse/bevy_mod_logfu" }
+bevy_mod_logfu = { path = "deps_inhouse/bevy_mod_logfu" }
+# bevy_mod_mobiletouchpad = { path = "deps_inhouse/bevy_mod_mobile_touchpad" }
 # TODO: move the virtual touchpad into a reuseable bevy plugin
 # so other people can just throw it in and use it
-# bevy_mod_mobiletouchpad = { path = "deps/ainhouse/bevy_mod_mobile_touchpad" }
 
 # Bevy Dependencies are located in deps folder
 big-brain = { path = "deps/big_brain" }
@@ -159,7 +164,7 @@ bevy-debug-text-overlay = { path = "deps/bevy_debug_text_overlay", default-featu
 
 [patch.crates-io]
 # broken dependencies
-typid = { path = "deps/abrokedeps/typid" } # typid doesnt compile on web with crates version, updated uuid dependency and it works
+typid = { path = "deps_broke/typid" } # typid doesnt compile on web with crates version, updated uuid dependency and it works
 
 # bevy addon local replacements
 bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap" }
