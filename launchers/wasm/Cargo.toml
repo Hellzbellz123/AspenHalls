@@ -2,14 +2,21 @@
 name = "aspen_halls_wasm"
 description = "aspen halls wasm launcher using trunk"
 version = "0.0.1"
-authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
+authors = [
+  "Taylor Smith <aspenhalls.org@gmail.com>",
+]
 edition = "2021"
 documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
 homepage = "https://hellzbellz123.github.io/AspenHalls/"
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
-keywords = ["videogame", "game", "application", "bin"]
+keywords = [
+  "videogame",
+  "game",
+  "application",
+  "bin",
+]
 categories = ["games"]
 
 workspace = "../.."
@@ -24,6 +31,10 @@ log.workspace = true
 aspen_lib = { path = "../.." }
 yew = { version = "0.21.0", features = ["csr"] }
 wasm-logger = { version = "0.2.0", optional = true }
-web-sys = { version = "0.3.64", features = ["Document", "Navigator", "Window"] }
+web-sys = { version = "0.3.64", features = [
+  "Document",
+  "Navigator",
+  "Window",
+] }
 
 # bevy.workspace = true

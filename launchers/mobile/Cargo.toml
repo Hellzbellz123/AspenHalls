@@ -1,7 +1,9 @@
 [package]
 name = "aspen_halls_mobile"
 version = "0.0.1"
-authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
+authors = [
+  "Taylor Smith <aspenhalls.org@gmail.com>",
+]
 edition = "2021"
 description = "aspen halls launcher lib for mobile platform apps"
 documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
@@ -9,7 +11,12 @@ homepage = "https://hellzbellz123.github.io/AspenHalls/"
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
-keywords = ["videogame", "game", "application", "bin"]
+keywords = [
+  "videogame",
+  "game",
+  "application",
+  "bin",
+]
 categories = ["games"]
 
 workspace = "../../"
@@ -24,7 +31,9 @@ trace = ["aspen_lib/trace"]
 
 [dependencies]
 aspen_lib = { path = "../../" }
-jni = { version = "0.21.1", features = ["invocation"] }
+jni = { version = "0.21.1", features = [
+  "invocation",
+] }
 ndk-context = "0.1.1"
 
 [package.metadata]
@@ -33,4 +42,7 @@ assets = ["../../assets"]
 
 [package.metadata.apple]
 resources = ["../../res/apple"]
-release_build_targets = ["aarch64-apple-ios", "x86_64-apple-ios"]
+release_build_targets = [
+  "aarch64-apple-ios",
+  "x86_64-apple-ios",
+]

@@ -8,8 +8,9 @@ use leafwing_input_manager::{
     prelude::{ActionState, ActionStateDriver},
 };
 use virtual_joystick::{
-    TintColor, VirtualJoystickAxis, VirtualJoystickBundle, VirtualJoystickEvent,
-    VirtualJoystickEventType, VirtualJoystickInteractionArea, VirtualJoystickNode,
+    TintColor, VirtualJoystickAxis, VirtualJoystickBundle,
+    VirtualJoystickEvent, VirtualJoystickEventType,
+    VirtualJoystickInteractionArea, VirtualJoystickNode,
     VirtualJoystickPlugin, VirtualJoystickType,
 };
 
@@ -33,7 +34,10 @@ pub struct TouchInputPlugin;
 impl Plugin for TouchInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(VirtualJoystickPlugin::<TouchJoyType>::default());
-        app.add_systems(OnEnter(AppStage::BootingApp), spawn_touch_controls_root);
+        app.add_systems(
+            OnEnter(AppStage::BootingApp),
+            spawn_touch_controls_root,
+        );
         app.add_systems(
             OnEnter(AppStage::PlayingGame),
             (spawn_touch_joysticks, spawn_button_controls),
@@ -43,8 +47,14 @@ impl Plugin for TouchInputPlugin {
             (update_joysticks, interaction_button_system)
                 .in_set(AspenInputSystemSet::TouchInput)
                 .run_if(
-                    leafwing_input_manager::systems::run_if_enabled::<action_maps::Gameplay>
-                        .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
+                    leafwing_input_manager::systems::run_if_enabled::<
+                        action_maps::Gameplay,
+                    >
+                        .and_then(
+                            any_with_component::<
+                                ActionStateDriver<action_maps::Gameplay>,
+                            >(),
+                        ),
                 ),
         );
     }
@@ -99,8 +109,8 @@ fn spawn_button_controls(
     touch_root_query: Query<Entity, With<TouchControlsRoot>>,
     init_handles: Res<InitAssetHandles>,
 ) {
-    cmds.entity(touch_root_query.single())
-        .with_children(|touch_controls| {
+    cmds.entity(touch_root_query.single()).with_children(
+        |touch_controls| {
             touch_controls
                 .spawn((
                     Name::new("InteractionButton"),
@@ -120,7 +130,9 @@ fn spawn_button_controls(
                             justify_content: JustifyContent::Center,
                             ..default()
                         },
-                        background_color: BackgroundColor(Color::SEA_GREEN),
+                        background_color: BackgroundColor(
+                            Color::SEA_GREEN,
+                        ),
                         border_color: BorderColor(Color::RED),
                         z_index: ZIndex::Local(1),
                         // TODO: change from button with text too fancier image
@@ -145,7 +157,8 @@ fn spawn_button_controls(
                         }),
                     );
                 });
-        });
+        },
+    );
 }
 
 // TODO: convert too init pack
@@ -209,8 +222,14 @@ fn spawn_touch_joysticks(
 /// updates `actions::GamePlay::Move|Look` using touch joystick events
 fn update_joysticks(
     mut joystick_events: EventReader<VirtualJoystickEvent<TouchJoyType>>,
-    mut joystick_color_query: Query<(&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>,
-    mut player_input_query: Query<&mut ActionState<Gameplay>, With<Player>>,
+    mut joystick_color_query: Query<(
+        &mut TintColor,
+        &VirtualJoystickNode<TouchJoyType>,
+    )>,
+    mut player_input_query: Query<
+        &mut ActionState<Gameplay>,
+        With<Player>,
+    >,
     window_query: Query<&Window, (With<PrimaryWindow>,)>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
 ) {
@@ -240,9 +259,17 @@ fn update_joysticks(
 }
 
 /// changes joystick color based on event type
-fn handle_joystick_color(joystick_event: &VirtualJoystickEvent<TouchJoyType>, joystick_color_query: &mut Query<'_, '_, (&mut TintColor, &VirtualJoystickNode<TouchJoyType>)>) {
+fn handle_joystick_color(
+    joystick_event: &VirtualJoystickEvent<TouchJoyType>,
+    joystick_color_query: &mut Query<
+        '_,
+        '_,
+        (&mut TintColor, &VirtualJoystickNode<TouchJoyType>),
+    >,
+) {
     match joystick_event.get_type() {
-        VirtualJoystickEventType::Press | VirtualJoystickEventType::Drag => {
+        VirtualJoystickEventType::Press
+        | VirtualJoystickEventType::Drag => {
             for (mut color, node) in joystick_color_query {
                 if node.id == joystick_event.id() {
                     *color = TintColor(Color::WHITE);
@@ -262,7 +289,11 @@ fn handle_joystick_color(joystick_event: &VirtualJoystickEvent<TouchJoyType>, jo
 /// updates player move input with given x/y value
 ///
 /// used by joystick handling code
-fn update_move_input(x: f32, y: f32, mut player_input: Mut<'_, ActionState<Gameplay>>) {
+fn update_move_input(
+    x: f32,
+    y: f32,
+    mut player_input: Mut<'_, ActionState<Gameplay>>,
+) {
     if x.abs() >= 0.7 || y.abs() >= 0.7 {
         player_input.set_action_data(
             Gameplay::Sprint,
@@ -301,7 +332,12 @@ fn update_move_input(x: f32, y: f32, mut player_input: Mut<'_, ActionState<Gamep
 /// updates mouse look for player action state
 fn update_mouse_input(
     window_query: &Query<'_, '_, &Window, (With<PrimaryWindow>,)>,
-    camera_query: &Query<'_, '_, (&Camera, &GlobalTransform), With<MainCamera>>,
+    camera_query: &Query<
+        '_,
+        '_,
+        (&Camera, &GlobalTransform),
+        With<MainCamera>,
+    >,
     joystick_event: &VirtualJoystickEvent<TouchJoyType>,
     x: f32,
     y: f32,
@@ -317,10 +353,14 @@ fn update_mouse_input(
         Vec2::ZERO // Treat values near (0,0) as zero
     } else {
         // Adjust input values to be centered around (0,0)
-        let centered_x =
-            dead_zone.mul_add(-joystick_event.axis().x.signum(), joystick_event.axis().x); //j.axis().x - dead_zone * j.axis().x.signum();
-        let centered_y =
-            dead_zone.mul_add(-joystick_event.axis().y.signum(), joystick_event.axis().y); // j.axis().y - dead_zone * j.axis().y.signum();
+        let centered_x = dead_zone.mul_add(
+            -joystick_event.axis().x.signum(),
+            joystick_event.axis().x,
+        ); //j.axis().x - dead_zone * j.axis().x.signum();
+        let centered_y = dead_zone.mul_add(
+            -joystick_event.axis().y.signum(),
+            joystick_event.axis().y,
+        ); // j.axis().y - dead_zone * j.axis().y.signum();
 
         // Normalize input values to [-1.0, 1.0]
         let normalized_x = centered_x / (1.0 - dead_zone);
@@ -330,8 +370,10 @@ fn update_mouse_input(
     };
 
     let fake_cursor_position = Vec2::new(
-        (normalized_input.x * window.width() / 2.0) + (window.width() / 2.0),
-        (-normalized_input.y * window.height() / 2.0) + (window.height() / 2.0),
+        (normalized_input.x * window.width() / 2.0)
+            + (window.width() / 2.0),
+        (-normalized_input.y * window.height() / 2.0)
+            + (window.height() / 2.0),
     );
 
     let fake_world_position = camera
@@ -400,7 +442,9 @@ fn interaction_button_system(
     >,
     mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>,
 ) {
-    for (interaction, mut color, mut border_color, _children) in &mut interaction_query {
+    for (interaction, mut color, mut border_color, _children) in
+        &mut interaction_query
+    {
         match *interaction {
             Interaction::Pressed => {
                 info!("interaction button pressed, send thing");

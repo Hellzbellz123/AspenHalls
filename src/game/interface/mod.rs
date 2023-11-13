@@ -1,4 +1,6 @@
-use belly::prelude::{eml, BodyWidgetExtension, Element, Elements, StyleSheet, Widget};
+use belly::prelude::{
+    eml, BodyWidgetExtension, Element, Elements, StyleSheet, Widget,
+};
 use bevy::prelude::*;
 
 use crate::{game::AppStage, loading::assets::InitAssetHandles};
@@ -7,7 +9,9 @@ use crate::{game::AppStage, loading::assets::InitAssetHandles};
 mod menus;
 
 /// currently active menu
-#[derive(Debug, Default, States, Hash, PartialEq, Eq, Clone, Copy, Reflect)]
+#[derive(
+    Debug, Default, States, Hash, PartialEq, Eq, Clone, Copy, Reflect,
+)]
 pub enum RequestedMenu {
     /// no menu spawned
     #[default]
@@ -32,7 +36,10 @@ impl Plugin for InterfacePlugin {
             OnEnter(AppStage::Loading),
             InterfaceRoot::create_interface_root,
         )
-        .add_systems(OnEnter(AppStage::PlayingGame), InterfaceRoot::hide_all)
+        .add_systems(
+            OnEnter(AppStage::PlayingGame),
+            InterfaceRoot::hide_all,
+        )
         .add_systems(
             Update,
             (
@@ -45,12 +52,16 @@ impl Plugin for InterfacePlugin {
 }
 
 /// Iterates over all UI Elements and sets entity 'Name' too element value
-fn update_ui_ent_with_elements(mut cmds: Commands, mut elements: Query<(Entity, &mut Element), Changed<Element>>) {
+fn update_ui_ent_with_elements(
+    mut cmds: Commands,
+    mut elements: Query<(Entity, &mut Element), Changed<Element>>,
+) {
     elements.for_each_mut(|(ent, element)| {
         let mut classes = element.classes.clone();
 
         // Convert Tags to strings and collect them into a Vec
-        let tag_strings: Vec<String> = classes.drain().map(|tag| tag.to_string()).collect();
+        let tag_strings: Vec<String> =
+            classes.drain().map(|tag| tag.to_string()).collect();
 
         if tag_strings.contains(&String::from("hidden")) {
             cmds.entity(ent).insert(Name::new("hidden"));
@@ -67,7 +78,9 @@ fn update_ui_ent_with_elements(mut cmds: Commands, mut elements: Query<(Entity, 
 /// The menu root entity id
 ///
 /// All components for the menu should be attached to this entity
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deref, DerefMut, Resource)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, Deref, DerefMut, Resource,
+)]
 pub struct InterfaceRoot(pub Entity);
 
 impl InterfaceRoot {
@@ -95,7 +108,11 @@ impl InterfaceRoot {
     }
 
     /// Create a popup in the lower right corner
-    const fn show_popups(mut _events: EventReader<MenuPopupEvent>, mut _elements: Elements) {}
+    const fn show_popups(
+        mut _events: EventReader<MenuPopupEvent>,
+        mut _elements: Elements,
+    ) {
+    }
 
     /// A list of possible menus
     // const MENUS: [&'static str; 3] = [
@@ -184,11 +201,18 @@ pub enum PopupIcon {
 #[allow(dead_code)]
 impl PopupIcon {
     /// creates handles from possible icons
-    pub fn create_handle(self, asset_server: &AssetServer) -> Handle<Image> {
+    pub fn create_handle(
+        self,
+        asset_server: &AssetServer,
+    ) -> Handle<Image> {
         match self {
             Self::Info => asset_server.load("interface/textures/info.png"),
-            Self::Warning => asset_server.load("interface/textures/warning.png"),
-            Self::Error => asset_server.load("interface/textures/error.png"),
+            Self::Warning => {
+                asset_server.load("interface/textures/warning.png")
+            }
+            Self::Error => {
+                asset_server.load("interface/textures/error.png")
+            }
         }
     }
 }

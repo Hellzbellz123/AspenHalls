@@ -2,8 +2,8 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_ecs_ldtk::{prelude::LdtkLevel, GridCoords};
 use bevy_ecs_tilemap::{
     prelude::{
-        get_tilemap_center_transform, TilemapId, TilemapSize, TilemapTexture, TilemapTileSize,
-        TilemapType,
+        get_tilemap_center_transform, TilemapId, TilemapSize,
+        TilemapTexture, TilemapTileSize, TilemapType,
     },
     tiles::{TileBundle, TilePos},
     TilemapBundle,
@@ -11,13 +11,15 @@ use bevy_ecs_tilemap::{
 use bevy_rapier2d::prelude::Collider;
 use image::{ImageBuffer, Rgba};
 use leafwing_input_manager::prelude::ActionState;
-use seldom_map_nav::prelude::{NavPathMode, NavQuery, NavVec3, Navability, Navmeshes};
+use seldom_map_nav::prelude::{
+    NavPathMode, NavQuery, NavVec3, Navability, Navmeshes,
+};
 
 use crate::{
     consts::TILE_SIZE,
     game::{
         actors::{
-            ai::components::{Type, ActorType, Enemy},
+            ai::components::{ActorType, Enemy, Type},
             combat::components::WeaponTag,
             spawners::components::{SpawnActorEvent, WeaponType},
         },
@@ -26,11 +28,15 @@ use crate::{
 };
 
 use self::{
-    generator::{DungeonContainerTag, DungeonRoomTag, RoomAssetID, RoomInstance},
+    generator::{
+        DungeonContainerTag, DungeonRoomTag, RoomAssetID, RoomInstance,
+    },
     hallways::HallWay,
 };
 
-use super::{components::PlayerStartLocation, teleport_player_too_start_location};
+use super::{
+    components::PlayerStartLocation, teleport_player_too_start_location,
+};
 
 /// systems and functions related too generating rooms
 mod generator;
@@ -64,12 +70,18 @@ impl Plugin for DungeonGeneratorPlugin {
                     generator::setup_dungeon_environment,
                     generator::create_dungeons_list,
                 )
-                    .run_if(state_exists_and_equals(GeneratorStage::Initialization)),
-                (generator::layout_dungeon_and_place_skeleton)
-                    .run_if(state_exists_and_equals(GeneratorStage::GenerateRooms)),
-                (regeneration_system).run_if(state_exists_and_equals(GeneratorStage::Finished)),
-                (hallways::wait_for_ldtk_finish)
-                    .run_if(state_exists_and_equals(GeneratorStage::PlaceRooms)),
+                    .run_if(state_exists_and_equals(
+                        GeneratorStage::Initialization,
+                    )),
+                (generator::layout_dungeon_and_place_skeleton).run_if(
+                    state_exists_and_equals(GeneratorStage::GenerateRooms),
+                ),
+                (regeneration_system).run_if(state_exists_and_equals(
+                    GeneratorStage::Finished,
+                )),
+                (hallways::wait_for_ldtk_finish).run_if(
+                    state_exists_and_equals(GeneratorStage::PlaceRooms),
+                ),
             ),
         )
         .add_systems(
@@ -117,7 +129,9 @@ impl Plugin for DungeonGeneratorPlugin {
 //     // .in_set(OnUpdate(GeneratorStage::Finished)),
 
 /// different states of the `DungeonGenerator`
-#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
+#[derive(
+    Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect,
+)]
 pub enum GeneratorStage {
     /// No Dungeon stuff has been spawned or Computed, \
     /// probably in the menu
@@ -272,7 +286,10 @@ fn spawn_navigation_grid(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     dungeon_container: Query<Entity, With<DungeonContainerTag>>,
-    room_query: Query<(&GlobalTransform, &RoomInstance), With<DungeonRoomTag>>,
+    room_query: Query<
+        (&GlobalTransform, &RoomInstance),
+        With<DungeonRoomTag>,
+    >,
     tile_query: Query<
         (Entity, &TilePos, &GridCoords, &Transform, &GlobalTransform),
         With<Collider>,
@@ -284,8 +301,10 @@ fn spawn_navigation_grid(
 
     for (i, (transform1, room1)) in room_query.iter().enumerate() {
         for (transform2, room2) in room_query.iter().skip(i + 1) {
-            let furthest_distance1 = calculate_furthest_point_distance(transform1, room1);
-            let furthest_distance2 = calculate_furthest_point_distance(transform2, room2);
+            let furthest_distance1 =
+                calculate_furthest_point_distance(transform1, room1);
+            let furthest_distance2 =
+                calculate_furthest_point_distance(transform2, room2);
             let distance = furthest_distance1 + furthest_distance2;
 
             // Check if the distance is greater than the current furthest distance
@@ -297,7 +316,8 @@ fn spawn_navigation_grid(
 
     let tile_size = TilemapTileSize::from(TILE_SIZE);
     let dungeon_width_in_tiles: u32 =
-        (((furthest_distance / tile_size.x).ceil() * tile_size.x) as i32 / TILE_SIZE.x as i32)
+        (((furthest_distance / tile_size.x).ceil() * tile_size.x) as i32
+            / TILE_SIZE.x as i32)
             .try_into()
             .unwrap();
 
@@ -306,24 +326,27 @@ fn spawn_navigation_grid(
         y: dungeon_width_in_tiles,
     };
 
-    let min_x = tile_query
-        .iter()
-        .fold(f32::INFINITY, |min, (_, _, _, _, global_transform)| {
+    let min_x = tile_query.iter().fold(
+        f32::INFINITY,
+        |min, (_, _, _, _, global_transform)| {
             f32::min(min, global_transform.translation().x)
-        });
+        },
+    );
 
-    let min_y = tile_query
-        .iter()
-        .fold(f32::INFINITY, |min, (_, _, _, _, global_transform)| {
+    let min_y = tile_query.iter().fold(
+        f32::INFINITY,
+        |min, (_, _, _, _, global_transform)| {
             f32::min(min, global_transform.translation().y)
-        });
+        },
+    );
 
     info!("min_x: {}, min_y: {}", min_x, min_y);
 
     let global_tile_positions: Vec<(Entity, UVec2)> = tile_query
         .iter()
         .map(|(ent, _tile_pos, _, _transform, global_transform)| {
-            let global_position = global_transform.translation().truncate();
+            let global_position =
+                global_transform.translation().truncate();
             let global_tile_position = UVec2::new(
                 ((global_position.x - min_x) / TILE_SIZE.x) as u32,
                 ((global_position.y - min_y) / TILE_SIZE.y) as u32,
@@ -337,7 +360,8 @@ fn spawn_navigation_grid(
 
     for (entity, global_tile_pos) in &global_tile_positions {
         let does_tile_have_collider = collider_q.get(*entity).is_ok();
-        let index = (global_tile_pos.y * map_size.x + global_tile_pos.x) as usize;
+        let index =
+            (global_tile_pos.y * map_size.x + global_tile_pos.x) as usize;
         if index < tilemap.len() {
             tilemap[index] = if does_tile_have_collider {
                 Navability::Solid
@@ -347,11 +371,13 @@ fn spawn_navigation_grid(
         }
     }
 
-    let tilemap_entity = commands.spawn((Name::new("NavGrid"), NavMeshTag)).id();
+    let tilemap_entity =
+        commands.spawn((Name::new("NavGrid"), NavMeshTag)).id();
     let map_type = TilemapType::Square;
     let grid_size = tile_size.into();
     let texture_handle: Handle<Image> = asset_server.load("tiles.png");
-    let mut tile_storage = bevy_ecs_tilemap::tiles::TileStorage::empty(map_size);
+    let mut tile_storage =
+        bevy_ecs_tilemap::tiles::TileStorage::empty(map_size);
 
     for x in 0..map_size.x {
         for y in 0..map_size.y {
@@ -359,7 +385,9 @@ fn spawn_navigation_grid(
             let mut collider_tiles: Vec<(Entity, UVec2)> = Vec::new();
 
             for (x, f) in global_tile_positions.clone() {
-                if collider_q.get(x).is_ok() && Vec2::from(tile_pos) == f.as_vec2() {
+                if collider_q.get(x).is_ok()
+                    && Vec2::from(tile_pos) == f.as_vec2()
+                {
                     collider_tiles.push((x, f));
                 }
             }
@@ -367,23 +395,25 @@ fn spawn_navigation_grid(
             if !collider_tiles.is_empty() {
                 for f in collider_tiles {
                     let mut tile_entity = None;
-                    commands
-                        .entity(tilemap_entity)
-                        .with_children(|child_builder| {
+                    commands.entity(tilemap_entity).with_children(
+                        |child_builder| {
                             tile_entity = Some(
                                 child_builder
                                     .spawn((
                                         Name::new("NavTile"),
                                         TileBundle {
                                             position: TilePos::from(f.1),
-                                            tilemap_id: TilemapId(tilemap_entity),
+                                            tilemap_id: TilemapId(
+                                                tilemap_entity,
+                                            ),
                                             ..Default::default()
                                         },
                                         NavTile,
                                     ))
                                     .id(),
                             );
-                        });
+                        },
+                    );
                     if let Some(entity) = tile_entity {
                         tile_storage.set(&tile_pos, entity);
                     }
@@ -402,7 +432,9 @@ fn spawn_navigation_grid(
         storage: tile_storage,
         texture: TilemapTexture::Single(texture_handle),
         tile_size,
-        transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0),
+        transform: get_tilemap_center_transform(
+            &map_size, &grid_size, &map_type, 0.0,
+        ),
         ..Default::default()
     });
 
@@ -472,7 +504,10 @@ fn test_navigation_mesh(nav_mesh: Query<(&Navmeshes, &NavMeshTest)>) {
 
 /// draws Vec of tiles too image
 #[allow(dead_code)]
-fn draw_tilemap(tilemap: &[Navability], map_size: TilemapSize) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+fn draw_tilemap(
+    tilemap: &[Navability],
+    map_size: TilemapSize,
+) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
     let width = map_size.x * 2;
     let height = map_size.y * 2;
 
@@ -485,10 +520,11 @@ fn draw_tilemap(tilemap: &[Navability], map_size: TilemapSize) -> ImageBuffer<Rg
     for y in 0..height {
         for x in 0..width {
             let index = ((y / 2) * map_size.x + (x / 2)) as usize;
-            let navability = tilemap.get(index).unwrap_or(&Navability::Navable);
+            let navability =
+                tilemap.get(index).unwrap_or(&Navability::Navable);
 
             let color = match navability {
-                Navability::Solid => Rgba([255, 0, 0, 255]),   // Red
+                Navability::Solid => Rgba([255, 0, 0, 255]), // Red
                 Navability::Navable => Rgba([0, 0, 255, 255]), // Blue
             };
 
@@ -523,10 +559,11 @@ fn draw_tiles(
         *pixel = Rgba([255, 255, 255, 255]);
     }
 
-    let global_tile_positions: Vec<(&Entity, UVec2)> = global_tile_positions
-        .iter()
-        .map(|(ent, pos)| (ent, UVec2::new(pos.x, pos.y)))
-        .collect();
+    let global_tile_positions: Vec<(&Entity, UVec2)> =
+        global_tile_positions
+            .iter()
+            .map(|(ent, pos)| (ent, UVec2::new(pos.x, pos.y)))
+            .collect();
 
     // Draw the individual tiles with a contrasting color
     for (_, pos) in global_tile_positions {
@@ -537,7 +574,12 @@ fn draw_tiles(
         let pixel_y = start_y + y;
 
         // Set the color of the tile to a contrasting color (e.g., red)
-        set_pixel(&mut image, pixel_x * 2, pixel_y * 2, Rgba([255, 0, 0, 255]));
+        set_pixel(
+            &mut image,
+            pixel_x * 2,
+            pixel_y * 2,
+            Rgba([255, 0, 0, 255]),
+        );
         set_pixel(
             &mut image,
             pixel_x * 2 + 1,
@@ -562,14 +604,22 @@ fn draw_tiles(
 }
 
 /// set Pixel on (image) at (x, y) too (color)
-fn set_pixel(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x: u32, y: u32, color: Rgba<u8>) {
+fn set_pixel(
+    image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
+    x: u32,
+    y: u32,
+    color: Rgba<u8>,
+) {
     if x < image.width() && y < image.height() {
         image.get_pixel_mut(x, y).clone_from(&color);
     }
 }
 
 /// calculates which corner in a `RoomInstance` is furthest from `Vec3::Zero`
-fn calculate_furthest_point_distance(transform: &GlobalTransform, room: &RoomInstance) -> f32 {
+fn calculate_furthest_point_distance(
+    transform: &GlobalTransform,
+    room: &RoomInstance,
+) -> f32 {
     let half_width = room.width as f32 / 2.0;
     let half_height = room.height as f32 / 2.0;
 
@@ -580,16 +630,22 @@ fn calculate_furthest_point_distance(transform: &GlobalTransform, room: &RoomIns
     let bottom_right = Vec3::new(half_width, half_height, 0.0);
 
     // Transform the corner points to global coordinates
-    let transformed_top_left = transform.compute_matrix() * top_left.extend(1.0);
-    let transformed_top_right = transform.compute_matrix() * top_right.extend(1.0);
-    let transformed_bottom_left = transform.compute_matrix() * bottom_left.extend(1.0);
-    let transformed_bottom_right = transform.compute_matrix() * bottom_right.extend(1.0);
+    let transformed_top_left =
+        transform.compute_matrix() * top_left.extend(1.0);
+    let transformed_top_right =
+        transform.compute_matrix() * top_right.extend(1.0);
+    let transformed_bottom_left =
+        transform.compute_matrix() * bottom_left.extend(1.0);
+    let transformed_bottom_right =
+        transform.compute_matrix() * bottom_right.extend(1.0);
 
     // Calculate the distances between the corner points and the origin (0, 0, 0)
     let distance1 = transformed_top_left.distance(Vec3::ZERO.extend(1.0));
     let distance2 = transformed_top_right.distance(Vec3::ZERO.extend(1.0));
-    let distance3 = transformed_bottom_left.distance(Vec3::ZERO.extend(1.0));
-    let distance4 = transformed_bottom_right.distance(Vec3::ZERO.extend(1.0));
+    let distance3 =
+        transformed_bottom_left.distance(Vec3::ZERO.extend(1.0));
+    let distance4 =
+        transformed_bottom_right.distance(Vec3::ZERO.extend(1.0));
 
     // Return the furthest distance among the corner points
     distance1.max(distance2).max(distance3).max(distance4)

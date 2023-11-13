@@ -71,7 +71,9 @@ fn visit_dirs(
         let mut entries = entry_set
             .filter_map(|v| v.ok().filter(|_v| show_all))
             .collect::<Vec<_>>();
-        entries.sort_by(|a, b| a.path().file_name().cmp(&b.path().file_name()));
+        entries.sort_by(|a, b| {
+            a.path().file_name().cmp(&b.path().file_name())
+        });
 
         for (index, entry) in entries.iter().enumerate() {
             let path = entry.path();
@@ -81,14 +83,28 @@ fn visit_dirs(
                 if path.is_dir() {
                     let depth = depth + 1;
                     let prefix_new = prefix.to_string().clone() + "    ";
-                    visit_dirs(&path, depth, level, &prefix_new, colorize, show_all)?;
+                    visit_dirs(
+                        &path,
+                        depth,
+                        level,
+                        &prefix_new,
+                        colorize,
+                        show_all,
+                    )?;
                 }
             } else {
                 println!("{prefix}├── {}", color_output(colorize, &path));
                 if path.is_dir() {
                     let depth = depth + 1;
                     let prefix_new = prefix.to_string() + "│   ";
-                    visit_dirs(&path, depth, level, &prefix_new, colorize, show_all)?;
+                    visit_dirs(
+                        &path,
+                        depth,
+                        level,
+                        &prefix_new,
+                        colorize,
+                        show_all,
+                    )?;
                 }
             }
         }
@@ -160,7 +176,12 @@ fn color_output(colorize: bool, path: &Path) -> std::string::String {
 /// # Errors
 /// Will return `Error` if `path` does not exist or the user does not have
 /// permission to read it, may also error if theres no where too output
-pub fn run(show_all: bool, colorize: bool, level: usize, dir: &Path) -> Result<(), Box<dyn Error>> {
+pub fn run(
+    show_all: bool,
+    colorize: bool,
+    level: usize,
+    dir: &Path,
+) -> Result<(), Box<dyn Error>> {
     visit_dirs(dir, 0, level, "", colorize, show_all)?;
     Ok(())
 }
@@ -248,7 +269,9 @@ mod windows {
             let mut binary_type: c_ulong = 42;
             let binary_type_ptr = std::ptr::addr_of_mut!(binary_type);
 
-            let ret = unsafe { GetBinaryTypeW(windows_string_ptr, binary_type_ptr) };
+            let ret = unsafe {
+                GetBinaryTypeW(windows_string_ptr, binary_type_ptr)
+            };
             if binary_type_ptr.is_null() {
                 return false;
             }

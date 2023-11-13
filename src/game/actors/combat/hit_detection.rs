@@ -2,8 +2,9 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::game::actors::components::{
-    EnemyColliderTag, EnemyProjectileColliderTag, EnemyProjectileTag, PlayerColliderTag,
-    PlayerProjectileColliderTag, PlayerProjectileTag, ProjectileStats,
+    EnemyColliderTag, EnemyProjectileColliderTag, EnemyProjectileTag,
+    PlayerColliderTag, PlayerProjectileColliderTag, PlayerProjectileTag,
+    ProjectileStats,
 };
 
 use super::{components::Damage, PlayerGameInformation};
@@ -15,7 +16,10 @@ pub fn hits_on_enemy(
     projectile_query: Query<&ProjectileStats, With<PlayerProjectileTag>>,
     mut collision_events: EventReader<CollisionEvent>,
     enemy_collider_query: Query<(Entity, &Parent), With<EnemyColliderTag>>,
-    player_projectile_collider_query: Query<(Entity, &Parent), With<PlayerProjectileColliderTag>>,
+    player_projectile_collider_query: Query<
+        (Entity, &Parent),
+        With<PlayerProjectileColliderTag>,
+    >,
 ) {
     collision_events.iter().for_each(|event| {
         if let CollisionEvent::Started(a, b, _flags) = event {
@@ -49,9 +53,18 @@ pub fn hits_on_player(
     mut game_info: ResMut<PlayerGameInformation>,
     mut cmds: Commands,
     mut collision_events: EventReader<CollisionEvent>,
-    player_collider_query: Query<(Entity, &Parent), With<PlayerColliderTag>>,
-    bad_projectile_query: Query<&ProjectileStats, With<EnemyProjectileTag>>,
-    enemy_projectile_collider_query: Query<(Entity, &Parent), With<EnemyProjectileColliderTag>>,
+    player_collider_query: Query<
+        (Entity, &Parent),
+        With<PlayerColliderTag>,
+    >,
+    bad_projectile_query: Query<
+        &ProjectileStats,
+        With<EnemyProjectileTag>,
+    >,
+    enemy_projectile_collider_query: Query<
+        (Entity, &Parent),
+        With<EnemyProjectileColliderTag>,
+    >,
 ) {
     collision_events.iter().for_each(|event| {
         if let CollisionEvent::Started(a, b, _flags) = event {
@@ -69,7 +82,8 @@ pub fn hits_on_player(
 
             if let Some(player) = player {
                 if let Some(projectile) = projectile {
-                    if let Ok(stats) = bad_projectile_query.get(projectile) {
+                    if let Ok(stats) = bad_projectile_query.get(projectile)
+                    {
                         cmds.entity(projectile).despawn_recursive();
                         game_info.enemy_damage_sent += stats.damage;
                         cmds.entity(player).insert(Damage(stats.damage));

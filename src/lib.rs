@@ -40,8 +40,8 @@ pub mod ahp;
 
 use ahp::{
     engine::{
-        bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
-        Reflect, Resource, States, Update, Vec2,
+        bevy_rapier2d, default, resource_exists, run_once, App, Condition,
+        IntoSystemConfigs, Reflect, Resource, States, Update, Vec2,
     },
     game::{ConfigFile, InitAssetHandles},
 };
@@ -50,7 +50,9 @@ use ahp::{
 use ahp::game::inspect::DebugPlugin;
 
 /// main game state loop
-#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
+#[derive(
+    Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect,
+)]
 pub enum AppStage {
     /// pre loading state before window is shown.
     /// Loads REQUIRED resources
@@ -79,7 +81,8 @@ pub enum AppStage {
 /// then loads settings from config.toml and adds
 /// general game plugins
 pub fn start_app(cfg_file: ConfigFile) -> App {
-    let mut vanillacoffee = loading::config::create_configured_app(cfg_file);
+    let mut vanillacoffee =
+        loading::config::create_configured_app(cfg_file);
 
     // add third party plugins
     vanillacoffee
@@ -88,11 +91,13 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
             belly::prelude::BellyPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
-            bevy_rapier2d::plugin::RapierPhysicsPlugin::<bevy_rapier2d::prelude::NoUserData>::pixels_per_meter(32.0),
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<
+                bevy_rapier2d::prelude::NoUserData,
+            >::pixels_per_meter(32.0),
         ))
         .insert_resource(bevy_rapier2d::prelude::RapierConfiguration {
-            gravity:  Vec2::ZERO,
-            .. default()
+            gravity: Vec2::ZERO,
+            ..default()
         });
 
     vanillacoffee.add_plugins((
@@ -109,7 +114,10 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         Update,
         IntoSystemConfigs::run_if(
             utilities::set_window_icon,
-            Condition::and_then(resource_exists::<InitAssetHandles>(), run_once()),
+            Condition::and_then(
+                resource_exists::<InitAssetHandles>(),
+                run_once(),
+            ),
         ),
     );
 

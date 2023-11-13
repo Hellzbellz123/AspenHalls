@@ -124,9 +124,13 @@ impl Plugin for LogPlugin {
         let subscriber = Registry::default().with(filter_layer);
 
         #[cfg(feature = "trace")]
-        let subscriber = subscriber.with(tracing_error::ErrorLayer::default());
+        let subscriber =
+            subscriber.with(tracing_error::ErrorLayer::default());
 
-        #[cfg(all(not(target_arch = "wasm32"), not(target_os = "android")))]
+        #[cfg(all(
+            not(target_arch = "wasm32"),
+            not(target_os = "android")
+        ))]
         {
             #[cfg(feature = "tracing-chrome")]
             let chrome_layer = {
@@ -135,18 +139,29 @@ impl Plugin for LogPlugin {
                     layer = layer.file(path);
                 }
                 let (chrome_layer, guard) = layer
-                    .name_fn(Box::new(|event_or_span| match event_or_span {
-                        tracing_chrome::EventOrSpan::Event(event) => event.metadata().name().into(),
-                        tracing_chrome::EventOrSpan::Span(span) => {
-                            if let Some(fields) =
-                                span.extensions().get::<FormattedFields<DefaultFields>>()
-                            {
-                                format!("{}: {}", span.metadata().name(), fields.fields.as_str())
-                            } else {
-                                span.metadata().name().into()
+                    .name_fn(Box::new(
+                        |event_or_span| match event_or_span {
+                            tracing_chrome::EventOrSpan::Event(event) => {
+                                event.metadata().name().into()
                             }
-                        }
-                    }))
+                            tracing_chrome::EventOrSpan::Span(span) => {
+                                if let Some(fields) = span
+                                    .extensions()
+                                    .get::<FormattedFields<
+                                    DefaultFields,
+                                >>(
+                                ) {
+                                    format!(
+                                        "{}: {}",
+                                        span.metadata().name(),
+                                        fields.fields.as_str()
+                                    )
+                                } else {
+                                    span.metadata().name().into()
+                                }
+                            }
+                        },
+                    ))
                     .build();
                 app.world.insert_non_send_resource(guard);
                 chrome_layer
@@ -155,15 +170,17 @@ impl Plugin for LogPlugin {
             #[cfg(feature = "tracing-tracy")]
             let tracy_layer = tracing_tracy::TracyLayer::new();
 
-            let fmt_layer = tracing_subscriber::fmt::Layer::default().with_writer(std::io::stderr);
+            let fmt_layer = tracing_subscriber::fmt::Layer::default()
+                .with_writer(std::io::stderr);
 
             // bevy_render::renderer logs a `tracy.frame_mark` event every frame
             // at Level::INFO. Formatted logs should omit it.
             #[cfg(feature = "tracing-tracy")]
-            let fmt_layer =
-                fmt_layer.with_filter(tracing_subscriber::filter::FilterFn::new(|meta| {
+            let fmt_layer = fmt_layer.with_filter(
+                tracing_subscriber::filter::FilterFn::new(|meta| {
                     meta.fields().field("tracy.frame_mark").is_none()
-                }));
+                }),
+            );
 
             let subscriber = subscriber.with(fmt_layer);
 
@@ -212,19 +229,24 @@ impl Plugin for LogPlugin {
         #[cfg(target_arch = "wasm32")]
         {
             console_error_panic_hook::set_once();
-            finished_subscriber = subscriber.with(tracing_wasm::WASMLayer::new(
-                tracing_wasm::WASMLayerConfig::default(),
-            ));
+            finished_subscriber =
+                subscriber.with(tracing_wasm::WASMLayer::new(
+                    tracing_wasm::WASMLayerConfig::default(),
+                ));
         }
 
         #[cfg(target_os = "android")]
         {
-            finished_subscriber = subscriber.with(android_tracing::AndroidLayer::default());
+            finished_subscriber =
+                subscriber.with(android_tracing::AndroidLayer::default());
         }
 
         let logger_already_set = LogTracer::init().is_err();
         let subscriber_already_set =
-            bevy_utils::tracing::subscriber::set_global_default(finished_subscriber).is_err();
+            bevy_utils::tracing::subscriber::set_global_default(
+                finished_subscriber,
+            )
+            .is_err();
 
         match (logger_already_set, subscriber_already_set) {
             (true, true) => warn!(

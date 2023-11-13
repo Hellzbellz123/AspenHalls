@@ -58,17 +58,25 @@ You can read more about the cleanup pattern I'm using in the [bevy cheatbook](ht
 
 ### Update systems should be bounded
 
-All systems added to the `Update` schedule should be bound by run conditions on `State` and `SystemSet`.
+All systems added to the `Update` schedule should be
+bound by run conditions on `State` and `SystemSet`.
 
-Run states enables easy enabling/disbling of groups of behaviour & reduces systems running when they don't need to.
+Run states enables easy enabling/disbling of groups
+of behaviour & reduces systems running when they don't need to.
 
-For example, changing `PlayingState` to `PlayingState::Paused` will automatically disable all systems that progress the game and enable systems handle actions related to the pause menu.
+For example, changing `PlayingState` to `PlayingState::Paused` will
+automatically disable all systems that progress the game and enable
+systems handle actions related to the pause menu.
 
-System sets force coarse grained ordering leading to predictable behaviour between different parts of the game.
+System sets force coarse grained ordering leading to predictable
+behaviour between different parts of the game.
 
-_There can be exceptions to this, for example you may have background music or UI animations that should continue in both `Playing` and `Paused`._
+_There can be exceptions to this,_
+_for example you may have background music or UI animations_
+_that should continue in both `Playing` and `Paused`._
 
 ```rust
+app
 .add_systems(
     Update,
     (handle_player_input, camera_view_update)
@@ -81,9 +89,11 @@ _There can be exceptions to this, for example you may have background music or U
 
 ### Co-locate system registration for the same `State`
 
-State transitions should have `setup` and `cleanup` specific systems. Their `OnEnter` and `OnExit` registration should be co-located.
+State transitions should have `setup` and `cleanup` specific systems.
+Their `OnEnter` and `OnExit` registration should be co-located.
 
-This means it's easy to see the setup systems and that it has a cleanup system to run.
+This means it's easy to see the setup systems
+and that it has a cleanup system to run.
 
 ```rust
 .add_systems(OnEnter(GameState::MainMenu), main_menu_setup)
@@ -95,13 +105,24 @@ This means it's easy to see the setup systems and that it has a cleanup system t
 
 ### Prefer Events for structuring logic and systems
 
-Use [Events](https://docs.rs/bevy/latest/bevy/ecs/event/index.html) to structure logic and communication between subsystems of your game.
+Use [Events](https://docs.rs/bevy/latest/bevy/ecs/event/index.html)
+to structure logic and communication between subsystems of your game.
 
-Events allow different parts of your game to opt-in to information they need, and prevents tight coupling.
+Events allow different parts of your game to opt-in
+to information they need, and prevents tight coupling.
 
-`EventWriters` and `EventReaders` are implemented as a [thin layer](https://docs.rs/bevy_ecs/0.11.0/src/bevy_ecs/event.rs.html#558-569) over a vanilla `Vec` so they're cheap to use, and subsequent `send`s will re-use the allocated capacity. Systems that read from the same event can also run in parallel as `EventReader`s are local to the system.
+`EventWriters` and `EventReaders` are implemented as a
+[thin layer](https://docs.rs/bevy_ecs/0.11.0/src/bevy_ecs/event.rs.html#558-569)
+over a vanilla `Vec` so they're cheap to use, and subsequent
+`send`s will re-use the allocated capacity.
+Systems that read from the same event can also
+run in parallel as `EventReader`s are local to the system.
 
-Here's an example of one way you might structure a projectile hitting an enemy, all the way to audio, visual effects, and achievements being updated. You should evaluate the use of events on a case by case basis, as they're not free, and for simple local operations it can be enough to mutate within the same system.
+Here's an example of one way you might structure a projectile hitting an enemy,
+all the way to audio, visual effects, and achievements being updated.
+You should evaluate the use of events on a case by case basis,
+as they're not free, and for simple local operations it can be
+enough to mutate within the same system.
 
 ```mermaid
 flowchart TD
@@ -118,7 +139,7 @@ flowchart TD
     subgraph physics
     X[Projectile intersects Enemy] -.-> Y["EventWriter::#60;ProjectileHitEvent#62;::send()"]
     end
-    
+
     Y --> ProjectileHitEvent
 
     subgraph gameplay
@@ -149,11 +170,16 @@ flowchart TD
 
 Event readers should be ordered after their respective writers within the frame.
 Undefined ordering between writers and readers can lead to subtle out of order bugs.
-Delaying communication across frames is often not intentionally desired. If it is something you want it should be made explicit.
+Delaying communication across frames is often not intentionally desired.
+If it is something you want it should be made explicit.
 
-There are exceptions for systems like achievements or analytics, but I'd only recommend excluding them from ordering if you have a good reason. Often they will not be computationally intense, so having them all run at the end of frame is fine.
+There are exceptions for systems like achievements or analytics,
+but I'd only recommend excluding them from ordering if you have a good reason.
+Often they will not be computationally intense,
+so having them all run at the end of frame is fine.
 
-You can achieve this by using `event_producer.before(event_consumer)` or `(event_producer, event_consumer).chain()` when adding systems for systems within the same `SystemSet`. For events that cross a `SystemSet` boundary this should be taken care of by the ordering of the `SystemSet`s in your `app.configure_sets()` call.
+You can achieve this by using `event_producer.before(event_consumer)`
+or `(event_producer, event_consumer).chain()` when adding systems for systems within the same `SystemSet`. For events that cross a `SystemSet` boundary this should be taken care of by the ordering of the `SystemSet`s in your `app.configure_sets()` call.
 
 ### Explicit event handling system run criteria
 

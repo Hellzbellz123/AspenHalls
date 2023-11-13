@@ -4,7 +4,9 @@ use bevy_utils::tracing::{
     Event, Id, Level, Subscriber,
 };
 use std::fmt::{Debug, Write};
-use tracing_subscriber::{field::Visit, layer::Context, registry::LookupSpan, Layer};
+use tracing_subscriber::{
+    field::Visit, layer::Context, registry::LookupSpan, Layer,
+};
 
 #[derive(Default)]
 pub(crate) struct AndroidLayer;
@@ -38,7 +40,10 @@ impl Visit for StringRecorder {
 }
 
 impl core::fmt::Display for StringRecorder {
-    fn fmt(&self, mut f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+    fn fmt(
+        &self,
+        mut f: &mut core::fmt::Formatter<'_>,
+    ) -> core::fmt::Result {
         if !self.0.is_empty() {
             write!(&mut f, " {}", self.0)
         } else {
@@ -54,7 +59,12 @@ impl core::default::Default for StringRecorder {
 }
 
 impl<S: Subscriber + for<'a> LookupSpan<'a>> Layer<S> for AndroidLayer {
-    fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, ctx: Context<'_, S>) {
+    fn on_new_span(
+        &self,
+        attrs: &Attributes<'_>,
+        id: &Id,
+        ctx: Context<'_, S>,
+    ) {
         let mut new_debug_record = StringRecorder::new();
         attrs.record(&mut new_debug_record);
 
@@ -65,9 +75,16 @@ impl<S: Subscriber + for<'a> LookupSpan<'a>> Layer<S> for AndroidLayer {
         }
     }
 
-    fn on_record(&self, id: &Id, values: &Record<'_>, ctx: Context<'_, S>) {
+    fn on_record(
+        &self,
+        id: &Id,
+        values: &Record<'_>,
+        ctx: Context<'_, S>,
+    ) {
         if let Some(span_ref) = ctx.span(id) {
-            if let Some(debug_record) = span_ref.extensions_mut().get_mut::<StringRecorder>() {
+            if let Some(debug_record) =
+                span_ref.extensions_mut().get_mut::<StringRecorder>()
+            {
                 values.record(debug_record);
             }
         }

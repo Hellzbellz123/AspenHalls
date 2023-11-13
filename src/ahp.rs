@@ -13,51 +13,74 @@ pub mod game {
     /// holds features/tools for inspecting state of application
     pub mod inspect {
         pub use crate::dev_tools::debug_plugin::DebugPlugin;
-        pub use bevy_inspector_egui::prelude::{InspectorOptions, ReflectInspectorOptions};
+        pub use bevy_inspector_egui::prelude::{
+            InspectorOptions, ReflectInspectorOptions,
+        };
     }
     #[cfg(feature = "inspect")]
     pub use inspect::*;
 
     pub use crate::{
         console::{
-            command_systems::{spawnenemy_command, spawnweapon_command, teleport_player_command},
-            commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
+            command_systems::{
+                spawnenemy_command, spawnweapon_command,
+                teleport_player_command,
+            },
+            commands::{
+                SpawnEnemyCommand, SpawnWeaponCommand,
+                TeleportPlayerCommand,
+            },
         },
         consts::ACTOR_Z_INDEX,
         game::{
             actors::{
                 ai::components::{
-                    AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
-                    AIWanderConfig, ActorType, ChaseScore, Type,
+                    AIChaseAction, AIChaseConfig, AIShootAction,
+                    AIShootConfig, AIWanderAction, AIWanderConfig,
+                    ActorType, ChaseScore, Type,
                 },
-                animation::components::{ActorAnimationType, AnimState, AnimationSheet},
+                animation::components::{
+                    ActorAnimationType, AnimState, AnimationSheet,
+                },
                 combat::components::{
-                    CurrentlySelectedWeapon, DamageType, WeaponSlots, WeaponSocket, WeaponStats,
-                    WeaponTag,
+                    CurrentlySelectedWeapon, DamageType, WeaponSlots,
+                    WeaponSocket, WeaponStats, WeaponTag,
                 },
                 components::{
-                    ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes,
-                    ActorSecondaryAttributes, ActorTertiaryAttributes, Player, ProjectileStats,
+                    ActorCombatStats, ActorDerivedAttributes,
+                    ActorPrimaryAttributes, ActorSecondaryAttributes,
+                    ActorTertiaryAttributes, Player, ProjectileStats,
                     TimeToLive,
                 },
-                spawners::components::{EnemyType, SpawnActorEvent, Spawner, WeaponType},
+                spawners::components::{
+                    EnemyType, SpawnActorEvent, Spawner, WeaponType,
+                },
             },
-            audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel, WalkingSoundTimer},
+            audio::{
+                AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel,
+                WalkingSoundTimer,
+            },
             input::action_maps::{self, Gameplay},
             TimeInfo,
         },
         loading::{
             assets::{
-                ActorTextureHandles, AudioHandles, InitAssetHandles, MapAssetHandles,
-                SingleTileTextureHandles, TouchControlAssetHandles,
+                ActorTextureHandles, AudioHandles, InitAssetHandles,
+                MapAssetHandles, SingleTileTextureHandles,
+                TouchControlAssetHandles,
             },
             config::{
-                ConfigFile, DifficultyScales, GameDifficulty, GeneralSettings, RenderSettings,
-                SoundSettings, WindowSettings, save_load::save_settings,
+                save_load::save_settings, ConfigFile, DifficultyScales,
+                GameDifficulty, GeneralSettings, RenderSettings,
+                SoundSettings, WindowSettings,
             },
-            splashscreen::{MainCamera, OnlySplashScreen, SplashPlugin, SplashTimer},
+            splashscreen::{
+                MainCamera, OnlySplashScreen, SplashPlugin, SplashTimer,
+            },
         },
-        utilities::{despawn_with, lerp, set_window_icon, GetEither, GetEitherMut},
+        utilities::{
+            despawn_with, lerp, set_window_icon, GetEither, GetEitherMut,
+        },
         AppStage,
     };
 }
@@ -65,7 +88,9 @@ pub mod game {
 /// external and internal plugins from aspen halls and bevy
 pub mod plugins {
     #[cfg(feature = "inspect")]
-    pub use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
+    pub use bevy_inspector_egui::quick::{
+        StateInspectorPlugin, WorldInspectorPlugin,
+    };
 
     pub use bevy::{
         diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
@@ -102,23 +127,26 @@ pub mod engine {
 
     pub use bevy_ecs_ldtk::prelude::*;
     pub use bevy_kira_audio::prelude::{
-        Audio, AudioApp, AudioChannel, AudioCommandError, AudioControl, AudioEasing, AudioEmitter,
-        AudioInstance, AudioInstanceAssetsExt, AudioReceiver, AudioSettings, AudioSource,
-        AudioTween, DynamicAudioChannel, DynamicAudioChannels, FadeIn, FadeOut, Frame, MainTrack,
-        PlayAudioCommand, PlaybackState, Sound as KiraSound, SoundData, SpacialAudio,
-        StaticSoundData, StaticSoundSettings, TweenCommand, Volume,
+        Audio, AudioApp, AudioChannel, AudioCommandError, AudioControl,
+        AudioEasing, AudioEmitter, AudioInstance, AudioInstanceAssetsExt,
+        AudioReceiver, AudioSettings, AudioSource, AudioTween,
+        DynamicAudioChannel, DynamicAudioChannels, FadeIn, FadeOut, Frame,
+        MainTrack, PlayAudioCommand, PlaybackState, Sound as KiraSound,
+        SoundData, SpacialAudio, StaticSoundData, StaticSoundSettings,
+        TweenCommand, Volume,
     };
 
     pub use serde::{Deserialize, Serialize};
 
     pub use bevy::{
         app::{
-            App, DynamicPlugin, First, FixedUpdate, Last, Main, Plugin, PluginGroup, PostStartup,
-            PostUpdate, PreStartup, PreUpdate, Startup, StateTransition, Update,
+            App, DynamicPlugin, First, FixedUpdate, Last, Main, Plugin,
+            PluginGroup, PostStartup, PostUpdate, PreStartup, PreUpdate,
+            Startup, StateTransition, Update,
         },
         core::prelude::{
-            DebugName, FrameCountPlugin, Name, TaskPoolOptions, TaskPoolPlugin,
-            TypeRegistrationPlugin,
+            DebugName, FrameCountPlugin, Name, TaskPoolOptions,
+            TaskPoolPlugin, TypeRegistrationPlugin,
         },
         core_pipeline::{
             clear_color::ClearColorConfig,
@@ -127,15 +155,21 @@ pub mod engine {
         ecs::prelude::{
             Bundle, Component, Entity, RemovedComponents,
             {
-                apply_deferred, apply_state_transition, IntoSystemConfigs, IntoSystemSet,
-                IntoSystemSetConfig, IntoSystemSetConfigs, NextState, OnEnter, OnExit,
-                OnTransition, Schedule, Schedules, State, States, SystemSet,
+                apply_deferred, apply_state_transition, IntoSystemConfigs,
+                IntoSystemSet, IntoSystemSetConfig, IntoSystemSetConfigs,
+                NextState, OnEnter, OnExit, OnTransition, Schedule,
+                Schedules, State, States, SystemSet,
                 {
-                    any_component_removed, any_with_component, not, on_event, run_once, Condition,
-                    {in_state, state_changed, state_exists, state_exists_and_equals},
+                    any_component_removed, any_with_component, not,
+                    on_event, run_once, Condition,
                     {
-                        resource_added, resource_changed, resource_changed_or_removed,
-                        resource_equals, resource_exists, resource_exists_and_changed,
+                        in_state, state_changed, state_exists,
+                        state_exists_and_equals,
+                    },
+                    {
+                        resource_added, resource_changed,
+                        resource_changed_or_removed, resource_equals,
+                        resource_exists, resource_exists_and_changed,
                         resource_removed,
                     },
                 },
@@ -144,11 +178,13 @@ pub mod engine {
             {Added, AnyOf, Changed, Or, QueryState, With, Without},
             {AppTypeRegistry, ReflectComponent, ReflectResource},
             {
-                Commands, Deferred, In, IntoSystem, Local, NonSend, NonSendMut, ParallelCommands,
-                ParamSet, Query, ReadOnlySystem, Res, ResMut, Resource, System,
+                Commands, Deferred, In, IntoSystem, Local, NonSend,
+                NonSendMut, ParallelCommands, ParamSet, Query,
+                ReadOnlySystem, Res, ResMut, Resource, System,
                 SystemParamFunction,
             },
-            {DetectChanges, DetectChangesMut, Mut, Ref}, {EntityRef, FromWorld, World},
+            {DetectChanges, DetectChangesMut, Mut, Ref},
+            {EntityRef, FromWorld, World},
             {Event, EventReader, EventWriter, Events},
         },
         hierarchy::prelude::*,
@@ -156,8 +192,8 @@ pub mod engine {
             prelude::{
                 Axis, Input, MouseButton,
                 {
-                    Gamepad, GamepadAxis, GamepadAxisType, GamepadButton, GamepadButtonType,
-                    Gamepads,
+                    Gamepad, GamepadAxis, GamepadAxisType, GamepadButton,
+                    GamepadButtonType, Gamepads,
                 },
                 {KeyCode, ScanCode}, {TouchInput, Touches},
             },
@@ -165,26 +201,31 @@ pub mod engine {
         },
         log::{
             prelude::{
-                debug, debug_span, error, error_span, info, info_span, trace, trace_span, warn,
-                warn_span,
+                debug, debug_span, error, error_span, info, info_span,
+                trace, trace_span, warn, warn_span,
             },
             Level,
         },
         math::{
             ivec2, ivec3,
             prelude::{
-                {BSpline, Bezier, CardinalSpline, CubicGenerator, CubicSegment, Hermite},
                 {
-                    BVec2, BVec3, BVec4, EulerRot, IVec2, IVec3, IVec4, Mat2, Mat3, Mat4, Quat,
-                    Ray, UVec2, UVec3, UVec4, Vec2, Vec3, Vec4,
+                    BSpline, Bezier, CardinalSpline, CubicGenerator,
+                    CubicSegment, Hermite,
+                },
+                {
+                    BVec2, BVec3, BVec4, EulerRot, IVec2, IVec3, IVec4,
+                    Mat2, Mat3, Mat4, Quat, Ray, UVec2, UVec3, UVec4,
+                    Vec2, Vec3, Vec4,
                 },
             },
             vec2, vec3, IRect, Rect as FRect, URect,
         },
-        prelude::{*, bevy_main},
+        prelude::{bevy_main, *},
         reflect::prelude::{
-            reflect_trait, FromReflect, GetField, GetTupleStructField, Reflect, ReflectDefault,
-            ReflectDeserialize, ReflectFromReflect, ReflectSerialize, Struct, TupleStruct,
+            reflect_trait, FromReflect, GetField, GetTupleStructField,
+            Reflect, ReflectDefault, ReflectDeserialize,
+            ReflectFromReflect, ReflectSerialize, Struct, TupleStruct,
         },
         render::{
             camera::ScalingMode,
@@ -199,24 +240,28 @@ pub mod engine {
         utils::{default, Duration},
         window::{
             prelude::{
-                CursorEntered, CursorIcon, CursorLeft, CursorMoved, FileDragAndDrop, Ime,
-                MonitorSelection, ReceivedCharacter, Window, WindowMoved, WindowPlugin,
-                WindowPosition, WindowResizeConstraints, *,
+                CursorEntered, CursorIcon, CursorLeft, CursorMoved,
+                FileDragAndDrop, Ime, MonitorSelection, ReceivedCharacter,
+                Window, WindowMoved, WindowPlugin, WindowPosition,
+                WindowResizeConstraints, *,
             },
-            CompositeAlphaMode, PresentMode, WindowFocused, WindowMode, WindowResized,
-            WindowResolution, WindowScaleFactorChanged,
+            CompositeAlphaMode, PresentMode, WindowFocused, WindowMode,
+            WindowResized, WindowResolution, WindowScaleFactorChanged,
         },
     };
 
     pub use big_brain::{
         // big brain common imports
         prelude::{
-            Action, ActionBuilder, ActionSpan, ActionState as BBActionState, Actor, AllOrNothing,
-            BigBrainSet, ChebyshevDistance, ConcurrentMode, Concurrently, EvaluatingScorer,
-            Evaluator, FirstToScore, FixedScore, HasThinker, Highest, LinearEvaluator, Measure,
-            MeasuredScorer, Picker, PowerEvaluator, ProductOfScorers, Score, Scorer, ScorerBuilder,
-            ScorerSpan, SigmoidEvaluator, Steps, SumOfScorers, Thinker, WeightedProduct,
-            WeightedSum, WinningScorer,
+            Action, ActionBuilder, ActionSpan,
+            ActionState as BBActionState, Actor, AllOrNothing,
+            BigBrainSet, ChebyshevDistance, ConcurrentMode, Concurrently,
+            EvaluatingScorer, Evaluator, FirstToScore, FixedScore,
+            HasThinker, Highest, LinearEvaluator, Measure, MeasuredScorer,
+            Picker, PowerEvaluator, ProductOfScorers, Score, Scorer,
+            ScorerBuilder, ScorerSpan, SigmoidEvaluator, Steps,
+            SumOfScorers, Thinker, WeightedProduct, WeightedSum,
+            WinningScorer,
         },
         thinker::ThinkerBuilder,
     };
@@ -231,10 +276,11 @@ pub mod engine {
         //leafwing common imports
         plugin::InputManagerSystem,
         prelude::{
-            ActionState as LIMActionState, ActionStateDriver, Actionlike, ClashStrategy,
-            DeadZoneShape, DualAxis, InputManagerBundle, InputManagerPlugin, InputMap, MockInput,
-            Modifier, MouseWheelAxisType, MouseWheelDirection, QwertyScanCode, SingleAxis,
-            ToggleActions, UserInput, VirtualDPad,
+            ActionState as LIMActionState, ActionStateDriver, Actionlike,
+            ClashStrategy, DeadZoneShape, DualAxis, InputManagerBundle,
+            InputManagerPlugin, InputMap, MockInput, Modifier,
+            MouseWheelAxisType, MouseWheelDirection, QwertyScanCode,
+            SingleAxis, ToggleActions, UserInput, VirtualDPad,
         },
     };
 

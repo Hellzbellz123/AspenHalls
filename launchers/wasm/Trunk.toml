@@ -4,8 +4,8 @@ target = "index.html"
 
 [watch]
 watch = [
-    "../../src",    # Game source
-    "src",          # WASM launcher source
-    "index.html",
-    "main.scss",
+  "../../src",  # Game source
+  "src",        # WASM launcher source
+  "index.html",
+  "main.scss",
 ]

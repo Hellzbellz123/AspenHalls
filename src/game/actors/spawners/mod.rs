@@ -8,7 +8,9 @@ use bevy::{math::vec2, prelude::*};
 use rand::{thread_rng, Rng};
 
 use self::{
-    components::{EnemyContainerTag, SpawnActorEvent, Spawner, SpawnerTimer},
+    components::{
+        EnemyContainerTag, SpawnActorEvent, Spawner, SpawnerTimer,
+    },
     spawn_functions_enemy::{spawn_skeleton, spawn_slime},
     spawn_functions_weapons::{spawn_small_pistol, spawn_small_smg},
 };
@@ -38,7 +40,9 @@ impl Plugin for SpawnerPlugin {
             .add_systems(
                 Update,
                 (
-                    spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()), //run_once()),
+                    spawn_enemy_container.run_if(
+                        |ect: Query<&EnemyContainerTag>| ect.is_empty(),
+                    ), //run_once()),
                     receive_enemy_spawns,
                     receive_weapon_spawns,
                     spawner_timer_system,
@@ -183,10 +187,11 @@ pub fn spawner_timer_system(
         return;
     }
 
-    let total_enemy_count = i32::try_from(all_enemies.iter().len()).unwrap_or_else(|x| {
-        warn!("{x:?}");
-        1_000_000
-    });
+    let total_enemy_count = i32::try_from(all_enemies.iter().len())
+        .unwrap_or_else(|x| {
+            warn!("{x:?}");
+            1_000_000
+        });
 
     if total_enemy_count.ge(&hard_settings.max_enemies_per_room) {
         // warn!("Enemy Count is greater than or equal too total enemies allowed in game");
@@ -194,7 +199,12 @@ pub fn spawner_timer_system(
     }
 
     spawner_query.for_each_mut(
-        |(spawner_entity, spawner_transform, spawner_state, mut spawner_timer)| {
+        |(
+            spawner_entity,
+            spawner_transform,
+            spawner_state,
+            mut spawner_timer,
+        )| {
             if !spawner_timer.tick(time.delta()).finished() {
                 return;
             }
@@ -229,7 +239,9 @@ pub fn spawner_timer_system(
                 spawner: Some(spawner_entity),
                 actor_type: ActorType(Type::Enemy),
                 what_to_spawn: enemy_type.to_string(),
-                spawn_position: (spawner_transform.translation().truncate()),
+                spawn_position: (spawner_transform
+                    .translation()
+                    .truncate()),
                 spawn_count: 1,
             });
         },

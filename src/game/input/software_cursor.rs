@@ -3,9 +3,12 @@ use crate::ahp::{
         bevy::window::PrimaryWindow,
         {
             bevy, default,
-            leafwing_input_manager::{action_state::ActionState, axislike::DualAxisData},
-            svg_draw, svg_shapes, Color, Commands, Component, GeometryBuilder, IntoSystemConfigs,
-            Name, OnEnter, Plugin, PreUpdate, Query, SvgBundle, Transform, Vec2, Window, With,
+            leafwing_input_manager::{
+                action_state::ActionState, axislike::DualAxisData,
+            },
+            svg_draw, svg_shapes, Color, Commands, Component,
+            GeometryBuilder, IntoSystemConfigs, Name, OnEnter, Plugin,
+            PreUpdate, Query, SvgBundle, Transform, Vec2, Window, With,
         },
     },
     game::{AppStage, Gameplay, Player},
@@ -22,7 +25,8 @@ impl Plugin for SoftwareCursorPlugin {
 
         app.add_systems(
             PreUpdate,
-            update_software_cursor.in_set(AspenInputSystemSet::SoftwareCursor),
+            update_software_cursor
+                .in_set(AspenInputSystemSet::SoftwareCursor),
         );
     }
 }
@@ -57,13 +61,18 @@ fn spawn_software_cursor(mut cmds: Commands) {
 fn update_software_cursor(
     window_query: Query<&Window, With<PrimaryWindow>>,
     player_input: Query<&ActionState<Gameplay>, With<Player>>,
-    mut soft_ware_cursor_query: Query<&mut Transform, With<SoftWareCursorTag>>,
+    mut soft_ware_cursor_query: Query<
+        &mut Transform,
+        With<SoftWareCursorTag>,
+    >,
 ) {
     player_input.for_each(|player_input| {
         // let look_local_data = player_input.action_data(actions::Gameplay::LookLocal);
         let window = window_query.single();
-        let look_global_data = player_input.action_data(Gameplay::LookWorld);
-        let mut soft_cursor_transform = soft_ware_cursor_query.single_mut();
+        let look_global_data =
+            player_input.action_data(Gameplay::LookWorld);
+        let mut soft_cursor_transform =
+            soft_ware_cursor_query.single_mut();
 
         soft_cursor_transform.translation = look_global_data
             .axis_pair

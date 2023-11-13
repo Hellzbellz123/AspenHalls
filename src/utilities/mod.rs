@@ -1,7 +1,7 @@
 use crate::ahp::{
     engine::{
-        bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image, NonSend, Query, Res, Window,
-        With,
+        bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image,
+        NonSend, Query, Res, Window, With,
     },
     game::InitAssetHandles,
 };
@@ -36,7 +36,8 @@ pub fn set_window_icon(
             let favicon = image_assets
                 .get(&init_assets.img_favicon)
                 .expect("if this system is running this exists");
-            let image = favicon.clone().try_into_dynamic().unwrap().into_rgba8();
+            let image =
+                favicon.clone().try_into_dynamic().unwrap().into_rgba8();
             //  match image::open("assets/favicon.png") {
             //     Ok(img) => img.into_rgba8(),
             //     Err(e) => {
@@ -111,7 +112,11 @@ where
     Filter: ReadOnlyWorldQuery,
 {
     /// mutable get either entity
-    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
+    fn get_either_mut(
+        &mut self,
+        this: Entity,
+        otherwise: Entity,
+    ) -> Option<Element::Item<'_>>;
 }
 
 impl<'world, 'state, Element, Filter> GetEitherMut<'world, Element, Filter>
@@ -120,7 +125,11 @@ where
     Element: WorldQuery,
     Filter: ReadOnlyWorldQuery,
 {
-    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
+    fn get_either_mut(
+        &mut self,
+        this: Entity,
+        otherwise: Entity,
+    ) -> Option<Element::Item<'_>> {
         let to_query: Entity;
         if self.get(this).is_ok() {
             to_query = this;
@@ -140,7 +149,11 @@ where
     Element: ReadOnlyWorldQuery,
 {
     /// returns one of two elements from world query
-    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
+    fn get_either(
+        &self,
+        this: Entity,
+        otherwise: Entity,
+    ) -> Option<Element::Item<'_>>;
 }
 
 impl<'world, 'state, Element, Filter> GetEither<'world, Element, Filter>
@@ -149,7 +162,11 @@ where
     Element: ReadOnlyWorldQuery,
     Filter: ReadOnlyWorldQuery,
 {
-    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
+    fn get_either(
+        &self,
+        this: Entity,
+        otherwise: Entity,
+    ) -> Option<Element::Item<'_>> {
         let to_query: Entity;
         if self.get(this).is_ok() {
             to_query = this;

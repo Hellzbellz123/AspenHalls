@@ -1,7 +1,8 @@
 use belly::prelude::Elements;
 use bevy::prelude::{
-    info, state_exists, App, Commands, Event, EventReader, EventWriter, IntoSystemConfigs,
-    NextState, OnEnter, Query, Res, ResMut, State, Update, With,
+    info, state_exists, App, Commands, Event, EventReader, EventWriter,
+    IntoSystemConfigs, NextState, OnEnter, Query, Res, ResMut, State,
+    Update, With,
 };
 use bevy_rapier2d::prelude::{RapierConfiguration, TimestepMode};
 use leafwing_input_manager::prelude::ActionState;
@@ -24,7 +25,8 @@ pub mod start_menu;
 pub fn setup(app: &mut App) {
     app.add_event::<PausePlayEvent>().add_systems(
         Update,
-        (menu_key_control, pause_game, control_rapier_timestep).run_if(state_exists::<AppStage>()),
+        (menu_key_control, pause_game, control_rapier_timestep)
+            .run_if(state_exists::<AppStage>()),
     );
     // app.add_systems(OnEnter(AppStage::PlayingGame), PauseMenu::hide);
     app.add_systems(OnEnter(AppStage::PauseMenu), PauseMenu::show);
@@ -48,9 +50,15 @@ fn menu_key_control(
 
     if input.just_pressed(action_maps::Gameplay::Pause) {
         match game_state.get() {
-            AppStage::StartMenu => ew.send(PausePlayEvent(EventType::Play)),
-            AppStage::PauseMenu => ew.send(PausePlayEvent(EventType::Resume)),
-            AppStage::PlayingGame => ew.send(PausePlayEvent(EventType::Pause)),
+            AppStage::StartMenu => {
+                ew.send(PausePlayEvent(EventType::Play))
+            }
+            AppStage::PauseMenu => {
+                ew.send(PausePlayEvent(EventType::Resume))
+            }
+            AppStage::PlayingGame => {
+                ew.send(PausePlayEvent(EventType::Pause))
+            }
             _ => {}
         }
     }

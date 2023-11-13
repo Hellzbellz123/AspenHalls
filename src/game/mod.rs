@@ -11,12 +11,13 @@ pub mod interface;
 
 use crate::{
     ahp::{
-        game::{GeneralSettings, TimeToLive, *},
         engine::{leafwing_input_manager::prelude::ActionState, *},
+        game::{GeneralSettings, TimeToLive, *},
     },
     game::{
-        actors::ActorPlugin, audio::InternalAudioPlugin, game_world::GameWorldPlugin,
-        input::ActionsPlugin, interface::InterfacePlugin,
+        actors::ActorPlugin, audio::InternalAudioPlugin,
+        game_world::GameWorldPlugin, input::ActionsPlugin,
+        interface::InterfacePlugin,
     },
 };
 
@@ -32,7 +33,9 @@ pub struct TimeInfo {
 }
 
 /// are we in dungeon yet?
-#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
+#[derive(
+    Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect,
+)]
 pub enum GameProgress {
     /// homeroom
     #[default]
@@ -62,9 +65,12 @@ impl Plugin for DungeonGamePlugin {
         .add_systems(
             Update,
             (
-                setup_time_state
-                    .run_if(state_exists_and_equals(AppStage::PlayingGame).and_then(run_once())),
-                (time_to_live, zoom_control).run_if(in_state(AppStage::PlayingGame)),
+                setup_time_state.run_if(
+                    state_exists_and_equals(AppStage::PlayingGame)
+                        .and_then(run_once()),
+                ),
+                (time_to_live, zoom_control)
+                    .run_if(in_state(AppStage::PlayingGame)),
             ),
         );
     }
@@ -81,7 +87,10 @@ pub fn setup_time_state(mut time_info: ResMut<TimeInfo>) {
 /// zoom control
 pub fn zoom_control(
     mut settings: ResMut<GeneralSettings>,
-    query_action_state: Query<&ActionState<action_maps::Gameplay>, Changed<ActionState<Gameplay>>>,
+    query_action_state: Query<
+        &ActionState<action_maps::Gameplay>,
+        Changed<ActionState<Gameplay>>,
+    >,
 ) {
     let actions = match query_action_state.get_single() {
         Ok(action_state) => action_state,

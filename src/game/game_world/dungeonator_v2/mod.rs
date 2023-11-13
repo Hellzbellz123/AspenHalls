@@ -1,8 +1,9 @@
 use bevy::{
     ecs::bundle::Bundle,
     prelude::{
-        default, info, resource_exists, run_once, Commands, Component, Condition, Handle,
-        IntoSystemConfigs, Name, Plugin, Res, SpatialBundle, Transform, Update,
+        default, info, resource_exists, run_once, Commands, Component,
+        Condition, Handle, IntoSystemConfigs, Name, Plugin, Res,
+        SpatialBundle, Transform, Update,
     },
     reflect::Reflect,
 };
@@ -18,16 +19,18 @@ impl Plugin for DungeonGeneratorPlugin {
         app.register_type::<DungeonSettings>();
         app.add_systems(
             Update,
-            (
-                spawn_dungeon_root
-                    .run_if(resource_exists::<MapAssetHandles>().and_then(run_once())),
-            ),
+            (spawn_dungeon_root.run_if(
+                resource_exists::<MapAssetHandles>().and_then(run_once()),
+            ),),
         );
     }
 }
 
 /// spawns dungeon root
-fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<MapAssetHandles>) {
+fn spawn_dungeon_root(
+    mut cmds: Commands,
+    ldtk_project_handles: Res<MapAssetHandles>,
+) {
     info!("spawning dungeon container");
     cmds.spawn((DungeonContainerBundle {
         tag: DungeonContainerTag,

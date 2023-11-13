@@ -1,10 +1,11 @@
 use bevy::{
     prelude::{
-        info, resource_exists, run_once, state_exists_and_equals, warn, Assets, Commands,
-        Condition, DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Name, Plugin, Query, Res,
-        ResMut, Update, With,
+        info, resource_exists, run_once, state_exists_and_equals, warn,
+        Assets, Commands, Condition, DespawnRecursiveExt, Entity, Event,
+        IntoSystemConfigs, Name, Plugin, Query, Res, ResMut, Update, With,
     },
-    render::view::NoFrustumCulling, utils::default,
+    render::view::NoFrustumCulling,
+    utils::default,
 };
 use bevy_tiling_background::{
     CustomBackgroundImageBundle, SetImageRepeatingExt,
@@ -12,13 +13,18 @@ use bevy_tiling_background::{
 
 use crate::{
     game::{
-        actors::{ai::components::Enemy, spawners::components::WeaponType},
-        game_world::hideout::systems::{enter_the_dungeon, home_world_teleporter_collisions},
+        actors::{
+            ai::components::Enemy, spawners::components::WeaponType,
+        },
+        game_world::hideout::systems::{
+            enter_the_dungeon, home_world_teleporter_collisions,
+        },
         AppStage,
     },
-    loading::{assets::{MapAssetHandles, SingleTileTextureHandles}, 
-    // custom_assets::background_shader::ScaledBackgroundMaterial
-},
+    loading::{
+        assets::{MapAssetHandles, SingleTileTextureHandles},
+        // custom_assets::background_shader::ScaledBackgroundMaterial
+    },
 };
 
 use self::systems::MapContainerTag;
@@ -39,16 +45,20 @@ impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
         // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<
-            // ScaledBackgroundMaterial,
+        // ScaledBackgroundMaterial,
         // >::default());
         app.add_event::<PlayerTeleportEvent>().add_systems(
             Update,
             (
                 // TODO: fix scheduling
-                (systems::spawn_hideout, set_overworld_background)
-                    .run_if(state_exists_and_equals(AppStage::StartMenu).and_then(run_once())),
+                (systems::spawn_hideout, set_overworld_background).run_if(
+                    state_exists_and_equals(AppStage::StartMenu)
+                        .and_then(run_once()),
+                ),
                 (enter_the_dungeon, home_world_teleporter_collisions)
-                    .run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                    .run_if(state_exists_and_equals(
+                        AppStage::PlayingGame,
+                    )),
                 // cleanup_start_world.run_if(state_exists_and_equals(GeneratorStage::Initialization)),
             )
                 .run_if(resource_exists::<MapAssetHandles>()),

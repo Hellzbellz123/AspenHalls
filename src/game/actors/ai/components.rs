@@ -65,11 +65,13 @@ pub struct AIWanderAction;
 pub struct Enemy {
     // TODO: make this updated for all enemies globally with a raycast and use it
     /// does raycast too player hit any objects other than the player?
-    pub can_see_player: bool
+    pub can_see_player: bool,
 }
 
 /// faction enemy belongs too
-#[derive(Debug, Component, Deref, DerefMut, Reflect, Clone, Copy, PartialEq, Eq)]
+#[derive(
+    Debug, Component, Deref, DerefMut, Reflect, Clone, Copy, PartialEq, Eq,
+)]
 pub struct ActorType(pub Type);
 
 /// type of actor

@@ -1,8 +1,8 @@
 package com.hellzbellz123.aspen_halls
 
 import android.app.NativeActivity
-//import android.content.Intent
-//import android.net.Uri
+// import android.content.Intent
+// import android.net.Uri
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -14,7 +14,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : NativeActivity() {
-
     companion object {
         // @JvmStatic
         // external fun start()
@@ -35,10 +34,11 @@ class MainActivity : NativeActivity() {
         // From API 30 onwards, this is the recommended way to hide the system UI, rather than
         // using View.setSystemUiVisibility.
         val decorView = window.decorView
-        val controller = WindowInsetsControllerCompat(
-            window,
-            decorView
-        )
+        val controller =
+            WindowInsetsControllerCompat(
+                window,
+                decorView,
+            )
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.hide(WindowInsetsCompat.Type.displayCutout())
         controller.systemBarsBehavior =
@@ -57,7 +57,7 @@ class MainActivity : NativeActivity() {
         //     IME_ACTION_NONE, IME_FLAG_NO_FULLSCREEN );
         super.onCreate(savedInstanceState)
     }
-    
+
     @RequiresApi(VERSION_CODES.R)
     override fun onResume() {
         super.onResume()

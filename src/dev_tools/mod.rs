@@ -19,23 +19,27 @@ pub mod debug_plugin {
 
     use crate::ahp::{
         engine::{
-            info, render_graph, render_graph_dot, schedule_graph, schedule_graph_dot,
-            state_exists_and_equals, svg_shapes, warn, App, Color, Commands, Entity, Fill,
-            FillOptions, First, GeometryBuilder, GridCoords, Handle, IntGridCell,
-            IntoSystemConfigs, Last, LayerMetadata, LdtkProject, Parent, Plugin, PostStartup,
-            PostUpdate, PreStartup, PreUpdate, Query, Startup, Timer, Transform, Update, Vec2,
-            With, Without,
+            info, render_graph, render_graph_dot, schedule_graph,
+            schedule_graph_dot, state_exists_and_equals, svg_shapes, warn,
+            App, Color, Commands, Entity, Fill, FillOptions, First,
+            GeometryBuilder, GridCoords, Handle, IntGridCell,
+            IntoSystemConfigs, Last, LayerMetadata, LdtkProject, Parent,
+            Plugin, PostStartup, PostUpdate, PreStartup, PreUpdate, Query,
+            Startup, Timer, Transform, Update, Vec2, With, Without,
         },
         game::{
-            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
-            AIWanderConfig, ActorAnimationType, ActorType, AnimState, AnimationSheet, AppStage,
-            ChaseScore, CurrentlySelectedWeapon, DamageType, DifficultyScales, GeneralSettings,
-            MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive, Type, WeaponSlots,
-            WeaponSocket, WeaponStats, WeaponTag, WindowSettings,
+            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig,
+            AIWanderAction, AIWanderConfig, ActorAnimationType, ActorType,
+            AnimState, AnimationSheet, AppStage, ChaseScore,
+            CurrentlySelectedWeapon, DamageType, DifficultyScales,
+            GeneralSettings, MainCamera, Player, SoundSettings, Spawner,
+            TimeInfo, TimeToLive, Type, WeaponSlots, WeaponSocket,
+            WeaponStats, WeaponTag, WindowSettings,
         },
         plugins::{
-            FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
-            RapierDebugRenderPlugin, StateInspectorPlugin, WorldInspectorPlugin,
+            FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin,
+            OverlayPlugin, RapierDebugRenderPlugin, StateInspectorPlugin,
+            WorldInspectorPlugin,
         },
     };
 
@@ -45,7 +49,10 @@ pub mod debug_plugin {
 
     impl Plugin for DebugPlugin {
         fn build(&self, app: &mut App) {
-            #[cfg(not(any(target_os = "android", target_family = "wasm")))]
+            #[cfg(not(any(
+                target_os = "android",
+                target_family = "wasm"
+            )))]
             debug_directory();
 
             app.register_type::<Timer>()
@@ -107,8 +114,13 @@ pub mod debug_plugin {
                 // TODO: refactor these systems into nice sets and stages
                 .add_systems(
                     Update,
-                    (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                        .run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                    (
+                        debug_visualize_spawner,
+                        debug_visualize_weapon_spawn_point,
+                    )
+                        .run_if(
+                            state_exists_and_equals(AppStage::PlayingGame),
+                        ),
                 );
 
             debug_dump_graphs(app);
@@ -118,7 +130,10 @@ pub mod debug_plugin {
     /// query's spawners and creates debug representations for spawner area
     fn debug_visualize_spawner(
         mut cmds: Commands,
-        spawner_query: Query<(Entity, &Transform, &Spawner), Without<Fill>>,
+        spawner_query: Query<
+            (Entity, &Transform, &Spawner),
+            Without<Fill>,
+        >,
     ) {
         for (entity, _transform, spawner) in &spawner_query {
             let spawner_box_visual = svg_shapes::Rectangle {
@@ -137,9 +152,8 @@ pub mod debug_plugin {
                 .add(&spawner_radius_visual)
                 .build();
 
-            cmds.entity(entity)
-                .insert(spawner_visual_bundle)
-                .insert(Fill {
+            cmds.entity(entity).insert(spawner_visual_bundle).insert(
+                Fill {
                     options: FillOptions::default(),
                     color: Color::Hsla {
                         hue: 334.0,
@@ -147,7 +161,8 @@ pub mod debug_plugin {
                         lightness: 0.3,
                         alpha: 0.25,
                     },
-                });
+                },
+            );
         }
     }
 
@@ -166,7 +181,8 @@ pub mod debug_plugin {
                 origin: svg_shapes::RectangleOrigin::Center,
             };
 
-            let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+            let spawner_visual_bundle =
+                GeometryBuilder::new().add(&spawner_box_visual).build();
 
             cmds.entity(ent).insert(spawner_visual_bundle);
         }
@@ -185,8 +201,10 @@ pub mod debug_plugin {
                 }
                 warn!("Dumping graphs");
 
-                let schedule_theme = schedule_graph::settings::Style::dark_github();
-                let render_theme = render_graph::settings::Style::dark_github();
+                let schedule_theme =
+                    schedule_graph::settings::Style::dark_github();
+                let render_theme =
+                    render_graph::settings::Style::dark_github();
 
                 let settings = schedule_graph::Settings {
                     ambiguity_enable: false,
@@ -201,51 +219,87 @@ pub mod debug_plugin {
                     style: render_theme,
                 };
 
-                let pre_startup_graph = schedule_graph_dot(app, PreStartup, &settings);
-                let main_startup_graph = schedule_graph_dot(app, Startup, &settings);
-                let post_startup_graph = schedule_graph_dot(app, PostStartup, &settings);
-                let first_schedule = schedule_graph_dot(app, First, &settings);
-                let pre_update_schedule = schedule_graph_dot(app, PreUpdate, &settings);
-                let main_update_schedule = schedule_graph_dot(app, Update, &settings);
-                let post_update_schedule = schedule_graph_dot(app, PostUpdate, &settings);
-                let last_schedule = schedule_graph_dot(app, Last, &settings);
+                let pre_startup_graph =
+                    schedule_graph_dot(app, PreStartup, &settings);
+                let main_startup_graph =
+                    schedule_graph_dot(app, Startup, &settings);
+                let post_startup_graph =
+                    schedule_graph_dot(app, PostStartup, &settings);
+                let first_schedule =
+                    schedule_graph_dot(app, First, &settings);
+                let pre_update_schedule =
+                    schedule_graph_dot(app, PreUpdate, &settings);
+                let main_update_schedule =
+                    schedule_graph_dot(app, Update, &settings);
+                let post_update_schedule =
+                    schedule_graph_dot(app, PostUpdate, &settings);
+                let last_schedule =
+                    schedule_graph_dot(app, Last, &settings);
 
-                let render_graph = render_graph_dot(app, &render_graph_settings);
+                let render_graph =
+                    render_graph_dot(app, &render_graph_settings);
 
-                match fs::write(".schedule/0-pre_startup_schedule.dot", pre_startup_graph) {
+                match fs::write(
+                    ".schedule/0-pre_startup_schedule.dot",
+                    pre_startup_graph,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/1-main_startup_schedule.dot", main_startup_graph) {
+                match fs::write(
+                    ".schedule/1-main_startup_schedule.dot",
+                    main_startup_graph,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/2-post_startup_graph.dot", post_startup_graph) {
+                match fs::write(
+                    ".schedule/2-post_startup_graph.dot",
+                    post_startup_graph,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/3-first_schedule.dot", first_schedule) {
+                match fs::write(
+                    ".schedule/3-first_schedule.dot",
+                    first_schedule,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/4-pre_update_schedule.dot", pre_update_schedule) {
+                match fs::write(
+                    ".schedule/4-pre_update_schedule.dot",
+                    pre_update_schedule,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/5-main_update_schedule.dot", main_update_schedule) {
+                match fs::write(
+                    ".schedule/5-main_update_schedule.dot",
+                    main_update_schedule,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/6-post_update_schedule.dot", post_update_schedule) {
+                match fs::write(
+                    ".schedule/6-post_update_schedule.dot",
+                    post_update_schedule,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
-                match fs::write(".schedule/7-last_schedule.dot", last_schedule) {
+                match fs::write(
+                    ".schedule/7-last_schedule.dot",
+                    last_schedule,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }
 
-                match fs::write(".schedule/Z-render_graph.dot", render_graph) {
+                match fs::write(
+                    ".schedule/Z-render_graph.dot",
+                    render_graph,
+                ) {
                     Ok(()) => {}
                     Err(e) => warn!("{}", e),
                 }

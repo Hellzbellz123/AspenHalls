@@ -17,7 +17,8 @@ pub fn setup_menu(app: &mut App) {
     app.add_systems(
         OnEnter(AppStage::StartMenu),
         (
-            SettingsMenu::create.run_if(not(any_with_component::<SettingsMenu>())),
+            SettingsMenu::create
+                .run_if(not(any_with_component::<SettingsMenu>())),
             // SettingsMenu::hide.run_if(any_with_component::<SettingsMenu>()),
         ),
     )
@@ -40,7 +41,12 @@ impl SettingsMenu {
         sound_settings: Res<SoundSettings>,
     ) {
         commands.entity(**root).insert(Self);
-        let (current_ambience, current_sound, current_master, current_music) = (
+        let (
+            current_ambience,
+            current_sound,
+            current_master,
+            current_music,
+        ) = (
             sound_settings.ambience_volume as f32,
             sound_settings.sound_volume as f32,
             sound_settings.master_volume as f32,
@@ -54,7 +60,9 @@ impl SettingsMenu {
             .spawn(TempSoundVolume(sound_settings.sound_volume as f32))
             .id();
         let ambience_slider = commands
-            .spawn(TempAmbienceVolume(sound_settings.ambience_volume as f32))
+            .spawn(TempAmbienceVolume(
+                sound_settings.ambience_volume as f32,
+            ))
             .id();
         let music_slider = commands
             .spawn(TempMusicVolume(sound_settings.music_volume as f32))
@@ -169,25 +177,33 @@ fn update_menu_volumes(
 ) {
     let error_margin = 0.01;
     for vol in &master_vol {
-        if (sound_settings.master_volume as f32 - vol.0).abs() > error_margin {
+        if (sound_settings.master_volume as f32 - vol.0).abs()
+            > error_margin
+        {
             sound_settings.master_volume = f64::from(vol.0);
         }
     }
 
     for vol in &sound_vol {
-        if (sound_settings.sound_volume as f32 - vol.0).abs() > error_margin {
+        if (sound_settings.sound_volume as f32 - vol.0).abs()
+            > error_margin
+        {
             sound_settings.sound_volume = f64::from(vol.0);
         }
     }
 
     for vol in &ambience_vol {
-        if (sound_settings.ambience_volume as f32 - vol.0).abs() > error_margin {
+        if (sound_settings.ambience_volume as f32 - vol.0).abs()
+            > error_margin
+        {
             sound_settings.ambience_volume = f64::from(vol.0);
         }
     }
 
     for vol in &music_vol {
-        if (sound_settings.music_volume as f32 - vol.0).abs() > error_margin {
+        if (sound_settings.music_volume as f32 - vol.0).abs()
+            > error_margin
+        {
             sound_settings.music_volume = f64::from(vol.0);
         }
     }

@@ -70,7 +70,9 @@ pub struct DungeonRoomBundle {
 pub struct RoomAssetID(pub i32);
 
 /// ID for spawned `DungeonRooms`
-#[derive(PartialEq, Component, Eq, Hash, Debug, Clone, Copy, Reflect, Default)]
+#[derive(
+    PartialEq, Component, Eq, Hash, Debug, Clone, Copy, Reflect, Default,
+)]
 pub struct RoomID(pub i32);
 
 /// data used for graphs
@@ -148,7 +150,8 @@ impl Default for DungeonRoomBundle {
             extents: Vec2 { x: 5.0, y: 5.0 },
             origin: shapes::RectangleOrigin::Center,
         };
-        let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+        let spawner_visual_bundle =
+            GeometryBuilder::new().add(&spawner_box_visual).build();
 
         Self {
             name: Name::new("BlankDungeon"),
@@ -214,10 +217,13 @@ pub fn create_dungeons_list(
     level_assets: Res<Assets<LdtkLevel>>,
     asset_server: Res<AssetServer>,
 ) {
-    info!("Creating resource for dungeons too be used in dungeon generation");
+    info!(
+        "Creating resource for dungeons too be used in dungeon generation"
+    );
 
     let filtered_assets = filter_levels(&level_assets);
-    let mut useable_room_assets: HashMap<RoomAssetID, Handle<LdtkLevel>> = HashMap::new();
+    let mut useable_room_assets: HashMap<RoomAssetID, Handle<LdtkLevel>> =
+        HashMap::new();
     let filtered_levels_len = filtered_assets.len() as i32;
 
     let mut id = 0;
@@ -247,10 +253,16 @@ pub fn create_dungeons_list(
     if *done {
         for (id, ldtk_level) in &useable_room_assets {
             let level_asset = level_assets.get(ldtk_level).unwrap();
-            info!("ID: {:?}, Level: {:?}", id, level_asset.data().identifier);
+            info!(
+                "ID: {:?}, Level: {:?}",
+                id,
+                level_asset.data().identifier
+            );
         }
         gen_settings.useable_rooms = Some(useable_room_assets);
-        cmds.insert_resource(NextState(Some(GeneratorStage::GenerateRooms)));
+        cmds.insert_resource(NextState(Some(
+            GeneratorStage::GenerateRooms,
+        )));
     }
 }
 
@@ -259,7 +271,11 @@ pub fn create_dungeons_list(
 pub fn layout_dungeon_and_place_skeleton(
     mut cmds: Commands,
     gen_settings: Res<DungeonGeneratorSettings>,
-    dungeon_container: Query<(Entity, &DungeonContainerTag, &Handle<LdtkProject>)>,
+    dungeon_container: Query<(
+        Entity,
+        &DungeonContainerTag,
+        &Handle<LdtkProject>,
+    )>,
     level_assets: Res<Assets<LdtkLevel>>,
 ) {
     let dungeon_container = dungeon_container.single();
@@ -267,7 +283,8 @@ pub fn layout_dungeon_and_place_skeleton(
     let rooms = &gen_settings.useable_rooms;
     let useable_levels = rooms.as_ref().unwrap();
 
-    let pre_layout = build_rooms(rng, useable_levels, &gen_settings, &level_assets);
+    let pre_layout =
+        build_rooms(rng, useable_levels, &gen_settings, &level_assets);
     let rooms = layout_rooms_on_grid(pre_layout, &gen_settings);
 
     for room in rooms {
@@ -277,13 +294,16 @@ pub fn layout_dungeon_and_place_skeleton(
             extents: Vec2 { x: 5.0, y: 5.0 },
             origin: shapes::RectangleOrigin::Center,
         };
-        let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+        let spawner_visual_bundle =
+            GeometryBuilder::new().add(&spawner_box_visual).build();
 
         cmds.entity(dungeon_container.0).with_children(|parent| {
             parent.spawn(DungeonRoomBundle {
                 name: Name::new(name),
                 ldtk_level: room.room_asset.clone(),
-                transform: Transform::from_translation(room.position.as_vec2().extend(0.0)),
+                transform: Transform::from_translation(
+                    room.position.as_vec2().extend(0.0),
+                ),
                 room_info: room.clone(),
                 tag: DungeonRoomTag,
                 dv_shape: spawner_visual_bundle,
@@ -346,8 +366,10 @@ fn build_rooms(
 
     for room in 0..room_amount {
         if room == 0 {
-            let room_handle = useable_levels.get(&RoomAssetID(0)).expect("msg");
-            let room_asset: &LdtkLevel = level_assets.get(room_handle).unwrap();
+            let room_handle =
+                useable_levels.get(&RoomAssetID(0)).expect("msg");
+            let room_asset: &LdtkLevel =
+                level_assets.get(room_handle).unwrap();
             info!(
                 "inserting room # {} as {}",
                 room_asset.data().identifier,
@@ -363,8 +385,10 @@ fn build_rooms(
                 exits: Vec::new(),
             });
         } else {
-            let id_to_get: i32 = rng.gen_range(1..(useable_levels.len() as i32 - 1));
-            let room_handle = useable_levels.get(&RoomAssetID(id_to_get)).expect("msg");
+            let id_to_get: i32 =
+                rng.gen_range(1..(useable_levels.len() as i32 - 1));
+            let room_handle =
+                useable_levels.get(&RoomAssetID(id_to_get)).expect("msg");
             let room_asset = level_assets.get(room_handle).unwrap();
             info!(
                 "inserting room # {} as {}",
@@ -405,8 +429,12 @@ fn layout_rooms_on_grid(
     });
 
     let largest_room = rooms.first().unwrap();
-    let cell_width = (largest_room.width + settings.dungeons_space_between as i32) as f32;
-    let cell_height = (largest_room.height + settings.dungeons_space_between as i32) as f32;
+    let cell_width = (largest_room.width
+        + settings.dungeons_space_between as i32)
+        as f32;
+    let cell_height = (largest_room.height
+        + settings.dungeons_space_between as i32)
+        as f32;
 
     // Generate grid spots
     for row in 0..grid_size {
@@ -439,8 +467,12 @@ fn layout_rooms_on_grid(
             let y = (row as f32 - grid_center_y) * cell_height;
 
             // Adjust the position based on the room size and wall distance
-            let adjusted_x = x - (room.width as f32 / 2.0) - settings.dungeons_space_between;
-            let adjusted_y = y - (room.height as f32 / 2.0) - settings.dungeons_space_between;
+            let adjusted_x = x
+                - (room.width as f32 / 2.0)
+                - settings.dungeons_space_between;
+            let adjusted_y = y
+                - (room.height as f32 / 2.0)
+                - settings.dungeons_space_between;
 
             // Check if the grid spot is already occupied
             let is_occupied = occupied_spots.contains(&(row, col));
@@ -448,7 +480,9 @@ fn layout_rooms_on_grid(
             // If the spot is occupied, find the nearest available spot
             let mut nearest_spot: Option<(usize, usize)> = None;
             if is_occupied {
-                for &(row_offset, col_offset) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                for &(row_offset, col_offset) in
+                    &[(0, 1), (0, -1), (1, 0), (-1, 0)]
+                {
                     let new_row = row as isize + row_offset;
                     let new_col = col as isize + col_offset;
                     if new_row >= 0
@@ -456,7 +490,8 @@ fn layout_rooms_on_grid(
                         && new_col >= 0
                         && new_col < grid_size as isize
                     {
-                        let new_spot = (new_row as usize, new_col as usize);
+                        let new_spot =
+                            (new_row as usize, new_col as usize);
                         if !occupied_spots.contains(&new_spot) {
                             nearest_spot = Some(new_spot);
                             break;
@@ -469,16 +504,22 @@ fn layout_rooms_on_grid(
             if let Some((new_row, new_col)) = nearest_spot {
                 let new_x = (new_col as f32 + 0.5) * cell_width;
                 let new_y = (new_row as f32 + 0.5) * cell_height;
-                let new_adjusted_x =
-                    new_x - (room.width as f32 / 2.0) - settings.dungeons_space_between;
-                let new_adjusted_y =
-                    new_y - (room.height as f32 / 2.0) - settings.dungeons_space_between;
-                room.position = IVec2::new(new_adjusted_x as i32, new_adjusted_y as i32);
+                let new_adjusted_x = new_x
+                    - (room.width as f32 / 2.0)
+                    - settings.dungeons_space_between;
+                let new_adjusted_y = new_y
+                    - (room.height as f32 / 2.0)
+                    - settings.dungeons_space_between;
+                room.position = IVec2::new(
+                    new_adjusted_x as i32,
+                    new_adjusted_y as i32,
+                );
                 placed_rooms.push(room);
                 occupied_spots.insert((new_row, new_col));
             } else {
                 // Place the room at the adjusted position
-                room.position = IVec2::new(adjusted_x as i32, adjusted_y as i32);
+                room.position =
+                    IVec2::new(adjusted_x as i32, adjusted_y as i32);
                 placed_rooms.push(room);
                 occupied_spots.insert((row, col));
             }

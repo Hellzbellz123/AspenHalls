@@ -3,10 +3,13 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     bundles::RigidBodyBundle,
-    consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX},
+    consts::{
+        AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE,
+        ACTOR_Z_INDEX,
+    },
     game::actors::combat::components::{
-        BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
-        WeaponColliderTag, WeaponStats, WeaponTag,
+        BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle,
+        WeaponColliderBundle, WeaponColliderTag, WeaponStats, WeaponTag,
     },
     loading::assets::ActorTextureHandles,
 };

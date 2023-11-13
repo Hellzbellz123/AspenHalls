@@ -15,7 +15,8 @@ pub fn setup_menu(app: &mut App) {
     app.add_systems(
         OnEnter(AppStage::StartMenu),
         (
-            StartMenu::create.run_if(not(any_with_component::<StartMenu>())),
+            StartMenu::create
+                .run_if(not(any_with_component::<StartMenu>())),
             apply_deferred,
             StartMenu::show.run_if(any_with_component::<StartMenu>()),
         )
@@ -29,7 +30,11 @@ pub struct StartMenu;
 
 impl StartMenu {
     /// Create the main menu
-    fn create(root: Res<InterfaceRoot>, mut elements: Elements, mut commands: Commands) {
+    fn create(
+        root: Res<InterfaceRoot>,
+        mut elements: Elements,
+        mut commands: Commands,
+    ) {
         commands.entity(**root).insert(Self);
 
         elements.select(".interface-root").add_child(eml! {
@@ -86,10 +91,9 @@ impl StartMenu {
     fn get_subtitle() -> &'static str {
         let mut rng = rand::thread_rng();
 
-        Self::SUBTITLES
-            .lines()
-            .choose(&mut rng)
-            .unwrap_or_else(|| Self::SUBTITLES.lines().next().expect("No subtitles found"))
+        Self::SUBTITLES.lines().choose(&mut rng).unwrap_or_else(|| {
+            Self::SUBTITLES.lines().next().expect("No subtitles found")
+        })
         // .unwrap_or(Self::SUBTITLES.lines().next().expect("No subtitles found"))
     }
 }

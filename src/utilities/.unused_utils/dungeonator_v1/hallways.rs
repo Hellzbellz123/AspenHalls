@@ -15,7 +15,9 @@ use std::{cmp::Ordering, fs::File, io::Write, time::Duration};
 use crate::game::game_world::components::RoomExit;
 
 use super::{
-    generator::{DungeonContainerTag, DungeonRoomTag, RoomID, RoomInstance},
+    generator::{
+        DungeonContainerTag, DungeonRoomTag, RoomID, RoomInstance,
+    },
     DungeonGeneratorSettings, GeneratorStage,
 };
 
@@ -91,8 +93,11 @@ pub fn wait_for_ldtk_finish(
     timer.set_duration(Duration::from_millis(10));
     // we only want too continue if the levels are built, layers get added to levels
     // as children so if the level has no children we know its built
-    if child_less_levels.is_empty() && timer.tick(time.delta()).finished() {
-        cmds.insert_resource(NextState(Some(GeneratorStage::GenerateConnections)));
+    if child_less_levels.is_empty() && timer.tick(time.delta()).finished()
+    {
+        cmds.insert_resource(NextState(Some(
+            GeneratorStage::GenerateConnections,
+        )));
     }
 }
 
@@ -101,7 +106,10 @@ pub fn create_mst_from_rooms(
     mut cmds: Commands,
     mut gen_settings: ResMut<DungeonGeneratorSettings>,
     children: Query<&Children>,
-    mut room_query: Query<(Entity, &GlobalTransform, &mut RoomInstance), With<DungeonRoomTag>>,
+    mut room_query: Query<
+        (Entity, &GlobalTransform, &mut RoomInstance),
+        With<DungeonRoomTag>,
+    >,
     exit_query: Query<(Entity, &Transform), (With<RoomExit>,)>,
 ) {
     if gen_settings.hallways.is_some() {
@@ -110,42 +118,49 @@ pub fn create_mst_from_rooms(
 
     let mut rng = rand::thread_rng();
     // Adjust this probability to control the likelihood of adding loops
-    let loop_probability = f64::from(gen_settings.looped_hallway_amount.clamp(0.0, 1.0));
+    let loop_probability =
+        f64::from(gen_settings.looped_hallway_amount.clamp(0.0, 1.0));
 
     let mut points: Vec<RoomInstance> =
         Vec::with_capacity(gen_settings.dungeon_room_amount as usize);
 
-    room_query.for_each_mut(|(room_entity, _room_global_transform, mut room_instance)| {
-        let mut pathfind_room_node = RoomInstance {
-            room_name: room_instance.room_name.clone(),
-            room_id: room_instance.room_id,
-            room_asset: room_instance.room_asset.clone(),
-            width: room_instance.width,
-            height: room_instance.height,
-            position: (room_instance.position
-                + (IVec2::new(room_instance.width, room_instance.height) / 2)),
-            exits: Vec::new(),
-        };
+    room_query.for_each_mut(
+        |(room_entity, _room_global_transform, mut room_instance)| {
+            let mut pathfind_room_node = RoomInstance {
+                room_name: room_instance.room_name.clone(),
+                room_id: room_instance.room_id,
+                room_asset: room_instance.room_asset.clone(),
+                width: room_instance.width,
+                height: room_instance.height,
+                position: (room_instance.position
+                    + (IVec2::new(
+                        room_instance.width,
+                        room_instance.height,
+                    ) / 2)),
+                exits: Vec::new(),
+            };
 
-        let mut exits: Vec<Vec2> = Vec::new();
+            let mut exits: Vec<Vec2> = Vec::new();
 
-        for child in children.iter_descendants(room_entity) {
-            if exit_query.get(child).is_ok() {
-                let (_e_ent, e_trans) = exit_query.get(child).unwrap();
-                exits.push(e_trans.translation.truncate());
+            for child in children.iter_descendants(room_entity) {
+                if exit_query.get(child).is_ok() {
+                    let (_e_ent, e_trans) = exit_query.get(child).unwrap();
+                    exits.push(e_trans.translation.truncate());
+                }
+                info!("{:?}", exits);
             }
-            info!("{:?}", exits);
-        }
 
-        (pathfind_room_node.exits = exits.clone());
+            (pathfind_room_node.exits = exits.clone());
 
-        points.push(pathfind_room_node);
-        room_instance.exits = exits;
-    });
+            points.push(pathfind_room_node);
+            room_instance.exits = exits;
+        },
+    );
 
     if points.len() == gen_settings.dungeon_room_amount as usize {
         // Create a graph and add the rooms as vertices
-        let mut room_graph = StableUnGraph::<RoomInstance, HallWay>::default();
+        let mut room_graph =
+            StableUnGraph::<RoomInstance, HallWay>::default();
         let indices: Vec<NodeIndex<_>> = points
             .iter()
             .map(|room| room_graph.add_node(room.clone()))
@@ -178,7 +193,11 @@ pub fn create_mst_from_rooms(
         // Compute the minimum spanning tree
         let mst = min_spanning_tree(&room_graph);
         let mst_graph = StableUnGraph::<_, _>::from_elements(mst);
-        let mut cyclic_graph: StableGraph<RoomInstance, HallWay, Undirected> = mst_graph;
+        let mut cyclic_graph: StableGraph<
+            RoomInstance,
+            HallWay,
+            Undirected,
+        > = mst_graph;
 
         // Iterate over the edges in the room graph
         for edge in room_graph.edge_indices() {
@@ -186,7 +205,9 @@ pub fn create_mst_from_rooms(
             let target = room_graph.edge_endpoints(edge).unwrap().1;
 
             // Check if the edge is not already present in the MST and based on the random chance
-            if !cyclic_graph.contains_edge(source, target) && rng.gen_bool(loop_probability) {
+            if !cyclic_graph.contains_edge(source, target)
+                && rng.gen_bool(loop_probability)
+            {
                 cyclic_graph.add_edge(
                     source,
                     target,
@@ -201,8 +222,10 @@ pub fn create_mst_from_rooms(
         for edge in cyclic_copy.edge_indices() {
             let immutable_graph = room_graph.clone();
             let hallway = cyclic_graph.edge_weight_mut(edge).unwrap();
-            let source_idx = immutable_graph.edge_endpoints(edge).unwrap().0;
-            let target_idx = immutable_graph.edge_endpoints(edge).unwrap().1;
+            let source_idx =
+                immutable_graph.edge_endpoints(edge).unwrap().0;
+            let target_idx =
+                immutable_graph.edge_endpoints(edge).unwrap().1;
             let source = immutable_graph.node_weight(source_idx).unwrap();
             let target = immutable_graph.node_weight(target_idx).unwrap();
 
@@ -218,9 +241,12 @@ pub fn create_mst_from_rooms(
         gen_settings.hallways = Some(hallways);
 
         // // Create a DOT representation of the MST
-        let cyclic_dot = Dot::with_config(&cyclic_graph, &[Config::NodeIndexLabel]);
+        let cyclic_dot =
+            Dot::with_config(&cyclic_graph, &[Config::NodeIndexLabel]);
         save_dot(&cyclic_dot, "cyclic.dot".into());
-        cmds.insert_resource(NextState(Some(GeneratorStage::PathfindConnections)));
+        cmds.insert_resource(NextState(Some(
+            GeneratorStage::PathfindConnections,
+        )));
 
         // triangulate and scale points for display
         // let triangulation = delaunator::triangulate(&points).unwrap();
@@ -252,8 +278,8 @@ pub fn spawn_hallway_roots(
     }
 
     let mut i = 0;
-    cmds.entity(dungeon_container.single())
-        .with_children(|container_child_builder| {
+    cmds.entity(dungeon_container.single()).with_children(
+        |container_child_builder| {
             for hallway in gen_settings.hallways.as_ref().unwrap() {
                 let name = format!("Hallway {}", i);
                 // let mut path_builder = PathBuilder::new();
@@ -284,13 +310,17 @@ pub fn spawn_hallway_roots(
                 ));
                 i += 1;
             }
-        });
+        },
+    );
 }
 
 /// iterated over all spawned hallways and actually builds them
 pub fn pathfind_and_build_hallways(
     mut cmds: Commands,
-    un_built_hallways: Query<(Entity, &HallWay), (With<Handle<LdtkLevel>>, Without<Children>)>,
+    un_built_hallways: Query<
+        (Entity, &HallWay),
+        (With<Handle<LdtkLevel>>, Without<Children>),
+    >,
 ) {
     // we only need to run this loop if the hallways aren't built, layers
     // get added to hallways as children so if the level has no children we know it needs to be built still
@@ -306,17 +336,26 @@ pub fn pathfind_and_build_hallways(
         cmds.entity(h_ent).with_children(|hallway_layers| {
             ground = Some(
                 hallway_layers
-                    .spawn((Name::new("Ground_Layer"), TileStorage::default()))
+                    .spawn((
+                        Name::new("Ground_Layer"),
+                        TileStorage::default(),
+                    ))
                     .id(),
             );
             decoration = Some(
                 hallway_layers
-                    .spawn((Name::new("Decoration_Layer"), TileStorage::default()))
+                    .spawn((
+                        Name::new("Decoration_Layer"),
+                        TileStorage::default(),
+                    ))
                     .id(),
             );
             building = Some(
                 hallway_layers
-                    .spawn((Name::new("Building_Layer"), TileStorage::default()))
+                    .spawn((
+                        Name::new("Building_Layer"),
+                        TileStorage::default(),
+                    ))
                     .id(),
             );
         });
@@ -343,7 +382,10 @@ const fn spawn_decoration_layer() {}
 
 /// saves dot graph as file
 fn save_dot(
-    dot: &Dot<'_, &StableGraph<RoomInstance, HallWay, petgraph::Undirected>>,
+    dot: &Dot<
+        '_,
+        &StableGraph<RoomInstance, HallWay, petgraph::Undirected>,
+    >,
     file: String,
 ) {
     // Save the DOT representation to a file
@@ -360,7 +402,8 @@ fn save_dot(
 
 /// calculates distance between too spots
 fn calculate_distance(lat1: i32, lon1: i32, lat2: i32, lon2: i32) -> f32 {
-    let (lat1, lat2, lon1, lon2) = (lat1 as f32, lat2 as f32, lon1 as f32, lon2 as f32);
+    let (lat1, lat2, lon1, lon2) =
+        (lat1 as f32, lat2 as f32, lon1 as f32, lon2 as f32);
     // Calculate Euclidean distance between two latitude-longitude coordinates
     let x = (lon2 - lon1) * f32::cos((lat1 + lat2) / 2.0);
     let y = lat2 - lat1;

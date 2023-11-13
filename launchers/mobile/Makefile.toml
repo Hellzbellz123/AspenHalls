@@ -6,12 +6,20 @@ skip_crate_env_info = true
 
 [tasks.run-mobile]
 env_files = ["../../.env"]
-condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
+condition.env_set = [
+  "BUNDLETOOL_PATH",
+  "ANDROID_NDK_ROOT",
+  "JAVA_HOME",
+]
 script.main = "gradle assembleDebug -p android --warning-mode all"
 script.post = "./debug_android.sh"
 
 [tasks.release-mobile]
 env_files = ["../../.env"]
-condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
+condition.env_set = [
+  "BUNDLETOOL_PATH",
+  "ANDROID_NDK_ROOT",
+  "JAVA_HOME",
+]
 script.main = "gradle assembleRelease -p android"
 script.post = "adb install android/build/outputs/apk/release/android-release.apk"

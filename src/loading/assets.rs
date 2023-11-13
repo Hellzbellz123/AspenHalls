@@ -1,7 +1,7 @@
 use belly::prelude::StyleSheet;
 use bevy::{
-    asset::Handle, ecs::system::Resource, reflect::TypeUuid, render::texture::Image,
-    sprite::TextureAtlas, text::Font,
+    asset::Handle, ecs::system::Resource, reflect::TypeUuid,
+    render::texture::Image, sprite::TextureAtlas, text::Font,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;

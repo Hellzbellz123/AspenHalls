@@ -2,10 +2,10 @@ use crate::{
     consts::TILE_SIZE,
     game::{
         actors::{
-            ai::components::{Type, ActorType},
+            ai::components::{ActorType, Type},
             combat::components::{
-                BarrelPointTag, CurrentlySelectedWeapon, WeaponColliderTag, WeaponSlots,
-                WeaponSocket, WeaponTag,
+                BarrelPointTag, CurrentlySelectedWeapon,
+                WeaponColliderTag, WeaponSlots, WeaponSocket, WeaponTag,
             },
             components::Player,
             spawners::components::SpawnActorEvent,
@@ -28,14 +28,18 @@ pub fn spawn_custom_on_button(
     let actions = query_action_state.get_single().expect("no entities?");
 
     if actions.just_released(action_maps::Gameplay::DebugF1) {
-        debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
+        debug!(
+            "pressed spawn_skeleton_button: Spawning Skeleton near player"
+        );
         let mouse_world = actions
             .action_data(action_maps::Gameplay::LookWorld)
             .axis_pair
             .expect("this should always have an axis pair, its data MAY be zero")
             .xy();
-        let player_transform = player_query.single().0.translation.truncate();
-        let direction_offset: Vec2 = (player_transform - mouse_world).abs().normalize() * TILE_SIZE;
+        let player_transform =
+            player_query.single().0.translation.truncate();
+        let direction_offset: Vec2 =
+            (player_transform - mouse_world).abs().normalize() * TILE_SIZE;
 
         spawn_event_writer.send(SpawnActorEvent {
             spawner: None,
@@ -85,8 +89,13 @@ pub fn player_attack_sender(
         return;
     }
 
-    let (weapon_entity, _weapon_children, _weapon_parent, _is_weapon_active, _weapon_transform) =
-        weapon_query.single();
+    let (
+        weapon_entity,
+        _weapon_children,
+        _weapon_parent,
+        _is_weapon_active,
+        _weapon_transform,
+    ) = weapon_query.single();
 
     query_child_barrel_point.for_each(|(_ent, parent, barrel_trans)| {
         if parent.get() == weapon_entity {
@@ -97,8 +106,10 @@ pub fn player_attack_sender(
                 .expect("no axis pair on Gameplay::LookWorld")
                 .xy();
             let barrel_loc = barrel_trans.translation().truncate();
-            let player_position = player_query.single().1.translation.truncate();
-            let direction: Vec2 = (cursor_world - player_position).normalize_or_zero();
+            let player_position =
+                player_query.single().1.translation.truncate();
+            let direction: Vec2 =
+                (cursor_world - player_position).normalize_or_zero();
 
             if action_state.pressed(action_maps::Gameplay::Shoot) {
                 info!("bang");
@@ -127,8 +138,14 @@ pub fn equip_closest_weapon(
         ),
         With<Player>,
     >,
-    query_child_weapon_collider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
-    mut weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), Without<Player>>,
+    query_child_weapon_collider: Query<
+        (Entity, &Parent),
+        With<WeaponColliderTag>,
+    >,
+    mut weapon_query: Query<
+        (Entity, &mut WeaponTag, &mut Transform),
+        Without<Player>,
+    >,
 ) {
     if player_query.is_empty() {
         return;
@@ -157,12 +174,14 @@ pub fn equip_closest_weapon(
     debug!("player interact pressed, testing weapon distance");
     for (weapon, mut weapon_tag, mut w_transform) in &mut weapon_query {
         // pretty sure i should leave this as an iterator, we want it sequential
-        let distance_to_player = (p_transform.translation - w_transform.translation)
+        let distance_to_player = (p_transform.translation
+            - w_transform.translation)
             .length()
             .abs();
         if distance_to_player < 70.0 {
             // check if player has available weapon sockets
-            let player_weapon_slots = &weapon_socket_on_player.weapon_slots;
+            let player_weapon_slots =
+                &weapon_socket_on_player.weapon_slots;
             let slots_to_check = [
                 WeaponSlots::Slot1,
                 WeaponSlots::Slot2,
@@ -177,11 +196,17 @@ pub fn equip_closest_weapon(
                             "the weapon slot is empty, parenting weapon: {:?} too player: {:?}",
                             weapon, slot
                         );
-                        cmds.entity(player_entity).push_children(&[weapon]);
+                        cmds.entity(player_entity)
+                            .push_children(&[weapon]);
 
-                        for (ent, parent) in query_child_weapon_collider.iter() {
+                        for (ent, parent) in
+                            query_child_weapon_collider.iter()
+                        {
                             if parent.get() == weapon {
-                                info!("despawning collider for {:?}", parent.get());
+                                info!(
+                                    "despawning collider for {:?}",
+                                    parent.get()
+                                );
                                 cmds.entity(ent).despawn();
                             }
                         }
@@ -189,7 +214,8 @@ pub fn equip_closest_weapon(
                         // this should make the most recently picked up weapon the currently drawn weapon
                         weapon_socket_on_player.drawn_slot = Some(slot);
 
-                        cmds.entity(weapon).insert(CurrentlySelectedWeapon);
+                        cmds.entity(weapon)
+                            .insert(CurrentlySelectedWeapon);
                         weapon_tag.parent = Some(player_entity);
                         weapon_tag.stored_weapon_slot = Some(slot);
 

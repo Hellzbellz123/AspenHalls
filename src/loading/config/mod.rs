@@ -3,7 +3,9 @@ pub mod save_load;
 use bevy::asset::ChangeWatcher;
 
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
+use crate::game::audio::{
+    AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel,
+};
 
 use crate::ahp::{engine::*, game::*, plugins::*};
 
@@ -36,7 +38,9 @@ impl Default for ConfigFile {
 }
 
 /// make sure tables are AFTER single fields
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug)]
+#[derive(
+    Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug,
+)]
 #[reflect(Resource)]
 pub struct WindowSettings {
     /// enable v_sync if true
@@ -52,14 +56,26 @@ pub struct WindowSettings {
 }
 
 /// make sure tables are AFTER single fields
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default, Debug)]
+#[derive(
+    Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default, Debug,
+)]
 #[reflect(Resource)]
 pub struct RenderSettings {
     /// enable v_sync if true
     pub msaa: bool,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Reflect, PartialEq, PartialOrd, Default)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    Serialize,
+    Deserialize,
+    Reflect,
+    PartialEq,
+    PartialOrd,
+    Default,
+)]
 #[reflect(Default)]
 /// game difficulty enum
 pub enum GameDifficulty {
@@ -82,7 +98,9 @@ pub enum GameDifficulty {
 
 /// Settings like zoom and difficulty
 /// maybe controls
-#[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug)]
+#[derive(
+    Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug,
+)]
 #[reflect(Resource)]
 #[cfg_attr(
     feature = "inspect",
@@ -103,7 +121,16 @@ pub struct GeneralSettings {
 }
 
 /// modify to change sound volume settings
-#[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone, Component)]
+#[derive(
+    Reflect,
+    Debug,
+    Serialize,
+    Deserialize,
+    Resource,
+    Copy,
+    Clone,
+    Component,
+)]
 #[reflect(Resource)]
 #[cfg_attr(
     feature = "inspect",
@@ -147,7 +174,17 @@ pub struct SoundSettings {
 // TODO: refactor actors module to use this global difficulty resource
 // add a system that takes GeneralSettings.difficulty_settings and matches
 // that i32 and inserts this configured
-#[derive(Reflect, Debug, Serialize, Deserialize, Resource, Copy, Clone, PartialEq, PartialOrd)]
+#[derive(
+    Reflect,
+    Debug,
+    Serialize,
+    Deserialize,
+    Resource,
+    Copy,
+    Clone,
+    PartialEq,
+    PartialOrd,
+)]
 #[reflect(Resource, Default)]
 /// difficulty resource used globally for configuring actors and dungeons
 pub struct DifficultyScales {
@@ -190,7 +227,9 @@ impl Default for GeneralSettings {
     fn default() -> Self {
         Self {
             camera_zoom: 3.5,
-            game_difficulty: GameDifficulty::Custom(DifficultyScales::default()),
+            game_difficulty: GameDifficulty::Custom(
+                DifficultyScales::default(),
+            ),
         }
     }
 }
@@ -252,7 +291,8 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
         .add_collection_to_loading_state::<_, InitAssetHandles>(AppStage::BootingApp)
         .add_collection_to_loading_state::<_, TouchControlAssetHandles>(AppStage::BootingApp);
 
-    let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
+    let difficulty_settings =
+        create_difficulty_scales(cfg_file.general_settings, None);
 
     vanillacoffee
         .add_plugins({
@@ -270,7 +310,9 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                             cfg_file.window_settings.resolution.x,
                             cfg_file.window_settings.resolution.y,
                         )
-                        .with_scale_factor_override(cfg_file.window_settings.window_scale_override),
+                        .with_scale_factor_override(
+                            cfg_file.window_settings.window_scale_override,
+                        ),
                         mode: {
                             if cfg_file.window_settings.full_screen {
                                 // if full screen is true, use borderless full screen
@@ -335,7 +377,9 @@ fn init_asset_loader(vanillacoffee: &mut App) {
     {
         vanillacoffee.add_plugins(AssetPlugin {
             asset_folder: "assets".to_string(),
-            watch_for_changes: ChangeWatcher::with_delay(Duration::from_secs_f32(0.5)),
+            watch_for_changes: ChangeWatcher::with_delay(
+                Duration::from_secs_f32(0.5),
+            ),
         });
         warn!("adding AssetPlugin with changewatching");
     }
@@ -367,10 +411,14 @@ fn apply_window_settings(
         //     frame_limiter_cfg.limiter = requested_limiter;
         // }
 
-        if window_settings.full_screen && b_window.mode != WindowMode::BorderlessFullscreen {
+        if window_settings.full_screen
+            && b_window.mode != WindowMode::BorderlessFullscreen
+        {
             b_window.mode = WindowMode::BorderlessFullscreen;
         }
-        if !window_settings.full_screen && b_window.mode == WindowMode::BorderlessFullscreen {
+        if !window_settings.full_screen
+            && b_window.mode == WindowMode::BorderlessFullscreen
+        {
             b_window.mode = WindowMode::Windowed;
             b_window.resolution = window_settings.resolution.into();
         }
@@ -393,9 +441,12 @@ fn apply_sound_settings(
         //sound settings
         info!("volumes changed, applying settings");
         let mastervolume = sound_settings.master_volume;
-        music_channel.set_volume(sound_settings.music_volume * mastervolume);
-        ambience_channel.set_volume(sound_settings.ambience_volume * mastervolume);
-        sound_channel.set_volume(sound_settings.sound_volume * mastervolume);
+        music_channel
+            .set_volume(sound_settings.music_volume * mastervolume);
+        ambience_channel
+            .set_volume(sound_settings.ambience_volume * mastervolume);
+        sound_channel
+            .set_volume(sound_settings.sound_volume * mastervolume);
     }
 }
 
@@ -445,11 +496,16 @@ fn update_difficulty_settings(
 ) {
     if general_settings.is_changed() {
         let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
-        if let GameDifficulty::Custom(scales) = general_settings.game_difficulty {
+        if let GameDifficulty::Custom(scales) =
+            general_settings.game_difficulty
+        {
             cmds.insert_resource(scales);
         } else {
             let difficulty_settings: DifficultyScales =
-                create_difficulty_scales(*general_settings, Some(level_amount));
+                create_difficulty_scales(
+                    *general_settings,
+                    Some(level_amount),
+                );
             cmds.insert_resource(difficulty_settings);
         }
     }

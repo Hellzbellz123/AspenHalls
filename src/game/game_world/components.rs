@@ -2,7 +2,9 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::game::actors::spawners::components::{EnemyType, Spawner, SpawnerTimer};
+use crate::game::actors::spawners::components::{
+    EnemyType, Spawner, SpawnerTimer,
+};
 
 use super::hideout::map_components::SanctuaryTeleportSensor;
 
@@ -83,7 +85,10 @@ fn spawner_bundle(_ent_instance: &EntityInstance) -> SpawnerBundle {
             random_enemy: true,
             spawned_enemies: Vec::with_capacity(7),
         },
-        timer: SpawnerTimer(Timer::from_seconds(2.0, TimerMode::Repeating)),
+        timer: SpawnerTimer(Timer::from_seconds(
+            2.0,
+            TimerMode::Repeating,
+        )),
     }
 }
 

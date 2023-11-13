@@ -2,8 +2,8 @@
     web app built with yew too hold the bevy application
 "]
 
-use aspen_lib::ahp::game as asha;
 use aspen_lib::ahp::engine as bevy;
+use aspen_lib::ahp::game as asha;
 use yew::prelude::*;
 
 /// sets browser window title too passed string

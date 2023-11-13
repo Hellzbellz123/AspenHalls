@@ -2,9 +2,12 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
+    bundles::{
+        ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle,
+    },
     consts::{
-        ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER, AspenCollisionLayer
+        AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX,
+        BULLET_SPEED_MODIFIER,
     },
     loading::assets::ActorTextureHandles,
 };
@@ -15,7 +18,8 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            enemy_can_shoot_check.run_if(resource_exists::<ActorTextureHandles>()),
+            enemy_can_shoot_check
+                .run_if(resource_exists::<ActorTextureHandles>()),
         );
     }
 }
@@ -25,7 +29,8 @@ use bevy::prelude::{Query, ResMut, Vec2, With};
 use super::{
     ai::components::{AIShootConfig, Enemy},
     components::{
-        EnemyProjectileColliderTag, EnemyProjectileTag, Player, ProjectileStats, TimeToLive,
+        EnemyProjectileColliderTag, EnemyProjectileTag, Player,
+        ProjectileStats, TimeToLive,
     },
 };
 
@@ -87,10 +92,15 @@ pub fn spawn_enemy_projectile(
                 speed: 100.0,
                 size: 5.0,
             },
-            ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
+            ttl: TimeToLive(Timer::from_seconds(
+                2.0,
+                TimerMode::Repeating,
+            )),
             sprite_bundle: SpriteBundle {
                 texture: projectile_texture,
-                transform: Transform::from_translation(location.extend(ACTOR_Z_INDEX)),
+                transform: Transform::from_translation(
+                    location.extend(ACTOR_Z_INDEX),
+                ),
                 sprite: Sprite {
                     custom_size: Some(Vec2::splat(5.0)),
                     ..default()
@@ -98,7 +108,9 @@ pub fn spawn_enemy_projectile(
                 ..default()
             },
             rigidbody_bundle: RigidBodyBundle {
-                velocity: Velocity::linear(direction * (BULLET_SPEED_MODIFIER * 5.0)),
+                velocity: Velocity::linear(
+                    direction * (BULLET_SPEED_MODIFIER * 5.0),
+                ),
                 rigidbody: RigidBody::Dynamic,
                 friction: Friction::coefficient(0.2),
                 how_bouncy: Restitution::coefficient(0.8),
@@ -133,7 +145,10 @@ pub fn spawn_enemy_projectile(
                     AspenCollisionLayer::PROJECTILE,
                     AspenCollisionLayer::EVERYTHING,
                 ),
-                ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
+                ttl: TimeToLive(Timer::from_seconds(
+                    2.0,
+                    TimerMode::Repeating,
+                )),
             },
             ActiveEvents::COLLISION_EVENTS,
         ));

@@ -7,7 +7,7 @@ pub mod custom_assets;
 /// splashscreen functions
 pub mod splashscreen;
 
-use crate::ahp::{engine::*,game::*};
+use crate::ahp::{engine::*, game::*};
 /// This plugin loads all assets using [`AssetLoader`] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html/>
@@ -19,8 +19,7 @@ impl Plugin for AppAssetsPlugin {
     // mobile and web platforms will not make use of packs at this moment
     fn build(&self, app: &mut App) {
         info!("asset loader init");
-        app
-        .add_loading_state(
+        app.add_loading_state(
             LoadingState::new(AppStage::Loading)
                 .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
                 .continue_to_state(AppStage::StartMenu)
@@ -33,7 +32,6 @@ impl Plugin for AppAssetsPlugin {
         .add_collection_to_loading_state::<_, ActorTextureHandles>(AppStage::Loading)
         .add_collection_to_loading_state::<_, AudioHandles>(AppStage::Loading)
         .add_collection_to_loading_state::<_, MapAssetHandles>(AppStage::Loading)
-        .add_collection_to_loading_state::<_, SingleTileTextureHandles>(AppStage::Loading)
-        ;
+        .add_collection_to_loading_state::<_, SingleTileTextureHandles>(AppStage::Loading);
     }
 }

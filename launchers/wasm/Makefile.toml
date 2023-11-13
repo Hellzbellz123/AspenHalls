@@ -2,11 +2,11 @@
 env_files = ["../../.env"]
 command = "trunk"
 args = [
-    "serve",
-    "--open",
-    "--no-default-features",
-    "--features",
-    "inspect",
+  "serve",
+  "--open",
+  "--no-default-features",
+  "--features",
+  "inspect",
 ]
 
 [tasks.release-web]

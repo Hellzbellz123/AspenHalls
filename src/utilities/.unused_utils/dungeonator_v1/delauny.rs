@@ -73,9 +73,13 @@ impl Triangle {
         let cd = b.length_squared();
         let ef = c.length_squared();
 
-        let circum_x = (ab * (c.y - b.y) + cd * (a.y - c.y) + ef * (b.y - a.y))
+        let circum_x = (ab * (c.y - b.y)
+            + cd * (a.y - c.y)
+            + ef * (b.y - a.y))
             / (a.x * (c.y - b.y) + b.x * (a.y - c.y) + c.x * (b.y - a.y));
-        let circum_y = (ab * (c.x - b.x) + cd * (a.x - c.x) + ef * (b.x - a.x))
+        let circum_y = (ab * (c.x - b.x)
+            + cd * (a.x - c.x)
+            + ef * (b.x - a.x))
             / (a.y * (c.x - b.x) + b.y * (a.x - c.x) + c.y * (b.x - a.x));
 
         let circum = Vec2::new(circum_x / 2.0, circum_y / 2.0);
@@ -146,8 +150,11 @@ impl Delaunay2D {
         let p2 = Vertex::new(Vec2::new(min_x - 1.0, max_y + delta_max));
         let p3 = Vertex::new(Vec2::new(max_x + delta_max, min_y - 1.0));
 
-        self.triangles
-            .push(Triangle::new(p1.clone(), p2.clone(), p3.clone()));
+        self.triangles.push(Triangle::new(
+            p1.clone(),
+            p2.clone(),
+            p3.clone(),
+        ));
 
         for vertex in &self.vertices {
             let mut polygon = Vec::new();
@@ -155,9 +162,18 @@ impl Delaunay2D {
             for triangle in &self.triangles {
                 if triangle.circum_circle_contains(vertex.position) {
                     triangle.is_bad = true;
-                    polygon.push(Edge::new(triangle.a.clone(), triangle.b.clone()));
-                    polygon.push(Edge::new(triangle.b.clone(), triangle.c.clone()));
-                    polygon.push(Edge::new(triangle.c.clone(), triangle.a.clone()));
+                    polygon.push(Edge::new(
+                        triangle.a.clone(),
+                        triangle.b.clone(),
+                    ));
+                    polygon.push(Edge::new(
+                        triangle.b.clone(),
+                        triangle.c.clone(),
+                    ));
+                    polygon.push(Edge::new(
+                        triangle.c.clone(),
+                        triangle.a.clone(),
+                    ));
                 }
             }
 

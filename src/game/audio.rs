@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
+use bevy_kira_audio::{
+    prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin,
+};
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
@@ -54,8 +56,9 @@ impl Plugin for InternalAudioPlugin {
             .add_systems(
                 Update,
                 (
-                    player_walking_sound_system
-                        .run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                    player_walking_sound_system.run_if(
+                        state_exists_and_equals(AppStage::PlayingGame),
+                    ),
                     play_background_audio.run_if(run_once()),
                 )
                     .run_if(resource_exists::<AudioHandles>()),
@@ -73,12 +76,16 @@ fn setup_sound_volume(
 ) {
     let mastervolume = sound_settings.master_volume;
     music_channel.set_volume(sound_settings.music_volume * mastervolume);
-    ambience_channel.set_volume(sound_settings.ambience_volume * mastervolume);
+    ambience_channel
+        .set_volume(sound_settings.ambience_volume * mastervolume);
     sound_channel.set_volume(sound_settings.sound_volume * mastervolume);
 }
 
 /// play game soundtrack
-fn play_background_audio(audio_assets: Res<AudioHandles>, audio: Res<AudioChannel<MusicSoundChannel>>) {
+fn play_background_audio(
+    audio_assets: Res<AudioHandles>,
+    audio: Res<AudioChannel<MusicSoundChannel>>,
+) {
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
@@ -107,7 +114,8 @@ fn player_walking_sound_system(
         }
 
         walk_sound_res.timer.tick(time.delta());
-        if walk_sound_res.timer.finished() || walk_sound_res.is_first_time {
+        if walk_sound_res.timer.finished() || walk_sound_res.is_first_time
+        {
             if walk_sound_res.is_first_time {
                 walk_sound_res.is_first_time = false;
                 walk_sound_res.timer.reset();

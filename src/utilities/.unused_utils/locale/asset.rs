@@ -39,14 +39,18 @@ impl AssetLoader for LocaleAssetLoader {
         Box::pin(async move {
             let mut asset = LocaleAsset::default();
             let content = String::from_utf8(bytes.to_vec())?;
-            log::info!("Finished File Read on {:?}", load_context.path().to_str());
+            log::info!(
+                "Finished File Read on {:?}",
+                load_context.path().to_str()
+            );
             asset.value.clear();
             for line in content.lines() {
                 if !line.starts_with('#') {
                     let (key, value) = line.split_once('=').unwrap();
-                    asset
-                        .value
-                        .insert(key.trim().to_string(), value.trim().to_string());
+                    asset.value.insert(
+                        key.trim().to_string(),
+                        value.trim().to_string(),
+                    );
                 }
             }
             load_context.set_default_asset(LoadedAsset::new(asset));

@@ -5,8 +5,8 @@ use bevy::{
     render::{
         mesh::MeshVertexBufferLayout,
         render_resource::{
-            AsBindGroup, PrimitiveState, RenderPipelineDescriptor, ShaderRef,
-            SpecializedMeshPipelineError,
+            AsBindGroup, PrimitiveState, RenderPipelineDescriptor,
+            ShaderRef, SpecializedMeshPipelineError,
         },
     },
     sprite::{Material2d, Material2dKey},

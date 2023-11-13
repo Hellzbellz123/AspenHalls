@@ -14,7 +14,8 @@ pub fn setup_menu(app: &mut App) {
     app.add_systems(
         OnEnter(AppStage::StartMenu),
         (
-            PauseMenu::create.run_if(not(any_with_component::<PauseMenu>())),
+            PauseMenu::create
+                .run_if(not(any_with_component::<PauseMenu>())),
             // PauseMenu::hide.run_if(any_with_component::<PauseMenu>()),
         ),
     );
@@ -26,7 +27,11 @@ pub struct PauseMenu;
 
 impl PauseMenu {
     /// Create the main menu
-    fn create(root: Res<InterfaceRoot>, mut elements: Elements, mut commands: Commands) {
+    fn create(
+        root: Res<InterfaceRoot>,
+        mut elements: Elements,
+        mut commands: Commands,
+    ) {
         commands.entity(**root).insert(Self);
 
         elements.select(".interface-root").add_child(eml! {

@@ -1,5 +1,5 @@
-use std::path::Path;
 use crate::loading::config::ConfigFile;
+use std::path::Path;
 
 /// saves a `ConfigFile` at `&Path`
 /// will panic if config file cant be deserialized into a string,
@@ -17,7 +17,9 @@ pub fn save_settings(app_settings: &ConfigFile, settings_path: &Path) {
             cfg
         }
         Err(error) => {
-            eprintln!("Couldn't convert game settings too `String`: {error}");
+            eprintln!(
+                "Couldn't convert game settings too `String`: {error}"
+            );
             return;
         }
     };

@@ -1,14 +1,16 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{prelude::LdtkEntityAppExt, TileEnumTags};
 use bevy_ecs_tilemap::prelude::*;
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
+use bevy_rapier2d::prelude::{
+    Collider, CollisionGroups, Group, RigidBody, Rot, Vect,
+};
 
-use crate::consts::{ACTOR_Z_INDEX, AspenCollisionLayer};
+use crate::consts::{AspenCollisionLayer, ACTOR_Z_INDEX};
 
 use self::{
     components::{
-        CollisionBundle, LdtkRoomExitBundle, LdtkSensorBundle, LdtkSpawnerBundle,
-        LdtkStartLocBundle, PlayerStartLocation,
+        CollisionBundle, LdtkRoomExitBundle, LdtkSensorBundle,
+        LdtkSpawnerBundle, LdtkStartLocBundle, PlayerStartLocation,
     },
     // dungeonator_v1::GeneratorStage,
 };
@@ -18,10 +20,10 @@ use super::actors::components::Player;
 /// shared components for dungeon and home
 pub mod components;
 // pub mod dungeonator_v1;
-/// hideout plugin, spawns home area for before and after dungeons
-pub mod hideout;
 /// holds dungeon generator plugin
 pub mod dungeonator_v2;
+/// hideout plugin, spawns home area for before and after dungeons
+pub mod hideout;
 
 /// chunk size
 const CHUNK_SIZE: UVec2 = UVec2 { x: 16, y: 16 };
@@ -51,14 +53,18 @@ impl Plugin for GameWorldPlugin {
                 render_chunk_size: RENDER_CHUNK_SIZE,
                 ..Default::default()
             })
-            .add_plugins((hideout::HideOutPlugin, dungeonator_v2::DungeonGeneratorPlugin))
+            .add_plugins((
+                hideout::HideOutPlugin,
+                dungeonator_v2::DungeonGeneratorPlugin,
+            ))
             .register_ldtk_entity::<LdtkSensorBundle>("TeleportSensor")
             .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
             .register_ldtk_entity::<LdtkStartLocBundle>("PlayerStartLoc")
             .register_ldtk_entity::<LdtkRoomExitBundle>("RoomExit")
             .add_systems(
                 Update,
-                process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
+                process_tile_enum_tags
+                    .run_if(any_with_component::<TileEnumTags>()),
             );
     }
 }
@@ -83,12 +89,15 @@ fn teleport_player_too_start_location(
         let mut sum = Vec2::ZERO;
         let mut count: i32 = 0;
 
-        for (_, global_transform, _local_transform) in start_location.iter() {
+        for (_, global_transform, _local_transform) in
+            start_location.iter()
+        {
             sum += global_transform.translation().truncate();
             count += 1;
         }
 
-        if count >= i32::try_from(start_location.iter().len()).unwrap_or(4) {
+        if count >= i32::try_from(start_location.iter().len()).unwrap_or(4)
+        {
             let average = Transform {
                 translation: (sum / (count as f32)).extend(ACTOR_Z_INDEX),
                 rotation: Quat::IDENTITY,
@@ -155,8 +164,11 @@ fn check_tag_colliders(
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideRight" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> =
-            vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
+        let shape: Vec<(Vect, Rot, Collider)> = vec![(
+            Vec2::new(-12.0, 0.0),
+            0.0,
+            Collider::cuboid(4.0, 16.0),
+        )];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideWall" == tag {
@@ -165,13 +177,19 @@ fn check_tag_colliders(
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerLR" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> =
-            vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
+        let shape: Vec<(Vect, Rot, Collider)> = vec![(
+            Vec2::new(-12.0, 12.0),
+            0.0,
+            Collider::cuboid(4.0, 4.0),
+        )];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerUR" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> =
-            vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
+        let shape: Vec<(Vect, Rot, Collider)> = vec![(
+            Vec2::new(-12.0, -12.0),
+            0.0,
+            Collider::cuboid(4.0, 4.0),
+        )];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerLL" == tag {
@@ -180,8 +198,11 @@ fn check_tag_colliders(
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerUL" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> =
-            vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
+        let shape: Vec<(Vect, Rot, Collider)> = vec![(
+            Vec2::new(12.0, -12.0),
+            0.0,
+            Collider::cuboid(4.0, 4.0),
+        )];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideInnerUL" == tag {

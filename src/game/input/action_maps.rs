@@ -1,7 +1,7 @@
 use crate::ahp::engine::{
     Actionlike, Bundle, DeadZoneShape, DualAxis, GamepadAxisType,
-    GamepadButtonType, InputManagerBundle, InputMap, KeyCode, MouseButton, QwertyScanCode, Reflect,
-    VirtualDPad,
+    GamepadButtonType, InputManagerBundle, InputMap, KeyCode, MouseButton,
+    QwertyScanCode, Reflect, VirtualDPad,
 };
 
 /// bundle for player bindings

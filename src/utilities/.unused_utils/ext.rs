@@ -8,7 +8,11 @@ pub trait Vec3ExtMut {
     fn move_towards(&mut self, target: &Vec3, max_dist: f32) -> bool;
 }
 
-fn move_towards(curr: &Vec3, target: &Vec3, max_dist: f32) -> Option<Vec3> {
+fn move_towards(
+    curr: &Vec3,
+    target: &Vec3,
+    max_dist: f32,
+) -> Option<Vec3> {
     let to_x = target.x - curr.x;
     let to_y = target.y - curr.y;
     let to_z = target.z - curr.z;
@@ -34,7 +38,8 @@ impl Vec3Ext for Transform {
 }
 impl<'a> Vec3ExtMut for Mut<'a, Transform> {
     fn move_towards(&mut self, target: &Vec3, max_dist: f32) -> bool {
-        let Some(pos) = move_towards(&self.translation, target, max_dist) else {
+        let Some(pos) = move_towards(&self.translation, target, max_dist)
+        else {
             return true;
         };
 

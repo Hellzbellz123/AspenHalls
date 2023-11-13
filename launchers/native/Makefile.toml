@@ -18,12 +18,12 @@ script_runner = "@shell"
 script.pre = "rm -fr ./assets && cp -r ../../assets ./assets"
 script.main = "cargo run --features inspect"
 watch.watch = [
-    "../../src",
-    "../../assets",
-    "../../Cargo.toml",
-    "assets",
-    "src",
-    "Cargo.toml",
+  "../../src",
+  "../../assets",
+  "../../Cargo.toml",
+  "assets",
+  "src",
+  "Cargo.toml",
 ]
 
 [tasks.release-native]
