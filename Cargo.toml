@@ -53,13 +53,14 @@ lto = "fat"
 [workspace.dependencies]
 log = "0.4.20"
 bevy = { path = "deps/bevy", default-features = false, features = [
-  "bevy_pbr",   # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-  "bevy_ui",    # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-  "bevy_winit", # Support for creating windows
-  "x11",        # Support Linux x11 windowing system
+  "bevy_pbr",       # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+  "bevy_ui",        # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+  "bevy_winit",     # Support for creating windows
+  "multi-threaded", # enable multithreading in bevy_ecs / bevy_tasks
+  "x11",            # Support xOrg Windows
   # wayland feature currently breaks app startup loop, causing infinite hang
   # i am unsure as too why, it seems related too mangohud but disabling mangohud via env does not fix the issue
-  # "wayland",                  # Support Linux Wayland windowing system
+  # "wayland",                  # Support Wayland windows
   "png",              # png is my preffered image format
   "serialize",        # Support for `serde` Serialize/Deserialize
   "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
@@ -85,7 +86,6 @@ trace = [
 [target.'cfg(not(any(target_family = "wasm", target_os = "android", target_os = "ios")))'.dependencies]
 bevy = { workspace = true, features = [
   "dynamic_linking",
-  "filesystem_watcher",
 ] }
 
 [target.'cfg(target_os = "android")'.dependencies]
@@ -139,7 +139,6 @@ seldom_map_nav = { path = "deps/seldom_map_nav", features = [
   "bevy",
 ] }
 virtual_joystick = { path = "deps/virtual_joystick" }
-belly = { path = "deps/belly" }
 bevy_console = { path = "deps/bevy_console" }
 bevy-inspector-egui = { path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true }
 bevy_common_assets = { path = "deps/bevy_common_assets", features = [
@@ -155,7 +154,6 @@ bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap", features = [
 bevy_framepace = { path = "deps/bevy_framepace" }
 bevy_prototype_lyon = { path = "deps/bevy_prototype_lyon" }
 bevy_rapier2d = { path = "deps/bevy_rapier/bevy_rapier2d" }
-bevy_tiling_background = { path = "deps/bevy_tiling_background" }
 bevy_egui = { path = "deps/bevy_egui", optional = true, default-features = false, features = [
   "default_fonts",
   "serde",
@@ -175,6 +173,8 @@ bevy-debug-text-overlay = { path = "deps/bevy_debug_text_overlay", default-featu
 ] }
 
 ###### Unused dependencies #######
+# belly = { path = "deps/belly" }
+# bevy_tiling_background = { path = "deps/bevy_tiling_background" }
 # bevy_mouse_tracking_plugin = { path = "deps/bevy_mouse_tracking"}
 # iyes_progress = {path = "deps/iyes_progress"}
 # bevy_sprite3d = {path = "deps/bevy_sprite3d"}

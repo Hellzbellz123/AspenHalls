@@ -1,9 +1,6 @@
 [submodule "deps/bevy"]
 	path = deps/bevy
 	url = https://github.com/bevyengine/bevy.git
-[submodule "deps/belly"]
-	path = deps/belly
-	url = https://github.com/jkb0o/belly.git
 [submodule "deps/bevy_asset_loader"]
 	path = deps/bevy_asset_loader
 	url = https://github.com/NiklasEi/bevy_asset_loader.git
@@ -55,24 +52,12 @@
 [submodule "deps/bevy_eventlistener"]
 	path = deps/bevy_eventlistener
 	url = https://github.com/aevyrie/bevy_eventlistener.git
-[submodule "deps/bevy_sprite3d"]
-	path = deps/bevy_sprite3d
-	url = https://github.com/FraserLee/bevy_sprite3d.git
 [submodule "deps/bevy_mod_picking"]
 	path = deps/bevy_mod_picking
 	url = https://github.com/aevyrie/bevy_mod_picking.git
-[submodule "deps/bevy_tweening"]
-	path = deps/bevy_tweening
-	url = https://github.com/djeedai/bevy_tweening.git
 [submodule "deps/iyes_progress"]
 	path = deps/iyes_progress
 	url = https://github.com/IyesGames/iyes_progress.git
-[submodule "deps/bevy_mouse_tracking"]
-	path = deps/bevy_mouse_tracking
-	url = https://github.com/JoJoJet/bevy-mouse-tracking.git
-[submodule "deps/virtual_joystick"]
-	path = deps/virtual_joystick
-	url = https://github.com/SergioRibera/virtual_joystick.git
-[submodule "deps/bevy_tiling_background"]
-	path = deps/bevy_tiling_background
-	url = https://github.com/BraymatterOrg/bevy_tiling_background.git
+[submodule "deps/bevy_touch_stick"]
+	path = deps/bevy_touch_stick
+	url = https://github.com/johanhelsing/bevy_touch_stick.git

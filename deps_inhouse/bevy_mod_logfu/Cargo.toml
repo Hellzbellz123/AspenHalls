@@ -20,9 +20,9 @@ trace_tracy_memory = ["dep:tracy-client"]
 trace_tracy = []
 
 [dependencies]
-bevy_app = { version = "0.11.3" }
-bevy_utils = { version = "0.11.3" }
-bevy_ecs = { version = "0.11.3" }
+bevy_app = { version = "0.12.0" }
+bevy_utils = { version = "0.12.0" }
+bevy_ecs = { version = "0.12.0" }
 
 tracing-subscriber = { version = "0.3.1", features = [
   "registry",

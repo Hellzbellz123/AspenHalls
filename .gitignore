@@ -8,10 +8,14 @@ launchers/mobile/android/local.properties
 ***/dist/
 ***/target
 ***/Cargo.lock
-***/publish
+package/native/*
+package/mobile/*
+package/website/*
 ***/backups
 ***.pdb
 .vscode/settings.json
+# ignore custom rust analyzer cache dir so 'cargo clean' doesnt reset rust-analyzer
+.vscode/ra-cache
 debug.log
 tiles.png
 config.toml
@@ -40,8 +44,6 @@ render.experimental.xml
 google-services.json
 # Android Profiling
 *.hprof
-
-
 
 wgpu_trace
 assets_old/*
