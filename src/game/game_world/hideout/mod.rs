@@ -1,14 +1,12 @@
 use bevy::{
+    log::{debug, info},
     prelude::{
-        info, resource_exists, run_once, state_exists_and_equals, warn,
-        Assets, Commands, Condition, DespawnRecursiveExt, Entity, Event,
+        resource_exists, run_once, state_exists_and_equals, Assets,
+        Commands, Condition, DespawnRecursiveExt, Entity, Event,
         IntoSystemConfigs, Name, Plugin, Query, Res, ResMut, Update, With,
     },
     render::view::NoFrustumCulling,
     utils::default,
-};
-use bevy_tiling_background::{
-    CustomBackgroundImageBundle, SetImageRepeatingExt,
 };
 
 use crate::{
@@ -17,9 +15,10 @@ use crate::{
             ai::components::Enemy, spawners::components::WeaponType,
         },
         game_world::hideout::systems::{
-            enter_the_dungeon, home_world_teleporter_collisions,
+            // enter_the_dungeon,
+            home_world_teleporter_collisions,
         },
-        AppStage,
+        AppState,
     },
     loading::{
         assets::{MapAssetHandles, SingleTileTextureHandles},
@@ -51,13 +50,16 @@ impl Plugin for HideOutPlugin {
             Update,
             (
                 // TODO: fix scheduling
-                (systems::spawn_hideout, set_overworld_background).run_if(
-                    state_exists_and_equals(AppStage::StartMenu)
+                systems::spawn_hideout.run_if(
+                    state_exists_and_equals(AppState::StartMenu)
                         .and_then(run_once()),
                 ),
-                (enter_the_dungeon, home_world_teleporter_collisions)
+                (
+                    // enter_the_dungeon,
+                    home_world_teleporter_collisions
+                )
                     .run_if(state_exists_and_equals(
-                        AppStage::PlayingGame,
+                        AppState::PlayingGame,
                     )),
                 // cleanup_start_world.run_if(state_exists_and_equals(GeneratorStage::Initialization)),
             )
@@ -74,7 +76,7 @@ fn cleanup_start_world(
     weapons: Query<Entity, With<WeaponType>>,
 ) {
     if home_world_container.is_empty() {
-        warn!("no home world?");
+        debug!("no home world?");
         return;
     }
     commands
@@ -82,24 +84,4 @@ fn cleanup_start_world(
         .despawn_recursive();
     weapons.for_each(|ent| commands.entity(ent).despawn_recursive());
     enemies_query.for_each(|ent| commands.entity(ent).despawn_recursive());
-}
-
-/// spawns overworld background
-pub fn set_overworld_background(
-    mut commands: Commands,
-    misc: Res<SingleTileTextureHandles>,
-    // mut materials: ResMut<Assets<ScaledBackgroundMaterial>>,
-) {
-    // let material = ScaledBackgroundMaterial {
-    //     movement_scale: 0.5,
-    //     texture: misc.grass.clone(),
-    //     ..default()
-    // };
-
-    // commands.set_image_repeating(misc.grass.clone());
-    // commands.spawn((
-    //     NoFrustumCulling,
-    //     Name::new("BackgroundImage"),
-    //     CustomBackgroundImageBundle::with_material(material, &mut materials),
-    // ));
 }

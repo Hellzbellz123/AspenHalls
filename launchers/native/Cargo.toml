@@ -22,7 +22,8 @@ workspace = "../.."
 default-run = "aspen_halls_native"
 
 [features]
-inspect = ["aspen_lib/inspect"]
+develop = ["aspen_lib/develop"]
+dynamic = ["aspen_lib/dynamic"]
 trace = ["aspen_lib/trace"]
 
 [dependencies]

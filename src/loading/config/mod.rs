@@ -1,6 +1,5 @@
 /// functions too create default file and save file
 pub mod save_load;
-use bevy::asset::ChangeWatcher;
 
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
 use crate::game::audio::{
@@ -28,7 +27,8 @@ pub struct ConfigFile {
 impl Default for ConfigFile {
     fn default() -> Self {
         Self {
-            log_filter: Some("info,wgpu=error".into()),
+            log_filter: Some("info,symphonia=warn,blocking=warn,wgpu=error,naga=warn,gilrs=warn,bevy_ecs_tilemap=debug,big_brain=warn".into()),
+            // log_filter: Some("trace,log=warn,wgpu=error,naga=warn,gilrs=warn,bevy_ecs_tilemap=debug".into()),
             window_settings: WindowSettings::default(),
             render_settings: RenderSettings::default(),
             sound_settings: SoundSettings::default(),
@@ -103,17 +103,17 @@ pub enum GameDifficulty {
 )]
 #[reflect(Resource)]
 #[cfg_attr(
-    feature = "inspect",
+    feature = "develop",
     derive(InspectorOptions),
     reflect(InspectorOptions)
 )]
 pub struct GeneralSettings {
     /// camera zoom
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     #[inspector(min = 0.0, max = 150.0)]
     pub camera_zoom: f32,
     /// camera zoom
-    #[cfg(not(feature = "inspect"))]
+    #[cfg(not(feature = "develop"))]
     pub camera_zoom: f32,
     /// game difficulty,
     /// value ranging from 1-4, 1 being easiest, 4 being hardest
@@ -133,41 +133,41 @@ pub struct GeneralSettings {
 )]
 #[reflect(Resource)]
 #[cfg_attr(
-    feature = "inspect",
+    feature = "develop",
     derive(InspectorOptions),
     reflect(InspectorOptions)
 )]
 pub struct SoundSettings {
     /// Total sound scale for game
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     #[inspector(min = 0.0, max = 1.0)]
     pub master_volume: f64,
     /// Total sound scale for game
-    #[cfg(not(feature = "inspect"))]
+    #[cfg(not(feature = "develop"))]
     pub master_volume: f64,
 
     /// Sound effects from environment
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     #[inspector(min = 0.0, max = 1.0)]
     pub ambience_volume: f64,
     /// Sound effects from environment
-    #[cfg(not(feature = "inspect"))]
+    #[cfg(not(feature = "develop"))]
     pub ambience_volume: f64,
 
     /// Game soundtrack volume
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     #[inspector(min = 0.0, max = 1.0)]
     pub music_volume: f64,
     /// Game soundtrack volume
-    #[cfg(not(feature = "inspect"))]
+    #[cfg(not(feature = "develop"))]
     pub music_volume: f64,
 
     /// Important sounds from game
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     #[inspector(min = 0.0, max = 1.0)]
     pub sound_volume: f64,
     /// Important sounds from game
-    #[cfg(not(feature = "inspect"))]
+    #[cfg(not(feature = "develop"))]
     pub sound_volume: f64,
 }
 
@@ -263,33 +263,40 @@ impl Default for SoundSettings {
 
 /// creates an `App` with logging and initialization assets
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
+    println!("Hello World!");
     let mut vanillacoffee = App::new();
 
-    vanillacoffee.add_plugins(LogFuPlugin {
-        filter: cfg_file.log_filter.unwrap_or_default(),
-        level: bevy::log::Level::TRACE,
-        log_too_file: true,
-    });
-    info!("Logging Plugin Initialized");
+    vanillacoffee.add_plugins((
+        LogFuPlugin {
+            filter: cfg_file.log_filter.unwrap_or_default(),
+            level: bevy::log::Level::TRACE,
+            log_too_file: true,
+        },
+        AssetPlugin {
+            file_path: "assets".to_string(),
+            processed_file_path: "imported_assets/Default".to_string(),
+            watch_for_changes_override: None,
+            mode: AssetMode::Unprocessed,
+        },
+    ));
 
-    init_asset_loader(&mut vanillacoffee);
-
+    info!("Logging and Asset Server Initialized");
     // add vanillacoffee stuff
-    vanillacoffee.add_state::<AppStage>();
+    vanillacoffee.add_state::<AppState>();
 
     vanillacoffee
         .add_loading_state(
-            LoadingState::new(AppStage::BootingApp)
+            LoadingState::new(AppState::BootingApp)
                 .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
-                .continue_to_state(AppStage::Loading)
-                .on_failure_continue_to_state(AppStage::FailedLoading),
+                .continue_to_state(AppState::Loading)
+                .on_failure_continue_to_state(AppState::FailedLoading),
         )
-        .add_dynamic_collection_to_loading_state::<AppStage, StandardDynamicAssetCollection>(
-            AppStage::BootingApp,
+        .add_dynamic_collection_to_loading_state::<AppState, StandardDynamicAssetCollection>(
+            AppState::BootingApp,
             "init/pack.registry",
         )
-        .add_collection_to_loading_state::<_, InitAssetHandles>(AppStage::BootingApp)
-        .add_collection_to_loading_state::<_, TouchControlAssetHandles>(AppStage::BootingApp);
+        .add_collection_to_loading_state::<_, InitAssetHandles>(AppState::BootingApp)
+        .add_collection_to_loading_state::<_, TouchControlAssetHandles>(AppState::BootingApp);
 
     let difficulty_settings =
         create_difficulty_scales(cfg_file.general_settings, None);
@@ -309,10 +316,9 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                         resolution: WindowResolution::new(
                             cfg_file.window_settings.resolution.x,
                             cfg_file.window_settings.resolution.y,
-                        )
-                        .with_scale_factor_override(
-                            cfg_file.window_settings.window_scale_override,
-                        ),
+                        ), // .with_scale_factor_override(
+                        //     cfg_file.window_settings.window_scale_override,
+                        // )
                         mode: {
                             if cfg_file.window_settings.full_screen {
                                 // if full screen is true, use borderless full screen
@@ -362,34 +368,6 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 
     // add bevy plugins
     vanillacoffee
-}
-
-/// adds `AssetPlugin` too app based on platform support
-fn init_asset_loader(vanillacoffee: &mut App) {
-    #[cfg(not(feature = "inspect"))]
-    {
-        vanillacoffee.add_plugins(AssetPlugin::default());
-        warn!("adding default AssetPlugin");
-    }
-
-    #[cfg(feature = "inspect")]
-    #[cfg(not(any(target_os = "android", target_family = "wasm")))]
-    {
-        vanillacoffee.add_plugins(AssetPlugin {
-            asset_folder: "assets".to_string(),
-            watch_for_changes: ChangeWatcher::with_delay(
-                Duration::from_secs_f32(0.5),
-            ),
-        });
-        warn!("adding AssetPlugin with changewatching");
-    }
-
-    #[cfg(feature = "inspect")]
-    #[cfg(any(target_os = "android", target_family = "wasm"))]
-    {
-        vanillacoffee.add_plugins(AssetPlugin::default());
-        warn!("target platform is mobile/wasm, not using AssetWatching");
-    }
 }
 
 //TODO: move this to loading plugin and only run it when the settings resource changes (clicking apply in the settings menu, or reacting to OS changes), or on game load.
@@ -480,11 +458,10 @@ fn on_resize_system(
     mut resize_reader: EventReader<WindowResized>,
 ) {
     if !settings.full_screen {
-        resize_reader.iter().for_each(|event| {
+        resize_reader.read().for_each(|event| {
             settings.resolution.x = event.width;
             settings.resolution.y = event.height;
         });
-        resize_reader.clear();
     }
 }
 

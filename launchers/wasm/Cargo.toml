@@ -23,8 +23,8 @@ workspace = "../.."
 
 [features]
 default = []
-inspect = ["aspen_lib/inspect", "dep:wasm-logger"]
-trace = ["inspect", "aspen_lib/trace"]
+develop = ["aspen_lib/develop", "dep:wasm-logger"]
+trace = ["aspen_lib/trace"]
 
 [dependencies]
 log.workspace = true
@@ -36,5 +36,3 @@ web-sys = { version = "0.3.64", features = [
   "Navigator",
   "Window",
 ] }
-
-# bevy.workspace = true

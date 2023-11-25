@@ -61,6 +61,7 @@ pub struct ShootEvent {
 }
 
 /// send shoot request to gun control system.
+#[allow(clippy::type_complexity)]
 pub fn player_attack_sender(
     weapon_query: Query<
         (

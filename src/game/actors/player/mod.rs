@@ -84,7 +84,6 @@ pub fn build_player(
         .spawn((
             Player {
                 wants_to_teleport: false,
-                enter_dungeon_requested: false,
                 sprint_available: false,
                 just_moved: false,
             },

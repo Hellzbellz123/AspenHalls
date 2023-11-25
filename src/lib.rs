@@ -19,7 +19,7 @@ mod console;
 /// general consts file, if it gets used more than
 /// twice it should be here
 mod consts;
-#[cfg(feature = "inspect")]
+#[cfg(feature = "develop")]
 /// Debug and Development related functions
 mod dev_tools;
 /// actual game plugin, ui and all "game" functionality
@@ -46,14 +46,54 @@ use ahp::{
     game::{ConfigFile, InitAssetHandles},
 };
 
-#[cfg(feature = "inspect")]
+#[cfg(feature = "develop")]
 use ahp::game::inspect::DebugPlugin;
+
+/// application stages
+pub enum ClientStage {
+    /// load client resources
+    LoadingClient,
+    /// start client
+    StartingClient,
+    /// succesfully started client
+    ClientRunning,
+    /// Failed too load required assets
+    ClientFailed,
+}
+
+/// what part of the game we are at
+#[derive(
+    Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect,
+)]
+pub enum GameProgressStatus {
+    /// no actor related logic, just the main menu
+    #[default]
+    NotStarted,
+    /// select character, buy weapons
+    Prepare,
+    /// crawling has 1 value. the dungeon Level
+    Crawling(DungeonLevel),
+}
+
+/// each dungeon run has 4 stages that get progressivly larger/harder
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
+pub enum DungeonLevel {
+    /// easiest level, start here
+    #[default]
+    LevelOne,
+    /// slighlty deeper, bit larger, more enemys
+    LevelTwo,
+    ///
+    LevelThree,
+    /// final level of the dungeon
+    LevelFour,
+}
 
 /// main game state loop
 #[derive(
     Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect,
 )]
-pub enum AppStage {
+pub enum AppState {
     /// pre loading state before window is shown.
     /// Loads REQUIRED resources
     #[default]
@@ -88,7 +128,6 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
     vanillacoffee
         .add_plugins((
             bevy_ecs_ldtk::LdtkPlugin,
-            belly::prelude::BellyPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
             bevy_rapier2d::plugin::RapierPhysicsPlugin::<
@@ -107,7 +146,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         ahp::plugins::DungeonGamePlugin,
     ));
 
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     vanillacoffee.add_plugins(DebugPlugin);
 
     vanillacoffee.add_systems(

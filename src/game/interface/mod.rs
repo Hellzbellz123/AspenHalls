@@ -1,12 +1,6 @@
-use belly::prelude::{
-    eml, BodyWidgetExtension, Element, Elements, StyleSheet, Widget,
-};
-use bevy::prelude::*;
-
-use crate::{game::AppStage, loading::assets::InitAssetHandles};
-
-/// game menu interface data
-mod menus;
+use crate::{game::AppState, loading::assets::InitAssetHandles};
+use bevy::{app::AppExit, prelude::*};
+use rand::Rng;
 
 /// currently active menu
 #[derive(
@@ -27,192 +21,304 @@ pub enum RequestedMenu {
 /// ui plugin
 pub struct InterfacePlugin;
 
+/// simple marker component
+#[derive(Debug, Component)]
+pub struct InterfaceRoot;
+
 impl Plugin for InterfacePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<MenuPopupEvent>()
-            .add_state::<RequestedMenu>();
-
         app.add_systems(
-            OnEnter(AppStage::Loading),
-            InterfaceRoot::create_interface_root,
-        )
-        .add_systems(
-            OnEnter(AppStage::PlayingGame),
-            InterfaceRoot::hide_all,
-        )
-        .add_systems(
+            OnEnter(AppState::BootingApp),
+            (spawn_interface_root,),
+        );
+        app.add_systems(OnEnter(AppState::StartMenu), spawn_start_menu);
+        app.add_systems(
             Update,
             (
-                // update_ui_ent_with_elements.run_if(any_with_component::<Element>()),
-                InterfaceRoot::show_popups,
+                update_button_color,
+                start_button_interaction,
+                exit_button_interaction,
             ),
         );
-        menus::setup(app);
     }
 }
 
-/// Iterates over all UI Elements and sets entity 'Name' too element value
-fn update_ui_ent_with_elements(
+/// spawns entity that all UI is parented under
+fn spawn_interface_root(mut cmds: Commands) {
+    cmds.spawn((
+        Name::new("InterfaceRoot"),
+        InterfaceRoot,
+        NodeBundle {
+            style: Style {
+                position_type: PositionType::Relative,
+                display: Display::Flex,
+                direction: Direction::LeftToRight,
+                min_width: Val::Vw(100.0),
+                min_height: Val::Vh(100.0),
+                justify_content: JustifyContent::FlexStart,
+                flex_direction: FlexDirection::Column,
+                flex_wrap: FlexWrap::NoWrap,
+                ..default()
+            },
+            ..default()
+        },
+    ));
+}
+
+/// Start menu marker component for querys
+#[derive(Component)]
+pub struct StartMenu;
+
+/// spawns start menu with buttons
+fn spawn_start_menu(
     mut cmds: Commands,
-    mut elements: Query<(Entity, &mut Element), Changed<Element>>,
+    assets: Res<InitAssetHandles>,
+    interface_root: Query<Entity, With<InterfaceRoot>>,
 ) {
-    elements.for_each_mut(|(ent, element)| {
-        let mut classes = element.classes.clone();
-
-        // Convert Tags to strings and collect them into a Vec
-        let tag_strings: Vec<String> =
-            classes.drain().map(|tag| tag.to_string()).collect();
-
-        if tag_strings.contains(&String::from("hidden")) {
-            cmds.entity(ent).insert(Name::new("hidden"));
-        } else {
-            let name = tag_strings
-                .last()
-                .unwrap_or(&"NO CLASSES".to_string())
-                .clone();
-            cmds.entity(ent).insert(Name::new(name));
-        }
-    });
-}
-
-/// The menu root entity id
-///
-/// All components for the menu should be attached to this entity
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Hash, Deref, DerefMut, Resource,
-)]
-pub struct InterfaceRoot(pub Entity);
-
-impl InterfaceRoot {
-    /// Load the global style-sheet and create the menu root node
-    fn create_interface_root(
-        mut commands: Commands,
-        // init_assets: Res<InitAssetHandles>,
-        // mut strings: Res<Assets<StyleSheet>>,
-    ) {
-        // let global_style: &StyleSheet = strings
-        //     .get(&init_assets.global_style_sheet.clone())
-        //     .expect("global style sheet was not found in Res<Assets<String>");
-        // let menu_style: &StyleSheet = strings
-        //     .get(&init_assets.menu_style_sheet.clone())
-        //     .expect("menu style sheet was not found in Res<Assets<String>>");
-        // style sheet is already loaded and applied from InitAssetsHandles
-
-        let entity = commands.spawn_empty().id();
-        commands.insert_resource(Self(entity));
-
-        commands.add(eml! {
-            <body c:interface-root>
-            </body>
+    cmds.entity(interface_root.single())
+        .with_children(|children| {
+            children
+                .spawn((
+                    Name::new("StartMenu"),
+                    StartMenu,
+                    NodeBundle {
+                        style: Style {
+                            display: Display::Flex,
+                            position_type: PositionType::Absolute,
+                            overflow: Overflow::clip(),
+                            flex_direction: FlexDirection::Column,
+                            min_height: Val::Vh(60.0),
+                            min_width: Val::Vw(30.0),
+                            // aspect_ratio: Some(0.8),
+                            align_self: AlignSelf::Center,
+                            justify_content: JustifyContent::FlexStart,
+                            margin: UiRect {
+                                left: Val::Vw(40.0),
+                                right: Val::Px(0.0),
+                                top: Val::Vh(10.0),
+                                bottom: Val::Percent(10.0),
+                            },
+                            ..default()
+                        },
+                        background_color: BackgroundColor(random_color(
+                            Some(0.8),
+                        )),
+                        ..default()
+                    },
+                ))
+                .with_children(|start_menu_container_childs| {
+                    spawn_menu_title(
+                        start_menu_container_childs,
+                        assets.font_title.clone(),
+                        "Aspen Halls",
+                    );
+                    start_menu_container_childs
+                        .spawn((
+                            Name::new("ButtonContainer"),
+                            NodeBundle {
+                                style: Style {
+                                    position_type: PositionType::Relative,
+                                    flex_direction: FlexDirection::Column,
+                                    justify_content:
+                                        JustifyContent::SpaceEvenly,
+                                    align_items: AlignItems::Center,
+                                    width: Val::Percent(70.0),
+                                    height: Val::Percent(70.0),
+                                    // min_height: Val::Percent(20.0),
+                                    // max_height: Val::Percent(85.0),
+                                    margin: UiRect {
+                                        left: Val::Auto,
+                                        right: Val::Auto,
+                                        top: Val::Px(5.0),
+                                        bottom: Val::Px(15.0),
+                                    },
+                                    ..default()
+                                },
+                                border_color: BorderColor(random_color(
+                                    None,
+                                )),
+                                ..default()
+                            },
+                        ))
+                        .with_children(|buttons| {
+                            spawn_button(
+                                buttons,
+                                assets.font_regular.clone(),
+                                "Start Game",
+                                StartButton,
+                            );
+                            spawn_button(
+                                buttons,
+                                assets.font_regular.clone(),
+                                "Exit Game",
+                                ExitButton,
+                            );
+                        });
+                });
         });
-    }
+}
 
-    /// Create a popup in the lower right corner
-    const fn show_popups(
-        mut _events: EventReader<MenuPopupEvent>,
-        mut _elements: Elements,
-    ) {
-    }
+/// spawns styled menu button
+fn spawn_button<T: Component>(
+    buttons: &mut ChildBuilder<'_, '_, '_>,
+    font: Handle<Font>,
+    text: &str,
+    component: T,
+) {
+    buttons
+        .spawn((
+            component,
+            ButtonBundle {
+                style: Style {
+                    width: Val::Px(100.0),
+                    height: Val::Px(60.0),
+                    ..default()
+                },
+                background_color: BackgroundColor(Color::PURPLE),
+                border_color: BorderColor(Color::PINK),
+                ..default()
+            },
+        ))
+        .with_children(|button_text| {
+            button_text.spawn((
+                Name::new("ButtonText"),
+                TextBundle::from_section(
+                    text,
+                    TextStyle {
+                        font,
+                        font_size: 14.0,
+                        color: Color::WHITE,
+                    },
+                ),
+            ));
+        });
+}
 
-    /// A list of possible menus
-    // const MENUS: [&'static str; 3] = [
-    //     "div.start-menu-root",
-    //     "div.settings-menu-root",
-    //     "div.pause-menu-root",
-    // ];
+/// spawns a text bundle with alignment center
+/// styling for this component makes
+/// it a good title for menu like interfaces
+fn spawn_menu_title(
+    child_builder: &mut ChildBuilder<'_, '_, '_>,
+    font: Handle<Font>,
+    text: &str,
+) {
+    child_builder.spawn((
+        Name::new("Title"),
+        TextBundle::from_section(
+            text,
+            TextStyle {
+                font,
+                color: Color::WHITE,
+                font_size: 48.0,
+            },
+        )
+        .with_background_color(random_color(Some(0.6)))
+        .with_text_alignment(TextAlignment::Center)
+        .with_style(Style {
+            aspect_ratio: None,
+            display: Display::Flex,
+            position_type: PositionType::Relative,
+            align_self: AlignSelf::Center,
+            align_content: AlignContent::Center,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            margin: UiRect {
+                left: Val::Percent(50.0),
+                right: Val::Percent(50.0),
+                top: Val::Percent(5.0),
+                bottom: Val::Percent(5.0),
+            },
+            width: Val::Percent(65.0),
+            height: Val::Px(75.0),
+            ..default()
+        }),
+    ));
+}
 
-    // /// Handle the escape button
-    // fn handle_escape(
-    //     mut elements: Elements,
-    //     input: Query<&ActionState<actions::Combat>, With<Player>>,
-    //     mut ew: EventWriter<PausePlayEvent>,
-    //     state: Res<State<AppStage>>,
-    // ) {
-    //     let menus = Self::MENUS.map(|c| {
-    //         let ent = elements.select(c).entities();
-
-    //         !elements
-    //             .select(".hidden")
-    //             .entities()
-    //             .iter()
-    //             .any(|e| ent.contains(e))
-    //     });
-
-    //     info!(
-    //         "start menu: {}, settings menu: {}, pause menu: {}",
-    //         menus[0], menus[1], menus[2]
-    //     );
-
-    //     if input.single().just_pressed(Combat::Pause) {
-    //         match menus {
-    //             [true, _, _] => {
-    //                 info!("main menu should be NOT HIDDEN")
-    //             }
-    //             [_, true, _] => {
-    //                 info!("settings menu should be NOT HIDDEN")
-    //             }
-    //             [_, _, true] => {
-    //                 info!("pause menu should be NOT HIDDEN");
-    //             }
-    //             [false, false, false] => {
-    //                 info!("no menus and escape pressed");
-    //                 PauseMenu::show(elements);
-    //                 ew.send(PausePlayEvent);
-    //             }
-    //         }
-    //     }
-    // }
-
-    /// Hide all menus when the game starts
-    fn hide_all(mut elements: Elements) {
-        elements // hide start
-            .select("div.start-menu-root")
-            .add_class("hidden");
-        // elements // hide settings
-        //     .select("div.settings-menu-root")
-        //     .add_class("hidden");
-        // elements // hide pause
-        //     .select("div.pause-menu-root")
-        //     .add_class("hidden");
+/// generated random Rgba color with alpha between 0.8-1.0
+pub fn random_color(alpha: Option<f32>) -> Color {
+    let mut rng = crate::ahp::rand::thread_rng();
+    Color::Rgba {
+        red: rng.gen(),
+        green: rng.gen(),
+        blue: rng.gen(),
+        alpha: {
+            alpha.map_or_else(|| rng.gen_range(0.8..=1.0), |alpha| alpha)
+        },
     }
 }
 
-/// An event that causes a popup to appear in the lower right corner
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Event)]
-pub struct MenuPopupEvent {
-    /// icon for popup
-    pub icon: PopupIcon,
-    /// message for popup
-    pub message: String,
-}
+/// marks start button for query
+#[derive(Debug, Component)]
+pub struct StartButton;
 
-/// `IconType` for popup
-#[allow(dead_code)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum PopupIcon {
-    /// Just info popup
-    Info,
-    /// player attention grabber
-    Warning,
-    /// Error Popup
-    Error,
-}
+/// marks start button for query
+#[derive(Debug, Component)]
+pub struct ExitButton;
 
-#[allow(dead_code)]
-impl PopupIcon {
-    /// creates handles from possible icons
-    pub fn create_handle(
-        self,
-        asset_server: &AssetServer,
-    ) -> Handle<Image> {
-        match self {
-            Self::Info => asset_server.load("interface/textures/info.png"),
-            Self::Warning => {
-                asset_server.load("interface/textures/warning.png")
+/// unpressed unhovered color
+const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+/// cursor goes over or finger drags over color
+const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+/// cursor click or finger lift color
+const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+
+/// updates color of all buttons with text for interactions
+#[allow(clippy::type_complexity)]
+fn update_button_color(
+    mut interaction_query: Query<
+        (&Interaction, &mut BackgroundColor, &mut BorderColor),
+        (Changed<Interaction>, With<Button>),
+    >,
+) {
+    for (interaction, mut color, mut border_color) in
+        &mut interaction_query
+    {
+        match *interaction {
+            Interaction::Pressed => {
+                *color = PRESSED_BUTTON.into();
+                border_color.0 = Color::RED;
             }
-            Self::Error => {
-                asset_server.load("interface/textures/error.png")
+            Interaction::Hovered => {
+                *color = HOVERED_BUTTON.into();
+                border_color.0 = Color::WHITE;
             }
+            Interaction::None => {
+                *color = NORMAL_BUTTON.into();
+                border_color.0 = Color::BLACK;
+            }
+        }
+    }
+}
+
+/// updates color of all buttons with text for interactions
+fn start_button_interaction(
+    mut cmds: Commands,
+    mut interaction_query: Query<
+        &Interaction,
+        (Changed<Interaction>, With<StartButton>),
+    >,
+    mut start_menu_query: Query<&mut Style, (With<Node>, With<StartMenu>)>,
+) {
+    for interaction in &mut interaction_query {
+        if matches!(interaction, Interaction::Pressed) {
+            cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
+            start_menu_query.single_mut().display = Display::None;
+        }
+    }
+}
+
+/// updates color of all buttons with text for interactions
+fn exit_button_interaction(
+    mut exit_event_writer: EventWriter<AppExit>,
+    mut interaction_query: Query<
+        &Interaction,
+        (Changed<Interaction>, With<ExitButton>),
+    >,
+) {
+    for interaction in &mut interaction_query {
+        if matches!(interaction, Interaction::Pressed) {
+            exit_event_writer.send(AppExit);
         }
     }
 }

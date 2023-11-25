@@ -19,23 +19,57 @@ categories = ["games"]
 
 [workspace]
 resolver = "2"
-exclude = ["deps", "deps_broke"]
-default-members = ["launchers/native/"]
+exclude = ["deps", "deps_inhouse", "deps_broke"]
 members = [
-  "launchers/wasm",
   "launchers/native",
   "launchers/mobile",
-  "deps_inhouse/bevy_mod_logfu",
+  "launchers/wasm",
 ]
+
+[lints]
+workspace = true
+
+[workspace.lints.rust]
+missing-docs = {level = "deny"}
+# unused_imports = "allow"
+# dead_code = "allow"
+
+[workspace.lints.clippy]
+too-many-lines = "warn"
+missing_errors_doc = "warn"
+missing_panics_doc = "warn"
+missing_safety_doc = "warn"
+### denied lints ###
+missing_docs_in_private_items = {level = "deny"}
+correctness = {level = "deny", priority = -1}
+suspicious = {level = "deny", priority = -1}
+complexity = {level = "deny", priority = -1}
+perf = {level = "deny", priority = -1}
+style = {level = "deny", priority = -1}
+pedantic = {level = "deny", priority = -1}
+nursery = {level = "deny", priority = -1}
+cargo = {level = "deny", priority = -1}
+### allowed lints from clippy pedantic ###
+# this can maybe be disabled. this depends on gameworld components
+unnecessary_struct_initialization = { level = "allow" }
+multiple-crate-versions = { level = "allow" }
+needless_pass_by_value = { level = "allow" }
+module_name_repetitions = { level = "allow" }
+wildcard_imports = { level = "allow" }
+cast_possible_truncation = { level = "allow" }
+cast_precision_loss = { level = "allow" }
+cast-sign-loss = { level = "allow" }
+cast_possible_wrap = { level = "allow" }
+
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-# [profile.dev.package."*"]
-# codegen-units = 32
-# incremental = false
-# opt-level = 3
+[profile.dev.package."*"]
+codegen-units = 16
+incremental = false
+opt-level = 2
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
@@ -53,14 +87,12 @@ lto = "fat"
 [workspace.dependencies]
 log = "0.4.20"
 bevy = { path = "deps/bevy", default-features = false, features = [
-  "bevy_pbr",       # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-  "bevy_ui",        # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-  "bevy_winit",     # Support for creating windows
-  "multi-threaded", # enable multithreading in bevy_ecs / bevy_tasks
-  "x11",            # Support xOrg Windows
-  # wayland feature currently breaks app startup loop, causing infinite hang
-  # i am unsure as too why, it seems related too mangohud but disabling mangohud via env does not fix the issue
-  # "wayland",                  # Support Wayland windows
+  "bevy_pbr",         # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+  "bevy_ui",          # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+  "bevy_winit",       # Support for creating windows
+  "multi-threaded",   # enable multithreading in bevy_ecs / bevy_tasks
+  "x11",              # Support xOrg Windows
+  "wayland",          # Support Wayland windows
   "png",              # png is my preffered image format
   "serialize",        # Support for `serde` Serialize/Deserialize
   "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
@@ -73,20 +105,18 @@ bevy = { path = "deps/bevy", default-features = false, features = [
 ] }
 
 [features]
-inspect = [
+dynamic = ["bevy/dynamic_linking"]
+
+develop = [
   "dep:bevy-inspector-egui",
   "dep:bevy_egui",
 ]
+
 trace = [
   # taplo collapeses this
   "bevy_mod_logfu/trace_tracy",
   "bevy_mod_logfu/trace_tracy_memory",
 ]
-
-[target.'cfg(not(any(target_family = "wasm", target_os = "android", target_os = "ios")))'.dependencies]
-bevy = { workspace = true, features = [
-  "dynamic_linking",
-] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 bevy = { workspace = true, features = [
@@ -95,7 +125,7 @@ bevy = { workspace = true, features = [
 
 [target.'cfg(target_family = "wasm")'.dependencies]
 bevy = { workspace = true, features = [
-  "webgl2", # this is for cpal/oboe
+  "webgl2", # webgl2 shaders
 ] }
 
 [build-dependencies]
@@ -114,8 +144,7 @@ strum = { version = "0.25.0", features = [
 toml = { version = "0.8.0" }
 winit = { version = "0.28", default-features = false, features = [
   "x11",
-  # see above comments about bevy/wayland feature
-  # "wayland"
+  "wayland",
 ] }
 clap = { version = "4.2" }
 image = { version = "0.24", default_features = false, features = [
@@ -138,9 +167,9 @@ leafwing-input-manager = { path = "deps/leafwing_input_manager" }
 seldom_map_nav = { path = "deps/seldom_map_nav", features = [
   "bevy",
 ] }
-virtual_joystick = { path = "deps/virtual_joystick" }
+bevy_touch_stick = { path = "deps/bevy_touch_stick" }
 bevy_console = { path = "deps/bevy_console" }
-bevy-inspector-egui = { path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true }
+bevy-inspector-egui = { path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true, default-features = false }
 bevy_common_assets = { path = "deps/bevy_common_assets", features = [
   "ron",
 ] }
@@ -188,7 +217,9 @@ bevy-debug-text-overlay = { path = "deps/bevy_debug_text_overlay", default-featu
 
 [patch.crates-io]
 # broken dependencies
-typid = { path = "deps_broke/typid" } # typid doesnt compile on web with crates version, updated uuid dependency and it works
+# typid doesnt compile on web with crates version,
+# updated uuid dependency and it works
+typid = { git = "https://github.com/hellzbellz123/typid" }
 
 # bevy addon local replacements
 bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap" }
@@ -198,10 +229,12 @@ bevy_ecs_ldtk_macros = { path = "deps/bevy_ecs_ldtk/macros" }
 
 # unused patches atm
 # iyes_progress = {path = "deps/iyes_progress"}
-# bevy_dynamic_plugin = {path = "deps/bevy/crates/bevy_dynamic_plugin"}
 # bevy_animation = {path = "deps/bevy/crates/bevy_animation"}
 # bevy_audio = {path = "deps/bevy/crates/bevy_audio"}
 # bevy_gltf = {path = "deps/bevy/crates/bevy_gltf"}
+# bevy_dynamic_plugin = {path = "deps/bevy/crates/bevy_dynamic_plugin"}
+
+bevy_dylib = { path = "deps/bevy/crates/bevy_dylib" }
 
 # Replace bevy core crates with local copy for ALL crates that use them
 bevy = { workspace = true, path = "deps/bevy" }
@@ -212,7 +245,6 @@ bevy_core = { path = "deps/bevy/crates/bevy_core" }
 bevy_core_pipeline = { path = "deps/bevy/crates/bevy_core_pipeline" }
 bevy_derive = { path = "deps/bevy/crates/bevy_derive" }
 bevy_diagnostic = { path = "deps/bevy/crates/bevy_diagnostic" }
-bevy_dylib = { path = "deps/bevy/crates/bevy_dylib" }
 bevy_ecs = { path = "deps/bevy/crates/bevy_ecs" }
 bevy_encase_derive = { path = "deps/bevy/crates/bevy_encase_derive" }
 bevy_gilrs = { path = "deps/bevy/crates/bevy_gilrs" }

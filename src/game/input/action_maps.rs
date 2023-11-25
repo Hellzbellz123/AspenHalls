@@ -15,6 +15,8 @@ impl Default for PlayerBindings {
     fn default() -> Self {
         let mut input_map = InputMap::default();
 
+        input_map.insert(DualAxis::right_stick(), Gameplay::JoystickDelta);
+
         // ## movement ##
         // keyboard
         input_map.insert(
@@ -46,7 +48,7 @@ impl Default for PlayerBindings {
         input_map.insert(KeyCode::Key4, Gameplay::EquipSlot4);
 
         input_map.insert(KeyCode::Space, Gameplay::Shoot);
-        input_map.insert(MouseButton::Left, Gameplay::Shoot);
+        // input_map.insert(MouseButton::Left, Gameplay::Shoot);
 
         input_map.insert(KeyCode::F, Gameplay::Melee);
 
@@ -77,10 +79,15 @@ impl Default for PlayerBindings {
 /// non menu actions
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum Gameplay {
-    /// mouse position in  window coordinates.
+    /// look target in window coordinates.
+    /// updated with `LookDelta``
     LookLocal,
-    /// mouse position in world space
+    /// look target in world space.
+    /// updated with `LookDelta`
     LookWorld,
+    /// look target delta
+    /// gathered from gamepad sticks and translated into a cursor position
+    JoystickDelta,
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
     /// W/A/S/D for keyboard, LeftJoystick For mouse
     Move,

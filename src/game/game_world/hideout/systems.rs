@@ -71,7 +71,7 @@ pub fn home_world_teleporter_collisions(
         return;
     }
 
-    for event in &mut collision_events {
+    for event in &mut collision_events.read() {
         if let CollisionEvent::Started(a, b, _flags) = event {
             if *a == player_collider_query.single()
                 || *b == player_collider_query.single()
@@ -125,34 +125,34 @@ pub fn home_world_teleporter_collisions(
     collision_events.clear();
 }
 
-/// acts on player standing on pad for required time
-pub fn enter_the_dungeon(
-    // mut commands: Commands,
-    time: Res<Time>,
-    mut teleport_timer: ResMut<TeleportTimer>,
-    mut player_query: Query<(&Transform, &mut Player)>,
-    _sanctuary_container: Query<Entity, With<MapContainerTag>>,
-) {
-    let (_player_transform, mut player) = player_query
-        .get_single_mut()
-        .expect("should always be a player if we are getting the event");
+// acts on player standing on pad for required time
+// pub fn enter_the_dungeon(
+//     // mut commands: Commands,
+//     time: Res<Time>,
+//     mut teleport_timer: ResMut<TeleportTimer>,
+//     mut player_query: Query<(&Transform, &mut Player)>,
+//     _sanctuary_container: Query<Entity, With<MapContainerTag>>,
+// ) {
+//     let (_player_transform, mut player) = player_query
+//         .get_single_mut()
+//         .expect("should always be a player if we are getting the event");
 
-    if !player.wants_to_teleport {
-        teleport_timer.reset();
-        player.enter_dungeon_requested = false;
-    }
+//     if !player.wants_to_teleport {
+//         teleport_timer.reset();
+//         player.enter_dungeon_requested = false;
+//     }
 
-    if !teleport_timer.finished() & player.wants_to_teleport {
-        info!("timer not done, ticking timer");
-        teleport_timer.tick(time.delta());
-        if teleport_timer.finished() && !player.enter_dungeon_requested {
-            // commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
-            info!("Starting Dungeon Generation");
-            player.enter_dungeon_requested = true;
-        }
-    } else if player.enter_dungeon_requested {
-        player.wants_to_teleport = false;
-        player.enter_dungeon_requested = false;
-        teleport_timer.reset();
-    }
-}
+//     if !teleport_timer.finished() & player.wants_to_teleport {
+//         info!("timer not done, ticking timer");
+//         teleport_timer.tick(time.delta());
+//         if teleport_timer.finished() && !player.enter_dungeon_requested {
+//             // commands.insert_resource(NextState(Some(GeneratorStage::Initialization)));
+//             info!("Starting Dungeon Generation");
+//             player.enter_dungeon_requested = true;
+//         }
+//     } else if player.enter_dungeon_requested {
+//         player.wants_to_teleport = false;
+//         player.enter_dungeon_requested = false;
+//         teleport_timer.reset();
+//     }
+// }

@@ -25,7 +25,7 @@ use crate::{
             player::actions::ShootEvent,
         },
         input::action_maps,
-        AppStage, TimeInfo,
+        AppState, TimeInfo,
     },
     loading::assets::ActorTextureHandles,
     utilities::lerp,
@@ -83,7 +83,7 @@ impl Plugin for ActorWeaponPlugin {
                 weapon_visibility_system,
                 receive_shoot_weapon,
             )
-                .run_if(state_exists_and_equals(AppStage::PlayingGame)),
+                .run_if(state_exists_and_equals(AppState::PlayingGame)),
         );
     }
 }
@@ -95,6 +95,7 @@ impl Plugin for ActorWeaponPlugin {
 pub struct WeaponFiringTimer(pub Timer);
 
 /// rotates weapon too face wherever the players mouse is
+#[allow(clippy::type_complexity)]
 fn rotate_player_weapon(
     game_time: Res<TimeInfo>,
     mut player_query: Query<(
@@ -148,6 +149,7 @@ fn rotate_player_weapon(
 }
 
 /// keeps all weapons centered too parented entity
+#[allow(clippy::type_complexity)]
 fn keep_player_weapons_centered(
     // actors that can equip weapons
     mut actor_query: Query<(
@@ -226,6 +228,7 @@ fn weapon_visibility_system(
 
 /// removes `CurrentlyDrawnWeapon` from entity's parented to player that don't
 /// match the entity in `WeaponSocket.drawn_weapon`
+#[allow(clippy::type_complexity)]
 fn remove_cdw_component(
     mut cmds: Commands,
     names: Query<&Name>,
@@ -264,6 +267,7 @@ fn remove_cdw_component(
 }
 
 /// updates players equipped weapon based on input
+#[allow(clippy::type_complexity)]
 fn update_equipped_weapon(
     mut cmds: Commands,
     query_action_state: Query<&ActionState<action_maps::Gameplay>>,
@@ -371,6 +375,7 @@ fn get_current_weapon(
 
 // TODO: refactor this system and related systems into a module for weapons, add ammo management too new module
 /// receives shoot events and creates bullet at location
+#[allow(clippy::type_complexity)]
 pub fn receive_shoot_weapon(
     mut cmds: Commands,
     time: Res<Time>,
@@ -396,7 +401,7 @@ pub fn receive_shoot_weapon(
     firing_timer
         .set_duration(Duration::from_secs_f32(weapon_stats.attack_speed));
 
-    for event in &mut attack_event_reader {
+    for event in &mut attack_event_reader.read() {
         // info!("firing duration: {:#?}", firing_timer.duration());
         if firing_timer.finished() {
             attacks::create_bullet(
@@ -415,6 +420,7 @@ pub fn receive_shoot_weapon(
 // TODO: have damaged enemies use particle effect or red tint when damaged
 // TODO: make this a damage queue
 /// takes damaged entity's and applies damage too hit enemy
+#[allow(clippy::type_complexity)]
 fn deal_with_damaged(
     mut cmds: Commands,
     mut game_info: ResMut<PlayerGameInformation>,

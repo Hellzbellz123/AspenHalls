@@ -76,6 +76,7 @@ pub struct GridContainerTag;
 /// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
 // TODO: find all uses of cmds.spawn(()) and add cleanup component
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
+#[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
     mut player_query: Query<(&mut Transform, &mut Player)>,
     start_location: Query<

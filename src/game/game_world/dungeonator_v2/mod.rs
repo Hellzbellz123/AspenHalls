@@ -1,7 +1,8 @@
 use bevy::{
     ecs::bundle::Bundle,
+    log::info,
     prelude::{
-        default, info, resource_exists, run_once, Commands, Component,
+        default, resource_exists, run_once, Commands, Component,
         Condition, Handle, IntoSystemConfigs, Name, Plugin, Res,
         SpatialBundle, Transform, Update,
     },

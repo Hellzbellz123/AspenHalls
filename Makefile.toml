@@ -3,8 +3,7 @@ skip_core_tasks = true
 skip_git_env_info = true
 skip_rust_env_info = true
 skip_crate_env_info = true
-default_to_workspace = true
-min_version = "0.35.15"
+load_cargo_aliases = false
 
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
@@ -13,91 +12,167 @@ CARGO_MAKE_CRATE_WORKSPACE_MEMBERS = [
   "launchers/native",
   "launchers/wasm",
   "launchers/mobile",
+  "./",
 ]
 
 [tasks.default]
-alias = "list"
-
-[tasks.edit_assets]
-description = "Run Native app and save any changes too launchers/native/assets folder back too git tracked assets"
-
-[tasks.run-native]
-description = "Build and run desktop variant of game"
-
-[tasks.run-mobile]
-description = "Build and install on connected ADB device"
-
-[tasks.run-web]
-description = "Build game and open in web-browser"
+alias = "PrettyList"
 
 [tasks.list]
+clear = true
+workspace = true
 description = "lists all tasks"
-script = "cargo make --list-all-steps"
-
-[tasks.docs]
-description = "Generate docs"
 command = "cargo"
-args = ["doc", "--all"]
-
-[tasks.upload-docs]
-description = "Upload docs"
-command = "cargo"
-args = ["doc-upload"]
-
-[tasks.clean]
-description = "Clean all target directory"
-command = "cargo"
-args = ["clean"]
-
-[tasks.fmt]
-description = "Check format quality"
-command = "cargo"
-args = ["fmt", "--all", "--", "--check"]
-
-[tasks.fix-fmt]
-description = "Fix format"
-command = "cargo"
-args = ["fmt", "--all"]
-
-[tasks.clippy]
-description = "Check code quality"
-env_files = [
-  "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
+args = [
+  "make",
+  "--list-all-steps",
+  "--hide-uninteresting",
 ]
-command = "cargo"
-args = ["clippy", "--", "-D", "warnings"]
 
-[tasks.fix-clippy]
-description = "Fix code quality"
-env_files = [
-  "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
-]
-command = "cargo"
-args = ["fix", "--allow-dirty"]
+[tasks.pretty-list]
+private = false
+script.main = '''
+  echo \
+  "\
+  CWD: $CARGO_MAKE_WORKING_DIRECTORY
+  Below are predefined functions for the workspace:
 
-[tasks.test]
-description = "Check all unit test"
-env_files = [
-  "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
-]
-command = "cargo"
-args = ["test"]
-dependencies = ["fmt", "clippy"]
+    ##  Development  ##
+      (watchsrc/WatchSrc): starts Aspen Halls and runs RunDevelop if Source files change
+      (rdnative/RDNative): Run Aspen Halls in Development mode - Native
 
-[tasks.check]
-description = "Check all issues, format and code quality"
-dependencies = ["fmt", "clippy"]
+    ##  Release ##
+      (create-release/CreateRelease): builds all launchers in release mode and outputs artifacts too package dir
 
-[tasks.fix-all]
-description = "Try fix all clippy and format issues"
-dependencies = ["fix-fmt", "fix-clippy"]
+    ##  Building ##
 
-[tasks.build-release]
-description = "Generate release binary/lib"
-dependencies = [
-  "fmt",
-  "clippy",
-  "test",
-  "release-native",
-  "release-web",
-]
+    ##  Utilities ##
+      (list/List): lists all available tasks, searches workspace members for tasks
+      (pretty-list/PrettyList): list all tasks that are worthwile in this workspace
+  "
+'''
+
+[tasks.create-release]
+dependencies = ["CleanPackageDir"]
+run_task = { name = [
+  "build-release",
+  "cp_artifacts_release",
+] }
+
+[tasks.clean-package-dir]
+workspace = false
+script_runner = "@shell"
+script.main = '''
+echo 'Cleaning output directory before build'
+  rm -rf package/native/*
+  rm -rf package/website/*
+  rm -rf package/mobile/*
+'''
+
+[tasks.tfmt]
+workspace = false
+script_runner = "@shell"
+script = "tools/trunk fmt --all"
+
+[tasks.tchk]
+workspace = false
+script_runner = "@shell"
+script = "tools/trunk check --all"
+
+[tasks.TFMT]
+description = "runs trunk fmt on the workspace"
+workspace = false
+run_task = "tfmt"
+
+[tasks.TCHK]
+description = "runs trunk check on the workspace"
+workspace = false
+run_task = "tchk"
+
+# terrible hack too fix some annoying behavior
+[tasks.PrettyList]
+workspace = false
+description = "Lists cargo-make commands that are actually worth your time"
+run_task = "pretty-list"
+
+[tasks.CreateRelease]
+description = "Builds all launchers and outputs artifacts in packages/*/*"
+run_task = "create-release"
+
+[tasks.List]
+description = "lists all tasks for this project, including submodules"
+run_task = "list"
+
+[tasks.CleanPackageDir]
+description = "Deletes all artifacts inside package/*/"
+run_task = "clean-package-dir"
+# [tasks.docs]
+# clear = true
+# workspace = false
+# private = true
+# description = "Generate docs"
+# command = "cargo"
+# args = ["doc", "--all"]
+
+# [tasks.upload-docs]
+# description = "Upload docs"
+# command = "cargo"
+# args = ["doc-upload"]
+
+# [tasks.clean]
+# description = "Clean all target directory"
+# command = "cargo"
+# args = ["clean"]
+
+# [tasks.fmt]
+# description = "Check format quality"
+# command = "cargo"
+# args = ["fmt", "--all", "--", "--check"]
+
+# [tasks.fix-fmt]
+# description = "Fix format"
+# command = "cargo"
+# args = ["fmt", "--all"]
+
+# [tasks.clippy]
+# description = "Check code quality"
+# env_files = [
+#   "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
+# ]
+# command = "cargo"
+# args = ["cranky", "--", "-D", "warnings"]
+
+# [tasks.fix-clippy]
+# description = "Fix code quality"
+# env_files = [
+#   "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
+# ]
+# command = "cargo"
+# args = ["fix", "--allow-dirty"]
+
+# [tasks.test]
+# description = "Check all unit test"
+# env_files = [
+#   "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
+# ]
+# command = "cargo"
+# args = ["test"]
+# dependencies = ["fmt", "clippy"]
+
+# [tasks.check]
+# description = "Check all issues, format and code quality"
+# dependencies = ["fmt", "clippy"]
+
+# [tasks.fix-all]
+# description = "Try fix all clippy and format issues"
+# dependencies = ["fix-fmt", "fix-clippy"]
+
+# [tasks.build-release]
+# description = "Generate release binary/lib"
+# dependencies = [
+#   "fmt",
+#   "clippy",
+#   "test",
+#   "release-native",
+#   "release-web",
+# ]

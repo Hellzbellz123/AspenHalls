@@ -1,6 +1,7 @@
 use bevy::{
     prelude::{
-        Bundle, Component, Deref, Entity, Name, ReflectComponent, Vec3,
+        Bundle, Component, Deref, DerefMut, Entity, Name,
+        ReflectComponent, Vec3,
     },
     reflect::Reflect,
     sprite::{SpriteBundle, SpriteSheetBundle},
@@ -16,7 +17,7 @@ use crate::{
 };
 
 /// new type around f32, for damage
-#[derive(Debug, Component, Deref)]
+#[derive(Debug, Component, Deref, DerefMut, Reflect)]
 pub struct Damage(pub f32);
 
 /// bundle for spawning weapons

@@ -21,7 +21,7 @@ pub fn hits_on_enemy(
         With<PlayerProjectileColliderTag>,
     >,
 ) {
-    collision_events.iter().for_each(|event| {
+    collision_events.read().for_each(|event| {
         if let CollisionEvent::Started(a, b, _flags) = event {
             let enemy = enemy_collider_query
                 .get(*b)
@@ -66,7 +66,7 @@ pub fn hits_on_player(
         With<EnemyProjectileColliderTag>,
     >,
 ) {
-    collision_events.iter().for_each(|event| {
+    collision_events.read().for_each(|event| {
         if let CollisionEvent::Started(a, b, _flags) = event {
             let player = player_collider_query
                 .get(*b)

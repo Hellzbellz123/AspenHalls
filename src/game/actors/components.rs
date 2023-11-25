@@ -33,6 +33,26 @@ use super::combat::components::Damage;
 #[reflect(Component)]
 pub struct TimeToLive(pub Timer);
 
+/// is this actor allowed too sprint?
+pub enum CanMove {
+    /// actor is allowed too walk
+    CanWalk,
+    /// actor is allowed too run
+    CanSprint,
+    /// actor is not allowed too move
+    NotAllowed,
+}
+
+/// entity teleport status
+pub enum TeleportStatus {
+    /// entity has requested a teleprot too this pos
+    Requested(Vec2),
+    /// entity is in process of teleporting
+    Teleporting,
+    /// entity has finished teleporting
+    Done,
+}
+
 /// player data
 #[derive(Component, Reflect, Clone, Copy, Default)]
 pub struct Player {
@@ -42,8 +62,6 @@ pub struct Player {
     pub just_moved: bool,
     /// if player wants too teleport
     pub wants_to_teleport: bool,
-    /// if player enter dungeon requested
-    pub enter_dungeon_requested: bool,
 }
 
 /// projectile data

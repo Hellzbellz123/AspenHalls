@@ -1,10 +1,42 @@
-[config]
-skip_core_tasks = true
-skip_git_env_info = true
-skip_rust_env_info = true
-skip_crate_env_info = true
+extend = "../../Makefile.toml"
 
-[tasks.run-mobile]
+[tasks.build-release]
+private = true
+workspace = false
+run_task = { name = [
+  "build-release-android",
+  # "build-release-ios"
+] }
+
+[tasks.cp_artifacts_release]
+private = true
+workspace = false
+run_task = { name = [
+  # assets are included inside the apk
+  "cp_artifacts_android",
+  # "cp_artifacts_ios"
+] }
+
+[tasks.build-release-android]
+private = true
+workspace = false
+env_files = ["../../.env"]
+condition.env_set = [
+  "BUNDLETOOL_PATH",
+  "ANDROID_NDK_ROOT",
+  "JAVA_HOME",
+]
+script.main = "gradle assembleRelease -p android"
+
+[tasks.cp_artifacts_android]
+private = true
+script_runner = "@shell"
+script.main = "cp android/build/outputs/apk/release/android-release-unsigned.apk ../../package/mobile/aspen-halls.apk"
+
+
+[tasks.rdmobile]
+workspace = false
+private = true
 env_files = ["../../.env"]
 condition.env_set = [
   "BUNDLETOOL_PATH",
@@ -14,12 +46,12 @@ condition.env_set = [
 script.main = "gradle assembleDebug -p android --warning-mode all"
 script.post = "./debug_android.sh"
 
-[tasks.release-mobile]
-env_files = ["../../.env"]
-condition.env_set = [
-  "BUNDLETOOL_PATH",
-  "ANDROID_NDK_ROOT",
-  "JAVA_HOME",
-]
-script.main = "gradle assembleRelease -p android"
-script.post = "adb install android/build/outputs/apk/release/android-release.apk"
+[tasks.RDMobile]
+description = "(RDMobile/rdmobile): build debug, install on connected adb device, start loggger"
+run_task = "rdmobile"
+
+# [tasks.cp_apk-debug]
+# private = true
+# script_runner = "@shell"
+# # script.pre = "rm -rf ../../package/"
+# script.main = "cp android/build/outputs/apk/debug/android-debug.apk ../../package/aspen-halls.apk"

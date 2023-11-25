@@ -15,9 +15,12 @@ use crate::{
         game::{GeneralSettings, TimeToLive, *},
     },
     game::{
-        actors::ActorPlugin, audio::InternalAudioPlugin,
-        game_world::GameWorldPlugin, input::ActionsPlugin,
+        actors::ActorPlugin,
+        audio::InternalAudioPlugin,
+        game_world::GameWorldPlugin,
+        input::ActionsPlugin,
         interface::InterfacePlugin,
+        // interface::InterfacePlugin,
     },
 };
 
@@ -66,11 +69,11 @@ impl Plugin for DungeonGamePlugin {
             Update,
             (
                 setup_time_state.run_if(
-                    state_exists_and_equals(AppStage::PlayingGame)
+                    state_exists_and_equals(AppState::PlayingGame)
                         .and_then(run_once()),
                 ),
                 (time_to_live, zoom_control)
-                    .run_if(in_state(AppStage::PlayingGame)),
+                    .run_if(in_state(AppState::PlayingGame)),
             ),
         );
     }

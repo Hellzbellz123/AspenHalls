@@ -20,18 +20,18 @@ impl Plugin for AppAssetsPlugin {
     fn build(&self, app: &mut App) {
         info!("asset loader init");
         app.add_loading_state(
-            LoadingState::new(AppStage::Loading)
+            LoadingState::new(AppState::Loading)
                 .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
-                .continue_to_state(AppStage::StartMenu)
-                .on_failure_continue_to_state(AppStage::StartMenu),
+                .continue_to_state(AppState::StartMenu)
+                .on_failure_continue_to_state(AppState::StartMenu),
         )
         .add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
-            AppStage::Loading,
+            AppState::Loading,
             "packs/asha/pack.registry",
         )
-        .add_collection_to_loading_state::<_, ActorTextureHandles>(AppStage::Loading)
-        .add_collection_to_loading_state::<_, AudioHandles>(AppStage::Loading)
-        .add_collection_to_loading_state::<_, MapAssetHandles>(AppStage::Loading)
-        .add_collection_to_loading_state::<_, SingleTileTextureHandles>(AppStage::Loading);
+        .add_collection_to_loading_state::<_, ActorTextureHandles>(AppState::Loading)
+        .add_collection_to_loading_state::<_, AudioHandles>(AppState::Loading)
+        .add_collection_to_loading_state::<_, MapAssetHandles>(AppState::Loading)
+        .add_collection_to_loading_state::<_, SingleTileTextureHandles>(AppState::Loading);
     }
 }

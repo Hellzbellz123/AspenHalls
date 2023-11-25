@@ -37,6 +37,8 @@ lint:
       paths:
         # ignore gradlew, this is an external shell tool, i don't care as long as it works
         - launchers/mobile/android/gradlew
+        - deps
+        - deps_inhouse
 actions:
   disabled:
     - git-lfs

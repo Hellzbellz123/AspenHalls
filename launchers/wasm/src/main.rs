@@ -24,7 +24,7 @@ fn view() -> Html {
 }
 
 fn main() {
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     wasm_logger::init(
         wasm_logger::Config::new(log::Level::Info), // .module_prefix(module_prefix), // .module_prefix("wasm_kill_errors")
                                                     // .module_prefix("game"),

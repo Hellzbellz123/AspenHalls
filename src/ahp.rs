@@ -9,7 +9,7 @@ pub use serde;
 
 /// imports for components and resources specifically for aspen halls
 pub mod game {
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     /// holds features/tools for inspecting state of application
     pub mod inspect {
         pub use crate::dev_tools::debug_plugin::DebugPlugin;
@@ -17,7 +17,7 @@ pub mod game {
             InspectorOptions, ReflectInspectorOptions,
         };
     }
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     pub use inspect::*;
 
     pub use crate::{
@@ -81,13 +81,13 @@ pub mod game {
         utilities::{
             despawn_with, lerp, set_window_icon, GetEither, GetEitherMut,
         },
-        AppStage,
+        AppState,
     };
 }
 
 /// external and internal plugins from aspen halls and bevy
 pub mod plugins {
-    #[cfg(feature = "inspect")]
+    #[cfg(feature = "develop")]
     pub use bevy_inspector_egui::quick::{
         StateInspectorPlugin, WorldInspectorPlugin,
     };
@@ -104,7 +104,7 @@ pub mod plugins {
 
     pub use crate::{
         console::QuakeConPlugin,
-        game::DungeonGamePlugin,
+        game::{interface::InterfacePlugin, DungeonGamePlugin},
         loading::{splashscreen::SplashPlugin, AppAssetsPlugin},
     };
 }
@@ -156,9 +156,9 @@ pub mod engine {
             Bundle, Component, Entity, RemovedComponents,
             {
                 apply_deferred, apply_state_transition, IntoSystemConfigs,
-                IntoSystemSet, IntoSystemSetConfig, IntoSystemSetConfigs,
-                NextState, OnEnter, OnExit, OnTransition, Schedule,
-                Schedules, State, States, SystemSet,
+                IntoSystemSet, IntoSystemSetConfigs, NextState, OnEnter,
+                OnExit, OnTransition, Schedule, Schedules, State, States,
+                SystemSet,
                 {
                     any_component_removed, any_with_component, not,
                     on_event, run_once, Condition,
@@ -174,7 +174,6 @@ pub mod engine {
                     },
                 },
             },
-            {dbg, error, ignore, info, system_adapter, unwrap, warn},
             {Added, AnyOf, Changed, Or, QueryState, With, Without},
             {AppTypeRegistry, ReflectComponent, ReflectResource},
             {
@@ -200,23 +199,20 @@ pub mod engine {
             InputSystem,
         },
         log::{
-            prelude::{
-                debug, debug_span, error, error_span, info, info_span,
-                trace, trace_span, warn, warn_span,
-            },
+            debug_span, error_span, info_span, trace_span, warn_span,
             Level,
         },
         math::{
             ivec2, ivec3,
             prelude::{
                 {
-                    BSpline, Bezier, CardinalSpline, CubicGenerator,
-                    CubicSegment, Hermite,
-                },
-                {
                     BVec2, BVec3, BVec4, EulerRot, IVec2, IVec3, IVec4,
                     Mat2, Mat3, Mat4, Quat, Ray, UVec2, UVec3, UVec4,
                     Vec2, Vec3, Vec4,
+                },
+                {
+                    CubicBSpline, CubicBezier, CubicCardinalSpline,
+                    CubicGenerator, CubicHermite, CubicSegment,
                 },
             },
             vec2, vec3, IRect, Rect as FRect, URect,
@@ -233,11 +229,14 @@ pub mod engine {
             texture::{CompressedImageFormats, ImageType},
         },
         time::{
-            prelude::{FixedTime, Time, Timer, TimerMode},
+            prelude::{
+                Fixed as FixedTime, Real as RealTime, Time, Timer,
+                TimerMode,
+            },
             TimeSystem,
         },
         transform::prelude::*,
-        utils::{default, Duration},
+        utils::{dbg, default, error, info, warn, Duration},
         window::{
             prelude::{
                 CursorEntered, CursorIcon, CursorLeft, CursorMoved,
@@ -270,7 +269,7 @@ pub mod engine {
         prelude::*, standard_dynamic_asset::StandardDynamicAssetCollection,
     };
 
-    pub use bevy_rapier2d::prelude::*;
+    pub use bevy_rapier2d::prelude::{Real, *};
 
     pub use leafwing_input_manager::{
         //leafwing common imports

@@ -18,5 +18,5 @@ targets = [
   "x86_64-pc-windows-msvc",
   "aarch64-linux-android",
   "armv7-linux-androideabi",
-  "i686-linux-android"
+  "i686-linux-android",
 ]

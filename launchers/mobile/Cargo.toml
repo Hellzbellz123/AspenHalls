@@ -26,8 +26,7 @@ name = "game"
 crate-type = ["staticlib", "cdylib"]
 
 [features]
-inspect = ["aspen_lib/inspect"]
-trace = ["aspen_lib/trace"]
+develop = ["aspen_lib/develop"]
 
 [dependencies]
 aspen_lib = { path = "../../" }

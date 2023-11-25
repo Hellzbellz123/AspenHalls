@@ -1,4 +1,3 @@
-use belly::prelude::StyleSheet;
 use bevy::{
     asset::Handle, ecs::system::Resource, reflect::TypeUuid,
     render::texture::Image, sprite::TextureAtlas, text::Font,
@@ -9,12 +8,12 @@ use bevy_ecs_ldtk::prelude::LdtkProject;
 /// ui textures
 #[derive(AssetCollection, Resource, Clone)]
 pub struct InitAssetHandles {
-    /// global style sheet
-    #[asset(key = "global_style")]
-    pub global_style_sheet: Handle<StyleSheet>,
-    /// style sheet for game menus
-    #[asset(key = "menu_style")]
-    pub menu_style_sheet: Handle<StyleSheet>,
+    // /// global style sheet
+    // #[asset(key = "global_style")]
+    // pub global_style_sheet: Handle<StyleSheet>,
+    // /// style sheet for game menus
+    // #[asset(key = "menu_style")]
+    // pub menu_style_sheet: Handle<StyleSheet>,
     /// game icon
     #[asset(key = "favicon")]
     pub img_favicon: Handle<Image>,

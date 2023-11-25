@@ -11,7 +11,7 @@ use crate::{
             animation::components::{ActorAnimationType, AnimState},
             components::Player,
         },
-        AppStage,
+        AppState,
     },
     loading::assets::AudioHandles,
     loading::config::SoundSettings,
@@ -57,13 +57,13 @@ impl Plugin for InternalAudioPlugin {
                 Update,
                 (
                     player_walking_sound_system.run_if(
-                        state_exists_and_equals(AppStage::PlayingGame),
+                        state_exists_and_equals(AppState::PlayingGame),
                     ),
                     play_background_audio.run_if(run_once()),
                 )
                     .run_if(resource_exists::<AudioHandles>()),
             )
-            .add_systems(OnEnter(AppStage::Loading), setup_sound_volume);
+            .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
     }
 }
 

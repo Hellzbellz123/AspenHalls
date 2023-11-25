@@ -1,6 +1,8 @@
+use bevy::ecs::schedule::IntoSystemSetConfigs;
+
 use crate::ahp::engine::{
-    App, InputManagerPlugin, InputManagerSystem, InputSystem,
-    IntoSystemSetConfigs, Plugin, PreUpdate, SystemSet,
+    App, InputManagerPlugin, InputManagerSystem, Plugin, PreUpdate,
+    SystemSet,
 };
 
 /// holds action maps
@@ -34,7 +36,7 @@ impl Plugin for ActionsPlugin {
         );
         // TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
         app.add_plugins(touch::TouchInputPlugin);
-        //
+        // updates LookWorld and LookLocal based off mouse position inside window
         app.add_plugins(kbm::KBMPlugin);
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
         app.add_plugins(software_cursor::SoftwareCursorPlugin);
@@ -47,11 +49,7 @@ impl Plugin for ActionsPlugin {
                 AspenInputSystemSet::SoftwareCursor,
             )
                 .chain()
-                .in_set(InputManagerSystem::ManualControl)
-                .before(InputManagerSystem::ReleaseOnDisable)
-                .after(InputManagerSystem::Tick)
-                .after(InputManagerSystem::Update)
-                .after(InputSystem),
+                .in_set(InputManagerSystem::ManualControl),
         );
     }
 }

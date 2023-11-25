@@ -23,7 +23,7 @@ use crate::{
             animation::components::{ActorAnimationType, AnimState},
             components::{Player, PlayerColliderTag},
         },
-        AppStage,
+        AppState,
     },
 };
 
@@ -37,13 +37,13 @@ impl Plugin for StupidAiPlugin {
         app.add_systems(
             PreUpdate,
             (chase_score_system, attack_score_system)
-                .run_if(in_state(AppStage::PlayingGame))
+                .run_if(in_state(AppState::PlayingGame))
                 .in_set(BigBrainSet::Scorers),
         )
         .add_systems(
             Update,
             (wander_action, chase_action, attack_action)
-                .run_if(in_state(AppStage::PlayingGame)) // shoot_action,
+                .run_if(in_state(AppState::PlayingGame)) // shoot_action,
                 .in_set(BigBrainSet::Actions),
         );
     }
@@ -123,7 +123,7 @@ fn chase_score_system(
 /// TODO: add attacks
 /// check if player is in LOS with raycast
 /// if player is within attack range, shoot at player
-// #[allow(dead_code)]
+#[allow(clippy::type_complexity)]
 fn attack_score_system(
     player_query: Query<&Transform, With<Player>>, //player
     mut enemy_query: Query<(&Transform, &mut AIShootConfig), With<Enemy>>, //enemy's that can aggro

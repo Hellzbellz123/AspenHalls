@@ -78,18 +78,12 @@ Host Specs:
 
 Benchmarks:
 
-- Benchmark 1: cargo cranky [with sccache, cold cache]
-  - Time (mean ± σ):     88.580 s ±  1.590 s    [User: 220.533 s, System: 25.353 s]
-  - Range (min … max):   87.227 s … 90.331 s    3 runs
-- Benchmark 2: cargo cranky [without sccache, cold cache]
-  - Time (mean ± σ):     78.362 s ±  0.912 s    [User: 476.357 s, System: 42.161 s]
-  - Range (min … max):   77.703 s … 79.403 s    3 runs
-- Benchmark 3: cargo cranky [with sccache, cargo clean]
-  - Time (mean ± σ):     84.620 s ±  1.081 s    [User: 218.377 s, System: 24.133 s]
-  - Range (min … max):   83.436 s … 85.555 s    3 runs
-- Benchmark 4: cargo cranky [with sccache, no clean]
-  - Time (mean ± σ):     377.2 ms ±   6.6 ms    [User: 260.2 ms, System: 114.0 ms]
-  - Range (min … max):   369.8 ms … 382.5 ms    3 runs
-- Benchmark 5: cargo cranky [with sccache, no clean, modified project src]
-  - Time (mean ± σ):      1.138 s ±  1.332 s    [User: 0.892 s, System: 0.237 s]
-  - Range (min … max):    0.365 s …  2.677 s    3 runs
+- hyperfine 'RUSTFLAGS="-Z threads=1" cargo clippy'
+  - Time (mean ± σ):     40.598 s ±  0.501 s    [User: 218.603 s, System: 25.618 s]
+  - Range (min … max):   40.094 s … 41.304 s    5 runs
+- hyperfine 'RUSTFLAGS="-Z threads=8" cargo clippy' --prepare 'cargo clean' --runs=3 --warmup=2
+  - Time (mean ± σ):     40.703 s ±  0.738 s    [User: 219.198 s, System: 26.808 s]
+  - Range (min … max):   39.491 s … 41.354 s    5 runs
+- hyperfine 'cargo clippy' --prepare 'cargo clean' --runs=3 --warmup=2
+  - Time (mean ± σ):     38.928 s ±  0.467 s    [User: 217.681 s, System: 25.882 s]
+  - Range (min … max):   38.531 s … 39.443 s    3 runs

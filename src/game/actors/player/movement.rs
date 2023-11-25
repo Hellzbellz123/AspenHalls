@@ -92,6 +92,7 @@ pub fn player_sprint(
 }
 
 /// keeps camera centered on player
+#[allow(clippy::type_complexity)]
 pub fn camera_movement_system(
     time: Res<Time>,
     mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
