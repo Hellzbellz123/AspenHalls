@@ -61,3 +61,6 @@
 [submodule "deps/bevy_touch_stick"]
 	path = deps/bevy_touch_stick
 	url = https://github.com/johanhelsing/bevy_touch_stick.git
+[submodule "deps/bevy_mod_logfu"]
+	path = deps/bevy_mod_logfu
+	url = https://github.com/Hellzbellz123/bevy_mod_logfu.git
