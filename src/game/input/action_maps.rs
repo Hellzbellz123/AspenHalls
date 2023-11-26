@@ -1,6 +1,6 @@
 use crate::ahp::engine::{
     Actionlike, Bundle, DeadZoneShape, DualAxis, GamepadAxisType,
-    GamepadButtonType, InputManagerBundle, InputMap, KeyCode, MouseButton,
+    GamepadButtonType, InputManagerBundle, InputMap, KeyCode,
     QwertyScanCode, Reflect, VirtualDPad,
 };
 

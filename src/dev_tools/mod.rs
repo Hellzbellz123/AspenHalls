@@ -357,16 +357,4 @@ pub mod debug_plugin {
             Err(e) => warn!("{}", e),
         }
     }
-
-    // /// takes all actors and sums z then divided by actor count
-    // pub fn debug_test_transform_z(actor_query: Query<(&ActorType, &GlobalTransform)>) {
-    //     let mut total = 0;
-    //     let mut z_value = 0.0;
-    //     actor_query.for_each(|(_thing, trans)| {
-    //         z_value += trans.translation().z;
-    //         total += 1;
-    //     });
-    //     let a: f32 = z_value / total;
-    //     info!("average z value {}", a);
-    // }
 }

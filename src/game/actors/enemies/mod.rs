@@ -52,7 +52,7 @@ pub fn enemy_can_shoot_check(
         return;
     };
 
-    enemy_query.for_each_mut(|(enemy_transform, mut ai_attack_state)| {
+    for (enemy_transform, mut ai_attack_state) in &mut enemy_query {
         let enemy_loc = enemy_transform.translation.truncate();
         let player_loc = player_transform.translation.truncate();
         let direction: Vec2 = (player_loc - enemy_loc).normalize_or_zero();
@@ -73,7 +73,7 @@ pub fn enemy_can_shoot_check(
                 ai_attack_state.timer.reset();
             }
         }
-    });
+    }
 }
 
 /// spawns enemy projectile

@@ -62,10 +62,10 @@ pub fn despawn_with<T: bevy::prelude::Component>(
     to_despawn: Query<Entity, With<T>>,
     mut commands: bevy::prelude::Commands,
 ) {
-    to_despawn.for_each(|entity| {
+    for entity in &to_despawn {
         info!("despawning entity recursively: {:#?}", entity);
         commands.entity(entity).despawn_recursive();
-    });
+    }
 }
 
 /// Performs a linear interpolation between `from` and `to` based on the value `s`.

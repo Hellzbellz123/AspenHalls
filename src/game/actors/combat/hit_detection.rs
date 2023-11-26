@@ -11,17 +11,17 @@ use super::{components::Damage, PlayerGameInformation};
 
 /// detects hits on enemies and applies damage
 pub fn hits_on_enemy(
-    mut game_info: ResMut<PlayerGameInformation>,
     mut cmds: Commands,
-    projectile_query: Query<&ProjectileStats, With<PlayerProjectileTag>>,
+    mut game_info: ResMut<PlayerGameInformation>,
     mut collision_events: EventReader<CollisionEvent>,
+    projectile_query: Query<&ProjectileStats, With<PlayerProjectileTag>>,
     enemy_collider_query: Query<(Entity, &Parent), With<EnemyColliderTag>>,
     player_projectile_collider_query: Query<
         (Entity, &Parent),
         With<PlayerProjectileColliderTag>,
     >,
 ) {
-    collision_events.read().for_each(|event| {
+    for event in collision_events.read() {
         if let CollisionEvent::Started(a, b, _flags) = event {
             let enemy = enemy_collider_query
                 .get(*b)
@@ -45,7 +45,7 @@ pub fn hits_on_enemy(
                 }
             }
         }
-    });
+    }
 }
 
 /// detects projectile hits on player, adds hits too Player
@@ -66,20 +66,20 @@ pub fn hits_on_player(
         With<EnemyProjectileColliderTag>,
     >,
 ) {
-    collision_events.read().for_each(|event| {
+    for event in collision_events.read() {
         if let CollisionEvent::Started(a, b, _flags) = event {
             let player = player_collider_query
                 .get(*b)
                 .or_else(|_| player_collider_query.get(*a))
                 .map(|(_collider, parent)| parent.get())
                 .ok();
-
+    
             let projectile = enemy_projectile_collider_query
                 .get(*a)
                 .or_else(|_| enemy_projectile_collider_query.get(*b))
                 .map(|(_a, parent)| parent.get())
                 .ok();
-
+    
             if let Some(player) = player {
                 if let Some(projectile) = projectile {
                     if let Ok(stats) = bad_projectile_query.get(projectile)
@@ -91,7 +91,7 @@ pub fn hits_on_player(
                 }
             }
         }
-    });
+    }
 }
 
 // pub fn hits_on_enemy(

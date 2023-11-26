@@ -1,15 +1,17 @@
 use bevy::{
     log::{debug, info},
     prelude::{
-        resource_exists, run_once, state_exists_and_equals, Assets,
-        Commands, Condition, DespawnRecursiveExt, Entity, Event,
-        IntoSystemConfigs, Name, Plugin, Query, Res, ResMut, Update, With,
+        any_with_component, resource_exists, run_once,
+        state_exists_and_equals, Assets, Commands, Condition,
+        DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Name,
+        Plugin, Query, Res, ResMut, Update, With,
     },
     render::view::NoFrustumCulling,
     utils::default,
 };
 
 use crate::{
+    ahp::game::Player,
     game::{
         actors::{
             ai::components::Enemy, spawners::components::WeaponType,
@@ -61,7 +63,16 @@ impl Plugin for HideOutPlugin {
                     .run_if(state_exists_and_equals(
                         AppState::PlayingGame,
                     )),
-                // cleanup_start_world.run_if(state_exists_and_equals(GeneratorStage::Initialization)),
+                cleanup_start_world.run_if(
+                    any_with_component::<Player>().and_then(
+                        |teleport_yes: Query<&Player>| {
+                            teleport_yes
+                                .get_single()
+                                .unwrap()
+                                .wants_to_teleport
+                        },
+                    ),
+                ),
             )
                 .run_if(resource_exists::<MapAssetHandles>()),
         );
@@ -82,6 +93,10 @@ fn cleanup_start_world(
     commands
         .entity(home_world_container.single())
         .despawn_recursive();
-    weapons.for_each(|ent| commands.entity(ent).despawn_recursive());
-    enemies_query.for_each(|ent| commands.entity(ent).despawn_recursive());
+    for ent in &weapons {
+        commands.entity(ent).despawn_recursive()
+    }
+    for ent in &enemies_query {
+        commands.entity(ent).despawn_recursive()
+    }
 }

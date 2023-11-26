@@ -79,7 +79,7 @@ impl Plugin for ActorWeaponPlugin {
                 hit_detection::hits_on_enemy,
                 hit_detection::hits_on_player,
                 rotate_player_weapon,
-                keep_player_weapons_centered,
+                equipped_weapon_positioning,
                 weapon_visibility_system,
                 receive_shoot_weapon,
             )
@@ -112,110 +112,103 @@ fn rotate_player_weapon(
         return;
     }
 
-    weapon_query.for_each_mut(
-        |(weapon_tag, weapon_global_transform, mut weapon_transform)| {
-            if weapon_tag.parent.is_some() {
-                let ((_player_animation_state, player_input), ()) =
-                    player_query.single_mut();
-                let global_mouse_pos = player_input
-                    .action_data(action_maps::Gameplay::LookWorld)
-                    .axis_pair
-                    .unwrap()
-                    .xy();
-                let global_weapon_pos: Vec2 = weapon_global_transform
-                    .compute_transform()
-                    .translation
-                    .truncate();
-                let look_direction: Vec2 = (global_weapon_pos
-                    - global_mouse_pos)
-                    .normalize_or_zero();
-                let aim_angle = (-look_direction.y)
-                    .atan2(-look_direction.x)
-                    + FRAC_PI_2; // add offset too rotation here
+    for (weapon_tag, weapon_global_transform, mut weapon_transform) in
+        &mut weapon_query
+    {
+        if weapon_tag.parent.is_some() {
+            let ((_player_animation_state, player_input), ()) =
+                player_query.single_mut();
+            let global_mouse_pos = player_input
+                .action_data(action_maps::Gameplay::LookWorld)
+                .axis_pair
+                .unwrap()
+                .xy();
+            let global_weapon_pos: Vec2 = weapon_global_transform
+                .compute_transform()
+                .translation
+                .truncate();
+            let look_direction: Vec2 =
+                (global_weapon_pos - global_mouse_pos).normalize_or_zero();
+            let aim_angle =
+                (-look_direction.y).atan2(-look_direction.x) + FRAC_PI_2; // add offset too rotation here
 
-                // mirror whole entity by negating the scale when were looking left,
-                if aim_angle.to_degrees() > 180.0
-                    || aim_angle.to_degrees() < -0.0
-                {
-                    weapon_transform.scale.x = -1.0;
-                } else {
-                    weapon_transform.scale.x = 1.0;
-                }
-                weapon_transform.rotation =
-                    Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
+            // mirror whole entity by negating the scale when were looking left,
+            if aim_angle.to_degrees() > 180.0
+                || aim_angle.to_degrees() < -0.0
+            {
+                weapon_transform.scale.x = -1.0;
+            } else {
+                weapon_transform.scale.x = 1.0;
             }
-        },
-    );
+            weapon_transform.rotation =
+                Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
+        }
+    }
 }
 
 /// keeps all weapons centered too parented entity
 #[allow(clippy::type_complexity)]
-fn keep_player_weapons_centered(
+fn equipped_weapon_positioning(
     // actors that can equip weapons
-    mut actor_query: Query<(
-        (Entity, &AnimState, &Children),
+    weapon_carrying_actors: Query<
+        (&AnimState, Entity),
         With<WeaponSocket>,
-    )>,
+    >,
     mut weapon_query: Query<
         // all weapons equipped too entity
-        (Entity, &WeaponTag, &mut Transform, &mut Velocity),
+        (&WeaponTag, &mut Transform, &mut Velocity),
         (With<Parent>, Without<ActorType>),
     >,
 ) {
-    if weapon_query.is_empty() || actor_query.is_empty() {
+    if weapon_query.is_empty() || weapon_carrying_actors.is_empty() {
         return;
     }
 
-    actor_query.for_each_mut(|((_ent, animation_state, children), ())| {
-        weapon_query.for_each_mut(
-            |(
-                weapon_entity,
-                weapon_tag,
-                mut weapon_transform,
-                mut weapon_velocity,
-            )| {
-                if weapon_tag.parent.is_some()
-                    && children.contains(&weapon_entity)
+    for (animation_state, weapon_carrying_entity) in
+        &weapon_carrying_actors
+    {
+        for (weapon_tag, mut weapon_transform, mut weapon_velocity) in
+            &mut weapon_query
+        {
+            if weapon_tag.parent == Some(weapon_carrying_entity) {
+                // weapon_velocity.angvel =
+                //     lerp(weapon_velocity.angvel, 0.0, 0.3);
+                weapon_velocity.linvel = Vec2::ZERO;
+                // modify weapon sprite to be below player when facing up, this
+                // still looks strange but looks better than a back mounted smg
+                if animation_state.animation_type == ActorAnimationType::Up
                 {
-                    weapon_velocity.angvel =
-                        lerp(weapon_velocity.angvel, 0.0, 0.3);
-                    weapon_velocity.linvel = Vec2::ZERO;
-                    // modify weapon sprite to be below player when facing up, this
-                    // still looks strange but looks better than a back mounted smg
-                    if animation_state.animation_type
-                        == ActorAnimationType::Up
-                    {
-                        // this transform is local too players transform of 8
-                        weapon_transform.translation = Vec3 {
-                            x: 0.0,
-                            y: 1.5,
-                            z: -1.0,
-                        }
-                    } else {
-                        // this transform is local too players transform of 8
-                        weapon_transform.translation = Vec3 {
-                            x: 0.0,
-                            y: 1.5,
-                            z: 1.0,
-                        }
+                    // this transform is local too players transform of 8
+                    weapon_transform.translation = Vec3 {
+                        x: 0.0,
+                        y: 1.5,
+                        z: -1.0,
+                    }
+                } else {
+                    // this transform is local too players transform of 8
+                    weapon_transform.translation = Vec3 {
+                        x: 0.0,
+                        y: 1.5,
+                        z: 1.0,
                     }
                 }
-            },
-        );
-    });
+            }
+        }
+    }
 }
 
 /// check if the weapon is supposed to be visible
 fn weapon_visibility_system(
     player_query: Query<&WeaponSocket, With<Player>>,
-    mut weapon_query: Query<(&WeaponTag, &mut Visibility), With<Parent>>, // query weapons parented to entity's
+    mut weapon_query: Query<(&WeaponTag, &mut Visibility)>, // query weapons parented to entity's
 ) {
     if player_query.is_empty() || weapon_query.is_empty() {
         return;
     }
 
     let p_weapon_socket = player_query.single();
-    weapon_query.for_each_mut(|(weapon_tag, mut weapon_visibility)| {
+
+    for (weapon_tag, mut weapon_visibility) in &mut weapon_query {
         if weapon_tag.stored_weapon_slot == p_weapon_socket.drawn_slot {
             // TODO: these feels wrong, deref doesn't feel correct here
             // find a less gross solution
@@ -223,7 +216,7 @@ fn weapon_visibility_system(
         } else {
             *weapon_visibility = Visibility::Hidden;
         }
-    });
+    }
 }
 
 /// removes `CurrentlyDrawnWeapon` from entity's parented to player that don't
@@ -249,7 +242,7 @@ fn remove_cdw_component(
 
     let player_weapon_socket = player_query.single();
 
-    weapon_query.for_each(|(weapon_entity, weapon_tag)| {
+    for (weapon_entity, weapon_tag) in &weapon_query {
         if weapon_tag.stored_weapon_slot != player_weapon_socket.drawn_slot
             && drawn_weapon.get(weapon_entity).is_ok()
         {
@@ -263,7 +256,7 @@ fn remove_cdw_component(
             cmds.entity(weapon_entity)
                 .remove::<CurrentlySelectedWeapon>();
         }
-    });
+    }
 }
 
 /// updates players equipped weapon based on input
@@ -416,6 +409,7 @@ pub fn receive_shoot_weapon(
         }
     }
 }
+
 // TODO: merge both damage application systems into single system that sends an event for player deaths
 // TODO: have damaged enemies use particle effect or red tint when damaged
 // TODO: make this a damage queue
@@ -430,7 +424,7 @@ fn deal_with_damaged(
     >,
 ) {
     screen_print!("{:#?}", game_info);
-    damaged_query.for_each_mut(|(mut enemy_stats, enemy, damage)| {
+    for (mut enemy_stats, enemy, damage) in &mut damaged_query {
         game_info.damage_dealt += damage.0;
         enemy_stats.health -= damage.0;
         cmds.entity(enemy).remove::<Damage>();
@@ -439,7 +433,7 @@ fn deal_with_damaged(
             cmds.entity(enemy).despawn_recursive();
             game_info.enemies_killed += 1;
         }
-    });
+    }
 }
 
 /// deals with player deaths

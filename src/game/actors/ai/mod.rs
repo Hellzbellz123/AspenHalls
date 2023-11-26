@@ -25,6 +25,7 @@ impl Plugin for AIPlugin {
 #[derive(Debug, Component)]
 struct BigBrainContainerTag;
 
+//TODO: make this system insert `InspectorIgnore` component on each
 /// this feels like a dirty hack but it totally works!!!
 /// ALL HAIL THE ENTITY HIERARCHY!!!
 fn parent_brains_to_container(
@@ -42,9 +43,9 @@ fn parent_brains_to_container(
         return;
     }
 
-    brain_query.for_each(|thinker| {
+    for entity in &brain_query {
         commands
             .entity(brain_container_query.single())
-            .push_children(&[thinker]);
-    });
+            .push_children(&[entity]);
+    }
 }

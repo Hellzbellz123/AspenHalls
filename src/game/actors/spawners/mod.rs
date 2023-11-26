@@ -59,12 +59,14 @@ fn receive_enemy_spawns(
     mut commands: Commands,
     enemy_assets: Res<ActorTextureHandles>,
 ) {
-    events.iter().for_each(|event| {
+    for event in events.read() {
         info!("received event: {:#?}", event);
         if event.actor_type != ActorType(Type::Enemy) {
             return;
         } else if event.spawn_count > 100 {
-            warn!("too many spawns requested, will likely panic, aborting");
+            warn!(
+                "too many spawns requested, will likely panic, aborting"
+            );
             return;
         }
         let mut rng = thread_rng();
@@ -108,11 +110,14 @@ fn receive_enemy_spawns(
                 ),
                 #[allow(unreachable_patterns)]
                 enemy_type => {
-                    warn!("Enemy type not implemented yet: {}", enemy_type);
+                    warn!(
+                        "Enemy type not implemented yet: {}",
+                        enemy_type
+                    );
                 }
             }
         }
-    });
+    }
     events.clear();
 }
 
@@ -122,12 +127,14 @@ fn receive_weapon_spawns(
     mut commands: Commands,
     enemy_assets: Res<ActorTextureHandles>,
 ) {
-    events.iter().for_each(|event| {
+    for event in events.read() {
         info!("received event: {:#?}", event);
         if event.actor_type != ActorType(Type::Item) {
             return;
         } else if event.spawn_count > 100 {
-            warn!("too many spawns requested, will likely panic, aborting");
+            warn!(
+                "too many spawns requested, will likely panic, aborting"
+            );
             return;
         }
 
@@ -139,12 +146,20 @@ fn receive_weapon_spawns(
         match what_too_spawn {
             WeaponType::SmallSMG => {
                 for _spawn_count in 0..event.spawn_count {
-                    spawn_small_smg(enemy_assets.to_owned(), &mut commands, event);
+                    spawn_small_smg(
+                        enemy_assets.to_owned(),
+                        &mut commands,
+                        event,
+                    );
                 }
             }
             WeaponType::SmallPistol => {
                 for _spawn_count in 0..event.spawn_count {
-                    spawn_small_pistol(enemy_assets.to_owned(), &mut commands, event);
+                    spawn_small_pistol(
+                        enemy_assets.to_owned(),
+                        &mut commands,
+                        event,
+                    );
                 }
             }
             #[allow(unreachable_patterns)]
@@ -152,7 +167,7 @@ fn receive_weapon_spawns(
                 warn!("WeaponType not implemented: {}", weapon_type);
             }
         }
-    });
+    }
     events.clear();
 }
 
@@ -197,53 +212,49 @@ pub fn spawner_timer_system(
         // warn!("Enemy Count is greater than or equal too total enemies allowed in game");
         return;
     }
+    for (
+        spawner_entity,
+        spawner_transform,
+        spawner_state,
+        mut spawner_timer,
+    ) in &mut spawner_query
+    {
+        if !spawner_timer.tick(time.delta()).finished() {
+            return;
+        }
 
-    spawner_query.for_each_mut(
-        |(
-            spawner_entity,
-            spawner_transform,
-            spawner_state,
-            mut spawner_timer,
-        )| {
-            if !spawner_timer.tick(time.delta()).finished() {
-                return;
+        let mut enemies_in_spawner_area = 0;
+
+        let enemy_type: EnemyType = if spawner_state.random_enemy {
+            rand::random()
+        } else {
+            spawner_state.enemy_type
+        };
+
+        for enemy_transform in &all_enemies {
+            // add buffer for enemies that can maybe walk outside :/
+            let distance_too_spawner = spawner_transform
+                .translation()
+                .truncate()
+                .distance(enemy_transform.translation.truncate())
+                .abs()
+                - 50.0;
+            if distance_too_spawner.lt(&spawner_state.spawn_radius) {
+                enemies_in_spawner_area += 1;
             }
+        }
 
-            let mut enemies_in_spawner_area = 0;
+        if enemies_in_spawner_area.ge(&spawner_state.max_enemies) {
+            warn!("enemies in spawn area is too high");
+            return;
+        }
 
-            let enemy_type: EnemyType = if spawner_state.random_enemy {
-                rand::random()
-            } else {
-                spawner_state.enemy_type
-            };
-
-            all_enemies.for_each(|enemy_transform| {
-                // add buffer for enemies that can maybe walk outside :/
-                let distance_too_spawner = spawner_transform
-                    .translation()
-                    .truncate()
-                    .distance(enemy_transform.translation.truncate())
-                    .abs()
-                    - 50.0;
-                if distance_too_spawner.lt(&spawner_state.spawn_radius) {
-                    enemies_in_spawner_area += 1;
-                }
-            });
-
-            if enemies_in_spawner_area.ge(&spawner_state.max_enemies) {
-                warn!("enemies in spawn area is too high");
-                return;
-            } //else
-
-            event_writer.send(SpawnActorEvent {
-                spawner: Some(spawner_entity),
-                actor_type: ActorType(Type::Enemy),
-                what_to_spawn: enemy_type.to_string(),
-                spawn_position: (spawner_transform
-                    .translation()
-                    .truncate()),
-                spawn_count: 1,
-            });
-        },
-    );
+        event_writer.send(SpawnActorEvent {
+            spawner: Some(spawner_entity),
+            actor_type: ActorType(Type::Enemy),
+            what_to_spawn: enemy_type.to_string(),
+            spawn_position: (spawner_transform.translation().truncate()),
+            spawn_count: 1,
+        });
+    }
 }

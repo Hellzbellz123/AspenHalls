@@ -87,12 +87,13 @@ pub fn setup_time_state(mut time_info: ResMut<TimeInfo>) {
         pause_menu: false,
     }
 }
+
 /// zoom control
 pub fn zoom_control(
     mut settings: ResMut<GeneralSettings>,
     query_action_state: Query<
         &ActionState<action_maps::Gameplay>,
-        Changed<ActionState<Gameplay>>,
+        Changed<ActionState<action_maps::Gameplay>>,
     >,
 ) {
     let actions = match query_action_state.get_single() {
@@ -122,9 +123,9 @@ fn time_to_live(
     time: Res<Time>,
     mut query: Query<(Entity, &mut TimeToLive)>,
 ) {
-    query.for_each_mut(|(entity, mut timer)| {
+    for (entity, mut timer) in &mut query {
         if timer.tick(time.delta()).finished() {
             commands.entity(entity).despawn();
-        }
-    });
+    }
+    }
 }

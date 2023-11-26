@@ -344,12 +344,12 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
         } else {
             Msaa::Off
         })
-        .insert_resource(ClearColor(Color::Hsla {
-            hue: 294.0,
-            saturation: 0.71,
-            lightness: 0.08,
-            alpha: 1.0,
-        }))
+        .insert_resource(ClearColor(Color::rgba(
+            26.0 / 255.0,
+            25.0 / 255.0,
+            25.0 / 255.0,
+            1.0,
+        )))
         .insert_resource(cfg_file.window_settings)
         .insert_resource(cfg_file.sound_settings)
         .insert_resource(cfg_file.general_settings)
@@ -458,10 +458,11 @@ fn on_resize_system(
     mut resize_reader: EventReader<WindowResized>,
 ) {
     if !settings.full_screen {
-        resize_reader.read().for_each(|event| {
-            settings.resolution.x = event.width;
-            settings.resolution.y = event.height;
-        });
+        for resize in resize_reader.read() {
+            let (width, height) = (resize.width, resize.height);
+            settings.resolution.x = width;
+            settings.resolution.y = height;
+        }
     }
 }
 

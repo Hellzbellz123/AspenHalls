@@ -41,9 +41,7 @@ impl Plugin for TouchInputPlugin {
             (interaction_button_system, fake_mouse_input)
                 .in_set(AspenInputSystemSet::TouchInput)
                 .run_if(
-                    leafwing_input_manager::systems::run_if_enabled::<
-                        action_maps::Gameplay,
-                    >
+                    any_with_component::<ActionState<action_maps::Gameplay>>()
                         .and_then(
                             any_with_component::<
                                 ActionStateDriver<action_maps::Gameplay>,

@@ -1,5 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use leafwing_input_manager::{
+    action_state::ActionStateDriverTarget,
     axislike::DualAxisData,
     prelude::{ActionState, ActionStateDriver},
     systems::run_if_enabled,
@@ -22,13 +23,16 @@ impl Plugin for KBMPlugin {
         app.add_systems(
             Update,
             apply_look_driver.run_if(
-                any_with_component::<Player>().and_then(run_once()),
+                // any_with_component::<Player>()
+                // .and_then(
+                    run_once()
+                // ),
             ),
         )
         .add_systems(
             PreUpdate,
             update_cursor_state_from_window
-                .run_if(run_if_enabled::<action_maps::Gameplay>.and_then(
+                .run_if(any_with_component::<ActionState<action_maps::Gameplay>>().and_then(
                     any_with_component::<
                         ActionStateDriver<action_maps::Gameplay>,
                     >(),
@@ -48,76 +52,100 @@ fn apply_look_driver(
             Without<ActionStateDriver<action_maps::Gameplay>>,
         ),
     >,
-    player_query: Query<Entity, With<Player>>,
+    // player_query: Query<Entity, With<Player>>,
 ) {
     commands
         .entity(window_query.single())
         .insert(ActionStateDriver {
             action: action_maps::Gameplay::LookLocal,
-            targets: player_query.single().into(),
+            targets: ActionStateDriverTarget::None, // player_query.single().into(),
         });
+}
+
+/// updates cursor position in look action with winit window cursor position
+fn update_cursor_state_from_window_old(
+    window_query: Query<&Window>,
+    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+) {
+    // Update action state with the mouse position from the window
+    let window = window_query.single();
+    let mut action_state = action_state_query.single_mut();
+    let (camera, camera_global_transform) = camera_query.single();
+
+    if let Some(cursor_local_pos) = window.cursor_position() {
+        let cursor_world_pos = camera
+            .viewport_to_world_2d(
+                camera_global_transform,
+                cursor_local_pos,
+            )
+            .unwrap_or_else(|| {
+                warn!("Could not get cursors world position");
+                Vec2::ZERO
+            });
+
+        action_state
+            .action_data_mut(action_maps::Gameplay::LookLocal)
+            .axis_pair = Some(DualAxisData::from_xy(cursor_local_pos));
+
+        action_state
+            .action_data_mut(action_maps::Gameplay::LookWorld)
+            .axis_pair = Some(DualAxisData::from_xy(cursor_world_pos));
+    } else {
+        let window_size =
+            Vec2::from_array([window.width(), window.height()]);
+        let window_center_world = camera
+            .viewport_to_world_2d(
+                camera_global_transform,
+                window_size / 2.0,
+            )
+            .unwrap_or(Vec2::ZERO);
+        action_state
+            .action_data_mut(action_maps::Gameplay::LookLocal)
+            .axis_pair = Some(DualAxisData::from_xy(window_size / 2.0));
+        action_state
+            .action_data_mut(action_maps::Gameplay::LookWorld)
+            .axis_pair = Some(DualAxisData::from_xy(window_center_world));
+    }
 }
 
 /// updates cursor position in look action with winit window cursor position
 fn update_cursor_state_from_window(
     window_query: Query<&Window>,
-    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
 ) {
-    // Update each action state with the mouse position from the window
-    // by using the referenced entities in ActionStateDriver and the stored action as
-    // a key into the action data
-    action_state_query.for_each_mut(|f| {
-        let mut action_state = f;
-        let window = window_query.single();
-        let (camera, camera_global_transform) = camera_query.single();
+    let window = window_query.single();
+    let mut action_state = action_state_query.single_mut();
+    let (camera, camera_global_transform) = camera_query.single();
 
-        if let Some(cursor_local_pos) = window.cursor_position() {
-            let cursor_world_pos = camera
-                .viewport_to_world_2d(
-                    camera_global_transform,
-                    cursor_local_pos,
-                )
-                .unwrap_or_else(|| {
-                    warn!("Could not get cursors world position");
-                    Vec2::ZERO
-                });
+    let mut new_cursor_world: Vec2 = Vec2 {
+        x: window.width() / 2.0,
+        y: window.height() / 2.0,
+    };
+    let mut new_cursor_local = camera
+        .viewport_to_world_2d(camera_global_transform, new_cursor_world)
+        .unwrap_or_default();
 
-            action_state
-                .action_data_mut(action_maps::Gameplay::LookLocal)
-                .axis_pair = Some(DualAxisData::from_xy(cursor_local_pos));
+    if let Some(cursor_local_pos) = window.cursor_position() {
+        let cursor_world_pos = camera
+            .viewport_to_world_2d(
+                camera_global_transform,
+                cursor_local_pos,
+            )
+            .unwrap_or_else(|| {
+                warn!("Could not get cursors world position");
+                new_cursor_world
+            });
 
-            action_state
-                .action_data_mut(action_maps::Gameplay::LookWorld)
-                .axis_pair = Some(DualAxisData::from_xy(cursor_world_pos));
-        } else if action_state
-            .action_data(action_maps::Gameplay::LookLocal)
-            .axis_pair
-            .is_none()
-            || action_state
-                .action_data(action_maps::Gameplay::LookWorld)
-                .axis_pair
-                .is_none()
-        {
-            // no cursor inside window.a
-            // TODO: how does this interact with touch control
-            // set point too window center
-            let window_size =
-                Vec2::from_array([window.width(), window.height()]);
-            let window_center_world = camera
-                .viewport_to_world_2d(
-                    camera_global_transform,
-                    window_size / 2.0,
-                )
-                .unwrap_or(Vec2::ZERO);
-            action_state
-                .action_data_mut(action_maps::Gameplay::LookLocal)
-                .axis_pair =
-                Some(DualAxisData::from_xy(window_size / 2.0));
-            action_state
-                .action_data_mut(action_maps::Gameplay::LookWorld)
-                .axis_pair =
-                Some(DualAxisData::from_xy(window_center_world));
-        }
-    });
+        new_cursor_local = cursor_local_pos;
+        new_cursor_world = cursor_world_pos;
+    }
+
+    action_state
+        .action_data_mut(action_maps::Gameplay::LookLocal)
+        .axis_pair = Some(DualAxisData::from_xy(new_cursor_local));
+    action_state
+        .action_data_mut(action_maps::Gameplay::LookWorld)
+        .axis_pair = Some(DualAxisData::from_xy(new_cursor_world));
 }

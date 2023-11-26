@@ -31,7 +31,7 @@ pub mod game {
                 TeleportPlayerCommand,
             },
         },
-        consts::ACTOR_Z_INDEX,
+        consts::*,
         game::{
             actors::{
                 ai::components::{
@@ -43,8 +43,9 @@ pub mod game {
                     ActorAnimationType, AnimState, AnimationSheet,
                 },
                 combat::components::{
-                    CurrentlySelectedWeapon, DamageType, WeaponSlots,
-                    WeaponSocket, WeaponStats, WeaponTag,
+                    BarrelPointTag, CurrentlySelectedWeapon, DamageType,
+                    WeaponColliderTag, WeaponSlots, WeaponSocket,
+                    WeaponStats, WeaponTag,
                 },
                 components::{
                     ActorCombatStats, ActorDerivedAttributes,
@@ -60,7 +61,7 @@ pub mod game {
                 AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel,
                 WalkingSoundTimer,
             },
-            input::action_maps::{self, Gameplay},
+            input::action_maps::{self},
             TimeInfo,
         },
         loading::{
@@ -252,12 +253,13 @@ pub mod engine {
     pub use big_brain::{
         // big brain common imports
         prelude::{
-            Action, ActionBuilder, ActionSpan,
-            ActionState as BBActionState, Actor, AllOrNothing,
-            BigBrainSet, ChebyshevDistance, ConcurrentMode, Concurrently,
-            EvaluatingScorer, Evaluator, FirstToScore, FixedScore,
-            HasThinker, Highest, LinearEvaluator, Measure, MeasuredScorer,
-            Picker, PowerEvaluator, ProductOfScorers, Score, Scorer,
+            Action as Task, ActionBuilder as TaskBuilder,
+            ActionSpan as TaskSpan, ActionState as TaskState,
+            Actor as Brain, AllOrNothing, BigBrainSet, ChebyshevDistance,
+            ConcurrentMode, Concurrently, EvaluatingScorer, Evaluator,
+            FirstToScore, FixedScore, HasThinker, Highest,
+            LinearEvaluator, Measure, MeasuredScorer, Picker,
+            PowerEvaluator, ProductOfScorers, Score, Scorer,
             ScorerBuilder, ScorerSpan, SigmoidEvaluator, Steps,
             SumOfScorers, Thinker, WeightedProduct, WeightedSum,
             WinningScorer,
@@ -275,8 +277,8 @@ pub mod engine {
         //leafwing common imports
         plugin::InputManagerSystem,
         prelude::{
-            ActionState as LIMActionState, ActionStateDriver, Actionlike,
-            ClashStrategy, DeadZoneShape, DualAxis, InputManagerBundle,
+            ActionState, ActionStateDriver, Actionlike, ClashStrategy,
+            DeadZoneShape, DualAxis, InputManagerBundle,
             InputManagerPlugin, InputMap, MockInput, Modifier,
             MouseWheelAxisType, MouseWheelDirection, QwertyScanCode,
             SingleAxis, ToggleActions, UserInput, VirtualDPad,

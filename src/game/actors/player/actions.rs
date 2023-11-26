@@ -1,25 +1,22 @@
-use crate::{
-    consts::TILE_SIZE,
+// use crate::{
+//     consts::TILE_SIZE,
+use crate::ahp::{
+    engine::{
+        debug, info, warn, ActionState, BuildChildren, Commands, Entity,
+        Event, EventWriter, GlobalTransform, Parent, Query, Transform,
+        Vec2, Vec3, With, Without,
+    },
     game::{
-        actors::{
-            ai::components::{ActorType, Type},
-            combat::components::{
-                BarrelPointTag, CurrentlySelectedWeapon,
-                WeaponColliderTag, WeaponSlots, WeaponSocket, WeaponTag,
-            },
-            components::Player,
-            spawners::components::SpawnActorEvent,
-        },
-        input::action_maps,
+        action_maps, ActorType, BarrelPointTag, CurrentlySelectedWeapon,
+        Player, SpawnActorEvent, Type, WeaponColliderTag, WeaponSlots,
+        WeaponSocket, WeaponTag, TILE_SIZE,
     },
 };
-use bevy::prelude::*;
-use leafwing_input_manager::prelude::ActionState as lfActionState;
 
 /// spawns skeleton near player if `Gameplay::DebugF1` is pressed
 pub fn spawn_custom_on_button(
     mut spawn_event_writer: EventWriter<SpawnActorEvent>,
-    query_action_state: Query<&lfActionState<action_maps::Gameplay>>,
+    query_action_state: Query<&ActionState<action_maps::Gameplay>>,
     player_query: Query<(&Transform, With<Player>)>,
 ) {
     if query_action_state.is_empty() {
@@ -64,51 +61,41 @@ pub struct ShootEvent {
 #[allow(clippy::type_complexity)]
 pub fn player_attack_sender(
     weapon_query: Query<
-        (
-            Entity,
-            &Children,
-            &Parent,
-            &CurrentlySelectedWeapon, // this can probably be single()
-            &Transform,
-        ),
-        (With<Parent>, Without<Player>),
+        Entity,
+        (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
     >,
     query_child_barrel_point: Query<
-        (Entity, &Parent, &GlobalTransform),
+        (&Parent, &GlobalTransform),
         (With<BarrelPointTag>, Without<Player>),
     >,
 
-    player_query: Query<(&mut Player, &mut Transform)>,
-    mut input_query: Query<&lfActionState<action_maps::Gameplay>>,
+    player_query: Query<(
+        &mut Player,
+        &mut Transform,
+        &ActionState<action_maps::Gameplay>,
+    )>,
     mut shoot_event_writer: EventWriter<ShootEvent>,
 ) {
     if player_query.is_empty()
         | weapon_query.is_empty()
-        | input_query.is_empty()
         | query_child_barrel_point.is_empty()
     {
         return;
     }
 
-    let (
-        weapon_entity,
-        _weapon_children,
-        _weapon_parent,
-        _is_weapon_active,
-        _weapon_transform,
-    ) = weapon_query.single();
+    let weapon_entity = weapon_query.single();
 
-    query_child_barrel_point.for_each(|(_ent, parent, barrel_trans)| {
+    for (parent, barrel_trans) in &query_child_barrel_point {
         if parent.get() == weapon_entity {
-            let action_state = input_query.single_mut();
+            let player = player_query.single();
+            let player_position = player.1.translation.truncate();
+            let action_state = player.2;
             let cursor_world = action_state
                 .action_data(action_maps::Gameplay::LookWorld)
                 .axis_pair
                 .expect("no axis pair on Gameplay::LookWorld")
                 .xy();
             let barrel_loc = barrel_trans.translation().truncate();
-            let player_position =
-                player_query.single().1.translation.truncate();
             let direction: Vec2 =
                 (cursor_world - player_position).normalize_or_zero();
 
@@ -124,7 +111,7 @@ pub fn player_attack_sender(
                 info!("melee not implemented yet");
             }
         }
-    });
+    }
 }
 
 /// equips closest weapon too player if `WeaponSlots` is not full
@@ -135,7 +122,7 @@ pub fn equip_closest_weapon(
             Entity,
             &mut WeaponSocket,
             &mut Transform,
-            &lfActionState<action_maps::Gameplay>,
+            &ActionState<action_maps::Gameplay>,
         ),
         With<Player>,
     >,

@@ -60,7 +60,7 @@ fn chase_score_system(
         let mut closest_player_transform: Option<&Transform> = None;
 
         // Iterate over available player queries and find the closest player to the enemy
-        player_query.for_each(|player_transform| {
+        for player_transform in &player_query {
             let distance =
                 player_transform.translation.truncate().distance(
                     enemy_query
@@ -70,11 +70,11 @@ fn chase_score_system(
                         .translation
                         .truncate(),
                 );
-            if distance < closest_player_as_distance {
+            if distance > closest_player_as_distance {
                 closest_player_as_distance = distance;
                 closest_player_transform = Some(player_transform);
             }
-        });
+        }
 
         if let Some(_player_transform) = closest_player_transform {
             let (_enemy_transform, chase_able) =
@@ -104,7 +104,7 @@ fn chase_score_system(
 //     let Ok(player_transform) = player_query.get_single() else {
 //         return;
 //     };
-//     wander_score_query.for_each_mut(|(Actor(actor), mut wander_score)| {
+//     for (Actor(actor), mut wander_score) in &mut wander_score_query {
 //         if let Ok((transform, chase_config)) = enemy_query.get(*actor) {
 //             let distance = player_transform
 //                 .translation
@@ -117,7 +117,7 @@ fn chase_score_system(
 //                 wander_score.set(0.0);
 //             }
 //         }
-//     });
+//     }
 // }
 
 /// TODO: add attacks
@@ -136,7 +136,7 @@ fn attack_score_system(
         return;
     };
 
-    attack_score_query.for_each_mut(|(Actor(actor), mut attack_score)| {
+    for (Actor(actor), mut attack_score) in &mut attack_score_query {
         if let Ok((transform, mut attack_config)) =
             enemy_query.get_mut(*actor)
         {
@@ -153,7 +153,7 @@ fn attack_score_system(
                 attack_score.set(0.0);
             }
         }
-    });
+    }
 }
 
 /// handles enemy's that can chase
@@ -175,7 +175,7 @@ fn chase_action(
         return;
     };
 
-    chasing_enemies.for_each_mut(|(Actor(actor), mut state)| {
+    for (Actor(actor), mut state) in &mut chasing_enemies {
         if let Ok((
             enemy_transform,
             mut velocity,
@@ -245,7 +245,7 @@ fn chase_action(
                 }
             }
         }
-    });
+    }
 }
 
 /// handles enemy's that are doing the wander action
@@ -262,7 +262,7 @@ fn wander_action(
         With<AIWanderAction>,
     >,
 ) {
-    thinker_query.for_each_mut(|(Actor(actor), mut state)| {
+    for (Actor(actor), mut state) in &mut thinker_query {
         if let Ok((
             enemy_transform,
             mut velocity,
@@ -336,7 +336,7 @@ fn wander_action(
                 }
             }
         }
-    });
+    }
 }
 
 /// handles enemy's that can chase
@@ -357,7 +357,7 @@ fn attack_action(
         return;
     };
 
-    shooting_enemies.for_each_mut(|(Actor(actor), mut state)| {
+    for (Actor(actor), mut state) in &mut shooting_enemies {
         if let Ok((enemy_transform, mut shoot_cfg, _anim_state)) =
             enemy_query.get_mut(*actor)
         {
@@ -371,11 +371,6 @@ fn attack_action(
                 .truncate()
                 .distance(player_transform.translation.truncate())
                 .abs();
-
-            info!(
-                "rapier physics scale{}",
-                rapier_context.physics_scale()
-            );
 
             let ray_origin = enemy_transform.translation.truncate()
                 + (direction_too_player * (TILE_SIZE / 2.0));
@@ -417,5 +412,5 @@ fn attack_action(
                 }
             }
         }
-    });
+    }
 }
