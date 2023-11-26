@@ -156,7 +156,7 @@ num-integer = { version = "0.1" }
 bevy = { workspace = true }
 
 # personal bevy plugins
-bevy_mod_logfu = { path = "deps_inhouse/bevy_mod_logfu" }
+bevy_mod_logfu = { path = "deps/bevy_mod_logfu" }
 # bevy_mod_mobiletouchpad = { path = "deps_inhouse/bevy_mod_mobile_touchpad" }
 # TODO: move the virtual touchpad into a reuseable bevy plugin
 # so other people can just throw it in and use it
