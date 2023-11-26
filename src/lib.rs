@@ -21,7 +21,7 @@ mod console;
 mod consts;
 #[cfg(feature = "develop")]
 /// Debug and Development related functions
-mod dev_tools;
+mod game_tools;
 /// actual game plugin, ui and all "game" functionality
 mod game;
 /// Holds all Asset Collections and handles loading them

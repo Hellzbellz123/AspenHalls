@@ -17,7 +17,7 @@ pub mod debug_plugin {
 
     #[cfg(feature = "develop")]
     #[cfg(not(any(target_os = "android", target_family = "wasm")))]
-    use crate::dev_tools::debug_dirs::debug_directory;
+    use crate::game_tools::debug_dirs::debug_directory;
 
     use std::{
         fs,

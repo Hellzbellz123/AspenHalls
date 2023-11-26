@@ -12,7 +12,7 @@ pub mod game {
     #[cfg(feature = "develop")]
     /// holds features/tools for inspecting state of application
     pub mod inspect {
-        pub use crate::dev_tools::debug_plugin::DebugPlugin;
+        pub use crate::game_tools::debug_plugin::DebugPlugin;
         pub use bevy_inspector_egui::prelude::{
             InspectorOptions, ReflectInspectorOptions,
         };

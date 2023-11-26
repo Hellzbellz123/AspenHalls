@@ -1,10 +1,16 @@
 use crate::ahp::{
-    engine::{
-        bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image,
-        NonSend, Query, Res, Window, With,
-    },
-    game::InitAssetHandles,
+        engine::{
+            bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image,
+            NonSend, Query, Res, Window, With,
+        },
+        game::InitAssetHandles,
+    };
+
+use bevy::{
+    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
+    prelude::Component,
 };
+
 // use bevy::{
 //     ecs::system::NonSend,
 //     prelude::{
@@ -57,17 +63,6 @@ pub fn set_window_icon(
     }
 }
 
-/// despawn any entity with T: Component
-pub fn despawn_with<T: bevy::prelude::Component>(
-    to_despawn: Query<Entity, With<T>>,
-    mut commands: bevy::prelude::Commands,
-) {
-    for entity in &to_despawn {
-        info!("despawning entity recursively: {:#?}", entity);
-        commands.entity(entity).despawn_recursive();
-    }
-}
-
 /// Performs a linear interpolation between `from` and `to` based on the value `s`.
 ///
 /// When `s` is `0.0`, the result will be equal to `self`.  When `s` is `1.0`, the result
@@ -102,8 +97,6 @@ macro_rules! register_types {
         )*
     };
 }
-
-use bevy::ecs::query::{ReadOnlyWorldQuery, WorldQuery};
 
 /// get either mutably util function
 pub trait GetEitherMut<'world, Element, Filter = ()>
@@ -177,5 +170,16 @@ where
         };
 
         self.get(to_query).ok()
+    }
+}
+
+/// despawn any entity with T: Component
+pub fn despawn_with<T: Component>(
+    to_despawn: Query<Entity, With<T>>,
+    mut commands: bevy::prelude::Commands,
+) {
+    for entity in &to_despawn {
+        info!("despawning entity recursively: {:#?}", entity);
+        commands.entity(entity).despawn_recursive();
     }
 }
