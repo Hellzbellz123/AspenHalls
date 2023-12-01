@@ -1,6 +1,6 @@
 use bevy::{
-    asset::Handle, ecs::system::Resource, reflect::TypeUuid,
-    render::texture::Image, sprite::TextureAtlas, text::Font,
+    asset::Handle, ecs::system::Resource, reflect::TypeUuid, render::texture::Image,
+    sprite::TextureAtlas, text::Font,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;
@@ -20,7 +20,9 @@ pub struct InitAssetHandles {
     /// splash screen
     #[asset(key = "splash_img")]
     pub img_splashscreen: Handle<Image>,
-
+    /// default cursor
+    #[asset(key = "cursor_default")]
+    pub cursor_default: Handle<Image>,
     /// large fancy font
     #[asset(key = "title_font")]
     pub font_title: Handle<Font>,

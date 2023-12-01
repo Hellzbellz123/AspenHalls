@@ -1,14 +1,20 @@
 use crate::ahp::{
-        engine::{
-            bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image,
-            NonSend, Query, Res, Window, With,
-        },
-        game::InitAssetHandles,
-    };
+    engine::{
+        bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image, NonSend, Query, Res, Window,
+        With,
+    },
+    game::InitAssetHandles,
+};
 
 use bevy::{
-    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
-    prelude::Component,
+    ecs::{
+        query::{ReadOnlyWorldQuery, WorldQuery},
+        system::ResMut,
+    },
+    input::{keyboard::KeyCode, mouse::MouseButton, Input},
+    log::debug,
+    prelude::{Component, Local},
+    window::Cursor,
 };
 
 // use bevy::{
@@ -42,8 +48,7 @@ pub fn set_window_icon(
             let favicon = image_assets
                 .get(&init_assets.img_favicon)
                 .expect("if this system is running this exists");
-            let image =
-                favicon.clone().try_into_dynamic().unwrap().into_rgba8();
+            let image = favicon.clone().try_into_dynamic().unwrap().into_rgba8();
             //  match image::open("assets/favicon.png") {
             //     Ok(img) => img.into_rgba8(),
             //     Err(e) => {
@@ -60,6 +65,29 @@ pub fn set_window_icon(
             .expect("the icon is not the correct size");
 
         winit_window.set_window_icon(Some(icon));
+    }
+}
+
+use bevy::window::CursorGrabMode;
+
+/// handle cursor lock for game
+pub fn cursor_grab_system(
+    mut windows: Query<&mut Window>,
+    btn: Res<Input<MouseButton>>,
+    key: Res<Input<KeyCode>>,
+) {
+    let mut window = windows.single_mut();
+
+    if btn.just_pressed(MouseButton::Left) {
+        // if you want to use the cursor, but not let it leave the window,
+        // use `Confined` mode:
+        window.cursor.grab_mode = CursorGrabMode::Confined;
+        window.cursor.visible = false
+    }
+
+    if key.just_pressed(KeyCode::Escape) {
+        window.cursor.grab_mode = CursorGrabMode::None;
+        window.cursor.visible = true;
     }
 }
 
@@ -98,6 +126,30 @@ macro_rules! register_types {
     };
 }
 
+/// Generates a [`Condition`](bevy::ecs::Condition)-satisfying closure that returns `true`
+/// if there are more `component` of the given type than the last run.
+pub fn on_component_added<T: Component>(
+) -> impl FnMut((Local<usize>, Query<(), With<T>>)) -> bool + Clone {
+    move |(mut local, query)| {
+        let count = *local;
+        let new_count = query.into_iter().len();
+        debug!("run condition count: {:?}", count);
+        if count < new_count {
+            *local = new_count;
+            true
+        } else if count > new_count {
+            *local = new_count;
+            false
+        } else if count == new_count {
+            *local = new_count;
+            false
+        } else {
+            warn!("`any_componnent_added` run-condition hit unreachable code, something broke");
+            false
+        }
+    }
+}
+
 /// get either mutably util function
 pub trait GetEitherMut<'world, Element, Filter = ()>
 where
@@ -105,11 +157,7 @@ where
     Filter: ReadOnlyWorldQuery,
 {
     /// mutable get either entity
-    fn get_either_mut(
-        &mut self,
-        this: Entity,
-        otherwise: Entity,
-    ) -> Option<Element::Item<'_>>;
+    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
 }
 
 impl<'world, 'state, Element, Filter> GetEitherMut<'world, Element, Filter>
@@ -118,11 +166,7 @@ where
     Element: WorldQuery,
     Filter: ReadOnlyWorldQuery,
 {
-    fn get_either_mut(
-        &mut self,
-        this: Entity,
-        otherwise: Entity,
-    ) -> Option<Element::Item<'_>> {
+    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
         let to_query: Entity;
         if self.get(this).is_ok() {
             to_query = this;
@@ -142,11 +186,7 @@ where
     Element: ReadOnlyWorldQuery,
 {
     /// returns one of two elements from world query
-    fn get_either(
-        &self,
-        this: Entity,
-        otherwise: Entity,
-    ) -> Option<Element::Item<'_>>;
+    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
 }
 
 impl<'world, 'state, Element, Filter> GetEither<'world, Element, Filter>
@@ -155,11 +195,7 @@ where
     Element: ReadOnlyWorldQuery,
     Filter: ReadOnlyWorldQuery,
 {
-    fn get_either(
-        &self,
-        this: Entity,
-        otherwise: Entity,
-    ) -> Option<Element::Item<'_>> {
+    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
         let to_query: Entity;
         if self.get(this).is_ok() {
             to_query = this;

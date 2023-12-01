@@ -1,13 +1,22 @@
-use bevy::prelude::SpatialBundle;
+use bevy::{
+    ecs::{
+        component::Component,
+        reflect::{self, ReflectComponent},
+        schedule::common_conditions::not,
+        system::Res,
+    },
+    log::warn,
+    math::Vec2,
+    prelude::{any_with_component, ImageBundle, PositionType, Reflect},
+    ui::{Node, Style, Val, ZIndex},
+};
 
 use crate::ahp::{
     engine::{
-        bevy, default, leafwing_input_manager::action_state::ActionState,
-        svg_draw, svg_shapes, Color, Commands, Component, GeometryBuilder,
-        IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query,
-        SvgBundle, Transform, With,
+        bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
+        IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
     },
-    game::{action_maps, AppState, Player},
+    game::{action_maps, ActorTextureHandles, AppState, InitAssetHandles, Player},
 };
 
 use super::AspenInputSystemSet;
@@ -17,65 +26,79 @@ pub struct SoftwareCursorPlugin;
 
 impl Plugin for SoftwareCursorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_systems(OnEnter(AppState::Loading), spawn_software_cursor);
+        app.register_type::<SoftWareCursor>();
+        app.add_systems(
+            OnEnter(AppState::Loading),
+            spawn_software_cursor.run_if(not(any_with_component::<SoftWareCursor>())),
+        );
 
         app.add_systems(
             PreUpdate,
-            update_software_cursor
+            update_software_cursor_position
+                .run_if(any_with_component::<SoftWareCursor>())
                 .in_set(AspenInputSystemSet::SoftwareCursor),
         );
     }
 }
 /// tag for easy software cursor query
-#[derive(Component)]
-pub struct SoftWareCursorTag;
+#[derive(Component, Reflect, Default)]
+// #[reflect(Component)]
+pub struct SoftWareCursor {
+    offset: Vec2,
+}
 
 /// creates software cursor entity
 /// image selected from `init_resources.custom_cursor` ?
-fn spawn_software_cursor(mut cmds: Commands) {
-    let shape = svg_shapes::RegularPolygon {
-        sides: 6,
-        feature: svg_shapes::RegularPolygonFeature::Radius(5.0),
-        ..svg_shapes::RegularPolygon::default()
-    };
-
+fn spawn_software_cursor(mut cmds: Commands, tex: Res<InitAssetHandles>) {
     cmds.spawn((
         Name::new("SoftwareCursor"),
-        SoftWareCursorTag,
-        SvgBundle {
-            path: GeometryBuilder::build_as(&shape),
-            spatial: SpatialBundle::from_transform(Transform::from_xyz(
-                0.0, 0.0, 50.0,
-            )),
+        SoftWareCursor {
+            offset: Vec2 { x: 0.0, y: 0.0 },
+        },
+        ImageBundle {
+            style: Style {
+                width: Val::Vw(3.0),
+                aspect_ratio: Some(1.0),
+                position_type: PositionType::Absolute,
+                left: Val::Auto,
+                right: Val::Auto,
+                top: Val::Auto,
+                bottom: Val::Auto,
+                ..default()
+            },
+            z_index: ZIndex::Global(15),
+            image: tex.cursor_default.clone().into(),
             ..default()
         },
-        svg_draw::Fill::color(Color::CYAN),
-        svg_draw::Stroke::new(Color::BLACK, 2.0),
     ));
 }
 
-//TODO: hide software cursor when close too player (when within margin of screen_dimensions / 2.0)
-/// modifies software cursor position based on mouse position inside window
-fn update_software_cursor(
-    // window_query: Query<&Window, With<PrimaryWindow>>,
+fn update_software_cursor_position(
     player_input: Query<&ActionState<action_maps::Gameplay>, With<Player>>,
-    mut soft_ware_cursor_query: Query<
-        &mut Transform,
-        With<SoftWareCursorTag>,
-    >,
+    mut software_cursor: Query<(&mut Style, &SoftWareCursor), With<Node>>,
 ) {
     let Ok(player) = player_input.get_single() else {
+        warn!("no player action data too update cursor with");
         return;
     };
-    // let look_local_data = player_input.action_data(actions::Gameplay::LookLocal);
-    // let window = window_query.single();
-    let look_global_data =
-        player.action_data(action_maps::Gameplay::LookWorld);
-    let mut soft_cursor_transform = soft_ware_cursor_query.single_mut();
 
-    soft_cursor_transform.translation = look_global_data
+    let Some(look_data) = player
+        .action_data(action_maps::Gameplay::LookLocal)
         .axis_pair
-        .unwrap()
-        .xy()
-        .extend(soft_cursor_transform.translation.z);
+    else {
+        warn!("No look data for software");
+        return;
+    };
+
+    let axis_value = look_data.xy();
+    let (mut cursor_style, cursor_data) = software_cursor.single_mut();
+
+    cursor_style.left = Val::Px(axis_value.x - cursor_data.offset.x);
+    cursor_style.top = Val::Px(axis_value.y - cursor_data.offset.y);
 }
+
+// TODO: software cursor image should change based on button interaction
+
+// it would be cool if:
+// actually playing game it was a target like looking thingy
+// a menu was visible, it would be a hand, and if the buttons get pressed the hand goes to 1 finger

@@ -1,16 +1,21 @@
-use bevy::prelude::*;
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use bevy_ecs_ldtk::{prelude::LdtkEntityAppExt, TileEnumTags};
 use bevy_ecs_tilemap::prelude::*;
-use bevy_rapier2d::prelude::{
-    Collider, CollisionGroups, Group, RigidBody, Rot, Vect,
-};
+use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 
-use crate::consts::{AspenCollisionLayer, ACTOR_Z_INDEX};
+use crate::{
+    consts::{AspenCollisionLayer, ACTOR_Z_INDEX},
+    game::game_world::{dungeonator_v2::DungeonGeneratorState, hideout::PlayerTeleportEvent},
+    utilities::on_component_added,
+    AppState,
+};
 
 use self::{
     components::{
-        CollisionBundle, LdtkRoomExitBundle, LdtkSensorBundle,
-        LdtkSpawnerBundle, LdtkStartLocBundle, PlayerStartLocation,
+        CollisionBundle, LdtkRoomExitBundle, LdtkSensorBundle, LdtkSpawnerBundle,
+        LdtkStartLocBundle, PlayerStartLocation,
     },
     // dungeonator_v1::GeneratorStage,
 };
@@ -63,8 +68,14 @@ impl Plugin for GameWorldPlugin {
             .register_ldtk_entity::<LdtkRoomExitBundle>("RoomExit")
             .add_systems(
                 Update,
-                process_tile_enum_tags
-                    .run_if(any_with_component::<TileEnumTags>()),
+                (
+                    process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
+                    handle_teleport_events.run_if(on_event::<PlayerTeleportEvent>()),
+                    teleport_player_too_start_location.run_if(
+                        on_component_added::<PlayerStartLocation>()
+                            .and_then(on_timer(Duration::from_secs_f32(0.5))),
+                    ), //.run_if(state_exists_and_equals(AppState::PlayingGame).and_then(run_once())),
+                ),
             );
     }
 }
@@ -72,6 +83,19 @@ impl Plugin for GameWorldPlugin {
 /// Holds `NavGrid`, for easier query
 #[derive(Component)]
 pub struct GridContainerTag;
+
+fn handle_teleport_events(mut cmds: Commands, mut tp_events: EventReader<PlayerTeleportEvent>) {
+    for event in tp_events.read() {
+        match event.tp_action.as_str() {
+            "StartDungeonGen" => {
+                cmds.insert_resource(NextState(Some(DungeonGeneratorState::GeneratingDungeon)))
+            }
+            a => {
+                warn!("Got a teleport event that was not handled: {a}")
+            }
+        }
+    }
+}
 
 /// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
 // TODO: find all uses of cmds.spawn(()) and add cleanup component
@@ -86,30 +110,30 @@ fn teleport_player_too_start_location(
 ) {
     if start_location.is_empty() {
         warn!("no start locations");
-    } else {
-        let mut sum = Vec2::ZERO;
-        let mut count: i32 = 0;
+        return;
+    }
 
-        for (_, global_transform, _local_transform) in
-            start_location.iter()
-        {
-            sum += global_transform.translation().truncate();
-            count += 1;
-        }
+    warn!("running player teleport");
 
-        if count >= i32::try_from(start_location.iter().len()).unwrap_or(4)
-        {
-            let average = Transform {
-                translation: (sum / (count as f32)).extend(ACTOR_Z_INDEX),
-                rotation: Quat::IDENTITY,
-                scale: Vec3::ONE,
-            };
-            let player = player_query.single_mut();
-            let (mut player_transform, _player_data) = player;
-            *player_transform = average;
-            // Use the calculated average transform as needed
-            println!("Average transform: {average:?}");
-        }
+    let mut sum = Vec2::ZERO;
+    let mut count: i32 = 0;
+
+    for (_, global_transform, _local_transform) in start_location.iter() {
+        sum += global_transform.translation().truncate();
+        count += 1;
+    }
+
+    if count >= i32::try_from(start_location.iter().len()).unwrap_or(4) {
+        let average = Transform {
+            translation: (sum / (count as f32)).extend(ACTOR_Z_INDEX),
+            rotation: Quat::IDENTITY,
+            scale: Vec3::ONE,
+        };
+        let player = player_query.single_mut();
+        let (mut player_transform, _player_data) = player;
+        *player_transform = average;
+        // Use the calculated average transform as needed
+        println!("Average transform: {average:?}");
     }
 }
 
@@ -165,11 +189,8 @@ fn check_tag_colliders(
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideRight" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> = vec![(
-            Vec2::new(-12.0, 0.0),
-            0.0,
-            Collider::cuboid(4.0, 16.0),
-        )];
+        let shape: Vec<(Vect, Rot, Collider)> =
+            vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideWall" == tag {
@@ -178,19 +199,13 @@ fn check_tag_colliders(
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerLR" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> = vec![(
-            Vec2::new(-12.0, 12.0),
-            0.0,
-            Collider::cuboid(4.0, 4.0),
-        )];
+        let shape: Vec<(Vect, Rot, Collider)> =
+            vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerUR" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> = vec![(
-            Vec2::new(-12.0, -12.0),
-            0.0,
-            Collider::cuboid(4.0, 4.0),
-        )];
+        let shape: Vec<(Vect, Rot, Collider)> =
+            vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerLL" == tag {
@@ -199,11 +214,8 @@ fn check_tag_colliders(
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideCornerUL" == tag {
-        let shape: Vec<(Vect, Rot, Collider)> = vec![(
-            Vec2::new(12.0, -12.0),
-            0.0,
-            Collider::cuboid(4.0, 4.0),
-        )];
+        let shape: Vec<(Vect, Rot, Collider)> =
+            vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
         insert_collider(commands, entity, shape, tag, tile_enum_tag);
     }
     if "CollideInnerUL" == tag {

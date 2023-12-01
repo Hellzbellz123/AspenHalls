@@ -19,11 +19,11 @@ mod console;
 /// general consts file, if it gets used more than
 /// twice it should be here
 mod consts;
+/// actual game plugin, ui and all "game" functionality
+mod game;
 #[cfg(feature = "develop")]
 /// Debug and Development related functions
 mod game_tools;
-/// actual game plugin, ui and all "game" functionality
-mod game;
 /// Holds all Asset Collections and handles loading them
 /// also holds fail state
 mod loading;
@@ -40,14 +40,15 @@ pub mod ahp;
 
 use ahp::{
     engine::{
-        bevy_rapier2d, default, resource_exists, run_once, App, Condition,
-        IntoSystemConfigs, Reflect, Resource, States, Update, Vec2,
+        bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
+        Reflect, Resource, States, Update, Vec2,
     },
     game::{ConfigFile, InitAssetHandles},
 };
 
 #[cfg(feature = "develop")]
 use ahp::game::inspect::DebugPlugin;
+use bevy::asset::AssetMetaCheck;
 
 /// application stages
 pub enum ClientStage {
@@ -62,9 +63,7 @@ pub enum ClientStage {
 }
 
 /// what part of the game we are at
-#[derive(
-    Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect,
-)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
 pub enum GameProgressStatus {
     /// no actor related logic, just the main menu
     #[default]
@@ -90,9 +89,7 @@ pub enum DungeonLevel {
 }
 
 /// main game state loop
-#[derive(
-    Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect,
-)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
 pub enum AppState {
     /// pre loading state before window is shown.
     /// Loads REQUIRED resources
@@ -121,11 +118,12 @@ pub enum AppState {
 /// then loads settings from config.toml and adds
 /// general game plugins
 pub fn start_app(cfg_file: ConfigFile) -> App {
-    let mut vanillacoffee =
-        loading::config::create_configured_app(cfg_file);
+    let mut vanillacoffee = loading::config::create_configured_app(cfg_file);
 
     // add third party plugins
     vanillacoffee
+            // Never attempts to look up meta files. The default meta configuration will be used for each asset.
+            .insert_resource(AssetMetaCheck::Never)
         .add_plugins((
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,
@@ -151,12 +149,10 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
 
     vanillacoffee.add_systems(
         Update,
-        IntoSystemConfigs::run_if(
-            utilities::set_window_icon,
-            Condition::and_then(
-                resource_exists::<InitAssetHandles>(),
-                run_once(),
-            ),
+        (
+            utilities::set_window_icon
+                .run_if(resource_exists::<InitAssetHandles>().and_then(run_once())),
+            utilities::cursor_grab_system,
         ),
     );
 

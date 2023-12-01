@@ -8,6 +8,9 @@
     "menu_style": File (
         path: "init/styles/menu.ess",
     ),
+    "cursor_default" : File (
+        path: "init/default_cursor.png",
+    ),
     // mainly app icon, but used in other places too
     "favicon": File (
         path: "init/favicon.png",
