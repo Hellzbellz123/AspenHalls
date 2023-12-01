@@ -1,8 +1,7 @@
 use bevy::{prelude::*, utils::Instant, window::PrimaryWindow};
 use bevy_touch_stick::{
-    TouchStick, TouchStickGamepadMapping, TouchStickPlugin,
-    TouchStickType, TouchStickUiBundle, TouchStickUiKnob,
-    TouchStickUiOutline,
+    TouchStick, TouchStickGamepadMapping, TouchStickPlugin, TouchStickType, TouchStickUiBundle,
+    TouchStickUiKnob, TouchStickUiOutline,
 };
 use leafwing_input_manager::{
     action_state::{ActionData, Timing},
@@ -18,9 +17,7 @@ use super::{
 };
 use crate::{
     ahp::game::MainCamera,
-    game::{
-        actors::components::Player, interface::InterfaceRoot, AppState,
-    },
+    game::{actors::components::Player, interface::InterfaceRoot, AppState},
     loading::assets::{InitAssetHandles, TouchControlAssetHandles},
 };
 
@@ -32,21 +29,14 @@ pub struct TouchInputPlugin;
 impl Plugin for TouchInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(TouchStickPlugin::<TouchStickBinding>::default());
-        app.add_systems(
-            OnEnter(AppState::PlayingGame),
-            spawn_touch_controls,
-        );
+        app.add_systems(OnEnter(AppState::PlayingGame), spawn_touch_controls);
         app.add_systems(
             PreUpdate,
             (interaction_button_system, fake_mouse_input)
                 .in_set(AspenInputSystemSet::TouchInput)
                 .run_if(
                     any_with_component::<ActionState<action_maps::Gameplay>>()
-                        .and_then(
-                            any_with_component::<
-                                ActionStateDriver<action_maps::Gameplay>,
-                            >(),
-                        ),
+                        .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
                 ),
         );
     }
@@ -87,8 +77,8 @@ fn spawn_touch_controls(
     init_handles: Res<InitAssetHandles>,
     touch_assets: Res<TouchControlAssetHandles>,
 ) {
-    cmds.entity(touch_root_query.single()).with_children(
-        |ui_root_children| {
+    cmds.entity(touch_root_query.single())
+        .with_children(|ui_root_children| {
             ui_root_children
                 .spawn((
                     Name::new("TouchControls"),
@@ -155,8 +145,7 @@ fn spawn_touch_controls(
                         TouchStickBinding::LookTouchInput,
                     );
                 });
-        },
-    );
+        });
 }
 
 /// spawns button with <S> marker component
@@ -228,15 +217,7 @@ fn spawn_controlsbutton<S: Component>(
 /// takes name, position, size, mapping, and id
 /// touch stick is fixed position
 fn spawn_touchstick<
-    S: Hash
-        + Sync
-        + Send
-        + Clone
-        + Default
-        + Reflect
-        + FromReflect
-        + TypePath
-        + 'static,
+    S: Hash + Sync + Send + Clone + Default + Reflect + FromReflect + TypePath + 'static,
 >(
     touch_controls_builder: &mut ChildBuilder<'_, '_, '_>,
     touch_assets: &Res<'_, TouchControlAssetHandles>,
@@ -336,9 +317,7 @@ fn interaction_button_system(
     >,
     mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>,
 ) {
-    for (interaction, mut color, mut border_color, _children) in
-        &mut interaction_query
-    {
+    for (interaction, mut color, mut border_color, _children) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 info!("interaction button pressed, send thing");
@@ -391,10 +370,8 @@ fn fake_mouse_input(
         // let normalized_y = y;
 
         // Adjust input values to be centered around (0,0)
-        let centered_x =
-            dead_zone.mul_add(-joy_axis.x.signum(), joy_axis.x); //j.axis().x - dead_zone * j.axis().x.signum();
-        let centered_y =
-            dead_zone.mul_add(-joy_axis.y.signum(), joy_axis.y); // j.axis().y - dead_zone * j.axis().y.signum();
+        let centered_x = dead_zone.mul_add(-joy_axis.x.signum(), joy_axis.x); //j.axis().x - dead_zone * j.axis().x.signum();
+        let centered_y = dead_zone.mul_add(-joy_axis.y.signum(), joy_axis.y); // j.axis().y - dead_zone * j.axis().y.signum();
 
         // Normalize input values to [-1.0, 1.0]
         let normalized_x = centered_x / (1.0 - dead_zone);
@@ -403,10 +380,8 @@ fn fake_mouse_input(
     };
 
     let fake_cursor_position = Vec2::new(
-        (normalized_input.x * window.width() / 2.0)
-            + (window.width() / 2.0),
-        (-normalized_input.y * window.height() / 2.0)
-            + (window.height() / 2.0),
+        (normalized_input.x * window.width() / 2.0) + (window.width() / 2.0),
+        (-normalized_input.y * window.height() / 2.0) + (window.height() / 2.0),
     );
 
     let fake_world_position = camera

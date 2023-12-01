@@ -8,9 +8,7 @@ use bevy::{math::vec2, prelude::*};
 use rand::{thread_rng, Rng};
 
 use self::{
-    components::{
-        EnemyContainerTag, SpawnActorEvent, Spawner, SpawnerTimer,
-    },
+    components::{EnemyContainerTag, SpawnActorEvent, Spawner, SpawnerTimer},
     spawn_functions_enemy::{spawn_skeleton, spawn_slime},
     spawn_functions_weapons::{spawn_small_pistol, spawn_small_smg},
 };
@@ -40,9 +38,7 @@ impl Plugin for SpawnerPlugin {
             .add_systems(
                 Update,
                 (
-                    spawn_enemy_container.run_if(
-                        |ect: Query<&EnemyContainerTag>| ect.is_empty(),
-                    ), //run_once()),
+                    spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()), //run_once()),
                     receive_enemy_spawns,
                     receive_weapon_spawns,
                     spawner_timer_system,
@@ -64,9 +60,7 @@ fn receive_enemy_spawns(
         if event.actor_type != ActorType(Type::Enemy) {
             return;
         } else if event.spawn_count > 100 {
-            warn!(
-                "too many spawns requested, will likely panic, aborting"
-            );
+            warn!("too many spawns requested, will likely panic, aborting");
             return;
         }
         let mut rng = thread_rng();
@@ -110,10 +104,7 @@ fn receive_enemy_spawns(
                 ),
                 #[allow(unreachable_patterns)]
                 enemy_type => {
-                    warn!(
-                        "Enemy type not implemented yet: {}",
-                        enemy_type
-                    );
+                    warn!("Enemy type not implemented yet: {}", enemy_type);
                 }
             }
         }
@@ -132,9 +123,7 @@ fn receive_weapon_spawns(
         if event.actor_type != ActorType(Type::Item) {
             return;
         } else if event.spawn_count > 100 {
-            warn!(
-                "too many spawns requested, will likely panic, aborting"
-            );
+            warn!("too many spawns requested, will likely panic, aborting");
             return;
         }
 
@@ -146,20 +135,12 @@ fn receive_weapon_spawns(
         match what_too_spawn {
             WeaponType::SmallSMG => {
                 for _spawn_count in 0..event.spawn_count {
-                    spawn_small_smg(
-                        enemy_assets.to_owned(),
-                        &mut commands,
-                        event,
-                    );
+                    spawn_small_smg(enemy_assets.to_owned(), &mut commands, event);
                 }
             }
             WeaponType::SmallPistol => {
                 for _spawn_count in 0..event.spawn_count {
-                    spawn_small_pistol(
-                        enemy_assets.to_owned(),
-                        &mut commands,
-                        event,
-                    );
+                    spawn_small_pistol(enemy_assets.to_owned(), &mut commands, event);
                 }
             }
             #[allow(unreachable_patterns)]
@@ -202,22 +183,16 @@ pub fn spawner_timer_system(
         return;
     }
 
-    let total_enemy_count = i32::try_from(all_enemies.iter().len())
-        .unwrap_or_else(|x| {
-            warn!("{x:?}");
-            1_000_000
-        });
+    let total_enemy_count = i32::try_from(all_enemies.iter().len()).unwrap_or_else(|x| {
+        warn!("{x:?}");
+        1_000_000
+    });
 
     if total_enemy_count.ge(&hard_settings.max_enemies_per_room) {
         // warn!("Enemy Count is greater than or equal too total enemies allowed in game");
         return;
     }
-    for (
-        spawner_entity,
-        spawner_transform,
-        spawner_state,
-        mut spawner_timer,
-    ) in &mut spawner_query
+    for (spawner_entity, spawner_transform, spawner_state, mut spawner_timer) in &mut spawner_query
     {
         if !spawner_timer.tick(time.delta()).finished() {
             return;

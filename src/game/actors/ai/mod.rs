@@ -38,8 +38,7 @@ fn parent_brains_to_container(
     }
 
     if brain_container_query.is_empty() {
-        commands
-            .spawn((BigBrainContainerTag, Name::new("BigBrainContainer")));
+        commands.spawn((BigBrainContainerTag, Name::new("BigBrainContainer")));
         return;
     }
 

@@ -1,8 +1,5 @@
 use crate::ahp::engine::{
-    bevy_console::{
-        AddConsoleCommand, ConsoleConfiguration, ConsolePlugin,
-        ToggleConsoleKey,
-    },
+    bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey},
     default, App, KeyCode, Plugin,
 };
 /// holds systems that are used by commands
@@ -30,15 +27,9 @@ impl Plugin for QuakeConPlugin {
                 symbol: "asha$ ".to_owned(),
                 ..default()
             })
-            .add_console_command::<SpawnEnemyCommand, _>(
-                spawnenemy_command,
-            )
-            .add_console_command::<SpawnWeaponCommand, _>(
-                spawnweapon_command,
-            )
-            .add_console_command::<TeleportPlayerCommand, _>(
-                teleport_player_command,
-            );
+            .add_console_command::<SpawnEnemyCommand, _>(spawnenemy_command)
+            .add_console_command::<SpawnWeaponCommand, _>(spawnweapon_command)
+            .add_console_command::<TeleportPlayerCommand, _>(teleport_player_command);
     }
 }
 

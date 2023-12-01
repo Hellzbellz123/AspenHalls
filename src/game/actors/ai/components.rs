@@ -69,9 +69,7 @@ pub struct Enemy {
 }
 
 /// faction enemy belongs too
-#[derive(
-    Debug, Component, Deref, DerefMut, Reflect, Clone, Copy, PartialEq, Eq,
-)]
+#[derive(Debug, Component, Deref, DerefMut, Reflect, Clone, Copy, PartialEq, Eq)]
 pub struct ActorType(pub Type);
 
 /// type of actor

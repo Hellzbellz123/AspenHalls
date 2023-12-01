@@ -1,7 +1,5 @@
 use bevy::{
-    prelude::{
-        Component, Deref, DerefMut, Entity, Event, ReflectComponent, Vec2,
-    },
+    prelude::{Component, Deref, DerefMut, Entity, Event, ReflectComponent, Vec2},
     reflect::Reflect,
     time::Timer,
 };
@@ -12,15 +10,7 @@ use crate::game::actors::ai::components::ActorType;
 
 /// different enemy types in the game,
 #[derive(
-    Component,
-    Debug,
-    Reflect,
-    Default,
-    Clone,
-    Copy,
-    EnumVariantNames,
-    EnumString,
-    Display,
+    Component, Debug, Reflect, Default, Clone, Copy, EnumVariantNames, EnumString, Display,
 )]
 // #[strum(serialize_all = "lowercase")]
 pub enum EnemyType {
@@ -32,16 +22,7 @@ pub enum EnemyType {
 }
 
 /// weapons that can be spawned in the game
-#[derive(
-    Component,
-    Debug,
-    Reflect,
-    Default,
-    Clone,
-    EnumVariantNames,
-    EnumString,
-    Display,
-)]
+#[derive(Component, Debug, Reflect, Default, Clone, EnumVariantNames, EnumString, Display)]
 #[strum(serialize_all = "lowercase")]
 pub enum WeaponType {
     /// small smg, fast fire rate, med damage

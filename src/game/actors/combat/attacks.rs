@@ -2,17 +2,11 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bundles::{
-        ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle,
-    },
-    consts::{
-        AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX,
-        BULLET_SPEED_MODIFIER,
-    },
+    bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
+    consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
     game::actors::{
         components::{
-            PlayerProjectileColliderTag, PlayerProjectileTag,
-            ProjectileStats, TimeToLive,
+            PlayerProjectileColliderTag, PlayerProjectileTag, ProjectileStats, TimeToLive,
         },
         player::actions::ShootEvent,
     },
@@ -37,28 +31,21 @@ pub fn create_bullet(
                 speed: weapon_stats.bullet_speed,
                 size: weapon_stats.projectile_size,
             },
-            ttl: TimeToLive(Timer::from_seconds(
-                2.0,
-                TimerMode::Repeating,
-            )),
+            ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
                 texture: assets.bevy_icon.clone(),
                 transform: Transform::from_translation(
                     event.bullet_spawn_loc.extend(ACTOR_Z_INDEX), //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
                 ),
                 sprite: Sprite {
-                    custom_size: Some(Vec2::splat(
-                        weapon_stats.projectile_size,
-                    )),
+                    custom_size: Some(Vec2::splat(weapon_stats.projectile_size)),
                     ..default()
                 },
                 ..default()
             },
             rigidbody_bundle: RigidBodyBundle {
                 velocity: Velocity::linear(
-                    event.travel_dir
-                        * (weapon_stats.bullet_speed
-                            * BULLET_SPEED_MODIFIER),
+                    event.travel_dir * (weapon_stats.bullet_speed * BULLET_SPEED_MODIFIER),
                 ),
                 rigidbody: RigidBody::Dynamic,
                 friction: Friction::coefficient(0.2),
@@ -80,8 +67,7 @@ pub fn create_bullet(
                 name: Name::new("PlayerProjectileCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {
-                        translation: Vec2::ZERO
-                            .extend(ACTOR_PHYSICS_Z_INDEX),
+                        translation: Vec2::ZERO.extend(ACTOR_PHYSICS_Z_INDEX),
                         ..default()
                     }),
                     ..default()
@@ -93,10 +79,7 @@ pub fn create_bullet(
                         | AspenCollisionLayer::ACTOR
                         | AspenCollisionLayer::PROJECTILE,
                 ),
-                ttl: TimeToLive(Timer::from_seconds(
-                    2.0,
-                    TimerMode::Repeating,
-                )),
+                ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             },
             ActiveEvents::COLLISION_EVENTS,
         ));

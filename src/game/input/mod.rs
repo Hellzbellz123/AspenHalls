@@ -1,8 +1,7 @@
 use bevy::ecs::schedule::IntoSystemSetConfigs;
 
 use crate::ahp::engine::{
-    App, InputManagerPlugin, InputManagerSystem, Plugin, PreUpdate,
-    SystemSet,
+    App, InputManagerPlugin, InputManagerSystem, Plugin, PreUpdate, SystemSet,
 };
 
 /// holds action maps
@@ -31,9 +30,7 @@ pub struct ActionsPlugin;
 // holds default bindings for game
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(
-            InputManagerPlugin::<action_maps::Gameplay>::default(),
-        );
+        app.add_plugins(InputManagerPlugin::<action_maps::Gameplay>::default());
         // TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
         app.add_plugins(touch::TouchInputPlugin);
         // updates LookWorld and LookLocal based off mouse position inside window

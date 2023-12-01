@@ -1,8 +1,5 @@
 use bevy::{
-    prelude::{
-        Bundle, Component, Deref, DerefMut, Entity, Name,
-        ReflectComponent, Vec3,
-    },
+    prelude::{Bundle, Component, Deref, DerefMut, Entity, Name, ReflectComponent, Vec3},
     reflect::Reflect,
     sprite::{SpriteBundle, SpriteSheetBundle},
     transform::TransformBundle,
@@ -11,10 +8,7 @@ use bevy::{
 
 use bevy_rapier2d::prelude::{Collider, CollisionGroups};
 
-use crate::{
-    bundles::RigidBodyBundle,
-    game::actors::spawners::components::WeaponType,
-};
+use crate::{bundles::RigidBodyBundle, game::actors::spawners::components::WeaponType};
 
 /// new type around f32, for damage
 #[derive(Debug, Component, Deref, DerefMut, Reflect)]

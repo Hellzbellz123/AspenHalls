@@ -3,9 +3,7 @@ use bevy::{app::AppExit, prelude::*};
 use rand::Rng;
 
 /// currently active menu
-#[derive(
-    Debug, Default, States, Hash, PartialEq, Eq, Clone, Copy, Reflect,
-)]
+#[derive(Debug, Default, States, Hash, PartialEq, Eq, Clone, Copy, Reflect)]
 pub enum RequestedMenu {
     /// no menu spawned
     #[default]
@@ -27,10 +25,7 @@ pub struct InterfaceRoot;
 
 impl Plugin for InterfacePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(AppState::BootingApp),
-            (spawn_interface_root,),
-        );
+        app.add_systems(OnEnter(AppState::BootingApp), (spawn_interface_root,));
         app.add_systems(OnEnter(AppState::StartMenu), spawn_start_menu);
         app.add_systems(
             Update,
@@ -100,9 +95,7 @@ fn spawn_start_menu(
                             },
                             ..default()
                         },
-                        background_color: BackgroundColor(random_color(
-                            Some(0.8),
-                        )),
+                        background_color: BackgroundColor(random_color(Some(0.8))),
                         ..default()
                     },
                 ))
@@ -119,8 +112,7 @@ fn spawn_start_menu(
                                 style: Style {
                                     position_type: PositionType::Relative,
                                     flex_direction: FlexDirection::Column,
-                                    justify_content:
-                                        JustifyContent::SpaceEvenly,
+                                    justify_content: JustifyContent::SpaceEvenly,
                                     align_items: AlignItems::Center,
                                     width: Val::Percent(70.0),
                                     height: Val::Percent(70.0),
@@ -134,9 +126,7 @@ fn spawn_start_menu(
                                     },
                                     ..default()
                                 },
-                                border_color: BorderColor(random_color(
-                                    None,
-                                )),
+                                border_color: BorderColor(random_color(None)),
                                 ..default()
                             },
                         ))
@@ -197,11 +187,7 @@ fn spawn_button<T: Component>(
 /// spawns a text bundle with alignment center
 /// styling for this component makes
 /// it a good title for menu like interfaces
-fn spawn_menu_title(
-    child_builder: &mut ChildBuilder<'_, '_, '_>,
-    font: Handle<Font>,
-    text: &str,
-) {
+fn spawn_menu_title(child_builder: &mut ChildBuilder<'_, '_, '_>, font: Handle<Font>, text: &str) {
     child_builder.spawn((
         Name::new("Title"),
         TextBundle::from_section(
@@ -242,9 +228,7 @@ pub fn random_color(alpha: Option<f32>) -> Color {
         red: rng.gen(),
         green: rng.gen(),
         blue: rng.gen(),
-        alpha: {
-            alpha.map_or_else(|| rng.gen_range(0.8..=1.0), |alpha| alpha)
-        },
+        alpha: { alpha.map_or_else(|| rng.gen_range(0.8..=1.0), |alpha| alpha) },
     }
 }
 
@@ -271,9 +255,7 @@ fn update_button_color(
         (Changed<Interaction>, With<Button>),
     >,
 ) {
-    for (interaction, mut color, mut border_color) in
-        &mut interaction_query
-    {
+    for (interaction, mut color, mut border_color) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
@@ -294,10 +276,7 @@ fn update_button_color(
 /// updates color of all buttons with text for interactions
 fn start_button_interaction(
     mut cmds: Commands,
-    mut interaction_query: Query<
-        &Interaction,
-        (Changed<Interaction>, With<StartButton>),
-    >,
+    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<StartButton>)>,
     mut start_menu_query: Query<&mut Style, (With<Node>, With<StartMenu>)>,
 ) {
     for interaction in &mut interaction_query {
@@ -311,10 +290,7 @@ fn start_button_interaction(
 /// updates color of all buttons with text for interactions
 fn exit_button_interaction(
     mut exit_event_writer: EventWriter<AppExit>,
-    mut interaction_query: Query<
-        &Interaction,
-        (Changed<Interaction>, With<ExitButton>),
-    >,
+    mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<ExitButton>)>,
 ) {
     for interaction in &mut interaction_query {
         if matches!(interaction, Interaction::Pressed) {

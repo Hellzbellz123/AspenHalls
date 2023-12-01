@@ -1,7 +1,5 @@
 use crate::game::{
-    actors::animation::components::{
-        ActorAnimationType, AnimState, AnimationSheet,
-    },
+    actors::animation::components::{ActorAnimationType, AnimState, AnimationSheet},
     TimeInfo,
 };
 use bevy::prelude::*;
@@ -34,9 +32,7 @@ pub fn update_facing_direction(
     >,
 ) {
     for (velocity, mut anim_state, mut sprite) in &mut animation_states {
-        if velocity.linvel.abs().length() <= 0.05
-            || velocity.linvel == Vec2::ZERO
-        {
+        if velocity.linvel.abs().length() <= 0.05 || velocity.linvel == Vec2::ZERO {
             anim_state.animation_type = ActorAnimationType::Idle;
         }
         let horizontal = velocity.linvel.x;
@@ -69,26 +65,20 @@ pub fn update_facing_direction(
 /// iterates over actors with `AnimState` and `AnimationSheet` and
 /// updates selected animation based on facing direction
 fn update_selected_animation_sheet(
-    mut sprites_query: Query<
-        (&mut AnimState, &AnimationSheet),
-        Changed<AnimState>,
-    >,
+    mut sprites_query: Query<(&mut AnimState, &AnimationSheet), Changed<AnimState>>,
 ) {
     for (mut animation, anim_sheet) in &mut sprites_query {
         if matches!(
             animation.animation_type,
             ActorAnimationType::Right | ActorAnimationType::Left
         ) {
-            animation.animation_frames =
-                anim_sheet.right_animation.to_vec();
+            animation.animation_frames = anim_sheet.right_animation.to_vec();
         } else if animation.animation_type == ActorAnimationType::Up {
             animation.animation_frames = anim_sheet.up_animation.to_vec();
         } else if animation.animation_type == ActorAnimationType::Down {
-            animation.animation_frames =
-                anim_sheet.down_animation.to_vec();
+            animation.animation_frames = anim_sheet.down_animation.to_vec();
         } else if animation.animation_type == ActorAnimationType::Idle {
-            animation.animation_frames =
-                anim_sheet.idle_animation.to_vec();
+            animation.animation_frames = anim_sheet.idle_animation.to_vec();
         }
     }
 }
@@ -105,10 +95,9 @@ fn frame_animation(
             if animation.animation_frames.is_empty() {
                 warn!("no animations available ?");
             } else {
-                animation.active_frame = (animation.active_frame + 1)
-                    % animation.animation_frames.len();
-                sprite.index =
-                    animation.animation_frames[animation.active_frame];
+                animation.active_frame =
+                    (animation.active_frame + 1) % animation.animation_frames.len();
+                sprite.index = animation.animation_frames[animation.active_frame];
             }
         }
     }
@@ -134,18 +123,7 @@ pub mod components {
     }
 
     /// different animations player can use
-    #[derive(
-        Component,
-        Default,
-        Clone,
-        Copy,
-        Reflect,
-        PartialEq,
-        Eq,
-        PartialOrd,
-        Ord,
-        Debug,
-    )]
+    #[derive(Component, Default, Clone, Copy, Reflect, PartialEq, Eq, PartialOrd, Ord, Debug)]
     pub enum ActorAnimationType {
         /// doing nothing
         #[default]

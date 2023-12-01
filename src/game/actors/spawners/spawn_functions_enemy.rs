@@ -6,22 +6,17 @@ use big_brain::thinker::Thinker;
 
 use crate::{
     bundles::{
-        ActorAttributesBundle, ActorBundle, ActorColliderBundle,
-        RigidBodyBundle, StupidAiBundle,
+        ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle, StupidAiBundle,
     },
     consts::{
-        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX,
-        ACTOR_SIZE, ACTOR_Z_INDEX,
+        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX,
     },
     game::actors::{
         ai::components::{
-            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig,
-            AIWanderAction, AIWanderConfig, ActorType, AttackScore,
-            ChaseScore, Enemy, Type,
+            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
+            AIWanderConfig, ActorType, AttackScore, ChaseScore, Enemy, Type,
         },
-        animation::components::{
-            ActorAnimationType, AnimState, AnimationSheet,
-        },
+        animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::EnemyColliderTag,
     },
     loading::assets::ActorTextureHandles,

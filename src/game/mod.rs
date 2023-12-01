@@ -36,9 +36,7 @@ pub struct TimeInfo {
 }
 
 /// are we in dungeon yet?
-#[derive(
-    Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect,
-)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
 pub enum GameProgress {
     /// homeroom
     #[default]
@@ -68,12 +66,9 @@ impl Plugin for DungeonGamePlugin {
         .add_systems(
             Update,
             (
-                setup_time_state.run_if(
-                    state_exists_and_equals(AppState::PlayingGame)
-                        .and_then(run_once()),
-                ),
-                (time_to_live, zoom_control)
-                    .run_if(in_state(AppState::PlayingGame)),
+                setup_time_state
+                    .run_if(state_exists_and_equals(AppState::PlayingGame).and_then(run_once())),
+                (time_to_live, zoom_control).run_if(in_state(AppState::PlayingGame)),
             ),
         );
     }
@@ -126,6 +121,6 @@ fn time_to_live(
     for (entity, mut timer) in &mut query {
         if timer.tick(time.delta()).finished() {
             commands.entity(entity).despawn();
-    }
+        }
     }
 }

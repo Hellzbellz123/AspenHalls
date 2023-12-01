@@ -1,9 +1,8 @@
 use bevy::{
     log::{debug, info},
     prelude::{
-        any_with_component, resource_exists, run_once,
-        state_exists_and_equals, Assets, Commands, Condition,
-        DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Name,
+        any_with_component, on_event, resource_exists, run_once, state_exists_and_equals, Assets,
+        Commands, Condition, DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Name, OnEnter,
         Plugin, Query, Res, ResMut, Update, With,
     },
     render::view::NoFrustumCulling,
@@ -13,12 +12,11 @@ use bevy::{
 use crate::{
     ahp::game::Player,
     game::{
-        actors::{
-            ai::components::Enemy, spawners::components::WeaponType,
-        },
+        actors::{ai::components::Enemy, spawners::components::WeaponType},
         game_world::hideout::systems::{
             // enter_the_dungeon,
             home_world_teleporter_collisions,
+            spawn_hideout,
         },
         AppState,
     },
@@ -37,7 +35,9 @@ pub mod systems;
 
 /// event for player teleportation
 #[derive(Event)]
-pub struct PlayerTeleportEvent;
+pub struct PlayerTeleportEvent {
+    pub tp_action: String,
+}
 
 /// plugin for safe house
 pub struct HideOutPlugin;
@@ -45,37 +45,18 @@ pub struct HideOutPlugin;
 impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
-        // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<
-        // ScaledBackgroundMaterial,
-        // >::default());
-        app.add_event::<PlayerTeleportEvent>().add_systems(
-            Update,
-            (
-                // TODO: fix scheduling
-                systems::spawn_hideout.run_if(
-                    state_exists_and_equals(AppState::StartMenu)
-                        .and_then(run_once()),
-                ),
+        // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<ScaledBackgroundMaterial>::default());
+        app.add_event::<PlayerTeleportEvent>()
+            .add_systems(OnEnter(AppState::StartMenu), spawn_hideout)
+            .add_systems(
+                Update,
                 (
-                    // enter_the_dungeon,
-                    home_world_teleporter_collisions
+                    // TODO: fix scheduling
+                    home_world_teleporter_collisions,
+                    cleanup_start_world.run_if(on_event::<PlayerTeleportEvent>()),
                 )
-                    .run_if(state_exists_and_equals(
-                        AppState::PlayingGame,
-                    )),
-                cleanup_start_world.run_if(
-                    any_with_component::<Player>().and_then(
-                        |teleport_yes: Query<&Player>| {
-                            teleport_yes
-                                .get_single()
-                                .unwrap()
-                                .wants_to_teleport
-                        },
-                    ),
-                ),
-            )
-                .run_if(resource_exists::<MapAssetHandles>()),
-        );
+                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+            );
     }
 }
 

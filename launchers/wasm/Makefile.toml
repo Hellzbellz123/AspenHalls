@@ -18,7 +18,7 @@ run_task = { name = [
 ] }
 
 [tasks.build-release-wasm]
-env_files = ["../../.env"]
+# env_files = ["../../.env"]
 command = "trunk"
 args = ["build", "--release"]
 
@@ -28,7 +28,7 @@ script_runner = "@shell"
 script.main = "cp -r dist/* ../../package/website/"
 
 [tasks.run-web]
-env_files = ["../../.env"]
+# env_files = ["../../.env"]
 command = "trunk"
 args = [
   "serve",

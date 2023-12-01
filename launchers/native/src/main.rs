@@ -22,10 +22,7 @@ fn main() {
 /// This will panic if the config file
 pub fn load_settings() -> asha::ConfigFile {
     let settings_path = Path::new(APP_SETTINGS_PATH);
-    bevy::info!(
-        "loading config file from filesystem @ {:?}",
-        settings_path
-    );
+    bevy::info!("loading config file from filesystem @ {:?}", settings_path);
     let target_settings = match std::fs::read_to_string(settings_path) {
         // if settings file cant be read cause it doesn't exist, no permissions, or other
         Err(error) => {
@@ -62,13 +59,9 @@ pub fn load_settings() -> asha::ConfigFile {
                         y: cfg.window_settings.resolution.y,
                     },
                     v_sync: cfg.window_settings.v_sync,
-                    frame_rate_target: cfg
-                        .window_settings
-                        .frame_rate_target,
+                    frame_rate_target: cfg.window_settings.frame_rate_target,
                     full_screen: cfg.window_settings.full_screen,
-                    window_scale_override: cfg
-                        .window_settings
-                        .window_scale_override,
+                    window_scale_override: cfg.window_settings.window_scale_override,
                 },
 
                 sound_settings: asha::SoundSettings {

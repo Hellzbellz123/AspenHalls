@@ -10,12 +10,10 @@ fn find_closest_player(
     *(player
         .iter()
         .min_by(|a, b| {
-            let da = (a.translation.truncate()
-                - actor_position.translation.truncate())
-            .length_squared();
-            let db = (b.translation.truncate()
-                - actor_position.translation.truncate())
-            .length_squared();
+            let da =
+                (a.translation.truncate() - actor_position.translation.truncate()).length_squared();
+            let db =
+                (b.translation.truncate() - actor_position.translation.truncate()).length_squared();
             da.partial_cmp(&db).unwrap()
         })
         .expect("to players"))

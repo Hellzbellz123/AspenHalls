@@ -6,9 +6,7 @@ use leafwing_input_manager::{
     systems::run_if_enabled,
 };
 
-use crate::{
-    game::actors::components::Player, loading::splashscreen::MainCamera,
-};
+use crate::{game::actors::components::Player, loading::splashscreen::MainCamera};
 
 use super::{
     action_maps::{self},
@@ -25,18 +23,16 @@ impl Plugin for KBMPlugin {
             apply_look_driver.run_if(
                 // any_with_component::<Player>()
                 // .and_then(
-                    run_once()
-                // ),
+                run_once(), // ),
             ),
         )
         .add_systems(
             PreUpdate,
             update_cursor_state_from_window
-                .run_if(any_with_component::<ActionState<action_maps::Gameplay>>().and_then(
-                    any_with_component::<
-                        ActionStateDriver<action_maps::Gameplay>,
-                    >(),
-                ))
+                .run_if(
+                    any_with_component::<ActionState<action_maps::Gameplay>>()
+                        .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
+                )
                 .in_set(AspenInputSystemSet::KBMInput),
         );
     }
@@ -75,10 +71,7 @@ fn update_cursor_state_from_window_old(
 
     if let Some(cursor_local_pos) = window.cursor_position() {
         let cursor_world_pos = camera
-            .viewport_to_world_2d(
-                camera_global_transform,
-                cursor_local_pos,
-            )
+            .viewport_to_world_2d(camera_global_transform, cursor_local_pos)
             .unwrap_or_else(|| {
                 warn!("Could not get cursors world position");
                 Vec2::ZERO
@@ -92,13 +85,9 @@ fn update_cursor_state_from_window_old(
             .action_data_mut(action_maps::Gameplay::LookWorld)
             .axis_pair = Some(DualAxisData::from_xy(cursor_world_pos));
     } else {
-        let window_size =
-            Vec2::from_array([window.width(), window.height()]);
+        let window_size = Vec2::from_array([window.width(), window.height()]);
         let window_center_world = camera
-            .viewport_to_world_2d(
-                camera_global_transform,
-                window_size / 2.0,
-            )
+            .viewport_to_world_2d(camera_global_transform, window_size / 2.0)
             .unwrap_or(Vec2::ZERO);
         action_state
             .action_data_mut(action_maps::Gameplay::LookLocal)
@@ -129,10 +118,7 @@ fn update_cursor_state_from_window(
 
     if let Some(cursor_local_pos) = window.cursor_position() {
         let cursor_world_pos = camera
-            .viewport_to_world_2d(
-                camera_global_transform,
-                cursor_local_pos,
-            )
+            .viewport_to_world_2d(camera_global_transform, cursor_local_pos)
             .unwrap_or_else(|| {
                 warn!("Could not get cursors world position");
                 new_cursor_world

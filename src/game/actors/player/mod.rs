@@ -1,28 +1,20 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
 
 use crate::{
-    bundles::{
-        ActorAttributesBundle, ActorBundle, ActorColliderBundle,
-        RigidBodyBundle,
-    },
+    bundles::{ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle},
     consts::{
-        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX,
-        ACTOR_SCALE, ACTOR_SIZE, ACTOR_Z_INDEX,
+        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE,
+        ACTOR_Z_INDEX,
     },
     game::actors::{
         ai::components::{ActorType, Type},
-        animation::components::{
-            ActorAnimationType, AnimState, AnimationSheet,
-        },
+        animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::PlayerColliderTag,
     },
     game::{
         actors::{
             combat::components::WeaponSlots,
-            player::movement::{
-                camera_movement_system, player_movement_system,
-                player_sprint,
-            },
+            player::movement::{camera_movement_system, player_movement_system, player_sprint},
         },
         input::action_maps::PlayerBindings,
     },
@@ -30,8 +22,8 @@ use crate::{
 };
 
 use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, CollisionGroups, Damping, Friction,
-    LockedAxes, Restitution, RigidBody, Velocity,
+    Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes, Restitution,
+    RigidBody, Velocity,
 };
 
 use self::{
@@ -75,10 +67,7 @@ impl Plugin for PlayerPlugin {
 }
 
 /// spawns player with no weapons
-pub fn build_player(
-    mut commands: Commands,
-    selected_player: Res<ActorTextureHandles>,
-) {
+pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
     info!("spawning player");
     commands
         .spawn((

@@ -17,9 +17,7 @@ pub fn save_settings(app_settings: &ConfigFile, settings_path: &Path) {
             cfg
         }
         Err(error) => {
-            eprintln!(
-                "Couldn't convert game settings too `String`: {error}"
-            );
+            eprintln!("Couldn't convert game settings too `String`: {error}");
             return;
         }
     };

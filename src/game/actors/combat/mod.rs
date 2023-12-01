@@ -19,8 +19,7 @@ use crate::{
     game::{
         actors::{
             combat::components::{
-                CurrentlySelectedWeapon, WeaponSlots, WeaponSocket,
-                WeaponStats, WeaponTag,
+                CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
             },
             player::actions::ShootEvent,
         },
@@ -28,7 +27,6 @@ use crate::{
         AppState, TimeInfo,
     },
     loading::assets::ActorTextureHandles,
-    utilities::lerp,
 };
 
 use self::components::Damage;
@@ -112,12 +110,9 @@ fn rotate_player_weapon(
         return;
     }
 
-    for (weapon_tag, weapon_global_transform, mut weapon_transform) in
-        &mut weapon_query
-    {
+    for (weapon_tag, weapon_global_transform, mut weapon_transform) in &mut weapon_query {
         if weapon_tag.parent.is_some() {
-            let ((_player_animation_state, player_input), ()) =
-                player_query.single_mut();
+            let ((_player_animation_state, player_input), ()) = player_query.single_mut();
             let global_mouse_pos = player_input
                 .action_data(action_maps::Gameplay::LookWorld)
                 .axis_pair
@@ -127,21 +122,16 @@ fn rotate_player_weapon(
                 .compute_transform()
                 .translation
                 .truncate();
-            let look_direction: Vec2 =
-                (global_weapon_pos - global_mouse_pos).normalize_or_zero();
-            let aim_angle =
-                (-look_direction.y).atan2(-look_direction.x) + FRAC_PI_2; // add offset too rotation here
+            let look_direction: Vec2 = (global_weapon_pos - global_mouse_pos).normalize_or_zero();
+            let aim_angle = (-look_direction.y).atan2(-look_direction.x) + FRAC_PI_2; // add offset too rotation here
 
             // mirror whole entity by negating the scale when were looking left,
-            if aim_angle.to_degrees() > 180.0
-                || aim_angle.to_degrees() < -0.0
-            {
+            if aim_angle.to_degrees() > 180.0 || aim_angle.to_degrees() < -0.0 {
                 weapon_transform.scale.x = -1.0;
             } else {
                 weapon_transform.scale.x = 1.0;
             }
-            weapon_transform.rotation =
-                Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
+            weapon_transform.rotation = Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
         }
     }
 }
@@ -150,10 +140,7 @@ fn rotate_player_weapon(
 #[allow(clippy::type_complexity)]
 fn equipped_weapon_positioning(
     // actors that can equip weapons
-    weapon_carrying_actors: Query<
-        (&AnimState, Entity),
-        With<WeaponSocket>,
-    >,
+    weapon_carrying_actors: Query<(&AnimState, Entity), With<WeaponSocket>>,
     mut weapon_query: Query<
         // all weapons equipped too entity
         (&WeaponTag, &mut Transform, &mut Velocity),
@@ -164,20 +151,15 @@ fn equipped_weapon_positioning(
         return;
     }
 
-    for (animation_state, weapon_carrying_entity) in
-        &weapon_carrying_actors
-    {
-        for (weapon_tag, mut weapon_transform, mut weapon_velocity) in
-            &mut weapon_query
-        {
+    for (animation_state, weapon_carrying_entity) in &weapon_carrying_actors {
+        for (weapon_tag, mut weapon_transform, mut weapon_velocity) in &mut weapon_query {
             if weapon_tag.parent == Some(weapon_carrying_entity) {
                 // weapon_velocity.angvel =
                 //     lerp(weapon_velocity.angvel, 0.0, 0.3);
                 weapon_velocity.linvel = Vec2::ZERO;
                 // modify weapon sprite to be below player when facing up, this
                 // still looks strange but looks better than a back mounted smg
-                if animation_state.animation_type == ActorAnimationType::Up
-                {
+                if animation_state.animation_type == ActorAnimationType::Up {
                     // this transform is local too players transform of 8
                     weapon_transform.translation = Vec3 {
                         x: 0.0,
@@ -233,10 +215,7 @@ fn remove_cdw_component(
         (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
     >,
 ) {
-    if player_query.is_empty()
-        | weapon_query.is_empty()
-        | drawn_weapon.is_empty()
-    {
+    if player_query.is_empty() | weapon_query.is_empty() | drawn_weapon.is_empty() {
         return;
     }
 
@@ -265,15 +244,9 @@ fn update_equipped_weapon(
     mut cmds: Commands,
     query_action_state: Query<&ActionState<action_maps::Gameplay>>,
     mut player_query: Query<&mut WeaponSocket, With<Player>>,
-    weapon_query: Query<
-        (Entity, &mut WeaponTag, &mut Transform),
-        (With<Parent>, Without<Player>),
-    >,
+    weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), (With<Parent>, Without<Player>)>,
 ) {
-    if player_query.is_empty()
-        | weapon_query.is_empty()
-        | query_action_state.is_empty()
-    {
+    if player_query.is_empty() | weapon_query.is_empty() | query_action_state.is_empty() {
         return;
     }
 
@@ -284,12 +257,8 @@ fn update_equipped_weapon(
         // set whatever weapon is in slot 1 as CurrentlyDrawnWeapon and remove
         // CurrentlyDrawnWeapon from old weapon
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot1);
-        let current_weapon_slots =
-            &mut player_weapon_socket.weapon_slots.clone();
-        let current_weapon = get_current_weapon(
-            current_weapon_slots,
-            &player_weapon_socket,
-        );
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let current_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
         if let Some(ent) = current_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
@@ -297,12 +266,8 @@ fn update_equipped_weapon(
         }
     } else if actions.just_pressed(action_maps::Gameplay::EquipSlot2) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot2);
-        let current_weapon_slots =
-            &mut player_weapon_socket.weapon_slots.clone();
-        let new_weapon = get_current_weapon(
-            current_weapon_slots,
-            &player_weapon_socket,
-        );
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
         if let Some(ent) = new_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
@@ -310,12 +275,8 @@ fn update_equipped_weapon(
         }
     } else if actions.just_pressed(action_maps::Gameplay::EquipSlot3) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot3);
-        let current_weapon_slots =
-            &mut player_weapon_socket.weapon_slots.clone();
-        let new_weapon = get_current_weapon(
-            current_weapon_slots,
-            &player_weapon_socket,
-        );
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
         if let Some(ent) = new_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
@@ -323,12 +284,8 @@ fn update_equipped_weapon(
         }
     } else if actions.just_pressed(action_maps::Gameplay::EquipSlot4) {
         player_weapon_socket.drawn_slot = Some(WeaponSlots::Slot4);
-        let current_weapon_slots =
-            &mut player_weapon_socket.weapon_slots.clone();
-        let new_weapon = get_current_weapon(
-            current_weapon_slots,
-            &player_weapon_socket,
-        );
+        let current_weapon_slots = &mut player_weapon_socket.weapon_slots.clone();
+        let new_weapon = get_current_weapon(current_weapon_slots, &player_weapon_socket);
 
         if let Some(ent) = new_weapon {
             cmds.entity(ent).insert(CurrentlySelectedWeapon);
@@ -339,10 +296,7 @@ fn update_equipped_weapon(
 
 /// gets ent id of weapon in weapon slot
 fn get_current_weapon(
-    weapon_slots: &mut bevy::utils::hashbrown::HashMap<
-        WeaponSlots,
-        Option<Entity>,
-    >,
+    weapon_slots: &mut bevy::utils::hashbrown::HashMap<WeaponSlots, Option<Entity>>,
     weapon_socket: &WeaponSocket,
 ) -> Option<Entity> {
     let entity_in_drawn_slot = weapon_slots
@@ -352,10 +306,9 @@ fn get_current_weapon(
                 .expect("failed to unwrap WeaponSocket.drawn_slot"),
         )
         .or_insert(None);
-    let currently_equipped_from_hashmap: Option<Entity> =
-        entity_in_drawn_slot
-            .as_mut()
-            .map(|current_equipped_weapon| *current_equipped_weapon);
+    let currently_equipped_from_hashmap: Option<Entity> = entity_in_drawn_slot
+        .as_mut()
+        .map(|current_equipped_weapon| *current_equipped_weapon);
 
     currently_equipped_from_hashmap.map_or_else(
         || {
@@ -391,18 +344,12 @@ pub fn receive_shoot_weapon(
     let (_weapon_tag, weapon_stats, _) = weapon_query.single();
 
     firing_timer.set_mode(TimerMode::Once);
-    firing_timer
-        .set_duration(Duration::from_secs_f32(weapon_stats.attack_speed));
+    firing_timer.set_duration(Duration::from_secs_f32(weapon_stats.attack_speed));
 
     for event in &mut attack_event_reader.read() {
         // info!("firing duration: {:#?}", firing_timer.duration());
         if firing_timer.finished() {
-            attacks::create_bullet(
-                &mut cmds,
-                &assets,
-                event,
-                weapon_stats,
-            );
+            attacks::create_bullet(&mut cmds, &assets, event, weapon_stats);
             firing_timer.reset();
             // info!("fire timer finished");
             return;
@@ -454,23 +401,14 @@ fn player_death_system(
     if player_query.is_empty() {
         return;
     }
-    let (
-        mut player_stats,
-        player,
-        player_damaged,
-        mut player_loc,
-        mut player_sprite,
-    ) = player_query.get_single_mut().unwrap();
+    let (mut player_stats, player, player_damaged, mut player_loc, mut player_sprite) =
+        player_query.get_single_mut().unwrap();
 
     game_info.damage_taken += player_damaged.0;
     if player_stats.health <= 0.0 {
         warn!("player is dead");
         player_stats.health = 150.0;
-        *player_loc = Transform::from_translation(Vec3::new(
-            -60.0,
-            1090.0,
-            ACTOR_Z_INDEX,
-        ));
+        *player_loc = Transform::from_translation(Vec3::new(-60.0, 1090.0, ACTOR_Z_INDEX));
         game_info.player_deaths += 1;
     }
 

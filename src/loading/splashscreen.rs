@@ -36,16 +36,16 @@ impl Plugin for SplashPlugin {
         // TODO: do some special trickery to make this system work awesome
         app.add_systems(Startup, spawn_main_camera);
         app.add_systems(OnEnter(AppState::Loading), splash_setup);
-        app.add_systems(
-            OnExit(AppState::Loading),
-            despawn_with::<OnlySplashScreen>,
-        );
+        app.add_systems(OnExit(AppState::Loading), despawn_with::<OnlySplashScreen>);
     }
 }
 
 /// spawns main camera
 fn spawn_main_camera(mut commands: Commands) {
-    commands.insert_resource(AmbientLight { color: Color::WHITE, brightness: 0.9 });
+    commands.insert_resource(AmbientLight {
+        color: Color::WHITE,
+        brightness: 0.9,
+    });
     commands.spawn((
         Name::new("MainCamera"),
         MainCamera {
@@ -82,7 +82,12 @@ fn spawn_main_camera(mut commands: Commands) {
             color: Color::RED,
             // directional_light_color: todo!(),
             // directional_light_exponent: todo!(),
-            falloff: FogFalloff::from_visibility_contrast_colors(100.0, 1.0, Color::RED, Color::GRAY),
+            falloff: FogFalloff::from_visibility_contrast_colors(
+                100.0,
+                1.0,
+                Color::RED,
+                Color::GRAY,
+            ),
             ..default()
         },
         UiCameraConfig { show_ui: true },
