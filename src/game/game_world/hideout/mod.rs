@@ -1,5 +1,6 @@
 use bevy::{
     log::{debug, info},
+    math::{IVec2, Vec2},
     prelude::{
         any_with_component, on_event, resource_exists, run_once, state_exists_and_equals, Assets,
         Commands, Condition, DespawnRecursiveExt, Entity, Event, IntoSystemConfigs, Name, OnEnter,
@@ -13,12 +14,12 @@ use crate::{
     ahp::game::Player,
     game::{
         actors::{ai::components::Enemy, spawners::components::WeaponType},
-        game_world::hideout::systems::{
-            // enter_the_dungeon,
-            home_world_teleporter_collisions,
+        game_world::{hideout::systems::{
             spawn_hideout,
-        },
-        AppState,
+            // enter_the_dungeon,
+            teleporter_collisions,
+        }, dungeonator_v2::DungeonGeneratorState},
+        AppState, GameProgress,
     },
     loading::{
         assets::{MapAssetHandles, SingleTileTextureHandles},
@@ -34,9 +35,31 @@ pub mod map_components;
 pub mod systems;
 
 /// event for player teleportation
-#[derive(Event)]
-pub struct PlayerTeleportEvent {
-    pub tp_action: String,
+#[derive(Event, Debug)]
+pub struct ActorTeleportEvent {
+    /// enum deciding weather this teleport triggers an aciton or moves entity directly
+    /// unhandled tp_actions get warned about
+    pub tp_type: TPType,
+    /// affected entitiy for this teleport
+    pub target: Option<Entity>,
+    /// sensor entity that sent this event
+    pub sender: Option<Entity>,
+}
+
+#[derive(Debug, Clone)]
+pub enum TPType {
+    /// string type triggering other `Event`
+    Event(String),
+    /// local teleport. this is alays in tiles, per room
+    Local(IVec2),
+    /// teleport with a global pixel position
+    Global(Vec2),
+}
+
+impl Default for TPType {
+    fn default() -> Self {
+        TPType::Local(IVec2::ZERO)
+    }
 }
 
 /// plugin for safe house
@@ -46,20 +69,21 @@ impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
         // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<ScaledBackgroundMaterial>::default());
-        app.add_event::<PlayerTeleportEvent>()
+        app.add_event::<ActorTeleportEvent>()
             .add_systems(OnEnter(AppState::StartMenu), spawn_hideout)
+            .add_systems(OnEnter(DungeonGeneratorState::PrepareDungeon), cleanup_start_world)
             .add_systems(
                 Update,
                 (
                     // TODO: fix scheduling
-                    home_world_teleporter_collisions,
-                    cleanup_start_world.run_if(on_event::<PlayerTeleportEvent>()),
+                    teleporter_collisions,
                 )
                     .run_if(state_exists_and_equals(AppState::PlayingGame)),
             );
     }
 }
 
+// TODO: remove this infavor of DespawnWhenStateIs(Option<S: States/State>)
 /// despawn all entities that should be cleaned up on restart
 fn cleanup_start_world(
     mut commands: Commands,
@@ -75,9 +99,9 @@ fn cleanup_start_world(
         .entity(home_world_container.single())
         .despawn_recursive();
     for ent in &weapons {
-        commands.entity(ent).despawn_recursive()
+        commands.entity(ent).despawn_recursive();
     }
     for ent in &enemies_query {
-        commands.entity(ent).despawn_recursive()
+        commands.entity(ent).despawn_recursive();
     }
 }

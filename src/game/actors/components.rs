@@ -34,7 +34,7 @@ use super::combat::components::Damage;
 pub struct TimeToLive(pub Timer);
 
 /// is this actor allowed too sprint?
-pub enum CanMove {
+pub enum MoveStatus {
     /// actor is allowed too walk
     CanWalk,
     /// actor is allowed too run
@@ -45,7 +45,7 @@ pub enum CanMove {
 
 /// entity teleport status
 pub enum TeleportStatus {
-    /// entity has requested a teleprot too this pos
+    /// entity has requested a teleport too this pos
     Requested(Vec2),
     /// entity is in process of teleporting
     Teleporting,

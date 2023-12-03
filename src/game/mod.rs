@@ -46,9 +46,9 @@ pub enum GameProgress {
 }
 
 /// plugin that holds all game functionality as plugin modules
-pub struct DungeonGamePlugin;
+pub struct AspenHallsPlugin;
 
-impl Plugin for DungeonGamePlugin {
+impl Plugin for AspenHallsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(TimeInfo {
             time_step: 1.0,

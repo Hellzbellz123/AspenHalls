@@ -1,3 +1,4 @@
+use bevy::ecs::entity::Entity;
 use std::str::FromStr;
 use strum::VariantNames;
 
@@ -11,6 +12,7 @@ use crate::{
         rand::{thread_rng, Rng},
     },
     console::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
+    game::game_world::hideout::{ActorTeleportEvent, TPType},
 };
 
 /// receives spawnweapon command and sens spawn event
@@ -71,7 +73,7 @@ pub fn spawnweapon_command(
 
 /// interprets `SpawnEnemyCommand` from console and sends `SpawnEnemyEvent`
 pub fn spawnenemy_command(
-    player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
+    player_transform: Query<&Transform, With<Player>>,
     mut spawn: ConsoleCommand<SpawnEnemyCommand>,
     mut ew: EventWriter<SpawnActorEvent>,
 ) {
@@ -93,20 +95,18 @@ pub fn spawnenemy_command(
 
         match command_spawn_type {
             Ok(command_spawn_type) => {
-                for _ in 0..command_spawn_count {
-                    if command_spawn_at_player {
-                        command_spawn_location =
-                            player_transform.single().translation.truncate() + vec2(offset, offset);
-                    }
-
-                    ew.send(SpawnActorEvent {
-                        actor_type: ActorType(Type::Enemy),
-                        what_to_spawn: enemy_type.clone(),
-                        spawner: None,
-                        spawn_position: command_spawn_location,
-                        spawn_count: 1,
-                    });
+                if command_spawn_at_player {
+                    command_spawn_location =
+                        player_transform.single().translation.truncate() + vec2(offset, offset);
                 }
+
+                ew.send(SpawnActorEvent {
+                    actor_type: ActorType(Type::Enemy),
+                    what_to_spawn: enemy_type.clone(),
+                    spawner: None,
+                    spawn_position: command_spawn_location,
+                    spawn_count: command_spawn_count,
+                });
                 info!(
                     "console command spawnenemy() called to spawn: {:?}",
                     command_spawn_type
@@ -127,14 +127,15 @@ pub fn spawnenemy_command(
 
 /// receives tp command and teleports player too location
 pub fn teleport_player_command(
-    mut player_transform: Query<&mut Transform, (With<Player>, Without<Camera>)>,
+    player_transform: Query<Entity, With<Player>>,
     mut spawn: ConsoleCommand<TeleportPlayerCommand>,
+    mut ew: EventWriter<ActorTeleportEvent>,
 ) {
     if let Some(Ok(TeleportPlayerCommand { loc_x, loc_y })) = spawn.take() {
-        player_transform.single_mut().translation = Vec3 {
-            x: loc_x,
-            y: loc_y,
-            z: ACTOR_Z_INDEX,
-        }
+        ew.send(ActorTeleportEvent {
+            tp_type: TPType::Global(Vec2 { x: loc_x, y: loc_y }),
+            target: Some(player_transform.single()),
+            sender: None,
+        });
     }
 }

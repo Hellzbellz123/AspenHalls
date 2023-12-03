@@ -122,8 +122,8 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
 
     // add third party plugins
     vanillacoffee
-            // Never attempts to look up meta files. The default meta configuration will be used for each asset.
-            .insert_resource(AssetMetaCheck::Never)
+        // Never attempts to look up meta files. The default meta configuration will be used for each asset.
+        .insert_resource(AssetMetaCheck::Never)
         .add_plugins((
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,
@@ -141,7 +141,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         ahp::plugins::AppAssetsPlugin,
         ahp::plugins::SplashPlugin,
         ahp::plugins::QuakeConPlugin,
-        ahp::plugins::DungeonGamePlugin,
+        ahp::plugins::AspenHallsPlugin,
     ));
 
     #[cfg(feature = "develop")]

@@ -1,21 +1,31 @@
-use std::time::Duration;
+use std::{cmp::max, time::Duration};
 
-use bevy::{prelude::*, time::common_conditions::on_timer};
-use bevy_ecs_ldtk::{prelude::LdtkEntityAppExt, TileEnumTags};
+use bevy::{
+    prelude::*, time::common_conditions::on_timer, transform::systems::propagate_transforms,
+};
+use bevy_ecs_ldtk::{
+    prelude::{GridCoords, LayerMetadata, LdtkEntityAppExt},
+    utils::{grid_coords_to_translation_relative_to_tile_layer, grid_coords_to_translation},
+    TileEnumTags,
+};
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 
 use crate::{
-    consts::{AspenCollisionLayer, ACTOR_Z_INDEX},
-    game::game_world::{dungeonator_v2::DungeonGeneratorState, hideout::PlayerTeleportEvent},
+    ahp::game::ActorType,
+    consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
+    game::game_world::{
+        dungeonator_v2::DungeonGeneratorState,
+        hideout::{ActorTeleportEvent, TPType},
+    },
     utilities::on_component_added,
     AppState,
 };
 
 use self::{
     components::{
-        CollisionBundle, LdtkRoomExitBundle, LdtkSensorBundle, LdtkSpawnerBundle,
-        LdtkStartLocBundle, PlayerStartLocation,
+        CollisionBundle, LdtkRoomExitBundle, LdtkSpawnerBundle, LdtkStartLocBundle,
+        LdtkTeleporterBundle, PlayerStartLocation,
     },
     // dungeonator_v1::GeneratorStage,
 };
@@ -62,7 +72,7 @@ impl Plugin for GameWorldPlugin {
                 hideout::HideOutPlugin,
                 dungeonator_v2::DungeonGeneratorPlugin,
             ))
-            .register_ldtk_entity::<LdtkSensorBundle>("TeleportSensor")
+            .register_ldtk_entity::<LdtkTeleporterBundle>("TeleportSensor")
             .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
             .register_ldtk_entity::<LdtkStartLocBundle>("PlayerStartLoc")
             .register_ldtk_entity::<LdtkRoomExitBundle>("RoomExit")
@@ -70,12 +80,18 @@ impl Plugin for GameWorldPlugin {
                 Update,
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
-                    handle_teleport_events.run_if(on_event::<PlayerTeleportEvent>()),
+                    handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
                     teleport_player_too_start_location.run_if(
-                        on_component_added::<PlayerStartLocation>()
-                            .and_then(on_timer(Duration::from_secs_f32(0.5))),
-                    ), //.run_if(state_exists_and_equals(AppState::PlayingGame).and_then(run_once())),
+                        state_exists_and_equals(AppState::StartMenu)
+                            .and_then(on_timer(Duration::from_secs_f32(0.2)).and_then(run_once())),
+                    ),
                 ),
+            )
+            .add_systems(
+                OnEnter(DungeonGeneratorState::FinishedDungeonGen),
+                teleport_player_too_start_location.run_if(state_exists_and_equals(
+                    DungeonGeneratorState::FinishedDungeonGen,
+                )),
             );
     }
 }
@@ -84,14 +100,73 @@ impl Plugin for GameWorldPlugin {
 #[derive(Component)]
 pub struct GridContainerTag;
 
-fn handle_teleport_events(mut cmds: Commands, mut tp_events: EventReader<PlayerTeleportEvent>) {
+/// handles passed player teleport events
+/// warns if event is unknown
+fn handle_teleport_events(
+    mut cmds: Commands,
+    mut tp_events: EventReader<ActorTeleportEvent>,
+    mut actor_transforms: Query<(&mut Transform, Option<&Parent>), With<ActorType>>,
+    other_transform: Query<(&Transform, Option<&Parent>), Without<ActorType>>,
+    layer_data: Query<(&LayerMetadata, &TileStorage, &TilemapSize)>,
+    names: Query<&Name>,
+    children_query: Query<&Children>,
+    parents: Query<&Parent>,
+    grid_coords: Query<&GridCoords>,
+) {
     for event in tp_events.read() {
-        match event.tp_action.as_str() {
-            "StartDungeonGen" => {
-                cmds.insert_resource(NextState(Some(DungeonGeneratorState::GeneratingDungeon)))
+        info!("recieved Tp Event: {:?}", event);
+        match &event.tp_type {
+            hideout::TPType::Local(target_tile) => {
+                if let Some(target) = event.target {
+                    let sensor = event.sender.unwrap();
+                    let entity_layer = parents.get(sensor).unwrap().get();
+                    let level = parents.get(entity_layer).unwrap().get();
+                    let ground_layer = children_query
+                        .iter_descendants(level)
+                        .find(|f| {
+                            let name = names.get(*f).expect("should have name");
+                            name.as_str() == "Ground_Layer"
+                        })
+                        .expect("the level should always have `Ground_Layer`");
+
+                    let (metadata, tilestorage, tilemapsize) = layer_data
+                        .get(ground_layer)
+                        .expect("got the wrong `Ground_Layer`");
+
+                        // TODO: this doesnt work
+
+                    let tpos = IVec2::new(target_tile.x, tilemapsize.y as i32 - target_tile.y);
+                    let coords = GridCoords::new(tpos.x, tpos.y);
+                    let target_pos =
+                        grid_coords_to_translation(coords, IVec2::splat(32));
+                    let (mut target_transform, _) = actor_transforms
+                        .get_mut(target)
+                        .expect("ActorTeleportEvent targeting entity without transform");
+                    info!("moving player this many: {}", target_pos);
+                    target_transform.translation += target_pos.extend(0.0);
+                } else {
+                    warn!("TPType::Local requires a valid entity");
+                }
             }
-            a => {
-                warn!("Got a teleport event that was not handled: {a}")
+            hideout::TPType::Event(event) => match event.as_str() {
+                "StartDungeonGen" => {
+                    cmds.insert_resource(NextState(Some(DungeonGeneratorState::PrepareDungeon)));
+                }
+                event => {
+                    warn!("unhandled Teleport Event Action: {}", event);
+                }
+            },
+            //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
+            hideout::TPType::Global(pos) => {
+                if let Some(ent) = event.target {
+                    let (mut target_transform, parent) = actor_transforms
+                        .get_mut(ent)
+                        .expect("ActorTeleportEvent targeting entity without transform");
+
+                    target_transform.translation = pos.extend(ACTOR_Z_INDEX);
+                } else {
+                    warn!("TPType::Global requires a valid entity");
+                }
             }
         }
     }
@@ -102,38 +177,37 @@ fn handle_teleport_events(mut cmds: Commands, mut tp_events: EventReader<PlayerT
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
-    mut player_query: Query<(&mut Transform, &mut Player)>,
-    start_location: Query<
-        (Entity, &GlobalTransform, &Transform),
-        (With<PlayerStartLocation>, Without<Player>),
-    >,
+    player_query: Query<Entity, With<Player>>,
+    start_location: Query<&GlobalTransform, With<PlayerStartLocation>>,
+    mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
     if start_location.is_empty() {
         warn!("no start locations");
         return;
     }
 
-    warn!("running player teleport");
-
     let mut sum = Vec2::ZERO;
-    let mut count: i32 = 0;
+    let mut current_count: i32 = 0;
+    let length = start_location.iter().len() as i32;
 
-    for (_, global_transform, _local_transform) in start_location.iter() {
-        sum += global_transform.translation().truncate();
-        count += 1;
+    for global_transform in start_location.iter() {
+        let global = global_transform.translation().truncate();
+        let pos = global;
+        sum += pos;
+        current_count += 1;
+        info!("found transform: {}", pos);
+        info!("new count: {}", current_count);
+        info!("new sum: {}", sum);
     }
 
-    if count >= i32::try_from(start_location.iter().len()).unwrap_or(4) {
-        let average = Transform {
-            translation: (sum / (count as f32)).extend(ACTOR_Z_INDEX),
-            rotation: Quat::IDENTITY,
-            scale: Vec3::ONE,
-        };
-        let player = player_query.single_mut();
-        let (mut player_transform, _player_data) = player;
-        *player_transform = average;
-        // Use the calculated average transform as needed
-        println!("Average transform: {average:?}");
+    if current_count == length {
+        let avg = sum / (current_count as f32);
+        tp_events.send(ActorTeleportEvent {
+            tp_type: TPType::Global(avg),
+            target: Some(player_query.single()),
+            sender: None,
+        });
+        info!("got start pos: {:?}, total sampled: {}", avg, length);
     }
 }
 
@@ -150,7 +224,7 @@ fn process_tile_enum_tags(
     for (entity, mut tile_enum_tag) in &mut tiles_with_enums {
         let tags = tile_enum_tag.tags.clone();
         if tags.is_empty() {
-            info!("Tile has no more tags");
+            // info!("Tile has no more tags");
             commands.entity(entity).remove::<TileEnumTags>();
         }
         for tag in tags {

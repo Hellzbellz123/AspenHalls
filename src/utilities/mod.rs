@@ -7,33 +7,21 @@ use crate::ahp::{
 };
 
 use bevy::{
-    ecs::{
-        query::{ReadOnlyWorldQuery, WorldQuery},
-        system::ResMut,
-    },
+    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
     input::{keyboard::KeyCode, mouse::MouseButton, Input},
-    log::debug,
-    prelude::{Component, Local},
-    window::Cursor,
+    prelude::{Component, Local, NextState},
 };
 
-// use bevy::{
-//     ecs::system::NonSend,
-//     prelude::{
-//         info, warn, DespawnRecursiveExt, Entity, Query, With,
-//     },
-//     window::Window,
-// };
-use std::ops::Mul;
+use std::{cmp::Ordering, ops::Mul};
 use winit::window::Icon;
 
 /// # Panics
 /// will panic if it cant find a window to attach icons, or the icon is not present
 pub fn set_window_icon(
-    // we have to use `NonSend` here
     window_query: Query<Entity, &Window>,
     init_assets: Res<InitAssetHandles>,
     image_assets: Res<Assets<Image>>,
+    // we have to use `NonSend` here
     windows: NonSend<bevy::winit::WinitWindows>,
 ) {
     if let Ok(main_window) = window_query.get_single() {
@@ -49,13 +37,6 @@ pub fn set_window_icon(
                 .get(&init_assets.img_favicon)
                 .expect("if this system is running this exists");
             let image = favicon.clone().try_into_dynamic().unwrap().into_rgba8();
-            //  match image::open("assets/favicon.png") {
-            //     Ok(img) => img.into_rgba8(),
-            //     Err(e) => {
-            //         warn!("couldnt load window icon: {}", e);
-            //         return;
-            //     }
-            // };
             let (width, height) = image.dimensions();
             let rgba = image.into_raw();
             (rgba, width, height)
@@ -82,7 +63,7 @@ pub fn cursor_grab_system(
         // if you want to use the cursor, but not let it leave the window,
         // use `Confined` mode:
         window.cursor.grab_mode = CursorGrabMode::Confined;
-        window.cursor.visible = false
+        window.cursor.visible = false;
     }
 
     if key.just_pressed(KeyCode::Escape) {
@@ -127,25 +108,45 @@ macro_rules! register_types {
 }
 
 /// Generates a [`Condition`](bevy::ecs::Condition)-satisfying closure that returns `true`
-/// if there are more `component` of the given type than the last run.
+/// if there are more `T` than the last run.
+///
+/// `T` must be a `Component`
+///
+/// # Note
+/// this function works, but components must be added with the correct value for systems that use them
+/// things like GlobalTransform wont be accurate till 1 run later
 pub fn on_component_added<T: Component>(
-) -> impl FnMut((Local<usize>, Query<(), With<T>>)) -> bool + Clone {
-    move |(mut local, query)| {
-        let count = *local;
-        let new_count = query.into_iter().len();
-        debug!("run condition count: {:?}", count);
-        if count < new_count {
-            *local = new_count;
-            true
-        } else if count > new_count {
-            *local = new_count;
-            false
-        } else if count == new_count {
-            *local = new_count;
-            false
+) -> impl FnMut((Local<usize>, Local<bool>, Query<(), With<T>>)) -> bool + Clone {
+    move |(mut local_count, mut loop_once, query)| {
+        if *loop_once {
+            *loop_once = false;
+            return false;
         } else {
-            warn!("`any_componnent_added` run-condition hit unreachable code, something broke");
-            false
+            let last_count: usize = *local_count;
+            let current_count = query.into_iter().len();
+
+            // info!("run condition count: {:?}", *local);
+
+            *loop_once = true;
+            match current_count.cmp(&last_count) {
+                // no change in component count
+                Ordering::Equal => {
+                    // info!("Condition(on_component_added): no change in component count ");
+                    false
+                }
+                // entity with component was despawned or component was removed
+                Ordering::Less => {
+                    *local_count = current_count;
+                    // info!("Condition(on_component_added): Component was removed from world");
+                    false
+                }
+                // component was inserted on entity OR entity was spawned with component
+                Ordering::Greater => {
+                    *local_count = current_count;
+                    // info!("Condition(on_component_added): Component was added too world");
+                    true
+                }
+            }
         }
     }
 }

@@ -44,6 +44,8 @@ impl Plugin for SoftwareCursorPlugin {
 #[derive(Component, Reflect, Default)]
 // #[reflect(Component)]
 pub struct SoftWareCursor {
+    /// offset too move cursor relative too actual winit cursor position.
+    /// used too center cursors point
     offset: Vec2,
 }
 
@@ -73,6 +75,7 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<InitAssetHandles>) {
     ));
 }
 
+/// updates software cursor position based on player `LookLocal` (`LookLocal` is just `winit::Window.cursor_position()`)
 fn update_software_cursor_position(
     player_input: Query<&ActionState<action_maps::Gameplay>, With<Player>>,
     mut software_cursor: Query<(&mut Style, &SoftWareCursor), With<Node>>,
