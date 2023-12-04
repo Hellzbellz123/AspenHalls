@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::prelude::*;
+use bevy_ecs_ldtk::prelude::{*, ldtk::ReferenceToAnEntityInstance};
 use bevy_rapier2d::prelude::*;
 
 use crate::game::{
@@ -57,7 +57,7 @@ fn teleporter_from_json(instance: &EntityInstance) -> Teleporter {
     // }
     let tp_type: TPType;
     let tp_action: Option<String>;
-    let tp_local: Option<IVec2>;
+    let tp_local: Option<ReferenceToAnEntityInstance>;
     let tp_global: Option<Vec2>;
 
     match instance.get_enum_field("Teleport_Type") {
@@ -73,7 +73,7 @@ fn teleporter_from_json(instance: &EntityInstance) -> Teleporter {
                 tp_global = None;
             }
             "Local" => {
-                let local = match instance.get_point_field("Teleport_Local") {
+                let local = match instance.get_entity_ref_field("Teleport_Local") {
                     Ok(val) => {val.clone()},
                     Err(e) => {panic!("error getting teleport local: {}", e)},
                 };
@@ -98,8 +98,8 @@ fn teleporter_from_json(instance: &EntityInstance) -> Teleporter {
         },
         Err(e) => {
             warn!("couldnt get teleporter action {e}");
-            let default = IVec2::ZERO;
-            tp_type = TPType::Local(default);
+            let default = ReferenceToAnEntityInstance::default();
+            tp_type = TPType::Local(default.clone());
             tp_local = Some(default);
             tp_action = None;
             tp_global = None;

@@ -9,6 +9,7 @@ use bevy::{
     render::view::NoFrustumCulling,
     utils::default,
 };
+use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
 use crate::{
     ahp::game::Player,
@@ -48,17 +49,18 @@ pub struct ActorTeleportEvent {
 
 #[derive(Debug, Clone)]
 pub enum TPType {
+    //TODO: expand this for better type checking
     /// string type triggering other `Event`
     Event(String),
     /// local teleport. this is alays in tiles, per room
-    Local(IVec2),
+    Local(ReferenceToAnEntityInstance),
     /// teleport with a global pixel position
     Global(Vec2),
 }
 
 impl Default for TPType {
     fn default() -> Self {
-        TPType::Local(IVec2::ZERO)
+        TPType::Global(Vec2::ZERO)
     }
 }
 

@@ -11,7 +11,7 @@
 	"iid": "244ce3b0-c640-11ed-aa57-bfc2da97beed",
 	"jsonVersion": "1.4.1",
 	"appBuildId": 471015,
-	"nextUid": 38,
+	"nextUid": 39,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -375,19 +375,19 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "Teleport_Global",
+					"identifier": "Teleport_Local",
 					"doc": null,
-					"__type": "Array<Float>",
-					"uid": 37,
-					"type": "F_Float",
-					"isArray": true,
+					"__type": "EntityRef",
+					"uid": 38,
+					"type": "F_EntityRef",
+					"isArray": false,
 					"canBeNull": true,
-					"arrayMinLength": 2,
-					"arrayMaxLength": 2,
-					"editorDisplayMode": "Hidden",
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "RefLinkBetweenCenters",
 					"editorDisplayScale": 1,
 					"editorDisplayPos": "Above",
-					"editorLinkStyle": "StraightArrow",
+					"editorLinkStyle": "CurvedArrow",
 					"editorDisplayColor": null,
 					"editorAlwaysShow": false,
 					"editorShowInWorld": true,
@@ -410,16 +410,16 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "Teleport_Local",
+					"identifier": "Teleport_Global",
 					"doc": null,
-					"__type": "Point",
-					"uid": 33,
-					"type": "F_Point",
-					"isArray": false,
+					"__type": "Array<Float>",
+					"uid": 37,
+					"type": "F_Float",
+					"isArray": true,
 					"canBeNull": true,
-					"arrayMinLength": null,
-					"arrayMaxLength": null,
-					"editorDisplayMode": "PointPath",
+					"arrayMinLength": 2,
+					"arrayMaxLength": 2,
+					"editorDisplayMode": "Hidden",
 					"editorDisplayScale": 1,
 					"editorDisplayPos": "Above",
 					"editorLinkStyle": "StraightArrow",
@@ -651,7 +651,7 @@
 									"params": ["StartDungeonGen"]
 								}] },
 								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [ null, null ], "__tile": null, "defUid": 37, "realEditorValues": [ null, null ] },
-								{ "__identifier": "Teleport_Local", "__type": "Point", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] }
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] }
 							]
 						}
 					]
@@ -1421,7 +1421,7 @@
 									"params": ["StartDungeonGen"]
 								}] },
 								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [ null, null ], "__tile": null, "defUid": 37, "realEditorValues": [ null, null ] },
-								{ "__identifier": "Teleport_Local", "__type": "Point", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] }
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] }
 							]
 						},
 						{
@@ -2947,7 +2947,7 @@
 									"params": ["StartDungeonGen"]
 								}] },
 								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [ null, null ], "__tile": null, "defUid": 37, "realEditorValues": [ null, null ] },
-								{ "__identifier": "Teleport_Local", "__type": "Point", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] }
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] }
 							]
 						},
 						{
@@ -6740,9 +6740,14 @@
 								{ "__identifier": "Teleport_Type", "__type": "LocalEnum.TeleportType", "__value": "Local", "__tile": null, "defUid": 32, "realEditorValues": [] },
 								{ "__identifier": "Teleport_Action", "__type": "String", "__value": null, "__tile": null, "defUid": 34, "realEditorValues": [] },
 								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [ null, null ], "__tile": null, "defUid": 37, "realEditorValues": [ null, null ] },
-								{ "__identifier": "Teleport_Local", "__type": "Point", "__value": { "cx": 5, "cy": 4 }, "__tile": null, "defUid": 33, "realEditorValues": [{
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": {
+									"entityIid": "f57e8040-8990-11ee-88db-8f4cd75584ee",
+									"layerIid": "b416d390-8990-11ee-8ae5-891626c5cce8",
+									"levelIid": "b416ac80-8990-11ee-8ae5-b10aea247b3c",
+									"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
+								}, "__tile": null, "defUid": 38, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["5,4"]
+									"params": ["f57e8040-8990-11ee-88db-8f4cd75584ee"]
 								}] }
 							]
 						},
@@ -6770,7 +6775,7 @@
 									"params": ["StartDungeonGen"]
 								}] },
 								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [ null, null ], "__tile": null, "defUid": 37, "realEditorValues": [ null, null ] },
-								{ "__identifier": "Teleport_Local", "__type": "Point", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] }
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] }
 							]
 						},
 						{
@@ -6794,7 +6799,7 @@
 								}] },
 								{ "__identifier": "Teleport_Action", "__type": "String", "__value": null, "__tile": null, "defUid": 34, "realEditorValues": [] },
 								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 37, "realEditorValues": [ { "id": "V_Float", "params": [0] }, { "id": "V_Float", "params": [0] } ] },
-								{ "__identifier": "Teleport_Local", "__type": "Point", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] }
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] }
 							]
 						},
 						{
@@ -6812,6 +6817,35 @@
 							"defUid": 7,
 							"px": [288,576],
 							"fieldInstances": []
+						},
+						{
+							"__identifier": "TeleportSensor",
+							"__grid": [5,5],
+							"__pivot": [1,1],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#94D9B3",
+							"__worldX": 192,
+							"__worldY": -1088,
+							"iid": "f57e8040-8990-11ee-88db-8f4cd75584ee",
+							"width": 32,
+							"height": 32,
+							"defUid": 67,
+							"px": [192,192],
+							"fieldInstances": [
+								{ "__identifier": "Teleport_Type", "__type": "LocalEnum.TeleportType", "__value": "Local", "__tile": null, "defUid": 32, "realEditorValues": [] },
+								{ "__identifier": "Teleport_Action", "__type": "String", "__value": null, "__tile": null, "defUid": 34, "realEditorValues": [] },
+								{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [ null, null ], "__tile": null, "defUid": 37, "realEditorValues": [ null, null ] },
+								{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": {
+									"entityIid": "ee427d30-8990-11ee-8ae5-518eb316e71a",
+									"layerIid": "b416d390-8990-11ee-8ae5-891626c5cce8",
+									"levelIid": "b416ac80-8990-11ee-8ae5-b10aea247b3c",
+									"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
+								}, "__tile": null, "defUid": 38, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["ee427d30-8990-11ee-8ae5-518eb316e71a"]
+								}] }
+							]
 						}
 					]
 				},

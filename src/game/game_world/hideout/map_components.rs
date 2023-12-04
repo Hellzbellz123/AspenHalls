@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
 use crate::game::game_world::hideout::TPType;
 
@@ -10,7 +11,7 @@ pub struct Teleporter {
     pub teleport_type: TPType,
     pub teleport_action: Option<String>,
     pub global_target: Option<Vec2>,
-    pub local_target: Option<IVec2>
+    pub local_target: Option<ReferenceToAnEntityInstance>
 }
 
 /// waits too teleport

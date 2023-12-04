@@ -118,18 +118,18 @@
 				},
 				{
 					"__identifier": "EnemySpawner",
-					"__grid": [30,14],
+					"__grid": [24,12],
 					"__pivot": [0.5,0.5],
 					"__tags": [],
 					"__tile": null,
 					"__smartColor": "#94D9B3",
-					"__worldX": 3024,
-					"__worldY": 2512,
+					"__worldX": 2832,
+					"__worldY": 2448,
 					"iid": "6e14a3a5-8990-11ee-a13c-db915f3b76ee",
 					"width": 32,
 					"height": 32,
 					"defUid": 66,
-					"px": [976,464],
+					"px": [784,400],
 					"fieldInstances": []
 				},
 				{
@@ -149,11 +149,16 @@
 					"fieldInstances": [
 						{ "__identifier": "Teleport_Type", "__type": "LocalEnum.TeleportType", "__value": "Local", "__tile": null, "defUid": 35, "realEditorValues": [] },
 						{ "__identifier": "Teleport_Action", "__type": "String", "__value": "None", "__tile": null, "defUid": 33, "realEditorValues": [] },
-						{ "__identifier": "Teleport_Global", "__type": "Array<String>", "__value": [ "None", "None" ], "__tile": null, "defUid": 36, "realEditorValues": [ null, null ] },
-						{ "__identifier": "Teleport_Local", "__type": "Point", "__value": { "cx": 49, "cy": 15 }, "__tile": null, "defUid": 37, "realEditorValues": [{
+						{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": {
+							"entityIid": "49488c70-8990-11ee-a9e5-99ed7075d212",
+							"layerIid": "6e145581-8990-11ee-a13c-03aa41225bdd",
+							"levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e",
+							"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
+						}, "__tile": null, "defUid": 38, "realEditorValues": [{
 							"id": "V_String",
-							"params": ["49,15"]
-						}] }
+							"params": ["49488c70-8990-11ee-a9e5-99ed7075d212"]
+						}] },
+						{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [], "__tile": null, "defUid": 39, "realEditorValues": [] }
 					]
 				},
 				{
@@ -173,11 +178,16 @@
 					"fieldInstances": [
 						{ "__identifier": "Teleport_Type", "__type": "LocalEnum.TeleportType", "__value": "Local", "__tile": null, "defUid": 35, "realEditorValues": [] },
 						{ "__identifier": "Teleport_Action", "__type": "String", "__value": "None", "__tile": null, "defUid": 33, "realEditorValues": [] },
-						{ "__identifier": "Teleport_Global", "__type": "Array<String>", "__value": [ "None", "None" ], "__tile": null, "defUid": 36, "realEditorValues": [ null, null ] },
-						{ "__identifier": "Teleport_Local", "__type": "Point", "__value": { "cx": 35, "cy": 15 }, "__tile": null, "defUid": 37, "realEditorValues": [{
+						{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": {
+							"entityIid": "478139f0-8990-11ee-a9e5-0d2d1fc580cc",
+							"layerIid": "6e145581-8990-11ee-a13c-03aa41225bdd",
+							"levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e",
+							"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
+						}, "__tile": null, "defUid": 38, "realEditorValues": [{
 							"id": "V_String",
-							"params": ["35,15"]
-						}] }
+							"params": ["478139f0-8990-11ee-a9e5-0d2d1fc580cc"]
+						}] },
+						{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [], "__tile": null, "defUid": 39, "realEditorValues": [] }
 					]
 				}
 			]

@@ -4,8 +4,10 @@ use bevy::{
     prelude::*, time::common_conditions::on_timer, transform::systems::propagate_transforms,
 };
 use bevy_ecs_ldtk::{
-    prelude::{GridCoords, LayerMetadata, LdtkEntityAppExt},
-    utils::{grid_coords_to_translation_relative_to_tile_layer, grid_coords_to_translation},
+    prelude::{
+        EntityIid, EntityInstance, GridCoords, LayerInstance, LayerMetadata, LdtkEntityAppExt,
+    },
+    utils::{grid_coords_to_translation, grid_coords_to_translation_relative_to_tile_layer},
     TileEnumTags,
 };
 use bevy_ecs_tilemap::prelude::*;
@@ -105,61 +107,55 @@ pub struct GridContainerTag;
 fn handle_teleport_events(
     mut cmds: Commands,
     mut tp_events: EventReader<ActorTeleportEvent>,
-    mut actor_transforms: Query<(&mut Transform, Option<&Parent>), With<ActorType>>,
-    other_transform: Query<(&Transform, Option<&Parent>), Without<ActorType>>,
-    layer_data: Query<(&LayerMetadata, &TileStorage, &TilemapSize)>,
+    mut actor_transforms: Query<&mut Transform, With<ActorType>>,
+    global_transforms: Query<&GlobalTransform>,
     names: Query<&Name>,
     children_query: Query<&Children>,
     parents: Query<&Parent>,
-    grid_coords: Query<&GridCoords>,
+    iids: Query<&EntityIid>,
 ) {
     for event in tp_events.read() {
         info!("recieved Tp Event: {:?}", event);
         match &event.tp_type {
-            hideout::TPType::Local(target_tile) => {
+            //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
+            hideout::TPType::Local(target_tile_reference) => {
                 if let Some(target) = event.target {
-                    let sensor = event.sender.unwrap();
-                    let entity_layer = parents.get(sensor).unwrap().get();
-                    let level = parents.get(entity_layer).unwrap().get();
-                    let ground_layer = children_query
-                        .iter_descendants(level)
+                    let sensor_entity = event.sender.unwrap();
+                    let level_entity = parents.iter_ancestors(sensor_entity).nth(2).unwrap();
+                    let entity_layer_entity = children_query
+                        .iter_descendants(level_entity)
                         .find(|f| {
                             let name = names.get(*f).expect("should have name");
-                            name.as_str() == "Ground_Layer"
+                            name.as_str() == "Entity_Layer"
                         })
                         .expect("the level should always have `Ground_Layer`");
+                    let target_tile_entity = children_query
+                        .iter_descendants(entity_layer_entity)
+                        .find(|f| {
+                            let iid = iids.get(*f).expect("");
+                            iid.as_str() == target_tile_reference.entity_iid
+                        })
+                        .expect("passed entity IID was invalid");
 
-                    let (metadata, tilestorage, tilemapsize) = layer_data
-                        .get(ground_layer)
-                        .expect("got the wrong `Ground_Layer`");
+                    let target_tile_transform = global_transforms
+                        .get(target_tile_entity)
+                        .expect("any entity should have a transform");
 
-                        // TODO: this doesnt work
-
-                    let tpos = IVec2::new(target_tile.x, tilemapsize.y as i32 - target_tile.y);
-                    let coords = GridCoords::new(tpos.x, tpos.y);
-                    let target_pos =
-                        grid_coords_to_translation(coords, IVec2::splat(32));
-                    let (mut target_transform, _) = actor_transforms
+                    let mut target_transform = actor_transforms
                         .get_mut(target)
                         .expect("ActorTeleportEvent targeting entity without transform");
-                    info!("moving player this many: {}", target_pos);
-                    target_transform.translation += target_pos.extend(0.0);
+                    info!(
+                        "moving player this many: {}",
+                        target_tile_transform.translation()
+                    );
+                    target_transform.translation = target_tile_transform.translation();
                 } else {
                     warn!("TPType::Local requires a valid entity");
                 }
             }
-            hideout::TPType::Event(event) => match event.as_str() {
-                "StartDungeonGen" => {
-                    cmds.insert_resource(NextState(Some(DungeonGeneratorState::PrepareDungeon)));
-                }
-                event => {
-                    warn!("unhandled Teleport Event Action: {}", event);
-                }
-            },
-            //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
             hideout::TPType::Global(pos) => {
                 if let Some(ent) = event.target {
-                    let (mut target_transform, parent) = actor_transforms
+                    let mut target_transform = actor_transforms
                         .get_mut(ent)
                         .expect("ActorTeleportEvent targeting entity without transform");
 
@@ -168,6 +164,15 @@ fn handle_teleport_events(
                     warn!("TPType::Global requires a valid entity");
                 }
             }
+            // expand this for better type checking
+            hideout::TPType::Event(event) => match event.as_str() {
+                "StartDungeonGen" => {
+                    cmds.insert_resource(NextState(Some(DungeonGeneratorState::PrepareDungeon)));
+                }
+                event => {
+                    warn!("unhandled Teleport Event Action: {}", event);
+                }
+            },
         }
     }
 }

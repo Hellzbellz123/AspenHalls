@@ -65,12 +65,12 @@ pub fn teleporter_collisions(
     mut teleport_events: EventWriter<ActorTeleportEvent>,
     world_sensors: Query<(Entity, &Teleporter)>,
     player_collider_query: Query<Entity, With<PlayerColliderTag>>,
-    player_query: Query<Entity, With<Player>>,
+    player_query: Query<(Entity), With<Player>>,
 ) {
     if player_query.is_empty() {
         return;
     }
-    let player = player_query.single();
+    let (player) = player_query.single();
     let pc = player_collider_query.single();
 
     // TODO: check TeleportStatus if we are allowed too send this teleport
@@ -88,6 +88,15 @@ pub fn teleporter_collisions(
                         target: Some(player),
                         sender: Some(sensor),
                     });
+                }
+            }
+        }
+        if let CollisionEvent::Stopped(a, b, _flags) = event {
+            if *a == pc || *b == pc {
+                if let Some((sensor, teleporter)) = world_sensors
+                    .iter()
+                    .find(|&(sensor, _)| sensor == *a || sensor == *b)
+                {
                 }
             }
         }
