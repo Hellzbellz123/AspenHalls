@@ -31,9 +31,9 @@
 		{
 			"__identifier": "Entity_Layer",
 			"__type": "Entities",
-			"__cWid": 16,
-			"__cHei": 16,
-			"__gridSize": 32,
+			"__cWid": 32,
+			"__cHei": 32,
+			"__gridSize": 16,
 			"__opacity": 1,
 			"__pxTotalOffsetX": 0,
 			"__pxTotalOffsetY": 0,
@@ -54,7 +54,7 @@
 			"entityInstances": [
 				{
 					"__identifier": "RoomExit",
-					"__grid": [7,0],
+					"__grid": [14,0],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -70,7 +70,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [8,0],
+					"__grid": [16,0],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -86,7 +86,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [0,7],
+					"__grid": [0,14],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -102,7 +102,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [0,8],
+					"__grid": [0,16],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -118,7 +118,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [7,15],
+					"__grid": [14,30],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -134,7 +134,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [8,15],
+					"__grid": [16,30],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -150,7 +150,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [15,8],
+					"__grid": [30,16],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -166,7 +166,7 @@
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [15,7],
+					"__grid": [30,14],
 					"__pivot": [0,0],
 					"__tags": [],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
@@ -182,18 +182,18 @@
 				},
 				{
 					"__identifier": "EnemySpawner",
-					"__grid": [7,10],
+					"__grid": [15,15],
 					"__pivot": [0.5,0.5],
 					"__tags": [],
 					"__tile": null,
 					"__smartColor": "#94D9B3",
-					"__worldX": 1776,
-					"__worldY": 336,
+					"__worldX": 1784,
+					"__worldY": 248,
 					"iid": "30fd38e0-1460-11ee-88e8-b7a3bdc32594",
 					"width": 32,
 					"height": 32,
 					"defUid": 66,
-					"px": [240,336],
+					"px": [248,248],
 					"fieldInstances": []
 				}
 			]
