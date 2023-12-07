@@ -8,6 +8,10 @@ pub struct PlayerColliderTag;
 #[derive(Component)]
 pub struct EnemyColliderTag;
 
+/// tag for actor colliders
+#[derive(Component)]
+pub struct ActorColliderTag;
+
 /// tag for enemy projectile
 #[derive(Component)]
 pub struct EnemyProjectileTag;
@@ -34,19 +38,25 @@ use super::combat::components::Damage;
 pub struct TimeToLive(pub Timer);
 
 /// is this actor allowed too sprint?
+#[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
 pub enum MoveStatus {
-    /// actor is allowed too walk
-    CanWalk,
     /// actor is allowed too run
-    CanSprint,
+    #[default]
+    Run,
+    /// actor is allowed too walk
+    Walk,
     /// actor is not allowed too move
-    NotAllowed,
+    NoMovement,
 }
 
 /// entity teleport status
+#[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
 pub enum TeleportStatus {
-    /// entity has requested a teleport too this pos
-    Requested(Vec2),
+    /// no teleport
+    #[default]
+    None,
+    /// entity has requested a teleport
+    Requested,
     /// entity is in process of teleporting
     Teleporting,
     /// entity has finished teleporting
@@ -55,13 +65,17 @@ pub enum TeleportStatus {
 
 /// player data
 #[derive(Component, Reflect, Clone, Copy, Default)]
-pub struct Player {
-    /// if player can sprint
-    pub sprint_available: bool,
-    /// if player just moved
-    pub just_moved: bool,
-    /// if player wants too teleport
-    pub wants_to_teleport: bool,
+pub struct Player;
+
+#[derive(Debug, Component, Reflect, Clone, Default)]
+pub struct ActorMoveState {
+    pub move_status: MoveStatus,
+    pub teleport_status: TeleportStatus,
+}
+impl ActorMoveState {
+    /// full speed with no requested teleport
+    pub const DEFAULT: ActorMoveState = ActorMoveState { move_status: MoveStatus::Run, teleport_status: TeleportStatus::None };
+
 }
 
 /// projectile data

@@ -9,7 +9,7 @@ use crate::{
     game::actors::{
         ai::components::{ActorType, Type},
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
-        components::PlayerColliderTag,
+        components::{ActorMoveState, MoveStatus, PlayerColliderTag, TeleportStatus, ActorColliderTag},
     },
     game::{
         actors::{
@@ -71,19 +71,19 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
     info!("spawning player");
     commands
         .spawn((
-            Player {
-                wants_to_teleport: false,
-                sprint_available: false,
-                just_moved: false,
-            },
+            Player,
             PlayerBindings::default(),
             WeaponSocket {
                 drawn_slot: Some(WeaponSlots::Slot1), // entity id of currently equipped weapon
-                weapon_slots: init_weapon_slots(),
+                weapon_slots: empty_weapon_slots(),
             },
             ActorBundle {
                 name: Name::new("Player"),
-                actor_type: ActorType(Type::Player),
+                faction: ActorType(Type::Player),
+                move_state: ActorMoveState {
+                    move_status: MoveStatus::Run,
+                    teleport_status: TeleportStatus::default(),
+                },
                 animation_state: AnimState {
                     animation_type: ActorAnimationType::Idle,
                     timer: Timer::from_seconds(0.2, TimerMode::Repeating),
@@ -133,6 +133,7 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             child.spawn((
                 PlayerColliderTag,
                 ActorColliderBundle {
+                    tag: ActorColliderTag,
                     name: Name::new("PlayerCollider"),
                     transform_bundle: TransformBundle {
                         local: (Transform {
@@ -161,12 +162,11 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
 }
 
 /// creates empty weapon slots
-pub fn init_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
+pub fn empty_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
     let mut weapon_slots = HashMap::new();
     weapon_slots.insert(WeaponSlots::Slot1, None::<Entity>);
     weapon_slots.insert(WeaponSlots::Slot2, None::<Entity>);
     weapon_slots.insert(WeaponSlots::Slot3, None::<Entity>);
     weapon_slots.insert(WeaponSlots::Slot4, None::<Entity>);
-    warn!("{:#?}", weapon_slots);
     weapon_slots
 }

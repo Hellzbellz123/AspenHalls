@@ -16,9 +16,12 @@ use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, V
 use crate::{
     ahp::game::ActorType,
     consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
-    game::game_world::{
-        dungeonator_v2::DungeonGeneratorState,
-        hideout::{ActorTeleportEvent, TPType},
+    game::{
+        actors::components::{ActorMoveState, TeleportStatus},
+        game_world::{
+            dungeonator_v2::DungeonGeneratorState,
+            hideout::{ActorTeleportEvent, TPType},
+        },
     },
     utilities::on_component_added,
     AppState,
@@ -107,72 +110,71 @@ pub struct GridContainerTag;
 fn handle_teleport_events(
     mut cmds: Commands,
     mut tp_events: EventReader<ActorTeleportEvent>,
-    mut actor_transforms: Query<&mut Transform, With<ActorType>>,
+    mut actor_transforms: Query<(&mut Transform, &mut ActorMoveState), With<ActorType>>,
     global_transforms: Query<&GlobalTransform>,
-    names: Query<&Name>,
-    children_query: Query<&Children>,
-    parents: Query<&Parent>,
-    iids: Query<&EntityIid>,
+    iids: Query<(Entity, &EntityIid)>,
 ) {
     for event in tp_events.read() {
         info!("recieved Tp Event: {:?}", event);
+        let (mut target_transform, mut move_state) =
+            match actor_transforms.get_mut(event.target.expect("target should not be empty")) {
+                Ok((a, b)) => (a, b),
+                Err(e) => {
+                    warn!("teleport event for entity without `Transform`: {e}");
+                    return;
+                }
+            };
+
+        if move_state.teleport_status != TeleportStatus::Requested {
+            warn!(
+                "got a teleport event while not requested. actor move state: {:?}",
+                move_state
+            );
+            return;
+        }
+
+        move_state.teleport_status = TeleportStatus::Teleporting;
         match &event.tp_type {
             //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
             hideout::TPType::Local(target_tile_reference) => {
-                if let Some(target) = event.target {
-                    let sensor_entity = event.sender.unwrap();
-                    let level_entity = parents.iter_ancestors(sensor_entity).nth(2).unwrap();
-                    let entity_layer_entity = children_query
-                        .iter_descendants(level_entity)
-                        .find(|f| {
-                            let name = names.get(*f).expect("should have name");
-                            name.as_str() == "Entity_Layer"
-                        })
-                        .expect("the level should always have `Ground_Layer`");
-                    let target_tile_entity = children_query
-                        .iter_descendants(entity_layer_entity)
-                        .find(|f| {
-                            let iid = iids.get(*f).expect("");
-                            iid.as_str() == target_tile_reference.entity_iid
-                        })
-                        .expect("passed entity IID was invalid");
+                let target_tile_entity = match iids.iter().find(|f| f.1.as_str() == target_tile_reference.entity_iid) {
+                    Some(e) => e.0,
+                    None => {
+                        move_state.teleport_status = TeleportStatus::None;
+                        warn!("teleport failed: refed EntityIid did not exist in the world");
+                        return;
+                    },
+                };
 
-                    let target_tile_transform = global_transforms
-                        .get(target_tile_entity)
-                        .expect("any entity should have a transform");
+                let target_tile_transform = global_transforms
+                    .get(target_tile_entity)
+                    .expect("any entity should have a transform");
 
-                    let mut target_transform = actor_transforms
-                        .get_mut(target)
-                        .expect("ActorTeleportEvent targeting entity without transform");
-                    info!(
-                        "moving player this many: {}",
-                        target_tile_transform.translation()
-                    );
-                    target_transform.translation = target_tile_transform.translation();
-                } else {
-                    warn!("TPType::Local requires a valid entity");
-                }
+                info!(
+                    "moving player this many: {}",
+                    target_tile_transform.translation()
+                );
+                target_transform.translation = target_tile_transform.translation();
+                move_state.teleport_status = TeleportStatus::Teleporting;
             }
             hideout::TPType::Global(pos) => {
-                if let Some(ent) = event.target {
-                    let mut target_transform = actor_transforms
-                        .get_mut(ent)
-                        .expect("ActorTeleportEvent targeting entity without transform");
-
-                    target_transform.translation = pos.extend(ACTOR_Z_INDEX);
-                } else {
-                    warn!("TPType::Global requires a valid entity");
-                }
+                target_transform.translation = pos.extend(ACTOR_Z_INDEX);
+                move_state.teleport_status = TeleportStatus::None;
             }
             // expand this for better type checking
-            hideout::TPType::Event(event) => match event.as_str() {
-                "StartDungeonGen" => {
-                    cmds.insert_resource(NextState(Some(DungeonGeneratorState::PrepareDungeon)));
+            hideout::TPType::Event(event) => {
+                match event.as_str() {
+                    "StartDungeonGen" => {
+                        cmds.insert_resource(NextState(Some(
+                            DungeonGeneratorState::PrepareDungeon,
+                        )));
+                    }
+                    event => {
+                        warn!("unhandled Teleport Event Action: {}", event);
+                    }
                 }
-                event => {
-                    warn!("unhandled Teleport Event Action: {}", event);
-                }
-            },
+                move_state.teleport_status = TeleportStatus::Teleporting;
+            }
         }
     }
 }
@@ -182,7 +184,7 @@ fn handle_teleport_events(
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
-    player_query: Query<Entity, With<Player>>,
+    mut player_query: Query<(Entity, &mut ActorMoveState), With<Player>>,
     start_location: Query<&GlobalTransform, With<PlayerStartLocation>>,
     mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
@@ -205,13 +207,15 @@ fn teleport_player_too_start_location(
         info!("new sum: {}", sum);
     }
 
+    let (player, mut state) = player_query.single_mut();
     if current_count == length {
         let avg = sum / (current_count as f32);
         tp_events.send(ActorTeleportEvent {
             tp_type: TPType::Global(avg),
-            target: Some(player_query.single()),
+            target: Some(player),
             sender: None,
         });
+        state.teleport_status = TeleportStatus::Requested;
         info!("got start pos: {:?}, total sampled: {}", avg, length);
     }
 }

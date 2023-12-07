@@ -19,7 +19,7 @@ use crate::{
     game::{
         actors::{
             combat::components::{
-                CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
+                CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, Weapon,
             },
             player::actions::ShootEvent,
         },
@@ -102,7 +102,7 @@ fn rotate_player_weapon(
     )>,
     mut weapon_query: Query<
         // this is equivalent to if player has a weapon equipped and out
-        (&WeaponTag, &GlobalTransform, &mut Transform),
+        (&Weapon, &GlobalTransform, &mut Transform),
         (With<Parent>, With<CurrentlySelectedWeapon>),
     >,
 ) {
@@ -111,7 +111,7 @@ fn rotate_player_weapon(
     }
 
     for (weapon_tag, weapon_global_transform, mut weapon_transform) in &mut weapon_query {
-        if weapon_tag.parent.is_some() {
+        if weapon_tag.holder.is_some() {
             let ((_player_animation_state, player_input), ()) = player_query.single_mut();
             let global_mouse_pos = player_input
                 .action_data(action_maps::Gameplay::LookWorld)
@@ -143,7 +143,7 @@ fn equipped_weapon_positioning(
     weapon_carrying_actors: Query<(&AnimState, Entity), With<WeaponSocket>>,
     mut weapon_query: Query<
         // all weapons equipped too entity
-        (&WeaponTag, &mut Transform, &mut Velocity),
+        (&Weapon, &mut Transform, &mut Velocity),
         (With<Parent>, Without<ActorType>),
     >,
 ) {
@@ -153,7 +153,7 @@ fn equipped_weapon_positioning(
 
     for (animation_state, weapon_carrying_entity) in &weapon_carrying_actors {
         for (weapon_tag, mut weapon_transform, mut weapon_velocity) in &mut weapon_query {
-            if weapon_tag.parent == Some(weapon_carrying_entity) {
+            if weapon_tag.holder == Some(weapon_carrying_entity) {
                 // weapon_velocity.angvel =
                 //     lerp(weapon_velocity.angvel, 0.0, 0.3);
                 weapon_velocity.linvel = Vec2::ZERO;
@@ -182,7 +182,7 @@ fn equipped_weapon_positioning(
 /// check if the weapon is supposed to be visible
 fn weapon_visibility_system(
     player_query: Query<&WeaponSocket, With<Player>>,
-    mut weapon_query: Query<(&WeaponTag, &mut Visibility)>, // query weapons parented to entity's
+    mut weapon_query: Query<(&Weapon, &mut Visibility)>, // query weapons parented to entity's
 ) {
     if player_query.is_empty() || weapon_query.is_empty() {
         return;
@@ -191,7 +191,7 @@ fn weapon_visibility_system(
     let p_weapon_socket = player_query.single();
 
     for (weapon_tag, mut weapon_visibility) in &mut weapon_query {
-        if weapon_tag.stored_weapon_slot == p_weapon_socket.drawn_slot {
+        if weapon_tag.holder_slot == p_weapon_socket.drawn_slot {
             // TODO: these feels wrong, deref doesn't feel correct here
             // find a less gross solution
             *weapon_visibility = Visibility::Inherited;
@@ -211,7 +211,7 @@ fn remove_cdw_component(
 
     drawn_weapon: Query<&CurrentlySelectedWeapon>,
     weapon_query: Query<
-        (Entity, &WeaponTag),
+        (Entity, &Weapon),
         (With<Parent>, With<CurrentlySelectedWeapon>, Without<Player>),
     >,
 ) {
@@ -222,7 +222,7 @@ fn remove_cdw_component(
     let player_weapon_socket = player_query.single();
 
     for (weapon_entity, weapon_tag) in &weapon_query {
-        if weapon_tag.stored_weapon_slot != player_weapon_socket.drawn_slot
+        if weapon_tag.holder_slot != player_weapon_socket.drawn_slot
             && drawn_weapon.get(weapon_entity).is_ok()
         {
             let weapon_name = names
@@ -244,7 +244,7 @@ fn update_equipped_weapon(
     mut cmds: Commands,
     query_action_state: Query<&ActionState<action_maps::Gameplay>>,
     mut player_query: Query<&mut WeaponSocket, With<Player>>,
-    weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), (With<Parent>, Without<Player>)>,
+    weapon_query: Query<(Entity, &mut Weapon, &mut Transform), (With<Parent>, Without<Player>)>,
 ) {
     if player_query.is_empty() | weapon_query.is_empty() | query_action_state.is_empty() {
         return;
@@ -330,7 +330,7 @@ pub fn receive_shoot_weapon(
     mut attack_event_reader: EventReader<ShootEvent>,
     weapon_query: Query<
         // this is equivalent to if player has a weapon equipped and out
-        (&mut WeaponTag, &WeaponStats, &Transform),
+        (&mut Weapon, &WeaponStats, &Transform),
         (With<Parent>, With<CurrentlySelectedWeapon>),
     >,
 ) {

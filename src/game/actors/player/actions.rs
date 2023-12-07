@@ -7,7 +7,7 @@ use crate::ahp::{
     },
     game::{
         action_maps, ActorType, BarrelPointTag, CurrentlySelectedWeapon, Player, SpawnActorEvent,
-        Type, WeaponColliderTag, WeaponSlots, WeaponSocket, WeaponTag, TILE_SIZE,
+        Type, WeaponColliderTag, WeaponSlots, WeaponSocket, Weapon, TILE_SIZE,
     },
 };
 
@@ -114,7 +114,7 @@ pub fn equip_closest_weapon(
         With<Player>,
     >,
     query_child_weapon_collider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
-    mut weapon_query: Query<(Entity, &mut WeaponTag, &mut Transform), Without<Player>>,
+    mut weapon_query: Query<(Entity, &mut Weapon, &mut Transform), Without<Player>>,
 ) {
     if player_query.is_empty() {
         return;
@@ -180,8 +180,8 @@ pub fn equip_closest_weapon(
                     weapon_socket_on_player.drawn_slot = Some(slot);
 
                     cmds.entity(weapon).insert(CurrentlySelectedWeapon);
-                    weapon_tag.parent = Some(player_entity);
-                    weapon_tag.stored_weapon_slot = Some(slot);
+                    weapon_tag.holder = Some(player_entity);
+                    weapon_tag.holder_slot = Some(slot);
 
                     let socket_value = weapon_socket_on_player
                         .weapon_slots

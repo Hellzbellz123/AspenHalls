@@ -22,7 +22,8 @@ pub struct ActorPlugin;
 
 impl Plugin for ActorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
+        app
+        .add_plugins((
             spawners::SpawnerPlugin,
             animation::AnimationPlugin,
             player::PlayerPlugin,

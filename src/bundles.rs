@@ -1,4 +1,4 @@
-use crate::ahp::{
+use crate::{ahp::{
     engine::{
         Bundle, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes,
         Name, Restitution, RigidBody, SpriteBundle, SpriteSheetBundle, ThinkerBuilder,
@@ -9,23 +9,24 @@ use crate::ahp::{
         ActorPrimaryAttributes, ActorSecondaryAttributes, ActorTertiaryAttributes, ActorType,
         AnimState, AnimationSheet, ProjectileStats, TimeToLive,
     },
-};
+}, game::actors::components::{ActorMoveState, ActorColliderTag}};
 
 /// bundle used too spawn "actors"
 #[derive(Bundle)]
 pub struct ActorBundle {
     /// actor name
     pub name: Name,
+    pub move_state: ActorMoveState,
     /// actor type
-    pub actor_type: ActorType,
+    pub faction: ActorType,
+    /// actor stats
+    pub stats: ActorAttributesBundle,
     /// animation state
     pub animation_state: AnimState,
     /// available animations
     pub available_animations: AnimationSheet,
     /// texture data
     pub sprite: SpriteSheetBundle,
-    /// actor stats
-    pub stats: ActorAttributesBundle,
     /// actor collisions and movement
     pub rigidbody_bundle: RigidBodyBundle,
 }
@@ -41,6 +42,8 @@ pub struct ActorColliderBundle {
     pub collider: Collider,
     /// collision groups
     pub collision_groups: CollisionGroups,
+    /// tag
+    pub tag: ActorColliderTag,
 }
 
 /// bundle too spawn projectiles

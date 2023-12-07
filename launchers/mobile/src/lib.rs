@@ -8,9 +8,6 @@ use aspen_lib::ahp::game as asha;
 
 #[bevy::prelude::bevy_main]
 fn main() {
-    let ctx = ndk_context::android_context();
-    let vm = unsafe { jni::JavaVM::from_raw(ctx.vm().cast()) }.unwrap();
-    let env = vm.attach_current_thread().unwrap();
     let config = asha::ConfigFile {
         log_filter: Some("Info,wgpu=error,naga=error".to_string()),
         window_settings: asha::WindowSettings {
@@ -35,6 +32,7 @@ fn main() {
         },
         render_settings: asha::RenderSettings { msaa: false },
     };
+
     println!("Starting launcher: Mobile");
     aspen_lib::start_app(config).run();
 }

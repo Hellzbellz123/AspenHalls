@@ -33,7 +33,7 @@ pub mod game {
                 animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 combat::components::{
                     BarrelPointTag, CurrentlySelectedWeapon, DamageType, WeaponColliderTag,
-                    WeaponSlots, WeaponSocket, WeaponStats, WeaponTag,
+                    WeaponSlots, WeaponSocket, WeaponStats, Weapon,
                 },
                 components::{
                     ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes,

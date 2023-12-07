@@ -17,7 +17,7 @@ use crate::{
             AIWanderConfig, ActorType, AttackScore, ChaseScore, Enemy, Type,
         },
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
-        components::EnemyColliderTag,
+        components::{ActorColliderTag, ActorMoveState, EnemyColliderTag},
     },
     loading::assets::ActorTextureHandles,
 };
@@ -54,7 +54,7 @@ pub fn spawn_skeleton(
                 },
                 ActorBundle {
                     name: Name::new("Skeleton"),
-                    actor_type: ActorType(Type::Enemy),
+                    faction: ActorType(Type::Enemy),
                     stats: ActorAttributesBundle::default(),
                     animation_state: AnimState {
                         animation_type: ActorAnimationType::Idle,
@@ -94,11 +94,13 @@ pub fn spawn_skeleton(
                                 angular_damping: 1.0,
                             },
                         },
+                    move_state: ActorMoveState::DEFAULT,
                 }))
                 .with_children(|child| {
                     child.spawn((
                         EnemyColliderTag,
                         ActorColliderBundle {
+                        tag: ActorColliderTag,
                         name: Name::new("SkeletonCollider"),
                         transform_bundle: TransformBundle {
                             local: (
@@ -151,7 +153,8 @@ pub fn spawn_slime(
                             },
                             ActorBundle {
                                 name: Name::new("Slime"),
-                                actor_type: ActorType(Type::Enemy),
+                                faction: ActorType(Type::Enemy),
+                                move_state: ActorMoveState::DEFAULT,
                                 stats: ActorAttributesBundle::default(),
                                     animation_state: AnimState {
                                         animation_type: ActorAnimationType::Idle,
@@ -197,6 +200,7 @@ pub fn spawn_slime(
                             child.spawn((
                                 EnemyColliderTag,
                                 ActorColliderBundle {
+                                tag: ActorColliderTag,
                                 name: Name::new("SlimeCollider"),
                                 transform_bundle: TransformBundle {
                                     local: (

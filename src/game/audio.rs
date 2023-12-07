@@ -7,7 +7,7 @@ use crate::{
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},
-            components::Player,
+            components::{ActorMoveState, MoveStatus, Player},
         },
         AppState,
     },
@@ -88,41 +88,44 @@ fn play_background_audio(
 // TODO: make generic across actors and use spatial sound emitters on entitys
 /// play walking sound
 fn player_walking_sound_system(
-    audio_assets: Res<AudioHandles>,
-    mut player_query: Query<(&mut AnimState, &mut Player)>,
     mut walk_sound_res: ResMut<WalkingSoundTimer>,
-    audio: Res<AudioChannel<GameSoundChannel>>,
+    game_sound: Res<AudioChannel<GameSoundChannel>>,
+    actor_query: Query<&ActorMoveState>,
+    audio: Res<AudioHandles>,
     time: Res<Time>,
 ) {
-    let (anim_data, player_data) = player_query.single_mut();
-    if anim_data.animation_type == ActorAnimationType::Idle {
-        walk_sound_res.timer.reset();
-        walk_sound_res.is_first_time = true;
-    } else {
-        if !player_data.sprint_available {
-            walk_sound_res
-                .timer
-                .set_duration(Duration::from_millis(650));
-        } else if player_data.sprint_available {
-            walk_sound_res
-                .timer
-                .set_duration(Duration::from_millis(150));
-        }
-
-        walk_sound_res.timer.tick(time.delta());
-        if walk_sound_res.timer.finished() || walk_sound_res.is_first_time {
-            if walk_sound_res.is_first_time {
-                walk_sound_res.is_first_time = false;
+    for actor in &actor_query {
+        match &actor.move_status {
+            MoveStatus::NoMovement => {
                 walk_sound_res.timer.reset();
+                walk_sound_res.is_first_time = true;
             }
-            let mut index = rand::thread_rng();
+            moving => {
+                match moving {
+                    MoveStatus::Run => {
+                        walk_sound_res
+                            .timer
+                            .set_duration(Duration::from_millis(150));
+                    }
+                    MoveStatus::Walk => {}
+                    _ => panic!("wild"),
+                }
+                walk_sound_res.timer.tick(time.delta());
+                if walk_sound_res.timer.finished() || walk_sound_res.is_first_time {
+                    if walk_sound_res.is_first_time {
+                        walk_sound_res.is_first_time = false;
+                        return;
+                    }
+                    let mut index = rand::thread_rng();
 
-            let step_sound_handle = audio_assets
-                .footsteps
-                .choose(&mut index)
-                .expect("SHOULD NEVER BE EMPTY")
-                .clone();
-            audio.play(step_sound_handle);
+                    let step_sound_handle = audio
+                        .footsteps
+                        .choose(&mut index)
+                        .expect("SHOULD NEVER BE EMPTY")
+                        .clone();
+                    game_sound.play(step_sound_handle);
+                }
+            }
         }
     }
 }

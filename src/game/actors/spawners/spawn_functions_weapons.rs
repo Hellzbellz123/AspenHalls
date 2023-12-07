@@ -6,7 +6,7 @@ use crate::{
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX},
     game::actors::combat::components::{
         BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
-        WeaponColliderTag, WeaponStats, WeaponTag,
+        WeaponColliderTag, WeaponStats, Weapon,
     },
     loading::assets::ActorTextureHandles,
 };
@@ -24,9 +24,9 @@ pub fn spawn_small_smg(
 ) {
     cmds.spawn((WeaponBundle {
         name: Name::new("Small SMG"),
-        tag: WeaponTag {
-            parent: None,
-            stored_weapon_slot: None,
+        tag: Weapon {
+            holder: None,
+            holder_slot: None,
         },
         weapon_type: WeaponType::SmallSMG,
         weapon_stats: WeaponStats {
@@ -127,9 +127,9 @@ pub fn spawn_small_pistol(
 ) {
     cmds.spawn((WeaponBundle {
         name: Name::new("Small Pistol"),
-        tag: WeaponTag {
-            parent: None,
-            stored_weapon_slot: None,
+        tag: Weapon {
+            holder: None,
+            holder_slot: None,
         },
         weapon_type: WeaponType::SmallPistol,
         weapon_stats: WeaponStats {

@@ -7,6 +7,10 @@ use crate::{
     loading::assets::ActorTextureHandles,
 };
 
+//TODO: on startup, load all ron files in assets/packs/asha/actors
+//create hashmap of `(ActorBundle, ActorColliderBundle)` with key `String` as app resource
+// spawn functions should pull from this resource
+
 /// shooting and graphics for enemies
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {

@@ -20,7 +20,7 @@ pub struct WeaponBundle {
     /// weapon name
     pub name: Name,
     /// weapon stored slot
-    pub tag: WeaponTag,
+    pub tag: Weapon,
     /// weapon type
     pub weapon_type: WeaponType,
     /// weapon stats
@@ -69,12 +69,14 @@ pub struct WeaponBarrelEndPoint {
 
 #[derive(Debug, Clone, Copy, Component, Default, Reflect)]
 #[reflect(Component)]
-/// things with this are weapons, holds stored slot and target parent
-pub struct WeaponTag {
-    /// weapon slot weapon is currently in, None if not attached to player
-    pub stored_weapon_slot: Option<WeaponSlots>,
-    /// weapons parent
-    pub parent: Option<Entity>,
+/// things with this are weapons
+/// 
+/// 
+pub struct Weapon {
+    /// slot weapon is currently in, None if not attached to an actor
+    pub holder_slot: Option<WeaponSlots>,
+    /// actor holding this weapon
+    pub holder: Option<Entity>,
 }
 
 /// inserted to currently drawn weapon

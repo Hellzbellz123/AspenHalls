@@ -9,55 +9,51 @@ use crate::{
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},
-            components::{ActorTertiaryAttributes, Player},
+            components::{ActorMoveState, ActorTertiaryAttributes, MoveStatus, Player},
         },
         input::action_maps,
     },
     loading::splashscreen::MainCamera,
 };
 
-/// adds velocity too player based of what movement keys are pressed
+/// adds velocity too player based off what movement keys are pressed
 pub fn player_movement_system(
-    query_action_state: Query<&ActionState<action_maps::Gameplay>, With<Player>>,
-    mut player_query: Query<(
-        &mut Velocity,
-        &mut AnimState,
-        &mut TextureAtlasSprite,
-        &ActorTertiaryAttributes,
+    mut player_query: Query<
+        (
+            &mut Velocity,
+            &ActorTertiaryAttributes,
+            &ActionState<action_maps::Gameplay>,
+        ),
         With<Player>,
-    )>,
+    >,
 ) {
-    if player_query.is_empty() {
-        return;
-    }
+    let (mut velocity, speed_attr, action_state) = match player_query.get_single_mut() {
+        Ok(query) => query,
+        Err(e) => {warn!("unable too update player velocity: {}", e); return;},
+    };
 
-    let (mut velocity, mut anim_state, _texture, speed_attr, ()) = player_query.single_mut();
-    let action_state = query_action_state.single();
-    let delta;
-
-    if action_state.pressed(action_maps::Gameplay::Move) {
-        // Virtual direction pads are one of the types which return an AxisPair
-        let axis_pair = action_state.axis_pair(action_maps::Gameplay::Move).unwrap();
-        delta = axis_pair.xy();
-
-        let new_velocity = Velocity::linear(delta * speed_attr.speed);
-
-        *velocity = new_velocity;
-    } else {
+    let move_data = action_state.action_data(action_maps::Gameplay::Move);
+    let Some(move_axis) = move_data.axis_pair else {
+        // no move button data
         if velocity.linvel.length() <= 0.01 {
             velocity.linvel = Vec2::ZERO;
         } else {
             velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
-        }
-        anim_state.animation_type = ActorAnimationType::Idle;
-    }
+        };
+        return;
+    };
+
+    let delta = move_axis.xy();
+    let new_velocity = Velocity::linear(delta * speed_attr.speed);
+
+    *velocity = new_velocity;
 }
 
 /// modifies players movement speed based on sprint button
 pub fn player_sprint(
     mut player_query: Query<(
         &mut AnimState,
-        &mut Player,
+        &mut ActorMoveState,
         &ActionState<action_maps::Gameplay>,
         &mut ActorTertiaryAttributes,
     )>,
@@ -66,22 +62,29 @@ pub fn player_sprint(
         return;
     }
 
-    let (mut animation, mut player, action_state, mut speed_atr) = player_query.single_mut();
+    let (mut animation, mut player_move_state, action_state, mut tert_atr) =
+        player_query.single_mut();
 
     if action_state.pressed(action_maps::Gameplay::Sprint) {
         animation.timer.set_duration(Duration::from_millis(100));
-        player.sprint_available = true;
+        player_move_state.move_status = MoveStatus::Run; //.sprint_available = true;
     }
 
     if action_state.released(action_maps::Gameplay::Sprint) {
         animation.timer.set_duration(Duration::from_millis(200));
-        player.sprint_available = false;
+        player_move_state.move_status = MoveStatus::Walk;
     }
 
-    if player.sprint_available {
-        speed_atr.speed = 255.0;
-    } else {
-        speed_atr.speed = 155.0;
+    match player_move_state.move_status {
+        MoveStatus::Run => {
+            tert_atr.speed = 255.0;
+        }
+        MoveStatus::Walk => {
+            tert_atr.speed = 155.0;
+        }
+        MoveStatus::NoMovement => {
+            tert_atr.speed = 0.0;
+        }
     }
 }
 
