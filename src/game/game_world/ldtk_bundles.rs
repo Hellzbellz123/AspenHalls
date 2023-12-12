@@ -90,7 +90,7 @@ pub struct LdtkStartLocBundle {
     tag: PlayerStartLocation,
 }
 
-fn start_location_from_instance(instance: &EntityInstance) -> PlayerStartLocation {
+const fn start_location_from_instance(instance: &EntityInstance) -> PlayerStartLocation {
     PlayerStartLocation {
         size: Vec2::new(instance.width as f32, instance.height as f32),
     }
@@ -111,7 +111,7 @@ fn teleporter_from_instance(instance: &EntityInstance) -> Teleporter {
     let tp_type = decipher_teleport_type(instance).unwrap_or_else(|| {
         warn!("couldnt get teleporter action");
         let default = ReferenceToAnEntityInstance::default();
-        TpTriggerEffect::Local(default.clone())
+        TpTriggerEffect::Local(default)
     });
 
     let teleporter = Teleporter {
@@ -132,8 +132,7 @@ fn spawner_from_instance(entity_instance: &EntityInstance) -> Spawner {
         .get_maybe_strings_field("EnemyTypes")
         .expect("Spawner instances should ALWAYS have an EnemyTypes field")
         .iter()
-        .filter(|f| f.is_some())
-        .map(|f| f.clone().unwrap())
+        .filter_map( std::clone::Clone::clone)
         .collect();
     let got_max_ents = entity_instance
         .get_maybe_int_field("MaxEnemies")
@@ -162,20 +161,12 @@ fn decipher_teleport_type(instance: &EntityInstance) -> Option<TpTriggerEffect> 
     };
 
     match tp_type.as_str() {
-        "Event" => {
-            if let Ok(action) = instance.get_string_field("Teleport_Action") {
-                return Some(TpTriggerEffect::Event(action.clone()));
-            } else {
-                return None;
-            }
-        }
-        "Local" => {
-            if let Ok(local) = instance.get_entity_ref_field("Teleport_Local") {
-                return Some(TpTriggerEffect::Local(local.clone()));
-            } else {
-                return None;
-            }
-        }
+        "Event" => instance
+            .get_string_field("Teleport_Action")
+            .map_or(None, |action| Some(TpTriggerEffect::Event(action.clone()))),
+        "Local" => instance
+            .get_entity_ref_field("Teleport_Local")
+            .map_or(None, |local| Some(TpTriggerEffect::Local(local.clone()))),
         "Global" => {
             let Ok(val) = instance
                 .get_maybe_floats_field("Teleport_Global")
@@ -184,14 +175,14 @@ fn decipher_teleport_type(instance: &EntityInstance) -> Option<TpTriggerEffect> 
                 return None;
             };
             let vec = vec2_from_array(val).expect("msg");
-            return Some(TpTriggerEffect::Global(vec));
+            Some(TpTriggerEffect::Global(vec))
         }
         unknown => {
             error!(
                 "encountered unknown TPType for spawner instance: {}",
                 unknown
             );
-            return None;
+            None
         }
     }
 }

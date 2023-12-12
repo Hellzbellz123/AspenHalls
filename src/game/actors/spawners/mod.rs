@@ -202,16 +202,15 @@ pub fn spawner_timer_system(
         }
 
         let mut enemies_in_spawner_area = 0;
-        let enemy_type: String;
         let enemies = spawner_state.enemies_too_spawn.clone();
         let mut rng = thread_rng();
-        if enemies.len() < 1 {
+        let enemy_type: String = if enemies.is_empty() {
             warn!("No enemies for this spawner. Generating random enemy");
             let et: EnemyType = rng.gen();
-            enemy_type = et.to_string();
+            et.to_string()
         } else {
             warn!("Selecting random enemy too spawn from this spawners Enemy List");
-            enemy_type = enemies.choose(&mut rng).unwrap().clone();
+            enemies.choose(&mut rng).unwrap().clone()
         };
 
         for enemy_transform in &all_enemies {

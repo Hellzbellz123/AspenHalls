@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
-    prelude::LevelIid, IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground,
+    prelude::{LevelIid, SpawnExclusions}, IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground,
     LevelSelection, LevelSpawnBehavior, SetClearColor,
 };
 use bevy_rapier2d::prelude::{CollisionEvent, Sensor};
@@ -50,6 +50,7 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
         "e48949c0-8990-11ee-a550-f91ac169a863",
     )));
     commands.insert_resource(LdtkSettings {
+        exclusions: SpawnExclusions::default(),
         level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation,
         set_clear_color: SetClearColor::No,
         int_grid_rendering: IntGridRendering::Invisible,

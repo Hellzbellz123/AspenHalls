@@ -13,7 +13,7 @@ use bevy::{
         system::IntoSystem,
     },
     input::{keyboard::KeyCode, mouse::MouseButton, Input},
-    prelude::{debug, Component, Condition, Local, NextState, States},
+    prelude::{Component, Condition, Local, States},
 };
 
 use std::{cmp::Ordering, ops::Mul};

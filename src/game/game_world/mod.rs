@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, sprite::Anchor, time::common_conditions::on_timer};
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use bevy_ecs_ldtk::{
     prelude::{EntityIid, LdtkEntityAppExt},
     TileEnumTags,
@@ -106,7 +106,7 @@ fn handle_teleport_events(
     global_transforms: Query<&GlobalTransform>,
     parents: Query<&Parent>,
     children: Query<&Children>,
-    iids: Query<(&EntityIid)>,
+    iids: Query<&EntityIid>,
 ) {
     for event in tp_events.read() {
         info!("recieved Tp Event: {:?}", event);
@@ -390,19 +390,19 @@ fn random_point_inside(this: &Rect, tile_buffer: f32) -> Option<Vec2> {
     }
 
     Some(Vec2 {
-        x: if !useable_x_range.is_empty() {
-            warn!("using range x");
-            rng.gen_range(useable_x_range)
-        } else {
+        x: if useable_x_range.is_empty() {
             warn!("using center x of {:?}", this);
             this.center().x
-        },
-        y: if !&useable_y_range.is_empty() {
-            warn!("using range y");
-            rng.gen_range(useable_y_range)
         } else {
+            warn!("using range x");
+            rng.gen_range(useable_x_range)
+        },
+        y: if useable_y_range.is_empty() {
             warn!("using center y of {:?}", this);
             this.center().y
+        } else {
+            warn!("using range y");
+            rng.gen_range(useable_y_range)
         },
     })
 }

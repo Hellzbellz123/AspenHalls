@@ -13,7 +13,7 @@ use bevy::{
 use bevy_ecs_ldtk::{
     assets::LdtkExternalLevel,
     prelude::{
-        ldtk::{loaded_level::LoadedLevel, FieldInstance},
+        ldtk::{FieldInstance},
         FieldValue, LdtkProject,
     },
     LevelIid,
@@ -130,18 +130,18 @@ fn generate_room_database(
         .as_parent();
 
     let mut dungeon_database = DungeonRoomDatabase {
-        sactuary_rooms: Vec::new(),
-        start_rooms: Vec::new(),
-        boss_rooms: Vec::new(),
-        special_rooms: Vec::new(),
-        small_short_rooms: Vec::new(),
-        small_long_rooms: Vec::new(),
-        medium_short_rooms: Vec::new(),
-        medium_long_rooms: Vec::new(),
-        large_short_rooms: Vec::new(),
-        large_long_rooms: Vec::new(),
-        huge_short_rooms: Vec::new(),
-        huge_long_rooms: Vec::new(),
+        sactuary: Vec::new(),
+        starts: Vec::new(),
+        ends: Vec::new(),
+        specials: Vec::new(),
+        small_shorts: Vec::new(),
+        small_longs: Vec::new(),
+        medium_shorts: Vec::new(),
+        medium_longs: Vec::new(),
+        large_shorts: Vec::new(),
+        large_longs: Vec::new(),
+        huge_shorts: Vec::new(),
+        huge_longs: Vec::new(),
     };
 
     dungeon_project
@@ -161,25 +161,25 @@ fn generate_room_database(
                 size: Vec2::new(*level_def.px_wid() as f32, *level_def.px_hei() as f32),
                 position: None,
                 shape: room_shape.clone(),
-                level: room_level.clone(),
+                level: room_level,
                 rtype: room_type.clone(),
             };
 
             match &room_type {
-                RoomType::Sanctuary => dungeon_database.sactuary_rooms.push(room),
-                RoomType::DungeonStart => dungeon_database.start_rooms.push(room),
-                RoomType::Boss => dungeon_database.boss_rooms.push(room),
-                RoomType::Special => dungeon_database.special_rooms.push(room),
+                RoomType::Sanctuary => dungeon_database.sactuary.push(room),
+                RoomType::DungeonStart => dungeon_database.starts.push(room),
+                RoomType::Boss => dungeon_database.ends.push(room),
+                RoomType::Special => dungeon_database.specials.push(room),
                 RoomType::Normal => match room_shape {
-                    RoomShape::Special => dungeon_database.special_rooms.push(room),
-                    RoomShape::SmallShort => dungeon_database.small_short_rooms.push(room),
-                    RoomShape::SmallLong => dungeon_database.small_long_rooms.push(room),
-                    RoomShape::MediumShort => dungeon_database.medium_short_rooms.push(room),
-                    RoomShape::MediumLong => dungeon_database.medium_long_rooms.push(room),
-                    RoomShape::LargeShort => dungeon_database.large_short_rooms.push(room),
-                    RoomShape::LargeLong => dungeon_database.large_long_rooms.push(room),
-                    RoomShape::HugeShort => dungeon_database.huge_short_rooms.push(room),
-                    RoomShape::HugeLong => dungeon_database.huge_long_rooms.push(room),
+                    RoomShape::Special => dungeon_database.specials.push(room),
+                    RoomShape::SmallShort => dungeon_database.small_shorts.push(room),
+                    RoomShape::SmallLong => dungeon_database.small_longs.push(room),
+                    RoomShape::MediumShort => dungeon_database.medium_shorts.push(room),
+                    RoomShape::MediumLong => dungeon_database.medium_longs.push(room),
+                    RoomShape::LargeShort => dungeon_database.large_shorts.push(room),
+                    RoomShape::LargeLong => dungeon_database.large_longs.push(room),
+                    RoomShape::HugeShort => dungeon_database.huge_shorts.push(room),
+                    RoomShape::HugeLong => dungeon_database.huge_longs.push(room),
                 },
             }
         });
@@ -198,67 +198,67 @@ fn prepare_dungeon_rooms(
     let mut settings = dungeon_root.single_mut();
 
     let mut start_room =
-        get_leveled_preset(&room_database.start_rooms, progress_level.clone()).unwrap();
+        get_leveled_preset(&room_database.starts, progress_level.clone()).unwrap();
     let startroom_rect = Rect {
         min: Vec2::ZERO + -(start_room.size / 2.0),
         max: Vec2::ZERO + (start_room.size / 2.0),
     };
-    start_room.position = Some(startroom_rect.min.clone());
+    start_room.position = Some(startroom_rect.min);
     filled_positions.push(startroom_rect);
 
-    chosen_rooms.push(get_leveled_preset(&room_database.boss_rooms, progress_level).unwrap());
+    chosen_rooms.push(get_leveled_preset(&room_database.ends, progress_level).unwrap());
 
     for _ in 0..settings.room_amount.small_short {
-        if !room_database.small_short_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.small_short_rooms).unwrap());
+        if !room_database.small_shorts.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.small_shorts).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.small_long {
-        if !room_database.small_long_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.small_long_rooms).unwrap());
+        if !room_database.small_longs.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.small_longs).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.medium_short {
-        if !room_database.medium_short_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.medium_short_rooms).unwrap());
+        if !room_database.medium_shorts.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.medium_shorts).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.medium_long {
-        if !room_database.medium_long_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.medium_long_rooms).unwrap());
+        if !room_database.medium_longs.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.medium_longs).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.large_short {
-        if !room_database.large_short_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.large_short_rooms).unwrap());
+        if !room_database.large_shorts.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.large_shorts).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.large_long {
-        if !room_database.large_long_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.large_long_rooms).unwrap());
+        if !room_database.large_longs.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.large_longs).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.huge_short {
-        if !room_database.huge_short_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.huge_short_rooms).unwrap());
+        if !room_database.huge_shorts.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.huge_shorts).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.huge_long {
-        if !room_database.huge_long_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.huge_long_rooms).unwrap());
+        if !room_database.huge_longs.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.huge_longs).unwrap());
         }
     }
 
     for _ in 0..settings.room_amount.special {
-        if !room_database.special_rooms.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.special_rooms).unwrap());
+        if !room_database.specials.is_empty() {
+            chosen_rooms.push(get_random_preset(&room_database.specials).unwrap());
         }
     }
 
@@ -266,7 +266,7 @@ fn prepare_dungeon_rooms(
         .iter_mut()
         .map(|f| {
             let pos = random_room_positon(&filled_positions, f.size, &settings);
-            filled_positions.push(pos.clone());
+            filled_positions.push(pos);
             f.position = Some(pos.min);
             f.clone()
         })
@@ -292,7 +292,7 @@ fn spawn_rooms(
         return;
     }
     let mut to_spawn_dungeons: Vec<DungeonRoomBundle> =
-        Vec::with_capacity(dungeon_settings.positioned_presets.len() as usize);
+        Vec::with_capacity(dungeon_settings.positioned_presets.len());
 
     for ready_preset in &dungeon_settings.positioned_presets {
         let preset = ready_preset;
@@ -380,13 +380,13 @@ fn random_room_positon(filled_positions: &[Rect], size: Vec2, settings: &Dungeon
     }
 }
 
-fn get_random_preset(section: &Vec<RoomPreset>) -> Option<RoomPreset> {
+fn get_random_preset(section: &[RoomPreset]) -> Option<RoomPreset> {
     let mut rng = ThreadRng::default();
 
     section.iter().choose(&mut rng).cloned()
 }
 
-fn get_leveled_preset(section: &Vec<RoomPreset>, level: RoomLevel) -> Option<RoomPreset> {
+fn get_leveled_preset(section: &[RoomPreset], level: RoomLevel) -> Option<RoomPreset> {
     let mut rng = ThreadRng::default();
 
     section
@@ -396,7 +396,7 @@ fn get_leveled_preset(section: &Vec<RoomPreset>, level: RoomLevel) -> Option<Roo
         .cloned()
 }
 
-fn try_get_roomshape(field_instances: &Vec<FieldInstance>) -> Option<RoomShape> {
+fn try_get_roomshape(field_instances: &[FieldInstance]) -> Option<RoomShape> {
     let Some(room_ident) = field_instances.iter().find(|f| f.identifier == "IdentSize") else {
         return None;
     };
@@ -418,7 +418,7 @@ fn try_get_roomshape(field_instances: &Vec<FieldInstance>) -> Option<RoomShape> 
     }
 }
 
-fn try_get_roomlevel(field_instances: &Vec<FieldInstance>) -> Option<RoomLevel> {
+fn try_get_roomlevel(field_instances: &[FieldInstance]) -> Option<RoomLevel> {
     let Some(room_ident) = field_instances
         .iter()
         .find(|f| f.identifier == "IdentLevel")
@@ -439,7 +439,7 @@ fn try_get_roomlevel(field_instances: &Vec<FieldInstance>) -> Option<RoomLevel> 
     }
 }
 
-fn try_get_roomtype(field_instances: &Vec<FieldInstance>) -> Option<RoomType> {
+fn try_get_roomtype(field_instances: &[FieldInstance]) -> Option<RoomType> {
     let Some(room_ident) = field_instances.iter().find(|f| f.identifier == "IdentType") else {
         return None;
     };
@@ -471,7 +471,7 @@ pub struct RoomAmounts {
     special: i32,
 }
 
-#[derive(Debug, Clone, Reflect, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
 pub enum RoomLevel {
     Level0,
     Level1,
@@ -479,7 +479,7 @@ pub enum RoomLevel {
     Level3,
 }
 
-#[derive(Debug, Clone, Reflect, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
 pub enum RoomType {
     DungeonStart,
     Boss,
@@ -488,7 +488,7 @@ pub enum RoomType {
     Sanctuary,
 }
 
-#[derive(Debug, Clone, Reflect, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
 pub enum RoomShape {
     Special,
     SmallShort,
@@ -504,18 +504,18 @@ pub enum RoomShape {
 #[allow(unused)]
 #[derive(Debug, Resource)]
 pub struct DungeonRoomDatabase {
-    sactuary_rooms: Vec<RoomPreset>,
-    start_rooms: Vec<RoomPreset>,
-    boss_rooms: Vec<RoomPreset>,
-    special_rooms: Vec<RoomPreset>,
-    small_short_rooms: Vec<RoomPreset>,
-    small_long_rooms: Vec<RoomPreset>,
-    medium_short_rooms: Vec<RoomPreset>,
-    medium_long_rooms: Vec<RoomPreset>,
-    large_short_rooms: Vec<RoomPreset>,
-    large_long_rooms: Vec<RoomPreset>,
-    huge_short_rooms: Vec<RoomPreset>,
-    huge_long_rooms: Vec<RoomPreset>,
+    sactuary: Vec<RoomPreset>,
+    starts: Vec<RoomPreset>,
+    ends: Vec<RoomPreset>,
+    specials: Vec<RoomPreset>,
+    small_shorts: Vec<RoomPreset>,
+    small_longs: Vec<RoomPreset>,
+    medium_shorts: Vec<RoomPreset>,
+    medium_longs: Vec<RoomPreset>,
+    large_shorts: Vec<RoomPreset>,
+    large_longs: Vec<RoomPreset>,
+    huge_shorts: Vec<RoomPreset>,
+    huge_longs: Vec<RoomPreset>,
 }
 
 /// are we in dungeon yet?

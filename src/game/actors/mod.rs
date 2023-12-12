@@ -67,11 +67,9 @@ fn update_actor_move_status(
                 move_state.move_status = CurrentMovement::Walk;
                 return;
             }
-        } else if velocity.linvel.abs().max_element() <= tert_attrs.speed {
-            if move_state.move_status != CurrentMovement::Run {
-                move_state.move_status = CurrentMovement::Run;
-                return;
-            }
+        } else if velocity.linvel.abs().max_element() <= tert_attrs.speed && move_state.move_status != CurrentMovement::Run {
+            move_state.move_status = CurrentMovement::Run;
+            return;
         }
     }
 }

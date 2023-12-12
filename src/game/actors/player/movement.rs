@@ -1,4 +1,4 @@
-use std::time::Duration;
+
 
 use bevy::prelude::{Query, With, *};
 
@@ -9,9 +9,8 @@ use crate::{
     consts::{MIN_VELOCITY, SPRINT_MODIFIER, WALK_MODIFIER},
     game::{
         actors::{
-            animation::components::{ActorAnimationType, AnimState},
             components::{
-                ActorMoveState, ActorTertiaryAttributes, AllowedMovement, CurrentMovement, Player,
+                ActorMoveState, ActorTertiaryAttributes, AllowedMovement, Player,
             },
         },
         input::action_maps,

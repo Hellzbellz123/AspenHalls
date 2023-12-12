@@ -71,9 +71,13 @@ pub fn sync_actor_stats(
     for (actor_ent, mut actor_stat) in &mut actors_with_new_equipment {
         let child_equipment_attrs: Vec<Attributes> = children
             .iter_descendants(actor_ent)
-            .filter_map(|f| Some(equipment.get(f).unwrap().calculated))
-            // .filter(|f| { equipment.get(*f).is_ok() })
-            // .map(|f| {equipment.get(f).unwrap().calculated})
+            .filter_map(|f| {
+                if equipment.get(f).is_ok() {
+                    Some(equipment.get(f).unwrap().equipment)
+                } else {
+                    None
+                }
+            })
             .collect();
         let current_equipment_amount = child_equipment_attrs.len() as i32;
 
@@ -86,7 +90,7 @@ pub fn sync_actor_stats(
         actor_stat.current = actor_stat.equipment + actor_stat.base;
     }
 
-    for (actor_ent, mut actor_stat) in &mut added_stats {
+    for (_actor_ent, mut actor_stat) in &mut added_stats {
         if actor_stat.current().all_zero() || actor_stat.base().all_zero() {
             warn!("actor was added without base stats or calculated current stats");
             actor_stat.current = Attributes::CREEP_DEFAULT;

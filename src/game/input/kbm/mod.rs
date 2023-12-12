@@ -3,10 +3,9 @@ use leafwing_input_manager::{
     action_state::ActionStateDriverTarget,
     axislike::DualAxisData,
     prelude::{ActionState, ActionStateDriver},
-    systems::run_if_enabled,
 };
 
-use crate::{game::actors::components::Player, loading::splashscreen::MainCamera};
+use crate::{loading::splashscreen::MainCamera};
 
 use super::{
     action_maps::{self},

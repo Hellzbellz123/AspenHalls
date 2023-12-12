@@ -1,4 +1,4 @@
-use bevy::{ecs::entity::Entity, log::warn};
+use bevy::{ecs::entity::Entity};
 use std::str::FromStr;
 use strum::VariantNames;
 
@@ -22,7 +22,7 @@ pub fn spawnweapon_command(
     mut ew: EventWriter<SpawnActorEvent>,
 ) {
     let mut rng = thread_rng();
-    let offset = rng.gen_range(-70.0..70.0);
+    let _offset = rng.gen_range(-70.0..70.0);
 
     if let Some(Ok(SpawnWeaponCommand {
         weapon_type,
@@ -79,7 +79,7 @@ pub fn spawnenemy_command(
     mut ew: EventWriter<SpawnActorEvent>,
 ) {
     let mut rng = thread_rng();
-    let offset = rng.gen_range(-70.0..=70.0);
+    let _offset = rng.gen_range(-70.0..=70.0);
 
     if let Some(Ok(SpawnEnemyCommand {
         enemy_type,

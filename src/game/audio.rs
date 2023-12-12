@@ -1,18 +1,17 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_kira_audio::{
-    prelude::{AudioControl, Volume},
-    AudioApp, AudioChannel, AudioInstance, AudioPlugin, AudioSettings, AudioTween, PlaybackState,
+    prelude::{AudioControl},
+    AudioApp, AudioChannel, AudioPlugin, AudioSettings,
 };
-use bevy_rapier2d::{dynamics::Velocity, rapier::prelude::nalgebra::RealField};
+use bevy_rapier2d::{dynamics::Velocity};
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    consts::{MIN_VELOCITY, TILE_SIZE},
+    consts::{MIN_VELOCITY},
     game::{
         actors::{
-            animation::components::{ActorAnimationType, AnimState},
-            components::{ActorMoveState, AllowedMovement, CurrentMovement, Player},
+            components::{ActorMoveState, CurrentMovement, Player},
         },
         AppState,
     },
@@ -162,7 +161,7 @@ fn actor_footstep_sound_system(
     >,
     time: Res<Time>,
 ) {
-    for (move_state, mut spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query
+    for (move_state, _spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query
     {
         let key = "Footstep".to_string();
         let footstep_timer = sound_timers
@@ -190,7 +189,7 @@ fn actor_footstep_sound_system(
                 }
 
                 if footstep_timer.finished() {
-                    let mut snd = game_sound.play(footstep_handle);
+                    let _snd = game_sound.play(footstep_handle);
                     // spatial_emitter.instances.push(snd.handle());
                     footstep_timer.reset();
                 }
@@ -201,7 +200,7 @@ fn actor_footstep_sound_system(
                 }
 
                 if footstep_timer.finished() {
-                    let mut snd = game_sound.play(footstep_handle);
+                    let _snd = game_sound.play(footstep_handle);
                     // spatial_emitter.instances.push(snd.handle());
                     footstep_timer.reset();
                 }
