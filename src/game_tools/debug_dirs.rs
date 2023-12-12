@@ -176,9 +176,11 @@ where
     path.as_ref().is_executable()
 }
 
-/// An extension trait for `std::fs::Path` providing an `is_executable` method.
+/// An extension trait providing an `is_executable` method.
 ///
-/// See the module documentation for examples.
+/// expected too be implemented on `Path`
+///
+///
 pub trait IsExecutable {
     /// Returns `true` if there is a file at the given path and it is
     /// executable. Returns `false` otherwise.
@@ -187,6 +189,7 @@ pub trait IsExecutable {
     fn is_executable(&self) -> bool;
 }
 
+//TODO: is macos different than other unix platforms?
 /// check if path is executable on linux
 #[cfg(target_os = "linux")]
 mod linux {

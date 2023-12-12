@@ -105,13 +105,9 @@ pub struct ActorTextureHandles {
 #[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
 #[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
 pub struct MapAssetHandles {
-    /// default levels asset
-    #[asset(key = "start_level")]
-    pub start_level: Handle<LdtkProject>,
-
     /// dungeons
-    #[asset(key = "dungeons")]
-    pub dungeons: Handle<LdtkProject>,
+    #[asset(key = "default_levels")]
+    pub default_levels: Handle<LdtkProject>,
 }
 
 /// miscellaneous texture asset handles for tiles

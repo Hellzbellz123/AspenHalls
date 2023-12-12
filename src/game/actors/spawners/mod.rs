@@ -5,7 +5,7 @@ use std::str::FromStr;
 // after some more digging bevy_rapier has a raycast shape function, i think what i will do is raycast down on the position and check if it
 // collides, if CollideShape doesn't collide then spawn, if does collide pick new position 40 or so pixels in any direction
 use bevy::{math::vec2, prelude::*};
-use rand::{thread_rng, Rng};
+use rand::{thread_rng, Rng, prelude::{IteratorRandom, SliceRandom}};
 
 use self::{
     components::{EnemyContainerTag, SpawnActorEvent, Spawner, SpawnerTimer},
@@ -199,11 +199,16 @@ pub fn spawner_timer_system(
         }
 
         let mut enemies_in_spawner_area = 0;
-
-        let enemy_type: EnemyType = if spawner_state.random_enemy {
-            rand::random()
+        let enemy_type: String;
+        let enemies = spawner_state.enemies_too_spawn.clone();
+        let mut rng = thread_rng();
+        if enemies.len() < 1 {
+            warn!("No enemies for this spawner. Generating random enemy");
+            let et: EnemyType = rng.gen();
+            enemy_type = et.to_string();
         } else {
-            spawner_state.enemy_type
+            warn!("Selecting random enemy too spawn from this spawners Enemy List");
+            enemy_type = enemies.choose(&mut rng).unwrap().clone();
         };
 
         for enemy_transform in &all_enemies {

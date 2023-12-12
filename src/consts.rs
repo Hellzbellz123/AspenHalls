@@ -35,6 +35,21 @@ pub const ACTOR_COLLIDER: (bevy::prelude::Vec2, bevy::prelude::Vec2, f32) = (
 /// bullet speed
 pub const BULLET_SPEED_MODIFIER: f32 = 100.0;
 
+/// smallest velocity not considered moving
+///
+/// less than this can be considered 0.
+/// will be clamped too 0 soon anways
+pub const MIN_VELOCITY: f32 = 0.005;
+
+/// fastest any entity can move
+pub const MAX_VELOCITY: f32 = 100_000.0f32;
+
+/// if walking, speed is multiplied by this
+pub const WALK_MODIFIER: f32 = 0.7;
+
+/// if running, speed is multiplied by this
+pub const SPRINT_MODIFIER: f32 = 1.3;
+
 #[non_exhaustive]
 /// Collision Groups wrapper
 /// created for easy use

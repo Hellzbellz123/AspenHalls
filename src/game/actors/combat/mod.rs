@@ -19,7 +19,7 @@ use crate::{
     game::{
         actors::{
             combat::components::{
-                CurrentlySelectedWeapon, WeaponSlots, WeaponSocket, WeaponStats, Weapon,
+                CurrentlySelectedWeapon, Weapon, WeaponSlots, WeaponSocket, WeaponStats,
             },
             player::actions::ShootEvent,
         },
@@ -160,14 +160,13 @@ fn equipped_weapon_positioning(
                 // modify weapon sprite to be below player when facing up, this
                 // still looks strange but looks better than a back mounted smg
                 if animation_state.animation_type == ActorAnimationType::Up {
-                    // this transform is local too players transform of 8
+                    // this transform is local too players transform
                     weapon_transform.translation = Vec3 {
                         x: 0.0,
                         y: 1.5,
                         z: -1.0,
                     }
                 } else {
-                    // this transform is local too players transform of 8
                     weapon_transform.translation = Vec3 {
                         x: 0.0,
                         y: 1.5,
@@ -402,7 +401,7 @@ fn player_death_system(
         return;
     }
     let (mut player_stats, player, player_damaged, mut player_loc, mut player_sprite) =
-        player_query.get_single_mut().unwrap();
+        player_query.get_single_mut().expect("Should only ever have 1 player. Player probably didnt exist");
 
     game_info.damage_taken += player_damaged.0;
     if player_stats.health <= 0.0 {

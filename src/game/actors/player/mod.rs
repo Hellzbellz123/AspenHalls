@@ -9,12 +9,12 @@ use crate::{
     game::actors::{
         ai::components::{ActorType, Type},
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
-        components::{ActorMoveState, MoveStatus, PlayerColliderTag, TeleportStatus, ActorColliderTag},
+        components::{ActorMoveState, AllowedMovement, PlayerColliderTag, TeleportStatus, ActorColliderTag, CurrentMovement},
     },
     game::{
         actors::{
             combat::components::WeaponSlots,
-            player::movement::{camera_movement_system, player_movement_system, player_sprint},
+            player::movement::{camera_movement_system, update_player_velocity},
         },
         input::action_maps::PlayerBindings,
     },
@@ -55,9 +55,8 @@ impl Plugin for PlayerPlugin {
                     (|player: Query<&Player>| player.is_empty())
                         .and_then(resource_exists::<ActorTextureHandles>()),
                 ),
-                player_movement_system,
+                update_player_velocity,
                 camera_movement_system,
-                player_sprint,
                 spawn_custom_on_button,
                 player_attack_sender,
                 equip_closest_weapon,
@@ -65,7 +64,7 @@ impl Plugin for PlayerPlugin {
         );
     }
 }
-
+use bevy_kira_audio::prelude::AudioReceiver;
 /// spawns player with no weapons
 pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
     info!("spawning player");
@@ -77,11 +76,13 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                 drawn_slot: Some(WeaponSlots::Slot1), // entity id of currently equipped weapon
                 weapon_slots: empty_weapon_slots(),
             },
+            AudioReceiver,
             ActorBundle {
                 name: Name::new("Player"),
                 faction: ActorType(Type::Player),
                 move_state: ActorMoveState {
-                    move_status: MoveStatus::Run,
+                    move_status: CurrentMovement::None,
+                    move_perms: AllowedMovement::Run,
                     teleport_status: TeleportStatus::default(),
                 },
                 animation_state: AnimState {

@@ -7,9 +7,12 @@ use crate::ahp::{
 };
 
 use bevy::{
-    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
+    ecs::{
+        query::{ReadOnlyWorldQuery, WorldQuery},
+        system::IntoSystem, schedule::State,
+    },
     input::{keyboard::KeyCode, mouse::MouseButton, Input},
-    prelude::{Component, Local, NextState},
+    prelude::{Component, Condition, Local, NextState, States, debug},
 };
 
 use std::{cmp::Ordering, ops::Mul};
@@ -88,14 +91,6 @@ where
 {
     from + ((to - from) * s)
 }
-/// simple macro that generates an add system for OnEnter(state)
-#[allow(unused_macros)]
-macro_rules! state_exists_and_entered {
-    ($system_name:ident, $state:expr) => {
-        app.add_systems(OnEnter($state), $system_name)
-            .run_if(state_exists_and_equals($state))
-    };
-}
 
 /// takes array of types and runs `app.register_type::<T>()` on each
 #[allow(unused_macros)]
@@ -107,6 +102,48 @@ macro_rules! register_types {
     };
 }
 
+/// `RunCondition` that checks if state was entered since last frame
+/// resets if the state is left
+///
+/// returns false if the state does not exist in the world
+pub fn state_exists_and_entered<S: States>(
+    state: S
+) -> impl Condition<()> {
+    IntoSystem::into_system(move |mut entered: Local<bool>, mut exists: Local<bool>, state_q: Option<Res<State<S>>>| {
+        if state_q.is_some() {
+            let current_state = state_q.unwrap();
+            if (!*exists && !*entered) && *current_state == state {
+                // debug!("state exists and wanted state value entered");
+                *entered = true;
+                *exists = true;
+                true
+            } else if (*exists && *entered) && *current_state != state {
+                // debug!("state was entered, but its not enterered anymore. resetting state machine");
+                *entered = false;
+                *exists = false;
+                false
+            }
+            else {
+                // debug!("state exists but its not the one we want");
+                false
+            }
+        } else {
+            // debug!("state does not exist yet");
+            *exists = false;
+            false
+        }
+    })
+}
+
+/// simple macro that generates an add system for OnEnter(state)
+#[allow(unused_macros)]
+macro_rules! on_enter {
+    ($system_name:ident, $state:expr) => {
+        app.add_systems(OnEnter($state), $system_name)
+            .run_if(state_exists_and_equals($state))
+    };
+}
+
 /// Generates a [`Condition`](bevy::ecs::Condition)-satisfying closure that returns `true`
 /// if there are more `T` than the last run.
 ///
@@ -114,13 +151,13 @@ macro_rules! register_types {
 ///
 /// # Note
 /// this function works, but components must be added with the correct value for systems that use them
-/// things like GlobalTransform wont be accurate till 1 run later
+/// - things like `GlobalTransform` wont be accurate till 1 run later
 pub fn on_component_added<T: Component>(
 ) -> impl FnMut((Local<usize>, Local<bool>, Query<(), With<T>>)) -> bool + Clone {
     move |(mut local_count, mut loop_once, query)| {
         if *loop_once {
             *loop_once = false;
-            return false;
+            false
         } else {
             let last_count: usize = *local_count;
             let current_count = query.into_iter().len();

@@ -1,17 +1,13 @@
-use std::{cmp::max, time::Duration};
+use std::time::Duration;
 
-use bevy::{
-    prelude::*, time::common_conditions::on_timer, transform::systems::propagate_transforms,
-};
+use bevy::{prelude::*, sprite::Anchor, time::common_conditions::on_timer};
 use bevy_ecs_ldtk::{
-    prelude::{
-        EntityIid, EntityInstance, GridCoords, LayerInstance, LayerMetadata, LdtkEntityAppExt,
-    },
-    utils::{grid_coords_to_translation, grid_coords_to_translation_relative_to_tile_layer},
+    prelude::{EntityIid, LdtkEntityAppExt},
     TileEnumTags,
 };
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
+use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
     ahp::game::ActorType,
@@ -19,20 +15,15 @@ use crate::{
     game::{
         actors::components::{ActorMoveState, TeleportStatus},
         game_world::{
+            components::{ActorTeleportEvent, PlayerStartLocation, TpTriggerEffect},
             dungeonator_v2::DungeonGeneratorState,
-            hideout::{ActorTeleportEvent, TPType},
+            ldtk_bundles::{
+                LdtkCollisionBundle, LdtkRoomExitBundle, LdtkSpawnerBundle, LdtkStartLocBundle,
+                LdtkTeleporterBundle,
+            },
         },
     },
-    utilities::on_component_added,
     AppState,
-};
-
-use self::{
-    components::{
-        CollisionBundle, LdtkRoomExitBundle, LdtkSpawnerBundle, LdtkStartLocBundle,
-        LdtkTeleporterBundle, PlayerStartLocation,
-    },
-    // dungeonator_v1::GeneratorStage,
 };
 
 use super::actors::components::Player;
@@ -44,6 +35,7 @@ pub mod components;
 pub mod dungeonator_v2;
 /// hideout plugin, spawns home area for before and after dungeons
 pub mod hideout;
+mod ldtk_bundles;
 
 /// chunk size
 const CHUNK_SIZE: UVec2 = UVec2 { x: 16, y: 16 };
@@ -67,7 +59,7 @@ pub struct GameWorldPlugin;
 
 impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        app
+        app.add_event::<ActorTeleportEvent>()
             //.add_state::<GeneratorStage>()
             .insert_resource(TilemapRenderSettings {
                 render_chunk_size: RENDER_CHUNK_SIZE,
@@ -112,7 +104,9 @@ fn handle_teleport_events(
     mut tp_events: EventReader<ActorTeleportEvent>,
     mut actor_transforms: Query<(&mut Transform, &mut ActorMoveState), With<ActorType>>,
     global_transforms: Query<&GlobalTransform>,
-    iids: Query<(Entity, &EntityIid)>,
+    parents: Query<&Parent>,
+    children: Query<&Children>,
+    iids: Query<(&EntityIid)>,
 ) {
     for event in tp_events.read() {
         info!("recieved Tp Event: {:?}", event);
@@ -125,29 +119,33 @@ fn handle_teleport_events(
                 }
             };
 
-        if move_state.teleport_status != TeleportStatus::Requested {
+        if move_state.teleport_status.teleport_not_requested() && event.sender.is_some() {
             warn!(
-                "got a teleport event while not requested. actor move state: {:?}",
+                "got a teleport event not requested by teleporter. actor move state: {:?}",
                 move_state
             );
-            return;
         }
 
         move_state.teleport_status = TeleportStatus::Teleporting;
         match &event.tp_type {
             //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
-            hideout::TPType::Local(target_tile_reference) => {
-                let target_tile_entity = match iids.iter().find(|f| f.1.as_str() == target_tile_reference.entity_iid) {
-                    Some(e) => e.0,
-                    None => {
-                        move_state.teleport_status = TeleportStatus::None;
-                        warn!("teleport failed: refed EntityIid did not exist in the world");
-                        return;
-                    },
+            TpTriggerEffect::Local(target_tile_reference) => {
+                let entity_layer = parents.get(event.sender.unwrap()).unwrap().get();
+                let ent_ids = children
+                    .iter_descendants(entity_layer)
+                    .filter(|f| {
+                        iids.get(*f).expect("all entities on entity_layer should have EntityIid")
+                            == &EntityIid::new(target_tile_reference.entity_iid.clone())
+                    })
+                    .collect::<Vec<Entity>>();
+
+                let Some(target_tile_ent) = ent_ids.last() else {
+                    warn!("target tile entity did not exist as a child of this level");
+                    return;
                 };
 
                 let target_tile_transform = global_transforms
-                    .get(target_tile_entity)
+                    .get(*target_tile_ent)
                     .expect("any entity should have a transform");
 
                 info!(
@@ -157,12 +155,12 @@ fn handle_teleport_events(
                 target_transform.translation = target_tile_transform.translation();
                 move_state.teleport_status = TeleportStatus::Teleporting;
             }
-            hideout::TPType::Global(pos) => {
+            TpTriggerEffect::Global(pos) => {
                 target_transform.translation = pos.extend(ACTOR_Z_INDEX);
                 move_state.teleport_status = TeleportStatus::None;
             }
             // expand this for better type checking
-            hideout::TPType::Event(event) => {
+            TpTriggerEffect::Event(event) => {
                 match event.as_str() {
                     "StartDungeonGen" => {
                         cmds.insert_resource(NextState(Some(
@@ -184,40 +182,60 @@ fn handle_teleport_events(
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
+    // mut cmds: Commands,
     mut player_query: Query<(Entity, &mut ActorMoveState), With<Player>>,
-    start_location: Query<&GlobalTransform, With<PlayerStartLocation>>,
+    start_location: Query<(&PlayerStartLocation, &GlobalTransform)>,
     mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
     if start_location.is_empty() {
-        warn!("no start locations");
+        warn!("error teleporting player too start location: no locations");
         return;
     }
 
-    let mut sum = Vec2::ZERO;
-    let mut current_count: i32 = 0;
-    let length = start_location.iter().len() as i32;
-
-    for global_transform in start_location.iter() {
-        let global = global_transform.translation().truncate();
-        let pos = global;
-        sum += pos;
-        current_count += 1;
-        info!("found transform: {}", pos);
-        info!("new count: {}", current_count);
-        info!("new sum: {}", sum);
+    if start_location.get_single().is_err() {
+        warn!("issue teleporting player too start location: multiple locations");
     }
 
-    let (player, mut state) = player_query.single_mut();
-    if current_count == length {
-        let avg = sum / (current_count as f32);
-        tp_events.send(ActorTeleportEvent {
-            tp_type: TPType::Global(avg),
-            target: Some(player),
-            sender: None,
-        });
-        state.teleport_status = TeleportStatus::Requested;
-        info!("got start pos: {:?}, total sampled: {}", avg, length);
-    }
+    let (start_size, start_pos) = {
+        let a = start_location
+            .iter()
+            .next()
+            .expect("PlayerStartLocation should always exist");
+        (a.0.size, a.1.translation().truncate())
+    };
+
+    let start_loc_rect = Rect {
+        min: Vec2 {
+            x: start_pos.x - start_size.x,
+            y: start_pos.y - start_size.y,
+        },
+        max: Vec2 {
+            x: start_pos.x + start_size.x,
+            y: start_pos.y + start_size.y,
+        },
+    };
+
+    // cmds.spawn(SpriteBundle {
+    //     sprite: Sprite {
+    //         color: Color::rgba(0.0, 0.3, 0.6, 0.4),
+    //         custom_size: Some(start_size),
+    //         anchor: Anchor::default(),
+    //         ..default()
+    //     },
+    //     transform: Transform::from_translation(start_pos.extend(10.0)),
+    //     ..default()
+    // });
+
+    let pos = random_point_inside(&start_loc_rect, 3.0).unwrap_or(start_pos);
+
+    warn!("teleporting player too start location: {}", pos);
+    let (player_ent, mut player_tp_state) = player_query.single_mut();
+    tp_events.send(ActorTeleportEvent {
+        tp_type: TpTriggerEffect::Global(pos),
+        target: Some(player_ent),
+        sender: None,
+    });
+    player_tp_state.teleport_status = TeleportStatus::Requested;
 }
 
 /// Takes `TileEnumTags` that is added from ldtk editor
@@ -339,7 +357,7 @@ fn insert_collider(
     tag: &str,
     tags: &mut Mut<'_, TileEnumTags>,
 ) {
-    commands.entity(entity).insert(CollisionBundle {
+    commands.entity(entity).insert(LdtkCollisionBundle {
         name: Name::new(tag.to_owned()),
         rigidbody: RigidBody::Fixed,
         collision_shape: Collider::compound(shape),
@@ -354,4 +372,36 @@ fn insert_collider(
 /// takes reference too string and a value, removes from the Vec<String>
 fn remove_value(vec: &mut Vec<String>, value: &str) {
     vec.retain(|elem| elem != value);
+}
+
+fn random_point_inside(this: &Rect, tile_buffer: f32) -> Option<Vec2> {
+    let mut rng = ThreadRng::default();
+    let useable_space = this.inset(-(TILE_SIZE.x * tile_buffer));
+    let Rect {
+        min: usable_min,
+        max: usable_max,
+    } = useable_space;
+    let useable_y_range = usable_min.y..usable_max.y;
+    let useable_x_range = usable_min.x..usable_max.x;
+
+    if this.is_empty() {
+        return None;
+    }
+
+    Some(Vec2 {
+        x: if !useable_x_range.is_empty() {
+            warn!("using range x");
+            rng.gen_range(useable_x_range)
+        } else {
+            warn!("using center x of {:?}", this);
+            this.center().x
+        },
+        y: if !&useable_y_range.is_empty() {
+            warn!("using range y");
+            rng.gen_range(useable_y_range)
+        } else {
+            warn!("using center y of {:?}", this);
+            this.center().y
+        },
+    })
 }

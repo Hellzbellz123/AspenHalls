@@ -42,7 +42,7 @@ pub mod game {
                 },
                 spawners::components::{EnemyType, SpawnActorEvent, Spawner, WeaponType},
             },
-            audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel, WalkingSoundTimer},
+            audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel, ActorSoundTimer},
             input::action_maps::{self},
             TimeInfo,
         },

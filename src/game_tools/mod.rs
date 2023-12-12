@@ -37,7 +37,7 @@ pub mod debug_plugin {
             AIWanderConfig, ActorAnimationType, ActorType, AnimState, AnimationSheet, AppState,
             ChaseScore, CurrentlySelectedWeapon, DamageType, DifficultyScales, GeneralSettings,
             MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive, Type, WeaponSlots,
-            WeaponSocket, WeaponStats, WeaponTag, WindowSettings,
+            WeaponSocket, WeaponStats, Weapon, WindowSettings,
         },
         plugins::{
             FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
@@ -69,7 +69,7 @@ pub mod debug_plugin {
                 .register_type::<Spawner>()
                 .register_type::<AnimState>()
                 .register_type::<TimeToLive>()
-                .register_type::<WeaponTag>()
+                .register_type::<Weapon>()
                 // weapon stuff
                 .register_type::<CurrentlySelectedWeapon>()
                 .register_type::<DamageType>()

@@ -1,18 +1,23 @@
-use bevy::prelude::*;
-use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin};
+use bevy::{prelude::*, utils::HashMap};
+use bevy_kira_audio::{
+    prelude::{AudioControl, Volume},
+    AudioApp, AudioChannel, AudioInstance, AudioPlugin, AudioSettings, AudioTween, PlaybackState,
+};
+use bevy_rapier2d::{dynamics::Velocity, rapier::prelude::nalgebra::RealField};
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
+    consts::{MIN_VELOCITY, TILE_SIZE},
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},
-            components::{ActorMoveState, MoveStatus, Player},
+            components::{ActorMoveState, AllowedMovement, CurrentMovement, Player},
         },
         AppState,
     },
     loading::assets::AudioHandles,
-    loading::config::SoundSettings,
+    loading::config::SoundSettings, utilities::state_exists_and_entered,
 };
 
 /// OST music is played on this channel.
@@ -29,9 +34,10 @@ pub struct AmbienceSoundChannel;
 pub struct GameSoundChannel;
 
 /// footstep timer
-#[derive(Resource)]
-pub struct WalkingSoundTimer {
+#[derive(Debug, Component, Deref, DerefMut)]
+pub struct ActorSoundTimer {
     /// timer for steps
+    #[deref]
     pub timer: Timer,
     /// is first step?
     pub is_first_time: bool,
@@ -39,28 +45,33 @@ pub struct WalkingSoundTimer {
 
 /// audio plugin
 pub struct InternalAudioPlugin;
+use bevy_kira_audio::prelude::SpacialAudio;
 
 // This plugin is responsible to control the game audio
 impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(AudioPlugin)
-            .add_audio_channel::<MusicSoundChannel>()
-            .add_audio_channel::<AmbienceSoundChannel>()
-            .add_audio_channel::<GameSoundChannel>()
-            .insert_resource(WalkingSoundTimer {
-                timer: Timer::from_seconds(0.65, TimerMode::Repeating),
-                is_first_time: true,
-            })
-            .add_systems(
-                Update,
-                (
-                    player_walking_sound_system
-                        .run_if(state_exists_and_equals(AppState::PlayingGame)),
-                    play_background_audio.run_if(run_once()),
-                )
-                    .run_if(resource_exists::<AudioHandles>()),
+        app.insert_resource(AudioSettings {
+            command_capacity: 512,
+            sound_capacity: 512,
+        })
+        .add_plugins(AudioPlugin)
+        .add_audio_channel::<MusicSoundChannel>()
+        .add_audio_channel::<AmbienceSoundChannel>()
+        .add_audio_channel::<GameSoundChannel>()
+        .insert_resource(SpacialAudio {
+            max_distance: 150.0,
+        })
+        .add_systems(
+            Update,
+            (
+                setup_sound_volume.run_if(state_exists_and_entered(AppState::Loading)),
+                prepare_actor_spatial_sound,
+                actor_footstep_sound_system.run_if(state_exists_and_equals(AppState::PlayingGame)),
+                play_background_audio.run_if(run_once()),
             )
-            .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
+                .run_if(resource_exists::<AudioHandles>()),
+        );
+        // .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
     }
 }
 
@@ -85,47 +96,151 @@ fn play_background_audio(
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
+use crate::ahp::engine::AudioEmitter;
+
+/// applies sound data mapps and a spacial emitter for actors that dont already have emitters
+fn prepare_actor_spatial_sound(
+    audio: Res<AudioHandles>,
+    mut cmds: Commands,
+    actors: Query<Entity, (With<ActorMoveState>, Without<AudioEmitter>)>,
+) {
+    let mut rng = rand::thread_rng();
+
+    for actor in &actors {
+        let mut sound_timers: HashMap<String, ActorSoundTimer> = HashMap::new();
+        let mut sound_map: HashMap<String, Handle<AudioSource>> = HashMap::new();
+
+        // footsteps
+        let footstep_handle = audio
+            .footsteps
+            .choose(&mut rng)
+            .expect("SHOULD NEVER BE EMPTY")
+            .clone();
+
+        let footstep_timer = ActorSoundTimer {
+            timer: Timer::new(Duration::from_millis(1000), TimerMode::Once),
+            is_first_time: true,
+        };
+
+        let key = "Footstep";
+        sound_map.insert(key.to_string(), footstep_handle);
+        sound_timers.insert(key.to_string(), footstep_timer);
+
+        cmds.entity(actor).insert((
+            ActorSoundMap(sound_map),
+            ActorSoundTimers(sound_timers),
+            AudioEmitter { instances: vec![] },
+        ));
+    }
+}
+
+use bevy_kira_audio::AudioSource;
+
+/// map of sound assets too "soundactionid"
+#[derive(Debug, Component, Deref, DerefMut)]
+pub struct ActorSoundMap(HashMap<String, Handle<AudioSource>>);
+
+/// map of timers too "soundactionid"
+#[derive(Debug, Component, Deref, DerefMut)]
+pub struct ActorSoundTimers(HashMap<String, ActorSoundTimer>);
+
 // TODO: make generic across actors and use spatial sound emitters on entitys
 /// play walking sound
-fn player_walking_sound_system(
-    mut walk_sound_res: ResMut<WalkingSoundTimer>,
+fn actor_footstep_sound_system(
+    // mut audio_instances: ResMut<Assets<AudioInstance>>,
     game_sound: Res<AudioChannel<GameSoundChannel>>,
-    actor_query: Query<&ActorMoveState>,
-    audio: Res<AudioHandles>,
+    mut actor_query: Query<
+        (
+            &ActorMoveState,
+            &mut AudioEmitter,
+            &ActorSoundMap,
+            &mut ActorSoundTimers,
+            &Velocity,
+        ),
+        With<Player>,
+    >,
     time: Res<Time>,
 ) {
-    for actor in &actor_query {
-        match &actor.move_status {
-            MoveStatus::NoMovement => {
-                walk_sound_res.timer.reset();
-                walk_sound_res.is_first_time = true;
-            }
-            moving => {
-                match moving {
-                    MoveStatus::Run => {
-                        walk_sound_res
-                            .timer
-                            .set_duration(Duration::from_millis(150));
-                    }
-                    MoveStatus::Walk => {}
-                    _ => panic!("wild"),
-                }
-                walk_sound_res.timer.tick(time.delta());
-                if walk_sound_res.timer.finished() || walk_sound_res.is_first_time {
-                    if walk_sound_res.is_first_time {
-                        walk_sound_res.is_first_time = false;
-                        return;
-                    }
-                    let mut index = rand::thread_rng();
+    for (move_state, mut spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query
+    {
+        let key = "Footstep".to_string();
+        let footstep_timer = sound_timers
+            .get_mut(&key)
+            .expect("timer did not exist in ActorSoundTimers");
+        let footstep_handle = sound_map
+            .get(&key)
+            .expect("audio source did not exist in ActorSoundMap.")
+            .to_owned();
 
-                    let step_sound_handle = audio
-                        .footsteps
-                        .choose(&mut index)
-                        .expect("SHOULD NEVER BE EMPTY")
-                        .clone();
-                    game_sound.play(step_sound_handle);
+        let px_per_sec = velocity.linvel.abs().max_element();
+        if px_per_sec <= MIN_VELOCITY {
+            return;
+        }
+
+        let run_dur = Duration::from_secs_f32(0.3);
+        let walk_dur = Duration::from_secs_f32(0.7);
+        // info!("actor move state: {:?}", move_state);
+        footstep_timer.tick(time.delta());
+
+        match &move_state.move_status {
+            CurrentMovement::Run => {
+                if footstep_timer.duration() != run_dur {
+                    footstep_timer.set_duration(run_dur);
                 }
+
+                if footstep_timer.finished() {
+                    let mut snd = game_sound.play(footstep_handle);
+                    // spatial_emitter.instances.push(snd.handle());
+                    footstep_timer.reset();
+                }
+            }
+            CurrentMovement::Walk => {
+                if footstep_timer.duration() != walk_dur {
+                    footstep_timer.set_duration(walk_dur);
+                }
+
+                if footstep_timer.finished() {
+                    let mut snd = game_sound.play(footstep_handle);
+                    // spatial_emitter.instances.push(snd.handle());
+                    footstep_timer.reset();
+                }
+            }
+            CurrentMovement::None => {
+                footstep_timer.reset();
             }
         }
     }
 }
+
+// MoveStatus::NoMovement => {
+//     walk_sound_res.timer.reset();
+//     walk_sound_res.is_first_time = true;
+// }
+
+// moving => {
+//     match moving {
+//         MoveStatus::Run => {
+//             walk_sound_res
+//                 .timer
+//                 .set_duration(Duration::from_millis(150));
+//         }
+//         MoveStatus::Walk => {}
+//         _ => panic!("wild"),
+//     }
+
+//     walk_sound_res.timer.tick(time.delta());
+//     if walk_sound_res.timer.finished() || walk_sound_res.is_first_time {
+//         if walk_sound_res.is_first_time {
+//             walk_sound_res.is_first_time = false;
+//             return;
+//         }
+//         let mut index = rand::thread_rng();
+
+//         let step_sound_handle = audio
+//             .footsteps
+//             .choose(&mut index)
+//             .expect("SHOULD NEVER BE EMPTY")
+//             .clone();
+//         game_sound.play(step_sound_handle);
+//     }
+// }

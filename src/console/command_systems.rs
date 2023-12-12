@@ -1,4 +1,4 @@
-use bevy::ecs::entity::Entity;
+use bevy::{ecs::entity::Entity, log::warn};
 use std::str::FromStr;
 use strum::VariantNames;
 
@@ -6,18 +6,18 @@ use crate::{
     ahp::{
         engine::{
             bevy_console::{reply, ConsoleCommand},
-            info, vec2, Camera, EventWriter, Query, Transform, Vec2, Vec3, With, Without,
+            info, Camera, EventWriter, Query, Transform, Vec2, With, Without,
         },
-        game::{ActorType, EnemyType, Player, SpawnActorEvent, Type, WeaponType, ACTOR_Z_INDEX},
+        game::{ActorType, EnemyType, Player, SpawnActorEvent, Type, WeaponType},
         rand::{thread_rng, Rng},
     },
     console::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
-    game::game_world::hideout::{ActorTeleportEvent, TPType},
+    game::game_world::components::{ActorTeleportEvent, TpTriggerEffect},
 };
 
 /// receives spawnweapon command and sens spawn event
 pub fn spawnweapon_command(
-    player_transform: Query<&Transform, (With<Player>, Without<Camera>)>,
+    player_query: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnWeaponCommand>,
     mut ew: EventWriter<SpawnActorEvent>,
 ) {
@@ -41,10 +41,11 @@ pub fn spawnweapon_command(
             Ok(command_spawn_type) => {
                 for _ in 0..command_spawn_count {
                     if command_spawn_at_player {
-                        command_spawn_location =
-                            player_transform.single().translation.truncate() + vec2(offset, offset);
+                        let player_transform = player_query
+                            .get_single()
+                            .expect("should only ever be one player.");
+                        command_spawn_location = player_transform.translation.truncate();
                     }
-
                     ew.send(SpawnActorEvent {
                         spawner: None,
                         actor_type: ActorType(Type::Item),
@@ -73,7 +74,7 @@ pub fn spawnweapon_command(
 
 /// interprets `SpawnEnemyCommand` from console and sends `SpawnEnemyEvent`
 pub fn spawnenemy_command(
-    player_transform: Query<&Transform, With<Player>>,
+    player_query: Query<&Transform, With<Player>>,
     mut spawn: ConsoleCommand<SpawnEnemyCommand>,
     mut ew: EventWriter<SpawnActorEvent>,
 ) {
@@ -96,13 +97,15 @@ pub fn spawnenemy_command(
         match command_spawn_type {
             Ok(command_spawn_type) => {
                 if command_spawn_at_player {
-                    command_spawn_location =
-                        player_transform.single().translation.truncate() + vec2(offset, offset);
+                    let player_transform = player_query
+                        .get_single()
+                        .expect("should only ever be one player.");
+                    command_spawn_location = player_transform.translation.truncate();
                 }
 
                 ew.send(SpawnActorEvent {
                     actor_type: ActorType(Type::Enemy),
-                    what_to_spawn: enemy_type.clone(),
+                    what_to_spawn: enemy_type,
                     spawner: None,
                     spawn_position: command_spawn_location,
                     spawn_count: command_spawn_count,
@@ -127,14 +130,17 @@ pub fn spawnenemy_command(
 
 /// receives tp command and teleports player too location
 pub fn teleport_player_command(
-    player_transform: Query<Entity, With<Player>>,
+    player_query: Query<Entity, With<Player>>,
     mut spawn: ConsoleCommand<TeleportPlayerCommand>,
     mut ew: EventWriter<ActorTeleportEvent>,
 ) {
     if let Some(Ok(TeleportPlayerCommand { loc_x, loc_y })) = spawn.take() {
+        let player = player_query
+            .get_single()
+            .expect("should only ever be one player.");
         ew.send(ActorTeleportEvent {
-            tp_type: TPType::Global(Vec2 { x: loc_x, y: loc_y }),
-            target: Some(player_transform.single()),
+            tp_type: TpTriggerEffect::Global(Vec2 { x: loc_x, y: loc_y }),
+            target: Some(player),
             sender: None,
         });
     }

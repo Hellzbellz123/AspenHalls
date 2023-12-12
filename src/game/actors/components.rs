@@ -1,4 +1,10 @@
-use bevy::prelude::Component;
+// #![allow(dead_code)]
+
+use super::combat::components::Damage;
+use bevy::{
+    ecs::reflect::ReflectComponent,
+    prelude::{Component, Deref, DerefMut, Reflect, Timer},
+};
 
 /// tag for player collider
 #[derive(Component)]
@@ -28,25 +34,35 @@ pub struct EnemyProjectileColliderTag;
 #[derive(Component)]
 pub struct PlayerProjectileColliderTag;
 
-use bevy::prelude::*;
-
-use super::combat::components::Damage;
-
 /// new type for `Timer` for use with bullet lifetimes
 #[derive(Component, Default, Reflect, Deref, DerefMut)]
 #[reflect(Component)]
 pub struct TimeToLive(pub Timer);
 
-/// is this actor allowed too sprint?
+/// actor move permission
+/// allowed too move?
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
-pub enum MoveStatus {
+pub enum AllowedMovement {
     /// actor is allowed too run
     #[default]
     Run,
     /// actor is allowed too walk
     Walk,
     /// actor is not allowed too move
-    NoMovement,
+    None,
+}
+
+/// actors move state
+#[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
+pub enum CurrentMovement {
+    /// actor is allowed too run
+    #[default]
+    Run,
+    /// actor is allowed too walk
+    Walk,
+    /// actor is not allowed too move
+    None,
 }
 
 /// entity teleport status
@@ -63,19 +79,45 @@ pub enum TeleportStatus {
     Done,
 }
 
+impl TeleportStatus {
+    pub fn teleport_allowed(&self) -> bool {
+        self == &Self::None
+    }
+
+    pub fn wants_teleport(&self) -> bool {
+        self == &Self::Requested
+    }
+
+    pub fn teleport_not_requested(&self) -> bool {
+        self != &Self::Requested
+    }
+
+    pub fn is_teleporting(&self) -> bool {
+        self == &Self::Teleporting
+    }
+
+    pub fn just_teleported(&self) -> bool {
+        self == &Self::Done
+    }
+}
+
 /// player data
 #[derive(Component, Reflect, Clone, Copy, Default)]
 pub struct Player;
 
 #[derive(Debug, Component, Reflect, Clone, Default)]
 pub struct ActorMoveState {
-    pub move_status: MoveStatus,
+    pub move_status: CurrentMovement,
+    pub move_perms: AllowedMovement,
     pub teleport_status: TeleportStatus,
 }
 impl ActorMoveState {
     /// full speed with no requested teleport
-    pub const DEFAULT: ActorMoveState = ActorMoveState { move_status: MoveStatus::Run, teleport_status: TeleportStatus::None };
-
+    pub const DEFAULT: Self = Self {
+        move_status: CurrentMovement::None,
+        move_perms: AllowedMovement::Run,
+        teleport_status: TeleportStatus::None,
+    };
 }
 
 /// projectile data

@@ -1,20 +1,18 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
     IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground, LevelSelection,
-    LevelSpawnBehavior, SetClearColor,
+    LevelSpawnBehavior, SetClearColor, prelude::LevelIid,
 };
-use bevy_rapier2d::prelude::{Collider, CollisionEvent, Sensor};
+use bevy_rapier2d::prelude::{CollisionEvent, Sensor};
 
 use crate::{
     game::{
-        actors::components::{ActorMoveState, TeleportStatus, EnemyColliderTag, ActorColliderTag},
-        game_world::hideout::ActorTeleportEvent,
+        actors::components::{ActorColliderTag, ActorMoveState, TeleportStatus},
+        game_world::components::{ActorTeleportEvent, Teleporter},
         // game_world::dungeonator::GeneratorStage,
     },
     loading::assets::MapAssetHandles,
 };
-
-use super::map_components::{TeleportTimer, Teleporter};
 
 /// tag for map entity
 #[derive(Debug, Component, Clone, Copy, Reflect, Default)]
@@ -27,7 +25,7 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
 
     commands.spawn((
         LdtkWorldBundle {
-            ldtk_handle: maps.start_level.clone(),
+            ldtk_handle: maps.default_levels.clone(),
             transform: Transform {
                 translation: Vec3 {
                     x: 0.0,
@@ -47,10 +45,8 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
         MapContainerTag,
     ));
 
-    commands.insert_resource(TeleportTimer {
-        timer: Timer::from_seconds(2.0, TimerMode::Once),
-    });
-    commands.insert_resource(LevelSelection::Identifier("TestingHall".to_string()));
+    // TODO match on saved state/player progress
+    commands.insert_resource(LevelSelection::Iid(LevelIid::new("e48949c0-8990-11ee-a550-f91ac169a863")));
     commands.insert_resource(LdtkSettings {
         level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation,
         set_clear_color: SetClearColor::No,
@@ -82,23 +78,17 @@ pub fn teleporter_collisions(
                         )
                         .expect("colliders parent should have been an actor");
                     let tp = sensors.get(*a).expect("checking ok beforehand");
-                    (
-                        ac,tp,
-                        true,
-                    )
+                    (ac, tp, true)
                 } else if sensors.get(*b).is_ok() && parents.get(*a).is_ok() {
                     let ac = actors
                         .get_mut(
                             **parents
                                 .get(*a)
-                                .expect("actor collider should have a parent")
+                                .expect("actor collider should have a parent"),
                         )
                         .expect("msg");
                     let tp = sensors.get(*b).expect("checking ok beforehand");
-                    (
-                        ac,tp,
-                        true,
-                    )
+                    (ac, tp, true)
                 } else {
                     trace!("not handling collision event because neither entity is a teleporter");
                     return;
@@ -114,23 +104,17 @@ pub fn teleporter_collisions(
                         )
                         .expect("colliders parent should have been an actor");
                     let tp = sensors.get(*a).expect("checking ok beforehand");
-                    (
-                        ac,tp,
-                        false,
-                    )
+                    (ac, tp, false)
                 } else if sensors.get(*b).is_ok() && parents.get(*a).is_ok() {
                     let ac = actors
                         .get_mut(
                             **parents
                                 .get(*a)
-                                .expect("actor collider should have a parent")
+                                .expect("actor collider should have a parent"),
                         )
                         .expect("msg");
                     let tp = sensors.get(*b).expect("checking ok beforehand");
-                    (
-                        ac,tp,
-                        false,
-                    )
+                    (ac, tp, false)
                 } else {
                     trace!("not handling collision event because neither entity is a teleporter");
                     return;
@@ -157,7 +141,7 @@ pub fn teleporter_collisions(
             }
         } else if actor.1.teleport_status == TeleportStatus::None && event_is_collision_start {
             teleport_events.send(ActorTeleportEvent {
-                tp_type: sensor.1.teleport_type.clone(),
+                tp_type: sensor.1.effect.clone(),
                 target: Some(actor.0),
                 sender: Some(sensor.0),
             });

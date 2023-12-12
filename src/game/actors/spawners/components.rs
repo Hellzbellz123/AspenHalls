@@ -64,10 +64,12 @@ pub enum SpawnType {
 #[derive(Component, Default, Debug, Clone, Reflect)]
 #[reflect(Component)]
 pub struct Spawner {
-    /// what too spawn
-    pub enemy_type: EnemyType,
-    /// random enemies?
-    pub random_enemy: bool,
+    /// list of enemys too spawn
+    pub enemies_too_spawn: Vec<String>,
+    // /// what too spawn
+    // pub enemy_type: EnemyType,
+    // /// random enemies?
+    // pub random_enemy: bool,
     /// how far away can spawn
     pub spawn_radius: f32,
     /// max enemies in spawner radius

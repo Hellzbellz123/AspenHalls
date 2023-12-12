@@ -6,10 +6,13 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
+    consts::{MIN_VELOCITY, WALK_MODIFIER, SPRINT_MODIFIER},
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},
-            components::{ActorMoveState, ActorTertiaryAttributes, MoveStatus, Player},
+            components::{
+                ActorMoveState, ActorTertiaryAttributes, AllowedMovement, CurrentMovement, Player,
+            },
         },
         input::action_maps,
     },
@@ -17,25 +20,31 @@ use crate::{
 };
 
 /// adds velocity too player based off what movement keys are pressed
-pub fn player_movement_system(
+pub fn update_player_velocity(
+    // TODO: use global settings resource
     mut player_query: Query<
         (
             &mut Velocity,
+            &ActorMoveState,
             &ActorTertiaryAttributes,
             &ActionState<action_maps::Gameplay>,
         ),
         With<Player>,
     >,
 ) {
-    let (mut velocity, speed_attr, action_state) = match player_query.get_single_mut() {
+    let (mut velocity, move_state, tert_attr, action_state) = match player_query.get_single_mut() {
         Ok(query) => query,
-        Err(e) => {warn!("unable too update player velocity: {}", e); return;},
+        Err(e) => {
+            warn!("unable too update player velocity: {}", e);
+            return;
+        }
     };
 
     let move_data = action_state.action_data(action_maps::Gameplay::Move);
+
     let Some(move_axis) = move_data.axis_pair else {
         // no move button data
-        if velocity.linvel.length() <= 0.01 {
+        if velocity.linvel.length() <= MIN_VELOCITY {
             velocity.linvel = Vec2::ZERO;
         } else {
             velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
@@ -44,48 +53,18 @@ pub fn player_movement_system(
     };
 
     let delta = move_axis.xy();
-    let new_velocity = Velocity::linear(delta * speed_attr.speed);
+
+    let speed = if action_state.pressed(action_maps::Gameplay::Sprint)
+        && move_state.move_perms == AllowedMovement::Run
+    {
+        tert_attr.speed * SPRINT_MODIFIER
+    } else {
+        tert_attr.speed * WALK_MODIFIER
+    };
+
+    let new_velocity = Velocity::linear(delta * speed);
 
     *velocity = new_velocity;
-}
-
-/// modifies players movement speed based on sprint button
-pub fn player_sprint(
-    mut player_query: Query<(
-        &mut AnimState,
-        &mut ActorMoveState,
-        &ActionState<action_maps::Gameplay>,
-        &mut ActorTertiaryAttributes,
-    )>,
-) {
-    if player_query.is_empty() {
-        return;
-    }
-
-    let (mut animation, mut player_move_state, action_state, mut tert_atr) =
-        player_query.single_mut();
-
-    if action_state.pressed(action_maps::Gameplay::Sprint) {
-        animation.timer.set_duration(Duration::from_millis(100));
-        player_move_state.move_status = MoveStatus::Run; //.sprint_available = true;
-    }
-
-    if action_state.released(action_maps::Gameplay::Sprint) {
-        animation.timer.set_duration(Duration::from_millis(200));
-        player_move_state.move_status = MoveStatus::Walk;
-    }
-
-    match player_move_state.move_status {
-        MoveStatus::Run => {
-            tert_atr.speed = 255.0;
-        }
-        MoveStatus::Walk => {
-            tert_atr.speed = 155.0;
-        }
-        MoveStatus::NoMovement => {
-            tert_atr.speed = 0.0;
-        }
-    }
 }
 
 /// keeps camera centered on player
