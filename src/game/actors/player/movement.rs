@@ -6,7 +6,7 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    consts::{MIN_VELOCITY, WALK_MODIFIER, SPRINT_MODIFIER},
+    consts::{MIN_VELOCITY, SPRINT_MODIFIER, WALK_MODIFIER},
     game::{
         actors::{
             animation::components::{ActorAnimationType, AnimState},

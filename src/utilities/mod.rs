@@ -9,10 +9,11 @@ use crate::ahp::{
 use bevy::{
     ecs::{
         query::{ReadOnlyWorldQuery, WorldQuery},
-        system::IntoSystem, schedule::State,
+        schedule::State,
+        system::IntoSystem,
     },
     input::{keyboard::KeyCode, mouse::MouseButton, Input},
-    prelude::{Component, Condition, Local, NextState, States, debug},
+    prelude::{debug, Component, Condition, Local, NextState, States},
 };
 
 use std::{cmp::Ordering, ops::Mul};
@@ -106,33 +107,32 @@ macro_rules! register_types {
 /// resets if the state is left
 ///
 /// returns false if the state does not exist in the world
-pub fn state_exists_and_entered<S: States>(
-    state: S
-) -> impl Condition<()> {
-    IntoSystem::into_system(move |mut entered: Local<bool>, mut exists: Local<bool>, state_q: Option<Res<State<S>>>| {
-        if state_q.is_some() {
-            let current_state = state_q.unwrap();
-            if (!*exists && !*entered) && *current_state == state {
-                // debug!("state exists and wanted state value entered");
-                *entered = true;
-                *exists = true;
-                true
-            } else if (*exists && *entered) && *current_state != state {
-                // debug!("state was entered, but its not enterered anymore. resetting state machine");
-                *entered = false;
+pub fn state_exists_and_entered<S: States>(state: S) -> impl Condition<()> {
+    IntoSystem::into_system(
+        move |mut entered: Local<bool>, mut exists: Local<bool>, state_q: Option<Res<State<S>>>| {
+            if state_q.is_some() {
+                let current_state = state_q.unwrap();
+                if (!*exists && !*entered) && *current_state == state {
+                    // debug!("state exists and wanted state value entered");
+                    *entered = true;
+                    *exists = true;
+                    true
+                } else if (*exists && *entered) && *current_state != state {
+                    // debug!("state was entered, but its not enterered anymore. resetting state machine");
+                    *entered = false;
+                    *exists = false;
+                    false
+                } else {
+                    // debug!("state exists but its not the one we want");
+                    false
+                }
+            } else {
+                // debug!("state does not exist yet");
                 *exists = false;
                 false
             }
-            else {
-                // debug!("state exists but its not the one we want");
-                false
-            }
-        } else {
-            // debug!("state does not exist yet");
-            *exists = false;
-            false
-        }
-    })
+        },
+    )
 }
 
 /// simple macro that generates an add system for OnEnter(state)

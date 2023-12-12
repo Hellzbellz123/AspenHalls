@@ -8,7 +8,7 @@ pub struct UnBuiltPlayer;
 /// Marks player start location
 #[derive(Component, Default)]
 pub struct PlayerStartLocation {
-    pub size: Vec2
+    pub size: Vec2,
 }
 
 /// Marks Exits too dungeon rooms

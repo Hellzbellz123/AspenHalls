@@ -5,8 +5,8 @@ use crate::{
     bundles::RigidBodyBundle,
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX},
     game::actors::combat::components::{
-        BarrelPointTag, DamageType, WeaponBarrelEndPoint, WeaponBundle, WeaponColliderBundle,
-        WeaponColliderTag, WeaponStats, Weapon,
+        BarrelPointTag, DamageType, Weapon, WeaponBarrelEndPoint, WeaponBundle,
+        WeaponColliderBundle, WeaponColliderTag, WeaponStats,
     },
     loading::assets::ActorTextureHandles,
 };

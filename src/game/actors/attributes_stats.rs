@@ -1,7 +1,7 @@
 use bevy::{
     ecs::{component::Component, entity::Entity},
-    prelude::{Added, Changed, Children, Parent, Query, With},
     log::warn,
+    prelude::{Added, Changed, Children, Parent, Query, With},
 };
 
 use std::{
@@ -71,7 +71,7 @@ pub fn sync_actor_stats(
     for (actor_ent, mut actor_stat) in &mut actors_with_new_equipment {
         let child_equipment_attrs: Vec<Attributes> = children
             .iter_descendants(actor_ent)
-            .filter_map(|f| {Some(equipment.get(f).unwrap().calculated)})
+            .filter_map(|f| Some(equipment.get(f).unwrap().calculated))
             // .filter(|f| { equipment.get(*f).is_ok() })
             // .map(|f| {equipment.get(f).unwrap().calculated})
             .collect();
@@ -79,8 +79,7 @@ pub fn sync_actor_stats(
 
         if actor_stat.equipment_amount != current_equipment_amount {
             actor_stat.equipment_amount = current_equipment_amount;
-            let equipment_attrs_total: Attributes =
-                child_equipment_attrs.into_iter().sum();
+            let equipment_attrs_total: Attributes = child_equipment_attrs.into_iter().sum();
 
             actor_stat.equipment = equipment_attrs_total;
         }
@@ -392,7 +391,6 @@ impl Mul for Attributes {
         }
     }
 }
-
 
 impl Sum for Attributes {
     /// sums iterator of `Attributes` and returns a clone of the sum

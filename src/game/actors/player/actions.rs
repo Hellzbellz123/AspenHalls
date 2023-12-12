@@ -7,7 +7,7 @@ use crate::ahp::{
     },
     game::{
         action_maps, ActorType, BarrelPointTag, CurrentlySelectedWeapon, Player, SpawnActorEvent,
-        Type, WeaponColliderTag, WeaponSlots, WeaponSocket, Weapon, TILE_SIZE,
+        Type, Weapon, WeaponColliderTag, WeaponSlots, WeaponSocket, TILE_SIZE,
     },
 };
 

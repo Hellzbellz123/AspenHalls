@@ -9,7 +9,10 @@ use crate::{
     game::actors::{
         ai::components::{ActorType, Type},
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
-        components::{ActorMoveState, AllowedMovement, PlayerColliderTag, TeleportStatus, ActorColliderTag, CurrentMovement},
+        components::{
+            ActorColliderTag, ActorMoveState, AllowedMovement, CurrentMovement, PlayerColliderTag,
+            TeleportStatus,
+        },
     },
     game::{
         actors::{

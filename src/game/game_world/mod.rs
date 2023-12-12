@@ -134,7 +134,8 @@ fn handle_teleport_events(
                 let ent_ids = children
                     .iter_descendants(entity_layer)
                     .filter(|f| {
-                        iids.get(*f).expect("all entities on entity_layer should have EntityIid")
+                        iids.get(*f)
+                            .expect("all entities on entity_layer should have EntityIid")
                             == &EntityIid::new(target_tile_reference.entity_iid.clone())
                     })
                     .collect::<Vec<Entity>>();

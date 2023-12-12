@@ -14,6 +14,7 @@ use crate::{
 pub mod ai;
 /// holds animation functionality for actors plugin
 pub mod animation;
+pub mod attributes_stats;
 /// game combat functionality
 pub mod combat;
 /// shared actor components
@@ -24,7 +25,6 @@ pub mod enemies;
 pub mod player;
 /// holds spawner info
 pub mod spawners;
-pub mod attributes_stats;
 
 /// all Characters in the game, along with spawners for spawn able characters
 // TODO: make actors "configurable". load actor types from $PACK/definitions/$ACTORTYPE/ and add them too a database.
@@ -48,13 +48,17 @@ impl Plugin for ActorPlugin {
 /// updates actors move status component based on actors velocity and speed attribute
 fn update_actor_move_status(
     mut actor_query: Query<
-        (&mut ActorMoveState, &Velocity, &components::ActorTertiaryAttributes),
+        (
+            &mut ActorMoveState,
+            &Velocity,
+            &components::ActorTertiaryAttributes,
+        ),
         Changed<Velocity>,
     >,
 ) {
     for (mut move_state, velocity, tert_attrs) in &mut actor_query {
         if velocity.linvel.abs().max_element() < MIN_VELOCITY {
-            if move_state. move_status != CurrentMovement::None {
+            if move_state.move_status != CurrentMovement::None {
                 move_state.move_status = CurrentMovement::None;
                 return;
             }

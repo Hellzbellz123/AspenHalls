@@ -32,8 +32,8 @@ pub mod game {
                 },
                 animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 combat::components::{
-                    BarrelPointTag, CurrentlySelectedWeapon, DamageType, WeaponColliderTag,
-                    WeaponSlots, WeaponSocket, WeaponStats, Weapon,
+                    BarrelPointTag, CurrentlySelectedWeapon, DamageType, Weapon, WeaponColliderTag,
+                    WeaponSlots, WeaponSocket, WeaponStats,
                 },
                 components::{
                     ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes,
@@ -42,7 +42,7 @@ pub mod game {
                 },
                 spawners::components::{EnemyType, SpawnActorEvent, Spawner, WeaponType},
             },
-            audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel, ActorSoundTimer},
+            audio::{ActorSoundTimer, AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel},
             input::action_maps::{self},
             TimeInfo,
         },

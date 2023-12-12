@@ -401,7 +401,9 @@ fn player_death_system(
         return;
     }
     let (mut player_stats, player, player_damaged, mut player_loc, mut player_sprite) =
-        player_query.get_single_mut().expect("Should only ever have 1 player. Player probably didnt exist");
+        player_query
+            .get_single_mut()
+            .expect("Should only ever have 1 player. Player probably didnt exist");
 
     game_info.damage_taken += player_damaged.0;
     if player_stats.health <= 0.0 {

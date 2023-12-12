@@ -17,7 +17,8 @@ use crate::{
         AppState,
     },
     loading::assets::AudioHandles,
-    loading::config::SoundSettings, utilities::state_exists_and_entered,
+    loading::config::SoundSettings,
+    utilities::state_exists_and_entered,
 };
 
 /// OST music is played on this channel.

@@ -1,15 +1,18 @@
-use crate::{ahp::{
-    engine::{
-        Bundle, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes,
-        Name, Restitution, RigidBody, SpriteBundle, SpriteSheetBundle, ThinkerBuilder,
-        TransformBundle, Velocity,
+use crate::{
+    ahp::{
+        engine::{
+            Bundle, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction,
+            LockedAxes, Name, Restitution, RigidBody, SpriteBundle, SpriteSheetBundle,
+            ThinkerBuilder, TransformBundle, Velocity,
+        },
+        game::{
+            AIChaseConfig, AIShootConfig, AIWanderConfig, ActorCombatStats, ActorDerivedAttributes,
+            ActorPrimaryAttributes, ActorSecondaryAttributes, ActorTertiaryAttributes, ActorType,
+            AnimState, AnimationSheet, ProjectileStats, TimeToLive,
+        },
     },
-    game::{
-        AIChaseConfig, AIShootConfig, AIWanderConfig, ActorCombatStats, ActorDerivedAttributes,
-        ActorPrimaryAttributes, ActorSecondaryAttributes, ActorTertiaryAttributes, ActorType,
-        AnimState, AnimationSheet, ProjectileStats, TimeToLive,
-    },
-}, game::actors::components::{ActorMoveState, ActorColliderTag}};
+    game::actors::components::{ActorColliderTag, ActorMoveState},
+};
 
 /// bundle used too spawn "actors"
 #[derive(Bundle)]

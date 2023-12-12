@@ -70,8 +70,8 @@ pub struct WeaponBarrelEndPoint {
 #[derive(Debug, Clone, Copy, Component, Default, Reflect)]
 #[reflect(Component)]
 /// things with this are weapons
-/// 
-/// 
+///
+///
 pub struct Weapon {
     /// slot weapon is currently in, None if not attached to an actor
     pub holder_slot: Option<WeaponSlots>,

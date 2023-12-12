@@ -11,7 +11,9 @@ use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody,
 
 use crate::game::{
     actors::spawners::components::{Spawner, SpawnerTimer},
-    game_world::components::{PlayerStartLocation, RoomExit, TpTriggerEffect, Teleporter, UnBuiltPlayer},
+    game_world::components::{
+        PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect, UnBuiltPlayer,
+    },
 };
 
 /// tiles that can collide get this
@@ -177,17 +179,18 @@ fn decipher_teleport_type(instance: &EntityInstance) -> Option<TpTriggerEffect> 
         "Global" => {
             let Ok(val) = instance
                 .get_maybe_floats_field("Teleport_Global")
-                .inspect_err(|e| {
-                    error!("error getting TPType::Global from spawner instance: {e}")
-                })
+                .inspect_err(|e| error!("error getting TPType::Global from spawner instance: {e}"))
             else {
-                return None
+                return None;
             };
             let vec = vec2_from_array(val).expect("msg");
             return Some(TpTriggerEffect::Global(vec));
         }
         unknown => {
-            error!("encountered unknown TPType for spawner instance: {}", unknown);
+            error!(
+                "encountered unknown TPType for spawner instance: {}",
+                unknown
+            );
             return None;
         }
     }

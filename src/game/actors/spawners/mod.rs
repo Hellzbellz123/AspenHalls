@@ -5,7 +5,10 @@ use std::str::FromStr;
 // after some more digging bevy_rapier has a raycast shape function, i think what i will do is raycast down on the position and check if it
 // collides, if CollideShape doesn't collide then spawn, if does collide pick new position 40 or so pixels in any direction
 use bevy::{math::vec2, prelude::*};
-use rand::{thread_rng, Rng, prelude::{IteratorRandom, SliceRandom}};
+use rand::{
+    prelude::{IteratorRandom, SliceRandom},
+    thread_rng, Rng,
+};
 
 use self::{
     components::{EnemyContainerTag, SpawnActorEvent, Spawner, SpawnerTimer},

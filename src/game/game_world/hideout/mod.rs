@@ -6,17 +6,20 @@ use bevy::{
     },
 };
 
-use crate::{game::{
-    actors::{ai::components::Enemy, spawners::components::WeaponType},
-    game_world::{
-        dungeonator_v2::DungeonGeneratorState,
-        hideout::systems::{
-            spawn_hideout,
-            // enter_the_dungeon,
-            teleporter_collisions,
+use crate::{
+    game::{
+        actors::{ai::components::Enemy, spawners::components::WeaponType},
+        game_world::{
+            dungeonator_v2::DungeonGeneratorState,
+            hideout::systems::{
+                spawn_hideout,
+                // enter_the_dungeon,
+                teleporter_collisions,
+            },
         },
     },
-}, AppState};
+    AppState,
+};
 
 use self::systems::MapContainerTag;
 
@@ -33,8 +36,7 @@ impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
         // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<ScaledBackgroundMaterial>::default());
-        app
-            .add_systems(OnEnter(AppState::StartMenu), spawn_hideout)
+        app.add_systems(OnEnter(AppState::StartMenu), spawn_hideout)
             .add_systems(
                 OnEnter(DungeonGeneratorState::PrepareDungeon),
                 cleanup_start_world,

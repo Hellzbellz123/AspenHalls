@@ -22,7 +22,11 @@ use leafwing_input_manager::prelude::ActionState;
 use rand::prelude::{IteratorRandom, Rng, SliceRandom, ThreadRng};
 
 use crate::{
-    ahp::game::{action_maps, Player}, consts::TILE_SIZE, loading::assets::MapAssetHandles, AppState, game::actors::components::ActorMoveState,
+    ahp::game::{action_maps, Player},
+    consts::TILE_SIZE,
+    game::actors::components::ActorMoveState,
+    loading::assets::MapAssetHandles,
+    AppState,
 };
 
 /// generates dungeons from ldtk level files
@@ -30,8 +34,7 @@ pub struct DungeonGeneratorPlugin;
 
 impl Plugin for DungeonGeneratorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app
-            .register_type::<RoomAmounts>()
+        app.register_type::<RoomAmounts>()
             .register_type::<DungeonSettings>()
             .add_state::<DungeonGeneratorState>();
         app.add_systems(OnExit(AppState::Loading), spawn_dungeon_root);
@@ -74,7 +77,9 @@ fn listen_rebuild_dungeon_request(
 
     if player_input.just_pressed(action_maps::Gameplay::DebugF2) {
         cmds.entity(dungeon_root.0).despawn_descendants();
-        enemies.for_each(|f| { cmds.entity(f).despawn_descendants(); });
+        enemies.for_each(|f| {
+            cmds.entity(f).despawn_descendants();
+        });
         dungeon_root.1.positioned_presets = Vec::new();
         cmds.insert_resource(NextState(Some(DungeonGeneratorState::PrepareDungeon)));
     }
@@ -192,7 +197,8 @@ fn prepare_dungeon_rooms(
     let mut chosen_rooms: Vec<RoomPreset> = Vec::new();
     let mut settings = dungeon_root.single_mut();
 
-    let mut start_room = get_leveled_preset(&room_database.start_rooms, progress_level.clone()).unwrap();
+    let mut start_room =
+        get_leveled_preset(&room_database.start_rooms, progress_level.clone()).unwrap();
     let startroom_rect = Rect {
         min: Vec2::ZERO + -(start_room.size / 2.0),
         max: Vec2::ZERO + (start_room.size / 2.0),
@@ -451,7 +457,6 @@ fn try_get_roomtype(field_instances: &Vec<FieldInstance>) -> Option<RoomType> {
         _ => None,
     }
 }
-
 
 #[derive(Debug, Clone, Default, Reflect)]
 pub struct RoomAmounts {

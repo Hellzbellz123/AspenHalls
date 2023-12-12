@@ -36,8 +36,8 @@ pub mod debug_plugin {
             AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
             AIWanderConfig, ActorAnimationType, ActorType, AnimState, AnimationSheet, AppState,
             ChaseScore, CurrentlySelectedWeapon, DamageType, DifficultyScales, GeneralSettings,
-            MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive, Type, WeaponSlots,
-            WeaponSocket, WeaponStats, Weapon, WindowSettings,
+            MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive, Type, Weapon,
+            WeaponSlots, WeaponSocket, WeaponStats, WindowSettings,
         },
         plugins::{
             FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
