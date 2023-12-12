@@ -60,8 +60,8 @@ args = [
 
 [tasks.run-develop]
 private = true
-command = "cargo"
-args = ["run", "--features", "develop, dynamic"]
+command = "mold"
+args = ["-run", "cargo", "run", "--features", "develop, dynamic"]
 
 [tasks.refresh-assets]
 private = true

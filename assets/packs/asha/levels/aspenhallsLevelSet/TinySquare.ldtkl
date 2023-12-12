@@ -8,7 +8,7 @@
 		"appVersion": "1.4.1",
 		"url": "https://ldtk.io"
 	},
-	"identifier": "SmallShortOpenRoom2",
+	"identifier": "TinySquare",
 	"iid": "49d60130-8990-11ee-a13c-7d4ae0661be6",
 	"uid": 30,
 	"worldX": 0,
@@ -26,7 +26,14 @@
 	"__smartColor": "#ADADB5",
 	"__bgPos": null,
 	"externalRelPath": null,
-	"fieldInstances": [],
+	"fieldInstances": [
+		{ "__identifier": "IdentSize", "__type": "LocalEnum.IdentSize", "__value": "SmallShort", "__tile": null, "defUid": 44, "realEditorValues": [{
+			"id": "V_String",
+			"params": ["SmallShort"]
+		}] },
+		{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
+		{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+	],
 	"layerInstances": [
 		{
 			"__identifier": "Entity_Layer",
@@ -194,7 +201,11 @@
 					"height": 32,
 					"defUid": 66,
 					"px": [248,264],
-					"fieldInstances": []
+					"fieldInstances": [
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 5, "__tile": null, "defUid": 64, "realEditorValues": [] },
+						{ "__identifier": "EnemyTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 65, "realEditorValues": [] },
+						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] }
+					]
 				}
 			]
 		},

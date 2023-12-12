@@ -1,0 +1,1639 @@
+#!/usr/bin/env zsh
+
+# Copyright 2023 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Error code bands:
+# 10-19: User-induced error.
+#   18 - User did not select a serial.
+# 50-59: Irrecoverable environment-based error.
+#   51 - Shell is not zsh.
+#   52 - No valid adb installation found.
+#   53 - No valid fzf installation found.
+#   54 - No valid perl installation found.
+# 60-69: Irrecoverable ADB-related error.
+#   61 - Could not get a serial number.
+
+
+
+__purr_start_streams() {
+	__purr_stream_background_file $purr_error_input_cache "*:E" $purr_serial_cache &
+	__purr_stream_background_file $purr_warning_input_cache "*:W" $purr_serial_cache &
+	__purr_stream_background_file $purr_info_input_cache "*:I" $purr_serial_cache &
+	__purr_stream_background_file $purr_verbose_input_cache "*:V" $purr_serial_cache &
+
+	__purr_stream_unique_file $purr_error_input_cache $purr_error_input_cache_unique $purr_error_unique_checksum_cache &
+	__purr_stream_unique_file $purr_warning_input_cache $purr_warning_input_cache_unique $purr_warning_unique_checksum_cache &
+	__purr_stream_unique_file $purr_info_input_cache $purr_info_input_cache_unique $purr_info_unique_checksum_cache &
+	__purr_stream_unique_file $purr_verbose_input_cache $purr_verbose_input_cache_unique $purr_verbose_unique_checksum_cache &
+}
+
+__purr_cleanup_streams() {
+	kill ${${(v)jobstates##*:*:}%=*}
+	for pid in ${${(v)jobstates##*:*:}%=*}; do
+		wait $pid
+	done
+
+	rm $purr_error_input_cache &> /dev/null
+	rm $purr_warning_input_cache &> /dev/null
+	rm $purr_info_input_cache &> /dev/null
+	rm $purr_verbose_input_cache &> /dev/null
+
+	rm $purr_error_input_cache_unique &> /dev/null
+	rm $purr_warning_input_cache_unique &> /dev/null
+	rm $purr_info_input_cache_unique &> /dev/null
+	rm $purr_verbose_input_cache_unique &> /dev/null
+}
+
+__purr_stream_background_file() {
+	local stream_file=$1
+	local stream_command=$2
+	local purr_serial_cache=$3
+
+	if grep -q "verbose" <<< "$stream_file"; then
+		local am_verbose="true"
+	else
+		local am_verbose="false"
+	fi
+
+	touch $stream_file &> /dev/null
+	if [ $? -ne 0 ]; then
+		exit
+	fi
+
+	conn_status="unknown"
+
+	while true; do
+
+		__purr_update_serial
+		if [ -z $serial ]; then
+			exit
+		fi
+
+		if [[ $conn_status = "potential" ]]; then
+			purr_timeout 2 "$adb_cmd_loc -s $serial wait-for-device" &> /dev/null
+
+			if [ $? -eq 0 ]; then
+				echo "\x1b[1;36mPURR STATUS: Device Responding.\x1b[1;0m" >> $stream_file
+				echo "\x1b[1;36mPURR STATUS: Restarting input from last seen timestamp.\x1b[1;0m" >> $stream_file
+				conn_status="alive"
+				if [ $am_verbose = "true" ]; then
+					echo "\x1b[1;32m  $serial => \x1b[1;0m" > $purr_connection_state_cache
+				fi
+			else # Otherwise, we'll enter a dead state and start polling for the device.
+				echo "\x1b[1;36mPURR STATUS: Device Not Responding.\x1b[1;0m" >> $stream_file
+				echo "\x1b[1;36mPURR STATUS: Locking input streams until device found.\x1b[1;0m" >> $stream_file
+				conn_status="dead"
+				if [ $am_verbose = "true" ]; then
+					echo "\x1b[1;31m  $serial != \x1b[1;0m" > $purr_connection_state_cache
+				fi
+			fi
+		else # If we aren't in potential mode, we poll for the device until we find it.
+			eval "$adb_cmd_loc -s $serial wait-for-device &> /dev/null"
+
+			if [ $? -eq 0 ]; then
+				if [ $conn_status != "unknown" ]; then
+					echo "\x1b[1;36mPURR STATUS: Device Responding.\x1b[1;0m" >> $stream_file
+					echo "\x1b[1;36mPURR STATUS: Restarting input from last seen timestamp.\x1b[1;0m" >> $stream_file
+				fi
+
+				conn_status="alive"
+				if [ $am_verbose = "true" ]; then
+					echo "\x1b[1;32m  $serial => \x1b[1;0m" > $purr_connection_state_cache
+				fi
+			fi
+		fi
+
+		if [ $conn_status = "alive" ]; then
+
+			trim_time=$(cat $purr_time_start_cache)
+			if [ -z $trim_time ]; then
+				eval "$adb_cmd_loc -s $serial logcat -v color $custom_adb_params '$stream_command' >> $stream_file"
+			else
+
+				if [ $am_verbose = "true" ]; then
+					{
+						sleep 1.5
+						if [ -f $purr_time_start_cache ]; then
+							echo "" > $purr_time_start_cache &> /dev/null
+						fi
+					} &
+				fi
+				eval "$adb_cmd_loc -s $serial logcat -v color $custom_adb_params -T '$trim_time'  '$stream_command' >> $stream_file"
+			fi
+
+			if [ $am_verbose = "true" ]; then
+				trimmed_time=$(echo $(tail -1 $stream_file) | cut -d' ' -f1-2 | sed -e 's/\x1b\[[0-9;]*m//g');
+				echo $trimmed_time > $purr_time_start_cache;
+			fi
+
+			echo "\x1b[1;36mPURR STATUS: Potential Connection Lost.\x1b[1;0m" >> $stream_file
+			conn_status="potential"
+		fi
+
+		sleep 0.5
+	done
+}
+
+__purr_stream_unique_file() {
+	local stream_input_file=$1
+	local stream_output_file=$2
+	local stream_checksum_file=$3
+
+	touch $stream_output_file &> /dev/null
+	if [ $? -ne 0 ]; then
+		exit
+	fi
+
+	touch $stream_checksum_file &> /dev/null
+	if [ $? -ne 0 ]; then
+		exit
+	fi
+
+	tail -s 0.1 -F --lines=+0 -- $stream_input_file 2> /dev/null | while read -r line; do
+		trimmed_line_cksum=$(echo $line | awk '{$1=$1};1' | cut -d' ' -f5- -- | cksum | cut -d' ' -f1)
+		if command -v rg &>/dev/null; then
+			if ! rg -q "$trimmed_line_cksum" $stream_checksum_file 2> /dev/null; then
+				echo "$line" >> $stream_output_file
+				echo "$trimmed_line_cksum" >> $stream_checksum_file
+			else
+				echo "Erasing duplicate line..." >> $stream_output_file
+			fi
+		else
+			if ! /usr/bin/grep -q "$trimmed_line_cksum" $stream_checksum_file 2> /dev/null; then
+				echo "$line" >> $stream_output_file
+				echo "$trimmed_line_cksum" >> $stream_checksum_file
+			else
+				echo "Erasing duplicate line..." >> $stream_output_file
+			fi
+		fi
+	done
+}
+
+
+PURR_THREAD_CLEANUP="purr_thread_cleanup"
+PURR_THREAD_START="purr_thread_start"
+PURR_THREAD_STOP="purr_thread_stop"
+
+__purr_background_handler() {
+	__purr_start_streams
+
+	while read line; do
+		if [ $line = "$PURR_THREAD_STOP" ]; then
+			__purr_cleanup_streams
+		elif [ $line = "$PURR_THREAD_START" ]; then
+			__purr_start_streams
+		elif [ $line = "$PURR_THREAD_CLEANUP" ]; then
+			__purr_cleanup_streams
+			exit 0
+		fi
+	done < <(/usr/bin/tail -f $purr_background_handler_cache 2>/dev/null)
+}
+
+
+__purr_start_stream() {
+	echo "$PURR_THREAD_START" >>$purr_background_handler_cache
+}
+
+__purr_thread_stop_stream() {
+	echo "$PURR_THREAD_STOP" >>$purr_background_handler_cache
+}
+
+__purr_cleanup() {
+	local dir_name=$1
+
+	if [ -f $purr_background_handler_cache ]; then
+		echo "$PURR_THREAD_CLEANUP" >>$purr_background_handler_cache
+	fi
+
+	if [ -d $dir_name ]; then
+		rm -r $dir_name &>/dev/null
+	fi
+}
+
+__wait_for_input_streams() {
+	purr_timeout 0.1 wait_for_file $purr_verbose_input_cache
+	purr_timeout 0.1 wait_for_file $purr_info_input_cache
+	purr_timeout 0.1 wait_for_file $purr_warning_input_cache
+	purr_timeout 0.1 wait_for_file $purr_error_input_cache
+}
+
+
+__purr_create_files() {
+	local dir_name=$1
+
+	if [ -z $dir_name ]; then
+		echo "Can't parse directory name."
+		exit 1
+	fi
+
+	purr_input_cache="$dir_name/purr-input-cache.purr"
+	/usr/bin/touch $purr_input_cache
+
+	purr_instruction_cache="$dir_name/instructions.purr"
+	/usr/bin/touch $purr_instruction_cache
+
+	purr_editor_input_cache="$dir_name/editor-input-cache.purr"
+	/usr/bin/touch $purr_editor_input_cache
+
+	purr_input_stream_cache="$dir_name/input-stream.purr"
+	/usr/bin/touch $purr_input_stream_cache
+
+	purr_stream_header_cache="$dir_name/stream-header.purr"
+	/usr/bin/touch $purr_stream_header_cache
+
+	purr_query_cache="$dir_name/query-cache.purr"
+	/usr/bin/touch $purr_query_cache
+
+	purr_sort_header_cache="$dir_name/sort-header.purr"
+	/usr/bin/touch $purr_sort_header_cache
+
+	purr_slock_cache="$dir_name/scroll-lock-header.purr"
+	/usr/bin/touch $purr_slock_cache
+
+	purr_serial_cache="$dir_name/serial-cache.purr"
+	/usr/bin/touch $purr_serial_cache
+
+	purr_connection_state_cache="$dir_name/connection-state.purr"
+	/usr/bin/touch $purr_connection_state_cache
+
+	purr_preview_visible_cache="$dir_name/preview-visibility-cache.purr"
+	/usr/bin/touch $purr_preview_visible_cache
+
+	purr_preview_command_cache="$dir_name/preview-command-cache.purr"
+	/usr/bin/touch $purr_preview_command_cache
+
+	purr_background_handler_cache="$dir_name/background-handler-IO.purr"
+	/usr/bin/touch $purr_background_handler_cache
+
+	purr_accept_command_cache="$dir_name/purr_accept_command_cache.purr"
+	/usr/bin/touch $purr_accept_command_cache
+
+	purr_time_start_cache="$dir_name/purr_time_start_cache.purr"
+	/usr/bin/touch $purr_time_start_cache
+
+	purr_unique_cache="$dir_name/purr_unique_cache.purr"
+	/usr/bin/touch $purr_unique_cache
+
+	purr_error_input_cache="$dir_name/error-input-cache.purr"
+	purr_warning_input_cache="$dir_name/warning-input-cache.purr"
+	purr_info_input_cache="$dir_name/info-input-cache.purr"
+	purr_verbose_input_cache="$dir_name/verbose-input-cache.purr"
+
+	purr_error_unique_checksum_cache="$dir_name/error-unique-checksum-cache.purr"
+	purr_warning_unique_checksum_cache="$dir_name/warning-unique-checksum-cache.purr"
+	purr_info_unique_checksum_cache="$dir_name/info-unique-checksum-cache.purr"
+	purr_verbose_unique_checksum_cache="$dir_name/verbose-unique-checksum-cache.purr"
+
+	purr_error_input_cache_unique="$dir_name/error-unique-input-cache.purr"
+	purr_warning_input_cache_unique="$dir_name/warning-unique-input-cache.purr"
+	purr_info_input_cache_unique="$dir_name/info-unique-input-cache.purr"
+	purr_verbose_input_cache_unique="$dir_name/verbose-unique-input-cache.purr"
+
+	purr_history_cache="/var/tmp/history.purr"
+	/usr/bin/touch $purr_history_cache
+
+	purr_history_counter_cache="$dir_name/history-counter.purr"
+	/usr/bin/touch $purr_history_counter_cache
+
+	purr_history_pointer_cache="$dir_name/history-pointer.purr"
+	/usr/bin/touch $purr_history_pointer_cache
+
+	purr_spc_purpose_cache="$dir_name/spc-purpose-cache.purr"
+	/usr/bin/touch $purr_spc_purpose_cache
+
+	purr_adb_cache="$dir_name/adb-cache.purr"
+	/usr/bin/touch $purr_adb_cache
+}
+
+__purr_print_instructions() {
+	local purr_instruction_cache=$1
+
+	echo "\x1b[1;1m\x1b[1;4mInstructions\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-p:\x1b[1;0m Toggle this preview window on and off" >>$purr_instruction_cache
+	echo "  \x1b[1;1mShift-up/down:\x1b[1;0m Scroll up/down in the instruction window" >>$purr_instruction_cache
+	echo "  \x1b[1;1mEscape:\x1b[1;0m Exit" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mStream Modes\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mF1/2/3/4:\x1b[1;0m Show Error/Warning/Info/Verbose streams, respectively" >>$purr_instruction_cache
+	echo "  \x1b[1;1mF5:\x1b[1;0m Show the serial selection menu" >>$purr_instruction_cache
+	echo "  \x1b[1;1mF6:\x1b[1;0m Enter ADB command mode" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-r:\x1b[1;0m Show the history menu" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mPreview\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-p:\x1b[1;0m Toggles the preview window on/off" >>$purr_instruction_cache
+	echo "  \x1b[1;1mF7:\x1b[1;0m Shows the instruction preview" >>$purr_instruction_cache
+	echo "  \x1b[1;1mF9:\x1b[1;0m Shows line context in the current stream" >>$purr_instruction_cache
+	echo "  \x1b[1;1mF10:\x1b[1;0m Shows line context in the verbose stream" >>$purr_instruction_cache
+	echo "  \x1b[1;1mShift-up/down:\x1b[1;0m Scroll up/down in the preview window" >>$purr_instruction_cache
+	echo "  \x1b[1;1mHome/End:\x1b[1;0m Scroll one page in the preview window" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mNavigation\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-s:\x1b[1;0m Enable Scroll Lock" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-j:\x1b[1;0m Toggle between Chronological and Relevance sort" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-f:\x1b[1;0m Go to selected line" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-alt-s:\x1b[1;0m Add selected lines tag to the query" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-alt-d:\x1b[1;0m Remove selected lines tag to the query, or adds inverse tag if it doesn't exist" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mADB Controls\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-w:\x1b[1;0m Issues 'adb logcat -c' to permanently wipe device logs" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-t:\x1b[1;0m Trims logs to the selected entries timestamp" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-alt-t:\x1b[1;0m Removes any applied trim" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-h:\x1b[1;0m In ADB command mode, attempts to get the help menu of a command" >>$purr_instruction_cache
+	echo "  \x1b[1;1mEnter:\x1b[1;0m  In ADB command mode, execute the current query as:" >>$purr_instruction_cache
+	echo "          'adb -s \$serial shell \$query'" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mHistory\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mAlt-shift-up/down:\x1b[1;0m Scroll up/down through history items" >>$purr_instruction_cache
+	echo "  \x1b[1;1mEnter:\x1b[1;0m Select an item from the history menu" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mSerial\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mEnter:\x1b[1;0m Select an item from the serial menu" >>$purr_instruction_cache
+	echo "" >>$purr_instruction_cache
+	echo "\x1b[1;1m\x1b[1;4mMisc.\x1b[1;0m" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-v:\x1b[1;0m Open selected line in text editor" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-y:\x1b[1;0m Copy selected lines" >>$purr_instruction_cache
+	echo "  \x1b[1;1mTab:\x1b[1;0m Select multiple lines" >>$purr_instruction_cache
+	echo "  \x1b[1;1mCtrl-\:\x1b[1;0m Print simple device information to the clipboard and start a background process to save a bug report to /tmp/bug-report-\$device-\$date.zip." >>$purr_instruction_cache
+}
+
+
+purr_timeout() {
+	PERL_BADLANG=0 perl -e 'alarm shift; exec @ARGV' "$@"
+}
+
+wait_for_file() {
+	while ! [ -s $1 ]; do
+		sleep 0.01
+	done
+}
+
+
+REQUIRED_FZF_VERSION="0.40.0"
+
+VERSION="2.0.1"
+
+USAGE=("purr"
+	"\n[-q: Sets the default query]"
+	"\n[-i: Disables the instruction header]"
+	"\n[-a: Set custom adb parameters as a string]"
+	"\n[-f: Set custom fzf parameters as a string]"
+	"\n[-v: Get version number]"
+	"\n[-V: Get version of all dependencies]")
+
+__purr_get_composite_version() {
+	composite_version="Purr: $VERSION"
+
+	if ! command -v fzf &>/dev/null; then
+		composite_version="$composite_version fzf: Not Installed"
+	else
+		composite_version="$composite_version fzf: $(fzf --version)"
+	fi
+
+	if [ -z $ZSH_VERSION ]; then
+		composite_version="$composite_version zsh: Not Installed"
+	else
+		composite_version="$composite_version zsh: $ZSH_VERSION"
+	fi
+
+	echo $composite_version
+}
+
+instruction_flag=true
+adb_cmd_loc="adb"
+while getopts ':A:a:f:ivVq:' flags; do
+	case $flags in
+	q) query_string="--query=${OPTARG}" ;;
+	a) custom_adb_params=${OPTARG} ;;
+	A) adb_cmd_loc=${OPTARG} ;;
+	f) custom_fzf_params=${OPTARG} ;;
+	i) instruction_flag=false ;;
+	v)
+		echo $VERSION
+		exit 0
+		;;
+	V)
+		echo "$(__purr_get_composite_version)"
+		exit 0
+		;;
+	*)
+		echo $USAGE
+		exit 1
+		;;
+	esac
+done
+
+
+__purr_check_env() {
+
+	if [ -n "$ZSH_VERSION" ]; then
+		: # Left blank for clarity.
+	elif [ -n "$BASH_VERSION" ]; then
+		echo >&2 "Bash detected. Purr will malfunction. Aborting."
+		exit 51
+	else
+		echo >&2 "Unsure of shell. Purr may malfunction. Aborting."
+		exit 51
+	fi
+
+	if ! type $adb_cmd_loc &>/dev/null; then
+		echo >&2 "purr requires ADB to be installed for correct operation. Aborting."
+		exit 52
+	fi
+
+	autoload is-at-least
+	if ! command -v fzf &>/dev/null || ! is-at-least $REQUIRED_FZF_VERSION $(fzf --version | cut -d' ' -f1); then
+		echo >&2 "purr requires fzf 0.40.0 or higher to be installed for correct operation. Aborting."
+		exit 53
+	fi
+
+	if ! command -v perl &>/dev/null; then
+		echo >&2 "purr requires perl to be installed for correct operation. Aborting."
+		exit 54
+	fi
+}
+
+__purr_check_env
+
+
+dir_name=$(mktemp -d /tmp/purr.XXXXXXXXXX)
+
+trap "__purr_cleanup $dir_name" INT TERM
+
+SHELL=$(which zsh)
+
+__purr_create_files $dir_name
+
+if [ -n "${TMUX-}" ]; then
+	pane_active_tty=$(tmux list-panes -F "#{pane_active} #{pane_tty}" | awk '$1=="1" { print $2 }')
+	if [ ! -z $SSH_TTY ]; then
+		target_tty="${SSH_TTY:-$pane_active_tty}"
+	else
+		target_tty="${TTY:-$pane_active_tty}"
+	fi
+else
+	target_tty="$TTY"
+fi
+
+
+pick_serial() {
+
+	if [ ! -z $ANDROID_SERIAL ]; then
+		__pick_serial_wait $ANDROID_SERIAL
+		echo $ANDROID_SERIAL
+		return
+	fi
+
+	local adb_devices=""
+	local device_count=""
+	while [ -z $adb_devices ]; do
+		__pick_serial_wait
+
+		adb_devices=$(eval "$adb_cmd_loc devices | tail -n +2 | sed '/^\s*$/d' | sort")
+		device_count=$(echo $adb_devices | /usr/bin/wc -l)
+
+		local disconnected_devices=$(/usr/bin/grep ".*offline.*" <<<$adb_devices | sort)
+		local disconnected_count=$(/usr/bin/grep -c ".*offline.*" <<<$adb_devices | sort)
+
+		if [ $disconnected_count -eq $device_count ]; then
+			echo >&2 "All available devices are disconnected. Waiting..."
+			sleep 2
+			__pick_serial_wait
+
+			adb_devices=""
+			device_count=""
+		elif [ $disconnected_count -ne 0 ]; then
+			echo >&2 "Skipped offline devices:"
+			echo >&2 $disconnected_devices
+			adb_devices=$(/usr/bin/grep -v ".*offline.*" <<<$adb_devices | sort)
+		fi
+	done
+
+	if [ $device_count -eq 1 ]; then
+		local stripped_device=$(echo "$adb_devices" | xargs)
+	else
+		if command -v rg &>/dev/null; then
+			local stripped_device=$(FZF_DEFAULT_COMMAND="echo \"$adb_devices\"" fzf $fzfpnh "--height=25%" --preview-window=right,50%,wrap \
+				"--preview=$adb_cmd_loc -s \$(cut -f1 <<< {}) shell getprop | rg '(ro.bootimage.build.date]|ro.product.name|ro.bootimage.build.version.incremental])' | awk -F ']:' '{print \$2}' | sed 's/]//g' | sed 's/\[//g' " | xargs)
+		else
+			local stripped_device=$(FZF_DEFAULT_COMMAND="echo \"$adb_devices\"" fzf $fzfpnh "--height=25%" | xargs)
+		fi
+	fi
+
+	if [ -z $stripped_device ]; then
+		echo >&2 "No serial number selected."
+		exit 18
+	fi
+
+	echo "$(cut -d' ' -f1 <<<$stripped_device)" # Grab the serial from selection.
+}
+
+__pick_serial_wait() {
+	if [ ! -z $1 ]; then
+		local serial_stmt="-s $1"
+	fi
+
+	purr_timeout 1 "$adb_cmd_loc $serial_stmt wait-for-device" 2>/dev/null
+	ret=$?
+
+	if [ $ret -eq 124 ] || [ $ret -eq 142 ]; then
+		echo >&2 "Waiting on a device to connect..."
+
+		eval "$adb_cmd_loc $serial_stmt wait-for-device"
+
+		echo >&2 "Device connected."
+	fi
+}
+
+
+update_serial_cmd="serial=\$(cat $purr_serial_cache);"
+
+__purr_update_serial() {
+	serial=$(cat $purr_serial_cache 2>/dev/null)
+}
+
+
+serial=$(pick_serial)
+if [ $? -ne 0 ]; then
+	echo $serial
+	__purr_cleanup $dir_name
+	exit 61
+fi
+
+echo $serial >$purr_serial_cache
+
+
+stream_error_msg="\x1b[1;31mError\x1b[1;0m\t\t"
+stream_warn_msg="\x1b[1;33mWarning\x1b[1;0m\t\t"
+stream_info_msg="\x1b[1;32mInfo\x1b[1;0m\t\t"
+stream_verbose_msg="\x1b[1;34mVerbose\x1b[1;0m\t\t"
+stream_focus_msg="\x1b[1;35mFocus\x1b[1;0m\t\t"
+stream_adb_msg="\x1b[1;35mADB\x1b[1;0m\t\t"
+
+slock_on_msg="\x1b[1;31mOn   \x1b[1;0m"
+slock_off_msg="\x1b[1;32mOff  \x1b[1;0m"
+
+unique_on_msg="\x1b[1;31mOn   \x1b[1;0m"
+unique_off_msg="\x1b[1;32mOff  \x1b[1;0m"
+
+sorting_chronological="\x1b[1;35mChronological\x1b[1;0m\t"
+sorting_relevance="\x1b[1;36mRelevance\x1b[1;0m\t\t"
+
+fzf_params=('--exact' '--ansi' '--tac' '--no-sort' '--multi' $query_string)
+fzf_pretty=('--info' 'inline' '--pointer' '>')
+fzf_header=('--header-first')
+label_header="     Date   $(date +"%Z %z")    PID   TID"
+fzf_label=('--border-label' $label_header '--border-label-pos' '1:top')
+fzf_gui=('--border' '--margin' '0.5%' '--padding' '0.5%' '--height' '100%')
+
+fzfpnh=($fzf_params $fzf_pretty $fzf_gui $custom_fzf_params $fzf_label)
+fzfp=($fzfpnh $fzf_header)
+
+teecmd=("|" 'tee' $purr_input_cache)
+check_adb_status=("|" 'grep' '-q' '-v' '"Lost connection to device."')
+
+load_generic_header=(
+	"echo -n \"Stream: \";"
+	"cat $purr_stream_header_cache | tr -d \"\n\";"
+	"echo -n \"Sort: \";"
+	"cat $purr_sort_header_cache | tr -d \"\n\";"
+	"echo -n \"Scroll Lock: \";"
+	"cat $purr_slock_cache | tr -d \"\n\";"
+	"echo -n \"Unique: \";"
+	"cat $purr_unique_cache | tr -d \"\n\";"
+	"echo \"\x1b[1;2;37mPurr: Happy Logcat\x1b[1;0m\";"
+)
+
+load_input_stream=(
+	"if /usr/bin/grep -q \"History\" $purr_stream_header_cache; then"
+		"cat $purr_input_stream_cache | zsh;"
+	"elif /usr/bin/grep -q \"Serial\" $purr_stream_header_cache; then"
+		"cat $purr_input_stream_cache | zsh;"
+	"elif /usr/bin/grep -q \"ADB\" $purr_stream_header_cache; then"
+		"if /usr/bin/grep -q \"$adb_cmd_loc -s\" $purr_input_stream_cache; then"
+			"echo \"Command: \$(cat $purr_input_stream_cache)\";"
+		"fi;"
+		"cat $purr_input_stream_cache | zsh |& tee;" # Prints all streams to stdout.
+	'else;'
+		$update_serial_cmd
+		"if $adb_cmd_loc devices | /usr/bin/grep \$serial &> /dev/null; then"
+			"echo \"\x1b[1;32m  \$serial => \x1b[1;0m\" >| $purr_connection_state_cache;"
+		'else;'
+			"echo \"\x1b[1;31m  \$serial != \x1b[1;0m\" >| $purr_connection_state_cache;"
+		'fi;'
+
+		"cat $purr_input_stream_cache | zsh;"
+	"fi;"
+)
+
+instruction_preview_command="cat $purr_instruction_cache"
+instruction_preview_window="right,50%,nohidden,nofollow,wrap,<55(up,50%,nohidden,nofollow,wrap)"
+instruction_preview_window_hidden="right,50%,hidden,nofollow,wrap,<55(up,50%,hidden,nofollow,wrap)"
+hint_preview=("change-preview($instruction_preview_command)+change-preview-window($instruction_preview_window)+change-preview-label()+refresh-preview")
+
+set_stream_error="echo \"/usr/bin/tail -F -n 99999999 $purr_error_input_cache $teecmd\" >| $purr_input_stream_cache;"
+set_stream_warning="echo \"/usr/bin/tail -F -n 99999999 $purr_warning_input_cache $teecmd\" >| $purr_input_stream_cache;"
+set_stream_info="echo \"/usr/bin/tail -F -n 99999999 $purr_info_input_cache $teecmd\" >| $purr_input_stream_cache;"
+set_stream_verbose="echo \"/usr/bin/tail -F -n 99999999 $purr_verbose_input_cache $teecmd\" >| $purr_input_stream_cache;"
+
+set_stream_error_unique="echo \"/usr/bin/tail -F -n 99999999 $purr_error_input_cache_unique $teecmd\" >| $purr_input_stream_cache;"
+set_stream_warning_unique="echo \"/usr/bin/tail -F -n 99999999 $purr_warning_input_cache_unique $teecmd\" >| $purr_input_stream_cache;"
+set_stream_info_unique="echo \"/usr/bin/tail -F -n 99999999 $purr_info_input_cache_unique $teecmd\" >| $purr_input_stream_cache;"
+set_stream_verbose_unique="echo \"/usr/bin/tail -F -n 99999999 $purr_verbose_input_cache_unique $teecmd\" >| $purr_input_stream_cache;"
+
+set_stream_adb="echo \"/usr/bin/tail -F -n 99999999 $purr_adb_cache $teecmd\" >| $purr_input_stream_cache;"
+
+set_header_error="echo \"$stream_error_msg\" >| $purr_stream_header_cache;"
+set_header_warning="echo \"$stream_warn_msg\" >| $purr_stream_header_cache;"
+set_header_info="echo \"$stream_info_msg\" >| $purr_stream_header_cache;"
+set_header_verbose="echo \"$stream_verbose_msg\" >| $purr_stream_header_cache;"
+set_header_focus="echo \"$stream_focus_msg\" >| $purr_stream_header_cache;"
+set_header_adb="echo \"$stream_adb_msg\" >| $purr_stream_header_cache;"
+
+set_sort_chrono="echo \"$sorting_chronological\" >| $purr_sort_header_cache;"
+set_sort_relevance="echo \"$sorting_relevance\" >| $purr_sort_header_cache;"
+
+save_current_query="echo {q} > $purr_query_cache;"
+
+set_slock_on="echo \"$slock_on_msg\" >| $purr_slock_cache;"
+set_slock_off="echo \"$slock_off_msg\" >| $purr_slock_cache;"
+
+set_unique_on="echo \"$unique_on_msg\" >| $purr_unique_cache;"
+set_unique_off="echo \"$unique_off_msg\" >| $purr_unique_cache;"
+
+is_slock_on="/usr/bin/grep -q  \"On\" \"$purr_slock_cache\""
+
+is_unique_on="/usr/bin/grep -q  \"On\" \"$purr_unique_cache\""
+
+is_sort_chrono="/usr/bin/grep -q  \"Chronological\" \"$purr_sort_header_cache\""
+
+inject_empty_line="echo \"\";"
+
+stream_history_msg="\x1b[1;36mHistory\x1b[1;0m\t\t"
+stream_serial_msg="\x1b[1;36mSerial\x1b[1;0m\t\t"
+
+set_stream_history="echo \"cat $purr_history_cache\" >| $purr_input_stream_cache;"
+set_header_history="echo \"$stream_history_msg\" >| $purr_stream_header_cache;"
+
+set_stream_serial="echo \"$adb_cmd_loc devices | /usr/bin/tail -n +2 |/usr/bin/sed '/^\s*$/d' | /usr/bin/sort | awk '{print \$ 1}'\" >| $purr_input_stream_cache;"
+set_header_serial="echo \"$stream_serial_msg\" >| $purr_stream_header_cache;"
+
+hint_preview_window="top,70%,nohidden,wrap,+200/2"
+hint_preview_window_hidden="top,70%,hidden,wrap,+200/2"
+
+start_stream="echo \"$PURR_THREAD_START\" >> $purr_background_handler_cache;"
+stop_stream="echo \"$PURR_THREAD_STOP\" >> $purr_background_handler_cache;"
+
+
+__purr_set_start_preview() {
+	prev_preview=$(cat $purr_preview_command_cache)
+	prev_preview_vis=$(cat $purr_preview_visible_cache)
+
+	if [ "$prev_preview" = "instruction" ]; then
+		if [ "$prev_preview_vis" = "hidden" ]; then
+			starter_preview_command=($instruction_preview_starter_hidden)
+		elif [ "$prev_preview_vis" = "nohidden" ]; then
+			starter_preview_command=($instruction_preview_starter)
+		fi
+	elif [ "$prev_preview" = "verbose" ]; then
+		if [ "$prev_preview_vis" = "hidden" ]; then
+			starter_preview_command=($verbose_hint_preview_starter_hidden)
+		elif [ "$prev_preview_vis" = "nohidden" ]; then
+			starter_preview_command=($verbose_hint_preview_starter)
+		fi
+	elif [ "$prev_preview" = "current" ]; then
+		if [ "$prev_preview_vis" = "hidden" ]; then
+			starter_preview_command=($current_hint_preview_starter_hidden)
+		elif [ "$prev_preview_vis" = "nohidden" ]; then
+			starter_preview_command=($current_hint_preview_starter)
+		fi
+	elif [ $instruction_flag = "true" ]; then
+		starter_preview_command=($instruction_preview_starter)
+		echo "instruction" >$purr_preview_command_cache
+		echo "nohidden" >$purr_preview_visible_cache
+	else
+		starter_preview_command=($verbose_hint_preview_starter_hidden)
+		echo "verbose" >$purr_preview_command_cache
+		echo "hidden" >$purr_preview_visible_cache
+	fi
+}
+
+__purr_set_start_command() {
+	if /usr/bin/grep -q "History" $purr_stream_header_cache; then
+		start_command=('--bind' "start:hide-preview+transform-header($load_generic_header)+$history_command_suite")
+	elif /usr/bin/grep -q "ADB" $purr_stream_header_cache; then
+		start_command=('--bind' "start:hide-preview+transform-header($load_generic_header)+$adb_command_suite")
+
+		if [ "$cached_query" = "Give me cat facts!" ]; then
+			adb_query_cmd="cat $purr_spc_purpose_cache"
+		else
+			adb_query_cmd="$adb_cmd_loc -s $serial shell $cached_query"
+		fi
+
+		cached_query=""
+
+		echo $adb_query_cmd >$purr_input_stream_cache
+	else
+		start_command=('--bind' "start:transform-header($load_generic_header)+$default_command_suite")
+	fi
+}
+
+__purr_start_editor() {
+
+	if [ -z $accepted ]; then
+		continue
+	fi
+
+	if [ $(echo $accepted | wc -l) -eq 1 ]; then
+		if command -v rg &>/dev/null; then
+			rg --color=always -F "$accepted" $purr_input_cache -C 500 >$purr_editor_input_cache
+		else
+			/usr/bin/grep --color=always -F "$accepted" $purr_input_cache -C 500 >$purr_editor_input_cache
+		fi
+	else
+		echo $accepted >$purr_editor_input_cache
+	fi
+
+	if [ $EDITOR_PURR ]; then
+		eval "$EDITOR_PURR $purr_editor_input_cache"
+	elif [ $EDITOR ]; then
+		eval "$EDITOR $purr_editor_input_cache"
+	else
+		echo "No editor detected. Overriding to vim."
+		echo "Purr will read from \$EDITOR_PURR, then \$EDITOR, then default to vim."
+		vim +501 $purr_editor_input_cache
+	fi
+}
+
+__purr_update_prompt() {
+	fzf_prompt=('--prompt' "  $serial -> ")
+}
+
+
+if [ ! -z $COPY_PROGRAM ]; then
+	purr_copy_program="$COPY_PROGRAM"
+elif command -v pbcopy &>/dev/null && [ -z $SSH_TTY ]; then
+	purr_copy_program="$(which pbcopy)"
+elif command -v wl-copy &>/dev/null && [ $XDG_SESSION_TYPE = "wayland" ]; then
+	purr_copy_program="wl-copy"
+elif command -v xsel &>/dev/null && [ ! -z $DISPLAY ]; then
+	purr_copy_program="xsel --clipboard --input"
+elif command -v osc52_copy &>/dev/null; then
+	purr_copy_program="osc52_copy"
+fi
+
+if [ -z $purr_copy_program ]; then
+	echo >&2 "Could not identify a known copy program!"
+	echo >&2 "You can set a copy program by exporting the 'COPY_PROGRAM' variable."
+	echo >&2 "If your terminal supports it, an OSC52 program is bundled in bundled/osc52_copy."
+	echo >&2 "purr will continue, but copy commands will not work."
+fi
+
+
+__purr_print_instructions $purr_instruction_cache
+
+echo "\x1b[1;32m  $serial => \x1b[1;0m" >$purr_connection_state_cache
+echo $stream_verbose_msg >|$purr_stream_header_cache
+echo $slock_off_msg >|$purr_slock_cache
+echo $unique_off_msg >|$purr_unique_cache
+echo $sorting_chronological >|$purr_sort_header_cache
+echo "/usr/bin/tail -F -n 99999999 $purr_verbose_input_cache $teecmd" >|$purr_input_stream_cache
+echo -1 >|$purr_history_pointer_cache
+echo 0 >|$purr_history_counter_cache
+
+bind_commands=()
+
+cat <<- "END" > $purr_spc_purpose_cache
+							_                    )
+							( \_                  |
+				_,-'/'_ , ;-.               \
+.                  ,-'  O  ( ` .<= `.              \
+`.              ,'o O o 0     o , ,'-.           ,-'
+`. `.          ,'o O 0/ 0 )___,.--','"""`--._,,--'
+__>. \       ,: ' o O/. o/  __,`--'-.                _,-'
+-._   `-``._/o 0 0(),| o/-''         `-.__      __,-'|
+)_.   ` / ~':o ,-.\o \                 `----'     |
+	`-.-| 0 o.`.\ /o|`.|                           |
+		/o . ;.'`o|'|o \                           /
+		|`,,'  `._/0|\',\                         /
+		|`.|`._/ \o'||o |                         |
+		/,`/       )./|.'|                         /
+---------|.|--------\,\`--'-------------------------\
+		|O|         \``.                           |
+		|o|          `._)                          \
+		|(|                                         \
+		|O|                                          |
+hh     |)|                                          |
+		/(|                                          |
+		(o/                                           |
+		\)                                           /
+
+Cats who can purr can't roar, and vice-versa.
+Cheetahs can't roar, but they can meow and purr.
+This is because cheetahs are the cutest kittens at heart.
+This has been Cat Facts with Alfred.
+END
+
+
+default_command_suite="unbind(double-click)"
+adb_command_suite="unbind(double-click)"
+history_command_suite="unbind(double-click)"
+serial_command_suite="unbind(double-click)"
+
+rebind_in_default_command_suite() {
+	default_command_suite="$default_command_suite+rebind($1)"
+}
+
+rebind_in_adb_command_suite() {
+	adb_command_suite="$adb_command_suite+rebind($1)"
+}
+
+rebind_in_history_command_suite() {
+	history_command_suite="$history_command_suite+rebind($1)"
+}
+
+rebind_in_serial_command_suite() {
+	serial_command_suite="$serial_command_suite+rebind($1)"
+}
+
+unbind_in_default_command_suite() {
+	default_command_suite="$default_command_suite+unbind($1)"
+}
+
+unbind_in_adb_command_suite() {
+	adb_command_suite="$adb_command_suite+unbind($1)"
+}
+
+unbind_in_history_command_suite() {
+	history_command_suite="$history_command_suite+unbind($1)"
+}
+
+unbind_in_serial_command_suite() {
+	serial_command_suite="$serial_command_suite+unbind($1)"
+}
+
+
+cmd_clipboard=(
+	"execute-silent("
+		"lines=\"{+}\";"
+		'eval "line_array=($lines)";'
+		'new_line_array=$(printf "%s\n" "${line_array[@]}");'
+		"echo \"\$new_line_array[@]\" | $purr_copy_program > $target_tty;"
+	')+clear-selection'
+)
+bind_commands+=('--bind' "ctrl-y:$cmd_clipboard")
+rebind_in_default_command_suite "ctrl-y"
+rebind_in_adb_command_suite "ctrl-y"
+unbind_in_history_command_suite "ctrl-y"
+unbind_in_serial_command_suite "ctrl-y"
+
+cmd_bug_report=(
+	'execute-silent('
+		$update_serial_cmd
+		'info_array=("\`\`\`");'
+		'info_array+=("\nFingerprint:" $(' "$adb_cmd_loc" ' -s $serial shell getprop | grep "ro.build.fingerprint"));'
+		'info_array+=("\nSDK Version:" $(' "$adb_cmd_loc" ' -s $serial shell getprop | grep "ro.build.version.sdk"));'
+		'info_array+=("\nGMS Version:" $(' "$adb_cmd_loc" ' -s $serial shell dumpsys package com.google.android.gms | grep "versionName" | /usr/bin/head -n 1));'
+		'info_array+=("\n\`\`\`");'
+		"echo \"\$info_array\" | $purr_copy_program > $target_tty;"
+		'{'
+			'bug_report_name="/tmp/bugreport-$(' "$adb_cmd_loc" ' -s $serial shell getprop ro.product.vendor.name)-$(' "$adb_cmd_loc" ' -s $serial shell getprop ro.product.vendor.device)-$(' "$adb_cmd_loc" ' -s $serial shell getprop ro.vendor.build.version.sdk)-$(date +"%d-%m-%Y::%H:%M:%S")";'
+			'bug_report_error=$(' "$adb_cmd_loc" ' -s $serial bugreport $bug_report_name);'
+			'if [ ! -f "${bug_report_name}.zip" ]; then '
+				'echo $bug_report_error > "${bug_report_name}_err";'
+			'fi;'
+		'} &'
+	')+clear-selection'
+)
+bind_commands+=('--bind' "ctrl-\:$cmd_bug_report")
+rebind_in_default_command_suite "ctrl-\\"
+rebind_in_adb_command_suite "ctrl-\\"
+rebind_in_history_command_suite "ctrl-\\"
+rebind_in_serial_command_suite "ctrl-\\"
+
+
+history_input=(
+	'execute-silent('
+		'{'
+			"seen_counter=\$(cat $purr_history_counter_cache);"
+			'$(( seen_counter += 1 ));'
+			"echo \$seen_counter >| $purr_history_counter_cache;"
+			'sleep 3.5;'
+			"cur_counter=\$(cat $purr_history_counter_cache);"
+			'if [ $seen_counter -eq $cur_counter ]; then'
+				'query={q};'
+				"query=\$(echo \"\$query\" | xargs | tr -s ' ');"
+				'if [ -z "$query" ]; then'
+					':;'
+				"elif /usr/bin/grep -cim1 -x \" *\$query *\" $purr_history_cache; then"
+					"line=\$(/usr/bin/grep -n -x \" *\$query *\" $purr_history_cache | cut -d : -f 1);"
+					"/usr/bin/sed -i \"\${line}d\" $purr_history_cache;"
+					"echo \$query >> $purr_history_cache;"
+					"echo 0 >| $purr_history_pointer_cache;"
+				'else;'
+					"echo \$query >> $purr_history_cache;"
+					"echo 0 >| $purr_history_pointer_cache;"
+				'fi;'
+			'fi;'
+		'} &'
+	')'
+)
+bind_commands+=('--bind' "change:$history_input")
+
+history_up=(
+	'transform-query('
+		"line_count=\$(/usr/bin/wc -l < $purr_history_cache);"
+		"cur_pointer=\$(cat $purr_history_pointer_cache);"
+		'$(( cur_pointer += 1 ));'
+		'if [ $cur_pointer -lt $line_count ]; then'
+			"echo \$cur_pointer >| $purr_history_pointer_cache;"
+		'else;'
+			'$(( cur_pointer -= 1));'
+		'fi;'
+		'line_to_get="$((line_count - cur_pointer))";'
+		"/usr/bin/sed -n -e \${line_to_get}p $purr_history_cache;"
+	')'
+)
+bind_commands+=('--bind' "alt-shift-up:$history_up")
+rebind_in_default_command_suite "alt-shift-up"
+rebind_in_adb_command_suite "alt-shift-up"
+rebind_in_history_command_suite "alt-shift-up"
+rebind_in_serial_command_suite "alt-shift-up"
+
+history_down=(
+	'transform-query('
+		"line_count=\$(/usr/bin/wc -l < $purr_history_cache);"
+		"cur_pointer=\$(cat $purr_history_pointer_cache);"
+		'$(( cur_pointer -= 1 ));'
+		'if [ $cur_pointer -ge -1 ]; then'
+			"echo \$cur_pointer >| $purr_history_pointer_cache;"
+		'else;'
+			'$(( cur_pointer += 1));'
+		'fi;'
+		'line_to_get="$((line_count - cur_pointer))";'
+		"/usr/bin/sed -n -e \${line_to_get}p $purr_history_cache;"
+	')'
+)
+bind_commands+=('--bind' "alt-shift-down:$history_down")
+rebind_in_default_command_suite "alt-shift-down"
+rebind_in_adb_command_suite "alt-shift-down"
+rebind_in_history_command_suite "alt-shift-down"
+rebind_in_serial_command_suite "alt-shift-down"
+
+
+wipe_cmd=(
+	'execute-silent('
+		$stop_stream
+		$update_serial_cmd
+		"$adb_cmd_loc -s \$serial logcat -c;"
+		$set_slock_off
+		"echo 'wipe' > $purr_accept_command_cache;"
+		$save_current_query
+		$start_stream
+	')+accept'
+)
+bind_commands+=('--bind' "ctrl-w:$wipe_cmd")
+rebind_in_default_command_suite "ctrl-w"
+unbind_in_adb_command_suite "ctrl-w"
+unbind_in_history_command_suite "ctrl-w"
+unbind_in_serial_command_suite "ctrl-w"
+
+trim_cmd=(
+	'execute-silent('
+		"trimmed_time=\$(echo {} | cut -d' ' -f1-2);"
+		'if [ ! -z $trimmed_time ]; then'
+			$stop_stream
+			$update_serial_cmd
+			$set_slock_off
+			"echo 'trim' > $purr_accept_command_cache;"
+			"echo \$trimmed_time > $purr_time_start_cache;"
+			$save_current_query
+			$start_stream
+		'fi;'
+	')+accept-non-empty'
+)
+bind_commands+=('--bind' "ctrl-t:$trim_cmd")
+rebind_in_default_command_suite "ctrl-t"
+unbind_in_adb_command_suite "ctrl-t"
+unbind_in_history_command_suite "ctrl-t"
+unbind_in_serial_command_suite "ctrl-t"
+
+untrim_cmd=(
+	'execute-silent('
+		$stop_stream
+		$update_serial_cmd
+		$set_slock_off
+		"echo 'trim' > $purr_accept_command_cache;"
+		"echo '' > $purr_time_start_cache;"
+		$save_current_query
+		$start_stream
+	')+accept'
+)
+bind_commands+=('--bind' "ctrl-alt-t:$untrim_cmd")
+rebind_in_default_command_suite "ctrl-alt-t"
+unbind_in_adb_command_suite "ctrl-alt-t"
+unbind_in_history_command_suite "ctrl-alt-t"
+unbind_in_serial_command_suite "ctrl-alt-t"
+
+
+adb_help_cmd=(
+	'execute-silent('
+		'{'
+			$set_stream_adb
+			$set_header_adb
+			$set_slock_off
+		'} &'
+		$update_serial_cmd
+		'query={q};'
+		'for string in "--help" "-h" "help"; do'
+			'adb_help=$( { eval' "$adb_cmd_loc" '-s $serial shell $query $string" } 2>&1 );'
+			'ret=$?;'
+			'if { [ $ret -eq 0 ] && [ ! -s $adb_help ] } || [ $(wc -l <<< $adb_help) -ge 15 ]; then'
+				"echo \"Ran \\\"adb -s \$serial shell \$query \$string\\\"\"  > $purr_adb_cache;"
+				"echo \$adb_help >> $purr_adb_cache;"
+				"exit;"
+			'fi;'
+		'done;'
+		"echo \"Could not find help for \\\"\$query\\\"\" >> $purr_adb_cache;"
+	')+reload('
+		$load_input_stream
+	')+disable-search'
+)
+bind_commands+=('--bind' "ctrl-h:$adb_help_cmd")
+unbind_in_default_command_suite "ctrl-h"
+rebind_in_adb_command_suite "ctrl-h"
+unbind_in_history_command_suite "ctrl-h"
+unbind_in_serial_command_suite "ctrl-h"
+
+enter_cmd=(
+	'transform-query('
+		"if /usr/bin/grep -q \"History\" $purr_stream_header_cache; then"
+			'echo {};'
+		'else;'
+			'echo {q};'
+		'fi;'
+	')+execute-silent('
+		"if /usr/bin/grep -q \"History\" $purr_stream_header_cache; then"
+			"echo 'history' > $purr_accept_command_cache;"
+			$set_stream_verbose
+			$set_header_verbose
+			$set_slock_off
+			$save_current_query
+		"elif /usr/bin/grep -q \"Serial\" $purr_stream_header_cache; then"
+			$stop_stream
+			"accepted=\$(echo {});"
+			'if [ ! -z $accepted ]; then'
+				"echo {} > $purr_serial_cache;"
+			'fi;'
+			"echo 'serial' > $purr_accept_command_cache;"
+			$set_stream_verbose
+			$set_header_verbose
+			$set_slock_off
+			$save_current_query
+			$start_stream
+		"elif /usr/bin/grep -q \"ADB\" $purr_stream_header_cache; then"
+			$set_slock_off
+			"echo 'adb_cmd' > $purr_accept_command_cache;"
+			$save_current_query
+		"fi;"
+	')+accept'
+)
+bind_commands+=('--bind' "enter:$enter_cmd")
+unbind_in_default_command_suite "enter"
+rebind_in_adb_command_suite "enter"
+rebind_in_history_command_suite "enter"
+rebind_in_serial_command_suite "enter"
+
+focus_cmd=(
+	'transform-prompt('
+		" connection_state=\$(cat $purr_connection_state_cache);"
+		'echo $connection_state;'
+	')'
+)
+bind_commands+=('--bind' "focus:$focus_cmd")
+
+esc_cmd=(
+	'execute-silent('
+		"echo 'escape' > $purr_accept_command_cache;"
+	')+accept'
+)
+bind_commands+=('--bind' "esc:$esc_cmd")
+rebind_in_default_command_suite "esc"
+rebind_in_adb_command_suite "esc"
+rebind_in_history_command_suite "esc"
+rebind_in_serial_command_suite "esc"
+
+cmd_editor=(
+	"execute-silent("
+		"accepted=\$(echo {});"
+		'if [ ! -z $accepted ]; then'
+			"echo 'editor' > $purr_accept_command_cache;"
+			$save_current_query
+		'fi;'
+	')+accept-non-empty'
+)
+bind_commands+=('--bind' "ctrl-v:$cmd_editor")
+rebind_in_default_command_suite "ctrl-v"
+rebind_in_adb_command_suite "ctrl-v"
+unbind_in_history_command_suite "ctrl-v"
+unbind_in_serial_command_suite "ctrl-v"
+
+
+unique_cmd=(
+	'execute-silent('
+		"if $is_unique_on; then"
+			$set_unique_off
+			"sed -i 's/verbose-unique/verbose/g' $purr_input_stream_cache;"
+			"sed -i 's/info-unique/info/g' $purr_input_stream_cache;"
+			"sed -i 's/warning-unique/warning/g' $purr_input_stream_cache;"
+			"sed -i 's/error-unique/error/g' $purr_input_stream_cache;"
+		"else;"
+			$set_unique_on
+			"sed -i 's/verbose/verbose-unique/g' $purr_input_stream_cache;"
+			"sed -i 's/info/info-unique/g' $purr_input_stream_cache;"
+			"sed -i 's/warning/warning-unique/g' $purr_input_stream_cache;"
+			"sed -i 's/error/error-unique/g' $purr_input_stream_cache;"
+		"fi;"
+	')+reload('
+		$inject_emppty_line
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+enable-search+$default_command_suite"
+)
+bind_commands+=('--bind' "ctrl-u:$unique_cmd")
+rebind_in_default_command_suite "ctrl-u"
+unbind_in_adb_command_suite "ctrl-u"
+unbind_in_history_command_suite "ctrl-u"
+unbind_in_serial_command_suite "ctrl-u"
+
+stop_cmd=(
+	'execute-silent('
+		'{'
+			"if $is_slock_on; then"
+				$set_slock_off
+			"else"
+				$set_slock_on
+			"fi"
+		'} &'
+	')+toggle-track+transform-header('
+		$load_generic_header
+	")+$default_command_suite"
+)
+bind_commands+=('--bind' "ctrl-s:$stop_cmd")
+rebind_in_default_command_suite "ctrl-s"
+rebind_in_adb_command_suite "ctrl-s"
+unbind_in_history_command_suite "ctrl-s"
+unbind_in_serial_command_suite "ctrl-s"
+
+cmd_sort=(
+	"toggle-sort+execute-silent("
+		'{'
+			"if $is_sort_chrono; then"
+				$set_sort_relevance
+			"else"
+				$set_sort_chrono
+			"fi"
+		'} &'
+	")+transform-header("
+		$load_generic_header
+	")+$default_command_suite"
+)
+bind_commands+=('--bind' "ctrl-j:$cmd_sort")
+rebind_in_default_command_suite "ctrl-j"
+rebind_in_adb_command_suite "ctrl-j"
+rebind_in_history_command_suite "ctrl-j"
+rebind_in_serial_command_suite "ctrl-j"
+
+
+bind_commands+=('--bind' "ctrl-f:track+clear-query+hide-preview+execute-silent(echo 'hidden' >| $purr_preview_visible_cache;)")
+rebind_in_default_command_suite "ctrl-f"
+rebind_in_adb_command_suite "ctrl-f"
+rebind_in_history_command_suite "ctrl-f"
+rebind_in_serial_command_suite "ctrl-f"
+
+bind_commands+=('--bind' "home:preview-page-up")
+rebind_in_default_command_suite "home"
+rebind_in_adb_command_suite "home"
+rebind_in_history_command_suite "home"
+rebind_in_serial_command_suite "home"
+
+bind_commands+=('--bind' "end:preview-page-down")
+rebind_in_default_command_suite "end"
+rebind_in_adb_command_suite "end"
+rebind_in_history_command_suite "end"
+rebind_in_serial_command_suite "end"
+
+
+instruction_preview_cache_command=$(cat <<-END
+	echo 'nohidden' >| $purr_preview_visible_cache;
+	echo 'instruction' >| $purr_preview_command_cache;
+	END
+)
+bind_commands+=('--bind' "F7:$hint_preview+execute-silent($instruction_preview_command)")
+rebind_in_default_command_suite "F7"
+unbind_in_adb_command_suite "F7"
+unbind_in_history_command_suite "F7"
+unbind_in_serial_command_suite "F7"
+
+
+current_hint_preview_command=$(cat <<-END
+	line_number="\$(/usr/bin/grep -F -n -- {} $purr_input_cache | cut -d':' -f1)";
+
+	if [ -z "\$line_number" ]; then
+		echo "Could not identify selected line in input buffer!";
+		echo "This should never happen; please report me as a bug!";
+	else;
+
+		first_line_number="\$(/usr/bin/head -n 1 <<< "\$line_number")";
+
+		lines_in_input_file="\$(/usr/bin/wc -l $purr_input_cache | xargs | cut -d' ' -f1)";
+
+		line_number_min=\$((first_line_number-200));
+		line_number_max=\$((first_line_number+200));
+
+		if [ \$line_number_max -ge \$lines_in_input_file ]; then
+			line_number_max=\$lines_in_input_file;
+		fi;
+
+		if [ \$line_number_min -le 0 ]; then
+			pad_top_number=\$((200 - first_line_number))
+			line_number_min=0;
+		fi;
+
+		tail_line_numbers=\$((\$line_number_max - \$line_number_min));
+
+		full_lines=\$(/usr/bin/head -n \$line_number_max $purr_input_cache  | /usr/bin/tail -n \$tail_line_numbers -q;);
+
+		if [ ! -z "\$pad_top_number" ]; then
+			for i in {1..\$pad_top_number}; do
+				padding_string="\$padding_string\n";
+			done;
+			full_lines="\$padding_string""\$full_lines";
+		fi;
+
+		preview_top=\$(echo \$full_lines | /usr/bin/head -n 199);
+
+		if [ "\$(/usr/bin/wc -l <<< "\$line_number")" -ne 1 ]; then
+			info_panel="\\n----------------";
+			info_panel+="\\nSeeing multiple exact matches; highlighting first instance."
+			info_panel+="\\nFirst Instance on line \$first_line_number";
+			info_panel+="\\nDuplicates on line(s) \$(echo \$line_number | /usr/bin/tail -n +2 | /usr/bin/tr '\n' ' ')";
+			info_panel+="\\n----------------";
+		fi;
+
+		highlighted_line="\$(echo -- \$full_lines | /usr/bin/head -n 200 -- | /usr/bin/tail -n 1 -q -- | cat -v -- | /usr/bin/sed -e "s/\^\[\[[0-9;]*m/\x1b[1;36m/g")";
+
+		full_lines_size=\$(echo \$full_lines | /usr/bin/wc -l);
+		bottom_line_numbers=\$((\$full_lines_size - 200));
+
+		preview_bottom=\$(echo \$full_lines | /usr/bin/tail -n \$bottom_line_numbers);
+
+		constructed_preview="\$preview_top\$info_panel\\n\$highlighted_line\\n\$preview_bottom";
+		echo "\$constructed_preview";
+	fi;
+	END
+)
+current_hint_preview_cache_command=$(cat <<-END
+	echo 'nohidden' >| $purr_preview_visible_cache;
+	echo 'current' >| $purr_preview_command_cache;
+	END
+)
+bind_commands+=('--bind' "F9:change-preview($current_hint_preview_command)+change-preview-label(F9: Current Stream)+change-preview-window($hint_preview_window)+refresh-preview+execute-silent($current_hint_preview_cache_command)")
+rebind_in_default_command_suite "F9"
+unbind_in_adb_command_suite "F9"
+unbind_in_history_command_suite "F9"
+unbind_in_serial_command_suite "F9"
+
+verbose_hint_preview_command=$(echo "$current_hint_preview_command" | sed "s:$purr_input_cache:$purr_verbose_input_cache:g")
+verbose_hint_preview_cache_command=$(cat <<-END
+	echo 'nohidden' >| $purr_preview_visible_cache;
+	echo 'verbose' >| $purr_preview_command_cache;
+	END
+)
+bind_commands+=('--bind' "F10:change-preview($verbose_hint_preview_command)+change-preview-label(F10: Verbose Stream)+change-preview-window($hint_preview_window)+refresh-preview+execute-silent($verbose_hint_preview_cache_command)")
+rebind_in_default_command_suite "F10"
+unbind_in_adb_command_suite "F10"
+unbind_in_history_command_suite "F10"
+unbind_in_serial_command_suite "F10"
+
+toggle_preview_cache_command=$(cat <<-END
+	if [ \$(cat $purr_preview_visible_cache) = 'nohidden' ]; then;
+		echo 'hidden' >| $purr_preview_visible_cache;
+	else;
+		echo 'nohidden' >| $purr_preview_visible_cache;
+	fi
+	END
+)
+bind_commands+=('--bind' "ctrl-p:toggle-preview+execute-silent($toggle_preview_cache_command)")
+rebind_in_default_command_suite "ctrl-p"
+unbind_in_adb_command_suite "ctrl-p"
+unbind_in_history_command_suite "ctrl-p"
+unbind_in_serial_command_suite "ctrl-p"
+
+instruction_preview_starter=("--preview"
+	"$instruction_preview_command"
+	"--preview-window"
+	"$instruction_preview_window")
+
+current_hint_preview_starter=("--preview"
+	"$current_hint_preview_command"
+	"--preview-window"
+	"$hint_preview_window"
+	"--preview-label"
+	"Current Stream")
+
+verbose_hint_preview_starter=("--preview"
+	"$verbose_hint_preview_command"
+	"--preview-window"
+	"$hint_preview_window"
+	"--preview-label"
+	"Verbose Stream")
+
+instruction_preview_starter_hidden=("--preview"
+	"$instruction_preview_command"
+	"--preview-window"
+	"$instruction_preview_window_hidden")
+
+current_hint_preview_starter_hidden=("--preview"
+	"$current_hint_preview_command"
+	"--preview-window"
+	"$hint_preview_window_hidden"
+	"--preview-label"
+	"Current Stream")
+
+verbose_hint_preview_starter_hidden=("--preview"
+	"$verbose_hint_preview_command"
+	"--preview-window"
+	"$hint_preview_window_hidden"
+	"--preview-label"
+	"Verbose Stream")
+
+
+get_tag_cmd=(
+	'execute-silent('
+		'tag=$(echo "{}" | xargs | xargs | cut -d" " -f6);'
+		'cur_query=$(echo "{q}" | xargs | xargs);'
+		'if echo $cur_query | /usr/bin/grep -w -q -- "$tag"; then'
+			"echo \"\$cur_query\" > $purr_query_cache;"
+		'elif [ -z $cur_query ]; then'
+			"echo \"\$tag\" > $purr_query_cache;"
+		'else;'
+			"echo \"\$cur_query \$tag\" > $purr_query_cache;"
+		'fi;'
+	')+transform-query('
+		"cat $purr_query_cache;"
+		"echo "" > $purr_query_cache;"
+	')'
+)
+bind_commands+=('--bind' "ctrl-alt-s:$get_tag_cmd")
+rebind_in_default_command_suite "ctrl-alt-s"
+unbind_in_adb_command_suite "ctrl-alt-s"
+unbind_in_history_command_suite "ctrl-alt-s"
+unbind_in_serial_command_suite "ctrl-alt-s"
+
+
+remove_tag_cmd=(
+	'execute-silent('
+		'tag=$(echo "{}" | xargs | xargs | cut -d" " -f6);'
+		'negative_tag="!$tag";'
+		'cur_query=$(echo "{q}" | xargs | xargs);'
+		'if echo $cur_query | /usr/bin/grep -w -q -- "$tag"; then'
+			'untagged_query=$(echo "$cur_query" | /usr/bin/sed "s/\b$tag\b//g" | /usr/bin/sed "s/\b$tag//g" | xargs);'
+			"echo \"\$untagged_query\" > $purr_query_cache;"
+		'elif [ -z $cur_query ]; then'
+			"echo \"\$negative_tag\" > $purr_query_cache;"
+		'else;'
+			"echo \"\$cur_query \$negative_tag\" > $purr_query_cache;"
+		'fi;'
+	')+transform-query('
+		"cat $purr_query_cache;"
+		"echo "" > $purr_query_cache;"
+	')'
+)
+bind_commands+=('--bind' "ctrl-alt-d:$remove_tag_cmd")
+rebind_in_default_command_suite "ctrl-alt-d"
+unbind_in_adb_command_suite "ctrl-alt-d"
+unbind_in_history_command_suite "ctrl-alt-d"
+unbind_in_serial_command_suite "ctrl-alt-d"
+
+
+rebind_in_default_command_suite "F1"
+rebind_in_adb_command_suite "F1"
+rebind_in_history_command_suite "F1"
+rebind_in_serial_command_suite "F1"
+
+rebind_in_default_command_suite "F2"
+rebind_in_adb_command_suite "F2"
+rebind_in_history_command_suite "F2"
+rebind_in_serial_command_suite "F2"
+
+rebind_in_default_command_suite "F3"
+rebind_in_adb_command_suite "F3"
+rebind_in_history_command_suite "F3"
+rebind_in_serial_command_suite "F3"
+
+rebind_in_default_command_suite "F4"
+rebind_in_adb_command_suite "F4"
+rebind_in_history_command_suite "F4"
+rebind_in_serial_command_suite "F4"
+
+rebind_in_default_command_suite "F5"
+rebind_in_adb_command_suite "F5"
+rebind_in_history_command_suite "F5"
+rebind_in_serial_command_suite "F5"
+
+rebind_in_default_command_suite "F6"
+rebind_in_adb_command_suite "F6"
+rebind_in_history_command_suite "F6"
+rebind_in_serial_command_suite "F6"
+
+rebind_in_default_command_suite "ctrl-r"
+unbind_in_adb_command_suite "ctrl-r"
+unbind_in_history_command_suite "ctrl-r"
+unbind_in_serial_command_suite "ctrl-r"
+
+error_cmd=(
+	'execute-silent('
+		'{'
+			"if $is_unique_on; then"
+				$set_stream_error_unique
+			"else;"
+				$set_stream_error
+			"fi;"
+			$set_header_error
+			$set_slock_off
+		'} &'
+	')+reload('
+		$inject_empty_line
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+enable-search+$default_command_suite"
+)
+bind_commands+=('--bind' "F1:$error_cmd")
+
+warn_cmd=(
+	'execute-silent('
+		'{'
+			"if $is_unique_on; then"
+				$set_stream_warning_unique
+			"else;"
+				$set_stream_warning
+			"fi;"
+			$set_header_warning
+			$set_slock_off
+		'} &'
+	')+reload('
+		$inject_empty_line
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+enable-search+$default_command_suite"
+)
+bind_commands+=('--bind' "f2:$warn_cmd")
+
+info_cmd=(
+	'execute-silent('
+		'{'
+			"if $is_unique_on; then"
+				$set_stream_info_unique
+			"else;"
+				$set_stream_info
+			"fi;"
+			$set_header_info
+			$set_slock_off
+		'} &'
+	')+reload('
+		$inject_empty_line
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+enable-search+$default_command_suite"
+)
+bind_commands+=('--bind' "f3:$info_cmd")
+
+verb_cmd=(
+	'execute-silent('
+		'{'
+			"if $is_unique_on; then"
+				$set_stream_verbose_unique
+			"else;"
+				$set_stream_verbose
+			"fi;"
+			$set_header_verbose
+			$set_slock_off
+		'} &'
+	')+reload('
+		$inject_emppty_line
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+enable-search+$default_command_suite"
+)
+bind_commands+=('--bind' "f4:$verb_cmd")
+
+serial_cmd=(
+	'execute-silent('
+		'{'
+			$set_stream_serial
+			$set_header_serial
+			$set_slock_off
+		'} &'
+	')+reload('
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+enable-search+hide-preview+$serial_command_suite+execute-silent(echo 'hidden' >| $purr_preview_visible_cache;)"
+)
+bind_commands+=('--bind' "f5:$serial_cmd")
+
+adb_stream_cmd=(
+	'execute-silent('
+		'{'
+			$set_stream_adb
+			$set_header_adb
+			$set_slock_off
+		'} &'
+	')+reload('
+		$inject_empty_line
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+first+disable-search+hide-preview+$adb_command_suite+execute-silent(echo 'hidden' >| $purr_preview_visible_cache;)"
+)
+bind_commands+=('--bind' "f6:$adb_stream_cmd")
+
+history_cmd=(
+	'execute-silent('
+		'{'
+			$set_stream_history
+			$set_header_history
+			$set_slock_off
+		'} &'
+	')+reload('
+		$load_input_stream
+	")+transform-header("
+		$load_generic_header
+	")+clear-query+first+hide-preview+enable-search+$history_command_suite+execute-silent(echo 'hidden' >| $purr_preview_visible_cache;)"
+)
+bind_commands+=('--bind' "ctrl-r:$history_cmd")
+
+
+(__purr_background_handler &)
+
+while true; do
+
+	cached_query="$(cat $purr_query_cache)"
+	"" >$purr_query_cache &>/dev/null
+
+	__purr_update_serial
+	__purr_update_prompt
+
+	__purr_set_start_command
+
+	__purr_set_start_preview
+
+	if [ ! -z $cached_query ]; then
+		accepted=$(FZF_DEFAULT_COMMAND="$load_input_stream" fzf $starter_preview_command $fzfp $fzf_prompt $bind_commands $start_command --query=$cached_query)
+		ret=$?
+	else
+		accepted=$(FZF_DEFAULT_COMMAND="$load_input_stream" fzf $starter_preview_command $fzfp $fzf_prompt $bind_commands $start_command)
+		ret=$?
+	fi
+
+	if [ "$ret" -ne 0 ] && [ "$ret" -ne 1 ]; then
+		break
+	fi
+
+	cached_query=""
+	accept_cmd=""
+
+	purr_timeout 1 "wait_for_file $purr_accept_command_cache"
+
+	accept_cmd=$(cat $purr_accept_command_cache)
+	"" >$purr_accept_command_cache &>/dev/null
+
+	if [ "$accept_cmd" = "wipe" ] || [ "$accept_cmd" = "serial" ] || [ "$accept_cmd" = "trim" ]; then
+		__wait_for_input_streams
+	elif [ "$accept_cmd" = "adb_cmd" ] || [ "$accept_cmd" = "history" ]; then
+		: # Left blank for clarity.
+	elif [ "$accept_cmd" = "editor" ]; then
+		__purr_start_editor
+	else
+		break
+	fi
+done
+
+__purr_cleanup $dir_name

@@ -124,9 +124,10 @@
     "assets_old": true,
     "**/LICENSE.md": true,
     "rust-toolchain.toml": true,
-    "Makefile.toml": true,
-    "***Makefile.toml": true,
-    "**/Makefile.toml": true
+    "Makefile.toml": false,
+    "***Makefile.toml": false,
+    "**/Makefile.toml": false,
+    "src/app": false
   },
   "explorerExclude.backup": {},
   "memory-view.showMemoryPanel": true,

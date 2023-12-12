@@ -6,13 +6,13 @@ skip_crate_env_info = true
 load_cargo_aliases = false
 
 [env]
-CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+# CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_WORKSPACE_EMULATION = true
 CARGO_MAKE_CRATE_WORKSPACE_MEMBERS = [
   "launchers/native",
   "launchers/wasm",
   "launchers/mobile",
-  "./",
+  # "./",
 ]
 
 [tasks.default]
@@ -106,6 +106,10 @@ run_task = "list"
 [tasks.CleanPackageDir]
 description = "Deletes all artifacts inside package/*/"
 run_task = "clean-package-dir"
+
+[tasks.rdmobile]
+workspace = true
+
 # [tasks.docs]
 # clear = true
 # workspace = false

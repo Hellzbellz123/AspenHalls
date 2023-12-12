@@ -74,11 +74,7 @@
         path: "packs/asha/textures/bevy.png",
     ),
 
-    "start_level": File (
-        path: "packs/asha/levels/sanctuary.ldtk",
+    "default_levels": File (
+        path: "packs/asha/levels/aspenhallsLevelSet.ldtk",
     ),
-
-    "dungeons": File (
-        path: "packs/asha/levels/dungeons.ldtk",
-    )
 })

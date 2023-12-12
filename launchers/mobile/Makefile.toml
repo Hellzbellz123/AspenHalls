@@ -33,11 +33,8 @@ private = true
 script_runner = "@shell"
 script.main = "cp android/build/outputs/apk/release/android-release-unsigned.apk ../../package/mobile/aspen-halls.apk"
 
-
 [tasks.rdmobile]
 workspace = false
-private = true
-env_files = ["../../.env"]
 condition.env_set = [
   "BUNDLETOOL_PATH",
   "ANDROID_NDK_ROOT",
@@ -47,6 +44,7 @@ script.main = "gradle assembleDebug -p android --warning-mode all"
 script.post = "./debug_android.sh"
 
 [tasks.RDMobile]
+workspace = false
 description = "(RDMobile/rdmobile): build debug, install on connected adb device, start loggger"
 run_task = "rdmobile"
 

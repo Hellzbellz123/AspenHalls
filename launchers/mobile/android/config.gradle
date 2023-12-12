@@ -9,7 +9,7 @@ ext.versions = [
     appcompatVersion   : "1.4.0",
     nexusPublishVersion: "1.1.0",
     javaVersion        : 17,
-    ndkVersion         : "26.0.10792818"
+    ndkVersion         : "26.1.10909125"
 ]
 
 ext.libraries = [
