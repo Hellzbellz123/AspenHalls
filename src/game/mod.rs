@@ -1,6 +1,6 @@
 /// actors enemy, chests, anything
 pub mod actors;
-/// audio data for game
+// /// audio data for game
 pub mod audio;
 /// sanctuary and dungeon generator
 pub mod game_world;
@@ -16,10 +16,10 @@ use crate::{
     },
     game::{
         actors::ActorPlugin,
-        audio::InternalAudioPlugin,
+        // audio::InternalAudioPlugin,
         game_world::GameWorldPlugin,
         input::ActionsPlugin,
-        interface::InterfacePlugin,
+        interface::InterfacePlugin, audio::InternalAudioPlugin,
         // interface::InterfacePlugin,
     },
 };
@@ -43,6 +43,32 @@ pub enum GameProgress {
     Sanctuary,
     /// in dungeon now
     Dungeon,
+}
+
+/// what part of the game we are at
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
+pub enum GameProgressStatus {
+    /// no actor related logic, just the main menu
+    #[default]
+    NotStarted,
+    /// select character, buy weapons
+    Prepare,
+    /// crawling has 1 value. the dungeon Level
+    Crawling(ProgressInDungeon),
+}
+
+/// each dungeon run has 4 stages that get progressivly larger/harder
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
+pub enum ProgressInDungeon {
+    /// easiest level, start here
+    #[default]
+    LevelOne,
+    /// slighlty deeper, bit larger, more enemys
+    LevelTwo,
+    ///
+    LevelThree,
+    /// final level of the dungeon
+    LevelFour,
 }
 
 /// plugin that holds all game functionality as plugin modules

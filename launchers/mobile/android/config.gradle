@@ -3,13 +3,14 @@ ext.versions = [
     compileSdk         : 33,
     minSdk             : 26,
     targetSdk          : 31,
-    buildTools         : "34.0.0",
     kotlinVersion      : "1.6.21",
     fragmentVersion    : "1.3.6",
     appcompatVersion   : "1.4.0",
     nexusPublishVersion: "1.1.0",
     javaVersion        : 17,
-    ndkVersion         : "26.1.10909125"
+    // TODO: these should be upgraded with winit/android_activity
+    buildTools         : "34.0.0",
+    ndkVersion         : "26.0.10792818"
 ]
 
 ext.libraries = [

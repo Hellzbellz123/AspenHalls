@@ -46,6 +46,7 @@ pub mod game {
             input::action_maps::{self},
             TimeInfo,
         },
+        // AudioHandles,
         loading::{
             assets::{
                 ActorTextureHandles, AudioHandles, InitAssetHandles, MapAssetHandles,
@@ -80,7 +81,7 @@ pub mod plugins {
     pub use crate::{
         console::QuakeConPlugin,
         game::{interface::InterfacePlugin, AspenHallsPlugin},
-        loading::{splashscreen::SplashPlugin, AppAssetsPlugin},
+        loading::{splashscreen::SplashPlugin, AppAssetLoadingPlugin},
     };
 }
 

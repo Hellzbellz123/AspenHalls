@@ -18,8 +18,7 @@ keywords = [
   "bin",
 ]
 categories = ["games"]
-
-workspace = "../../"
+# workspace = "../../"
 
 [lib]
 name = "game"
@@ -35,13 +34,81 @@ jni = { version = "0.21.1", features = [
 ] }
 ndk-context = "0.1.1"
 
-[package.metadata]
-app_name = "Aspen Halls"
-assets = ["../../assets"]
 
-[package.metadata.apple]
-resources = ["../../res/apple"]
-release_build_targets = [
-  "aarch64-apple-ios",
-  "x86_64-apple-ios",
-]
+# android manifest definition in toml
+[package.metadata.android]
+package = "com.hellzbellz123.aspen_halls"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+resources = "../../res/android"
+assets = "../../assets"
+apk_name = "AspenHalls"
+strip = "strip"
+sdk = { target_sdk_version = 34, max_sdk_version = 34, min_sdk_version = 31 }
+# See https://developer.android.com/guide/topics/manifest/uses-feature-element
+uses_feature = [{name = "android.hardware.vulkan.level", required = true, version = 1},]
+# See https://developer.android.com/guide/topics/manifest/uses-permission-element
+uses_permission = [{name = "android.permission.MODIFY_AUDIO_SETTINGS", max_sdk_version = 21},]
+
+# See https://developer.android.com/guide/topics/manifest/application-element
+[package.metadata.android.application]
+debuggable = true
+theme = "@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen"
+icon = "@mipmap/ic_launcher"
+label = "Aspen Halls"
+# See https://developer.android.com/guide/topics/manifest/application-element#extractNativeLibs
+extract_native_libs = true
+# See https://developer.android.com/guide/topics/manifest/application-element#usesCleartextTraffic
+uses_cleartext_traffic = true
+# See https://developer.android.com/guide/topics/manifest/meta-data-element
+# Note: there can be several .meta_data entries.
+# Note: the `resource` attribute is currently not supported.
+meta_data = [{name = "android.app.lib_name", value = "game"}]
+
+# See https://developer.android.com/guide/topics/manifest/activity-element
+[package.metadata.android.application.activity]
+# See https://developer.android.com/guide/topics/manifest/activity-element#config
+config_changes = "orientation|keyboardHidden|screenSize"
+# See https://developer.android.com/guide/topics/manifest/activity-element#label
+label = "Aspen Halls"
+# See https://developer.android.com/guide/topics/manifest/activity-element#lmode
+launch_mode = "singleTop"
+# See https://developer.android.com/guide/topics/manifest/activity-element#screen
+orientation = "landscape"
+# See https://developer.android.com/guide/topics/manifest/activity-element#exported
+exported = true
+# See https://developer.android.com/guide/topics/manifest/activity-element#resizeableActivity
+resizeable_activity = true
+# See https://developer.android.com/guide/topics/manifest/activity-element#always
+always_retain_task_state = true
+
+# See https://developer.android.com/guide/topics/manifest/meta-data-element
+#
+# Note: there can be several .meta_data entries.
+# Note: the `resource` attribute is currently not supported.
+# [[package.metadata.android.application.activity.meta_data]]
+# name = "android.app.lib_name"
+# value = "game"
+
+# See https://developer.android.com/guide/topics/manifest/intent-filter-element
+#
+# Note: there can be several .intent_filter entries.
+# [[package.metadata.android.application.activity.intent_filter]]
+# # See https://developer.android.com/guide/topics/manifest/action-element
+# actions = ["android.intent.action.VIEW", "android.intent.action.WEB_SEARCH"]
+# # See https://developer.android.com/guide/topics/manifest/category-element
+# categories = ["android.intent.category.DEFAULT", "android.intent.category.BROWSABLE"]
+
+# See https://developer.android.com/guide/topics/manifest/data-element
+# Note: there can be several .data entries.
+# Note: not specifying an attribute excludes it from the final data specification.
+
+# [package.metadata]
+# app_name = "Aspen Halls"
+# assets = ["../../assets"]
+
+# [package.metadata.apple]
+# resources = ["../../res/apple"]
+# release_build_targets = [
+#   "aarch64-apple-ios",
+#   "x86_64-apple-ios",
+# ]

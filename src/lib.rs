@@ -12,6 +12,10 @@ it kinda sucks but it'll be finished eventually
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 "]
 
+#[cfg(feature = "develop")]
+/// Debug and Development related functions
+mod game_tools;
+
 /// general component store
 mod bundles;
 /// things related too `command_console`
@@ -21,9 +25,6 @@ mod console;
 mod consts;
 /// actual game plugin, ui and all "game" functionality
 mod game;
-#[cfg(feature = "develop")]
-/// Debug and Development related functions
-mod game_tools;
 /// Holds all Asset Collections and handles loading them
 /// also holds fail state
 mod loading;
@@ -62,32 +63,6 @@ pub enum ClientStage {
     ClientFailed,
 }
 
-/// what part of the game we are at
-#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
-pub enum GameProgressStatus {
-    /// no actor related logic, just the main menu
-    #[default]
-    NotStarted,
-    /// select character, buy weapons
-    Prepare,
-    /// crawling has 1 value. the dungeon Level
-    Crawling(DungeonLevel),
-}
-
-/// each dungeon run has 4 stages that get progressivly larger/harder
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
-pub enum DungeonLevel {
-    /// easiest level, start here
-    #[default]
-    LevelOne,
-    /// slighlty deeper, bit larger, more enemys
-    LevelTwo,
-    ///
-    LevelThree,
-    /// final level of the dungeon
-    LevelFour,
-}
-
 /// main game state loop
 #[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
 pub enum AppState {
@@ -105,8 +80,10 @@ pub enum AppState {
     PlayingGame, //(PlaySubStage),
     /// Game Paused in this state, rapier timestep set too 0.0, no physics, ai is also stopped
     PauseMenu,
-    /// game failed to load an asset
-    FailedLoading,
+    /// game failed to load an init asset. fatal error
+    FailedLoadInit,
+    /// game failed too load default pack
+    FailedLoadMenu,
 }
 
 // TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
@@ -138,7 +115,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         });
 
     vanillacoffee.add_plugins((
-        ahp::plugins::AppAssetsPlugin,
+        ahp::plugins::AppAssetLoadingPlugin,
         ahp::plugins::SplashPlugin,
         ahp::plugins::QuakeConPlugin,
         ahp::plugins::AspenHallsPlugin,

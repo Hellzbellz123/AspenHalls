@@ -1,11 +1,8 @@
 /// functions too create default file and save file
 pub mod save_load;
 
-
-
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
-
+// use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
 use crate::ahp::{engine::*, game::*, plugins::*};
 
 /// Holds game settings deserialized from the config.toml
@@ -246,20 +243,6 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     info!("Logging and Asset Server Initialized");
     // add vanillacoffee stuff
     vanillacoffee.add_state::<AppState>();
-
-    vanillacoffee
-        .add_loading_state(
-            LoadingState::new(AppState::BootingApp)
-                .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
-                .continue_to_state(AppState::Loading)
-                .on_failure_continue_to_state(AppState::FailedLoading),
-        )
-        .add_dynamic_collection_to_loading_state::<AppState, StandardDynamicAssetCollection>(
-            AppState::BootingApp,
-            "init/pack.registry",
-        )
-        .add_collection_to_loading_state::<_, InitAssetHandles>(AppState::BootingApp)
-        .add_collection_to_loading_state::<_, TouchControlAssetHandles>(AppState::BootingApp);
 
     let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
 

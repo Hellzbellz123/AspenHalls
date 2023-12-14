@@ -67,7 +67,7 @@ impl Plugin for PlayerPlugin {
         );
     }
 }
-use bevy_kira_audio::prelude::AudioReceiver;
+
 /// spawns player with no weapons
 pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
     info!("spawning player");
@@ -79,7 +79,6 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                 drawn_slot: Some(WeaponSlots::Slot1), // entity id of currently equipped weapon
                 weapon_slots: empty_weapon_slots(),
             },
-            AudioReceiver,
             ActorBundle {
                 name: Name::new("Player"),
                 faction: ActorType(Type::Player),
