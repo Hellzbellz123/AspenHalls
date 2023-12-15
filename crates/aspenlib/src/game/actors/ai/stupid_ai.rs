@@ -48,6 +48,8 @@ impl Plugin for StupidAiPlugin {
     }
 }
 
+//TODO: rework ai
+
 /// chase score system, if player is in range, aggro score is 1
 fn chase_score_system(
     player_query: Query<&Transform, With<Player>>, // player
@@ -232,6 +234,7 @@ fn wander_action(
         With<Enemy>,
     )>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,
+    rapier_context: Res<RapierContext>,
 ) {
     for (Actor(actor), mut state) in &mut thinker_query {
         if let Ok((enemy_transform, mut velocity, _sprite, mut can_meander_tag, _a)) =
@@ -243,6 +246,7 @@ fn wander_action(
                 .expect("theres always a spawn position, this can be expected");
             let cur_pos = enemy_transform.translation.truncate();
             let mut rng = thread_rng();
+
             match *state {
                 ActionState::Init => {}
                 ActionState::Cancelled => {
@@ -273,9 +277,33 @@ fn wander_action(
                 }
                 ActionState::Executing => match target_pos {
                     Some(target_pos) => {
+                        let direction_too_target = (target_pos
+                            - enemy_transform.translation.truncate())
+                        .normalize_or_zero();
+
+                        let distance_to_target = enemy_transform
+                            .translation
+                            .truncate()
+                            .distance(target_pos)
+                            .abs();
+
+                        let ray_origin = enemy_transform.translation.truncate()
+                            + (direction_too_target * (TILE_SIZE / 2.0));
+                        let ray_dir = direction_too_target;
+                        let max_toi = distance_to_target;
+                        let solid = true;
+                        let filter = QueryFilter::new();
+
+                        let ray =
+                            rapier_context.cast_ray(ray_origin, ray_dir, max_toi, solid, filter);
+                        let can_reach_target: bool = match ray {
+                            None => true,
+                            Some((_entity, _distance)) => false,
+                        };
+
                         let c_target_pos: Vec2 = target_pos;
                         let distance = c_target_pos - cur_pos;
-                        if distance.length().abs() <= 60.0 {
+                        if distance.length().abs() <= 60.0 || !can_reach_target {
                             can_meander_tag.wander_target = None;
                             *state = ActionState::Requested;
                         } else {

@@ -6,7 +6,7 @@ use bevy::{
     prelude::{
         default, resource_changed, resource_exists, state_exists_and_equals, BuildChildren,
         Commands, Component, Condition, DespawnRecursiveExt, Handle, IntoSystemConfigs, Name,
-        NextState, OnExit, Plugin, Query, Res, SpatialBundle, Transform, Update, Without,
+        NextState, OnExit, Plugin, Query, Res, SpatialBundle, Transform, Update, Without, EventWriter,
     },
     reflect::Reflect,
 };
@@ -22,7 +22,7 @@ use leafwing_input_manager::prelude::ActionState;
 use rand::prelude::{IteratorRandom, Rng, SliceRandom, ThreadRng};
 
 use crate::{
-    ahp::game::{action_maps, Player},
+    ahp::game::{action_maps, Player, SpawnActorEvent, ActorType, Type},
     consts::TILE_SIZE,
     game::actors::components::ActorMoveState,
     loading::assets::MapAssetHandles,
@@ -280,6 +280,7 @@ fn prepare_dungeon_rooms(
 
 /// spawns possible dungeon rooms from `dungeon_root.dungeon_settings.useable_dungeons`
 fn spawn_rooms(
+    mut ew: EventWriter<SpawnActorEvent>,
     mut cmds: Commands,
     dungeon_root: Query<
         (Entity, &DungeonSettings, &Handle<LdtkProject>),
@@ -320,6 +321,8 @@ fn spawn_rooms(
     });
 
     info!("finished spawning dungeons");
+    ew.send(SpawnActorEvent { actor_type: ActorType(Type::Item), what_to_spawn: "smallsmg".to_string(), spawn_position: Vec2::ZERO, spawn_count: 1, spawner: None });
+    ew.send(SpawnActorEvent { actor_type: ActorType(Type::Item), what_to_spawn: "smallpistol".to_string(), spawn_position: Vec2::ZERO, spawn_count: 1, spawner: None });
     cmds.insert_resource(NextState(Some(DungeonGeneratorState::FinishedDungeonGen)));
 }
 

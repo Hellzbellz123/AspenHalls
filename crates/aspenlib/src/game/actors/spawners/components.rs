@@ -78,7 +78,7 @@ pub struct Spawner {
     pub spawned_enemies: Vec<Entity>,
 }
 
-/// event for spawning enemies
+/// event for spawning actors (items/enemies/etc)
 #[derive(Debug, Reflect, Clone, Event)]
 pub struct SpawnActorEvent {
     /// type of actor

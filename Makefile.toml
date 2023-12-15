@@ -58,6 +58,7 @@ command = "cargo"
 args = ["fmt"]
 
 [tasks.run-mobile]
+dependencies = ["connect-android"]
 cwd = "crates/mobile"
 workspace = false
 condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
@@ -77,6 +78,12 @@ workspace = false
 description = ""
 command = "trunk"
 args = ["serve"]
+
+[tasks.connect-android]
+workspace = false
+description = "Connects first android device found by avahi-discover"
+script = "tools/adb-connecter.sh"
+
 
 # [tasks.docs]
 # clear = true

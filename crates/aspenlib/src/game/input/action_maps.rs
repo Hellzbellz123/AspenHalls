@@ -80,10 +80,10 @@ impl Default for PlayerBindings {
 pub enum Gameplay {
     /// look target in window coordinates.
     /// updated with `LookDelta``
-    LookLocal,
+    CursorScreen,
     /// look target in world space.
     /// updated with `LookDelta`
-    LookWorld,
+    CursorWorld,
     /// look target delta
     /// gathered from gamepad sticks and translated into a cursor position
     JoystickDelta,

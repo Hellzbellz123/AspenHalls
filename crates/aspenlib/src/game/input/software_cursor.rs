@@ -1,22 +1,21 @@
 use bevy::{
-    ecs::{
-        component::Component,
-        schedule::common_conditions::not,
-        system::Res,
-    },
+    ecs::{component::Component, schedule::common_conditions::not, system::Res},
     log::warn,
     math::Vec2,
-    prelude::{any_with_component, ImageBundle, PositionType, Reflect},
+    prelude::{
+        any_with_component, BackgroundColor, GlobalTransform, ImageBundle, PositionType, Reflect,
+        Window,
+    },
     ui::{Node, Style, Val, ZIndex},
 };
 
 use crate::ahp::{
-    engine::{
-        bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
-        IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
-    },
-    game::{action_maps, AppState, InitAssetHandles, Player},
-};
+        engine::{
+            bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
+            IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
+        },
+        game::{action_maps, AppState, InitAssetHandles, Player},
+    };
 
 use super::AspenInputSystemSet;
 
@@ -46,6 +45,14 @@ pub struct SoftWareCursor {
     /// offset too move cursor relative too actual winit cursor position.
     /// used too center cursors point
     offset: Vec2,
+    /// distance before hiding
+    hide_distance: f32,
+    /// alpha too hide
+    /// 0.0-1.0 else panic
+    hide_alpha: f32,
+    /// alpha when should be visible
+    /// 0.0-1.0 else panic
+    show_alpha: f32,
 }
 
 /// creates software cursor entity
@@ -55,6 +62,9 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<InitAssetHandles>) {
         Name::new("SoftwareCursor"),
         SoftWareCursor {
             offset: Vec2 { x: 0.0, y: 0.0 },
+            hide_distance: 80.0,
+            hide_alpha: 0.4,
+            show_alpha: 0.8,
         },
         ImageBundle {
             style: Style {
@@ -76,27 +86,45 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<InitAssetHandles>) {
 
 /// updates software cursor position based on player `LookLocal` (`LookLocal` is just `winit::Window.cursor_position()`)
 fn update_software_cursor_position(
-    player_input: Query<&ActionState<action_maps::Gameplay>, With<Player>>,
-    mut software_cursor: Query<(&mut Style, &SoftWareCursor), With<Node>>,
+    player_input: Query<(&ActionState<action_maps::Gameplay>, &GlobalTransform), With<Player>>,
+    mut software_cursor: Query<(&mut Style, &SoftWareCursor, &mut BackgroundColor), With<Node>>,
 ) {
-    let Ok(player) = player_input.get_single() else {
+    let Ok((pinput, ptrans)) = player_input.get_single() else {
         warn!("no player action data too update cursor with");
         return;
     };
 
-    let Some(look_data) = player
-        .action_data(action_maps::Gameplay::LookLocal)
-        .axis_pair
-    else {
-        warn!("No look data for software");
+    let (look_local, look_world) = (
+        pinput
+            .action_data(action_maps::Gameplay::CursorScreen)
+            .axis_pair,
+        pinput
+            .action_data(action_maps::Gameplay::CursorWorld)
+            .axis_pair,
+    );
+    let (mut cursor_style, cursor_data, mut cursor_color) = software_cursor.single_mut();
+    let color = cursor_color.0;
+
+    if look_local.is_none() || look_world.is_none() {
+        *cursor_color = BackgroundColor(color.with_a(0.0));
         return;
+    }
+
+    let axis_screen = look_local.unwrap().xy();
+    let axis_world = look_world.unwrap().xy();
+
+    if ptrans
+        .translation()
+        .distance(axis_world.extend(0.0))
+        .le(&cursor_data.hide_distance)
+    {
+        *cursor_color = BackgroundColor(color.with_a(cursor_data.hide_alpha));
+    } else {
+        *cursor_color = BackgroundColor(color.with_a(cursor_data.show_alpha));
     };
 
-    let axis_value = look_data.xy();
-    let (mut cursor_style, cursor_data) = software_cursor.single_mut();
-
-    cursor_style.left = Val::Px(axis_value.x - cursor_data.offset.x);
-    cursor_style.top = Val::Px(axis_value.y - cursor_data.offset.y);
+    cursor_style.left = Val::Px(axis_screen.x - cursor_data.offset.x);
+    cursor_style.top = Val::Px(axis_screen.y - cursor_data.offset.y);
 }
 
 // TODO: software cursor image should change based on button interaction

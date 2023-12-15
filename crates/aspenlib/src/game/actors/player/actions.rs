@@ -25,7 +25,7 @@ pub fn spawn_custom_on_button(
     if actions.just_released(action_maps::Gameplay::DebugF1) {
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
         let mouse_world = actions
-            .action_data(action_maps::Gameplay::LookWorld)
+            .action_data(action_maps::Gameplay::CursorWorld)
             .axis_pair
             .expect("this should always have an axis pair, its data MAY be zero")
             .xy();
@@ -79,7 +79,7 @@ pub fn player_attack_sender(
             let player_position = player.1.translation.truncate();
             let action_state = player.2;
             let cursor_world = action_state
-                .action_data(action_maps::Gameplay::LookWorld)
+                .action_data(action_maps::Gameplay::CursorWorld)
                 .axis_pair
                 .expect("no axis pair on Gameplay::LookWorld")
                 .xy();

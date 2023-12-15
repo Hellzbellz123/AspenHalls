@@ -26,7 +26,7 @@ use crate::{
         input::action_maps,
         AppState, TimeInfo,
     },
-    loading::assets::ActorTextureHandles,
+    loading::assets::ActorTextureHandles, ahp::game::lerp,
 };
 
 use self::components::Damage;
@@ -74,6 +74,7 @@ impl Plugin for ActorWeaponPlugin {
             (
                 update_equipped_weapon,
                 player_death_system,
+                // hit_detection::projectile_collisions,
                 hit_detection::hits_on_enemy,
                 hit_detection::hits_on_player,
                 rotate_player_weapon,
@@ -114,7 +115,7 @@ fn rotate_player_weapon(
         if weapon_tag.holder.is_some() {
             let ((_player_animation_state, player_input), ()) = player_query.single_mut();
             let global_mouse_pos = player_input
-                .action_data(action_maps::Gameplay::LookWorld)
+                .action_data(action_maps::Gameplay::CursorWorld)
                 .axis_pair
                 .unwrap()
                 .xy();
@@ -144,7 +145,7 @@ fn equipped_weapon_positioning(
     mut weapon_query: Query<
         // all weapons equipped too entity
         (&Weapon, &mut Transform, &mut Velocity),
-        (With<Parent>, Without<ActorType>),
+        With<Parent>,
     >,
 ) {
     if weapon_query.is_empty() || weapon_carrying_actors.is_empty() {
@@ -153,10 +154,10 @@ fn equipped_weapon_positioning(
 
     for (animation_state, weapon_carrying_entity) in &weapon_carrying_actors {
         for (weapon_tag, mut weapon_transform, mut weapon_velocity) in &mut weapon_query {
+            weapon_velocity.linvel = Vec2::ZERO;
+            weapon_velocity.angvel = 0.0;
+
             if weapon_tag.holder == Some(weapon_carrying_entity) {
-                // weapon_velocity.angvel =
-                //     lerp(weapon_velocity.angvel, 0.0, 0.3);
-                weapon_velocity.linvel = Vec2::ZERO;
                 // modify weapon sprite to be below player when facing up, this
                 // still looks strange but looks better than a back mounted smg
                 if animation_state.animation_type == ActorAnimationType::Up {
@@ -181,8 +182,9 @@ fn equipped_weapon_positioning(
 /// check if the weapon is supposed to be visible
 fn weapon_visibility_system(
     player_query: Query<&WeaponSocket, With<Player>>,
-    mut weapon_query: Query<(&Weapon, &mut Visibility)>, // query weapons parented to entity's
+    mut weapon_query: Query<(&Weapon, &mut Visibility), With<Parent>>, // query weapons parented to entity's
 ) {
+    // TODO: use parent component too get weaponsocket.
     if player_query.is_empty() || weapon_query.is_empty() {
         return;
     }

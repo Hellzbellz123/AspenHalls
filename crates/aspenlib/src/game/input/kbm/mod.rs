@@ -5,7 +5,7 @@ use leafwing_input_manager::{
     prelude::{ActionState, ActionStateDriver},
 };
 
-use crate::{loading::splashscreen::MainCamera};
+use crate::{loading::splashscreen::MainCamera, ahp::game::Player};
 
 use super::{
     action_maps::{self},
@@ -52,9 +52,47 @@ fn apply_look_driver(
     commands
         .entity(window_query.single())
         .insert(ActionStateDriver {
-            action: action_maps::Gameplay::LookLocal,
+            action: action_maps::Gameplay::CursorScreen,
             targets: ActionStateDriverTarget::None, // player_query.single().into(),
         });
+}
+
+/// updates cursor position in look action with winit window cursor position
+fn update_cursor_state_from_window(
+    window_query: Query<&Window>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
+) {
+    let window = window_query.single();
+    let mut action_state = action_state_query.single_mut();
+    let (camera, camera_global_transform) = camera_query.single();
+
+    let mut new_cursor_local: Vec2 = Vec2 {
+        x: window.width() / 2.0,
+        y: window.height() / 2.0,
+    };
+    let mut new_cursor_world = camera
+        .viewport_to_world_2d(camera_global_transform, new_cursor_local)
+        .unwrap_or_default();
+
+    if let Some(cursor_local_pos) = window.cursor_position() {
+        let cursor_world_pos = camera
+            .viewport_to_world_2d(camera_global_transform, cursor_local_pos)
+            .unwrap_or_else(|| {
+                warn!("Could not get cursors world position");
+                new_cursor_world
+            });
+
+        new_cursor_local = cursor_local_pos;
+        new_cursor_world = cursor_world_pos;
+    }
+
+    action_state
+        .action_data_mut(action_maps::Gameplay::CursorScreen)
+        .axis_pair = Some(DualAxisData::from_xy(new_cursor_local));
+    action_state
+        .action_data_mut(action_maps::Gameplay::CursorWorld)
+        .axis_pair = Some(DualAxisData::from_xy(new_cursor_world));
 }
 
 /// updates cursor position in look action with winit window cursor position
@@ -77,11 +115,11 @@ fn update_cursor_state_from_window_old(
             });
 
         action_state
-            .action_data_mut(action_maps::Gameplay::LookLocal)
+            .action_data_mut(action_maps::Gameplay::CursorScreen)
             .axis_pair = Some(DualAxisData::from_xy(cursor_local_pos));
 
         action_state
-            .action_data_mut(action_maps::Gameplay::LookWorld)
+            .action_data_mut(action_maps::Gameplay::CursorWorld)
             .axis_pair = Some(DualAxisData::from_xy(cursor_world_pos));
     } else {
         let window_size = Vec2::from_array([window.width(), window.height()]);
@@ -89,48 +127,10 @@ fn update_cursor_state_from_window_old(
             .viewport_to_world_2d(camera_global_transform, window_size / 2.0)
             .unwrap_or(Vec2::ZERO);
         action_state
-            .action_data_mut(action_maps::Gameplay::LookLocal)
+            .action_data_mut(action_maps::Gameplay::CursorScreen)
             .axis_pair = Some(DualAxisData::from_xy(window_size / 2.0));
         action_state
-            .action_data_mut(action_maps::Gameplay::LookWorld)
+            .action_data_mut(action_maps::Gameplay::CursorWorld)
             .axis_pair = Some(DualAxisData::from_xy(window_center_world));
     }
-}
-
-/// updates cursor position in look action with winit window cursor position
-fn update_cursor_state_from_window(
-    window_query: Query<&Window>,
-    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
-) {
-    let window = window_query.single();
-    let mut action_state = action_state_query.single_mut();
-    let (camera, camera_global_transform) = camera_query.single();
-
-    let mut new_cursor_world: Vec2 = Vec2 {
-        x: window.width() / 2.0,
-        y: window.height() / 2.0,
-    };
-    let mut new_cursor_local = camera
-        .viewport_to_world_2d(camera_global_transform, new_cursor_world)
-        .unwrap_or_default();
-
-    if let Some(cursor_local_pos) = window.cursor_position() {
-        let cursor_world_pos = camera
-            .viewport_to_world_2d(camera_global_transform, cursor_local_pos)
-            .unwrap_or_else(|| {
-                warn!("Could not get cursors world position");
-                new_cursor_world
-            });
-
-        new_cursor_local = cursor_local_pos;
-        new_cursor_world = cursor_world_pos;
-    }
-
-    action_state
-        .action_data_mut(action_maps::Gameplay::LookLocal)
-        .axis_pair = Some(DualAxisData::from_xy(new_cursor_local));
-    action_state
-        .action_data_mut(action_maps::Gameplay::LookWorld)
-        .axis_pair = Some(DualAxisData::from_xy(new_cursor_world));
 }

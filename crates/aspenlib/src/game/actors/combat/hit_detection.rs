@@ -7,6 +7,7 @@ use crate::game::actors::components::{
 };
 
 use super::{components::Damage, PlayerGameInformation};
+// TODO: figure out what needs too be done too merge these systems
 
 /// detects hits on enemies and applies damage
 pub fn hits_on_enemy(
