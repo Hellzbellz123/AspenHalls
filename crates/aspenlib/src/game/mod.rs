@@ -54,21 +54,21 @@ pub enum GameProgressStatus {
     /// select character, buy weapons
     Prepare,
     /// crawling has 1 value. the dungeon Level
-    Crawling(ProgressInDungeon),
+    Crawling(DungeonFloor),
 }
 
 /// each dungeon run has 4 stages that get progressivly larger/harder
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
-pub enum ProgressInDungeon {
+pub enum DungeonFloor {
     /// easiest level, start here
     #[default]
-    LevelOne,
+    One,
     /// slighlty deeper, bit larger, more enemys
-    LevelTwo,
+    Two,
     ///
-    LevelThree,
+    Three,
     /// final level of the dungeon
-    LevelFour,
+    Four,
 }
 
 /// plugin that holds all game functionality as plugin modules

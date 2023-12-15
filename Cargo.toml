@@ -1,58 +1,31 @@
-[package]
-name = "aspen_lib"
-version = "0.0.1"
-edition = "2021"
-authors = ["Hellzbellz123 (Taylor Smith)"]
-description = "Aspen Halls: in progress"
-documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
-homepage = "https://hellzbellz123.github.io/AspenHalls/"
-license-file = "LICENSE"
-readme = "README.md"
-repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
-keywords = [
-  "videogame",
-  "game",
-  "application",
-  "bin",
-]
-categories = ["games"]
-
 [workspace]
 resolver = "2"
-members = [
-  "launchers/native",
-  "launchers/mobile",
-  "launchers/wasm",
-  # "./"
-]
-exclude = ["deps", "deps_inhouse", "deps_broke"]
-
-[lints]
-workspace = true
+default-members = ["crates/aspenlib", "crates/native"]
+members = ["crates/aspenlib", "crates/native", "crates/mobile", "crates/wasm"]
+exclude = ["deps"]
 
 [workspace.lints.rust]
-missing-docs = {level = "deny"}
-# unused_imports = "allow"
-# dead_code = "allow"
+missing-docs = { level = "deny" }
 
 [workspace.lints.clippy]
+### warned lints ###
 too-many-lines = "warn"
 missing_errors_doc = "warn"
 missing_panics_doc = "warn"
 missing_safety_doc = "warn"
+
 ### denied lints ###
-missing_docs_in_private_items = {level = "deny"}
-correctness = {level = "deny", priority = -1}
-suspicious = {level = "deny", priority = -1}
-complexity = {level = "deny", priority = -1}
-perf = {level = "deny", priority = -1}
-style = {level = "deny", priority = -1}
-pedantic = {level = "deny", priority = -1}
-nursery = {level = "deny", priority = -1}
-cargo = {level = "deny", priority = -1}
+missing_docs_in_private_items = { level = "deny" }
+correctness = { level = "deny", priority = -1 }
+suspicious = { level = "deny", priority = -1 }
+complexity = { level = "deny", priority = -1 }
+perf = { level = "deny", priority = -1 }
+style = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -1 }
+cargo = { level = "deny", priority = -1 }
+
 ### allowed lints from clippy pedantic ###
-# this can maybe be disabled. this depends on gameworld components
-unnecessary_struct_initialization = { level = "allow" }
 multiple-crate-versions = { level = "allow" }
 needless_pass_by_value = { level = "allow" }
 module_name_repetitions = { level = "allow" }
@@ -61,14 +34,6 @@ cast_possible_truncation = { level = "allow" }
 cast_precision_loss = { level = "allow" }
 cast-sign-loss = { level = "allow" }
 cast_possible_wrap = { level = "allow" }
-
-
-[lib]
-crate-type = ["staticlib","cdylib"]
-
-# [[bin]]
-# name = "AspenHalls"
-# path = "src/aspenhalls.rs"
 
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 [profile.dev.package."*"]
@@ -89,124 +54,14 @@ codegen-units = 1
 opt-level = 'z'
 lto = "fat"
 
-[workspace.dependencies]
-log = "0.4.20"
-bevy = { path = "deps/bevy", default-features = false, features = [
-  "bevy_pbr",         # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-  "bevy_ui",          # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-  "bevy_winit",       # Support for creating windows
-  "multi-threaded",   # enable multithreading in bevy_ecs / bevy_tasks
-  "x11",              # Support xOrg Windows
-  "wayland",          # Support Wayland windows
-  "png",              # png is my preffered image format
-  "serialize",        # Support for `serde` Serialize/Deserialize
-  "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
-  "ktx2",             # gpu friendly texture format
-  "zstd",             # zstd is for ktx2 compression
-  # "bevy_gilrs",             # Gamepad input support
-  # "subpixel_glyph_atlas",   # Subpixel antialiasing for text/fonts
-  # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet?
-  # "bevy_scene",             # scenes are unused atm
-] }
-
-[features]
-dynamic = ["bevy/dynamic_linking"]
-
-develop = [
-  "dep:bevy-inspector-egui",
-  "dep:bevy_egui",
-]
-
-trace = [
-  # taplo collapeses this
-  "bevy_mod_logfu/trace_tracy",
-  "bevy_mod_logfu/trace_tracy_memory",
-]
-
-# [target.'cfg(target_os = "android")'.dependencies]
-# oboe = { version = "0.5", features = ["shared-stdcxx"] }
-# bevy = { workspace = true, features = [
-#   # "android_shared_stdcxx", # this is for cpal/oboe
-# ] }
-
-# [target.'cfg(target_family = "wasm")'.dependencies]
-# bevy = { workspace = true, features = [
-#   "webgl2", # webgl2 shaders
-# ] }
-
-[dependencies]
-lazy_static = { version = "1.4.0" }
-rand = { version = "0.8" }
-# log = { workspace = true }
-log = "0.4.20"
-serde = { version = "1.0" }
-strum = { version = "0.25.0", features = [
-  "derive",
-  "std",
-  "strum_macros",
-] }
-toml = { version = "0.8.0" }
-winit = { version = "0.28", default-features = false, features = [
-  "x11",
-  "wayland",
-] }
-clap = { version = "4.2" }
-image = { version = "0.24", default_features = false, features = [
-  "png",
-] }
-voronator = { version = "0.2" }
-petgraph = { version = "0.6" }
-num-integer = { version = "0.1" }
-
-
-bevy = { workspace = true }
-
-# personal bevy plugins
-bevy_mod_logfu = { path = "deps/bevy_mod_logfu" }
-# Bevy Dependencies are located in deps folder
-big-brain = { path = "deps/big_brain" }
-leafwing-input-manager = { path = "deps/leafwing_input_manager" }
-seldom_map_nav = { path = "deps/seldom_map_nav", features = [
-  "bevy",
-] }
-bevy_touch_stick = { path = "deps/bevy_touch_stick" }
-bevy_console = { path = "deps/bevy_console" }
-bevy-inspector-egui = { path = "deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true, default-features = false }
-bevy_common_assets = { path = "deps/bevy_common_assets", features = [
-  "ron",
-] }
-bevy_ecs_ldtk = { path = "deps/bevy_ecs_ldtk", features = [
-  "atlas",
-  "external_levels",
-] }
-bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap", features = [
-  "render",
-] }
-bevy_framepace = { path = "deps/bevy_framepace" }
-bevy_prototype_lyon = { path = "deps/bevy_prototype_lyon" }
-bevy_rapier2d = { path = "deps/bevy_rapier/bevy_rapier2d" }
-bevy_egui = { path = "deps/bevy_egui", optional = true, default-features = false, features = [
-  "default_fonts",
-  "serde",
-] }
-bevy_asset_loader = { path = "deps/bevy_asset_loader/bevy_asset_loader", features = [
-  "2d",
-  "standard_dynamic_assets",
-] }
-bevy_kira_audio = { path = "deps/bevy_kira_audio", default-features = false, features = [
-  "ogg",
-] }
-bevy_mod_debugdump = { path = "deps/bevy_mod_debugdump", features = [
-  "render_graph",
-] }
-bevy-debug-text-overlay = { path = "deps/bevy_debug_text_overlay", default-features = false, features = [
-  "builtin-font",
-] }
-
 # broken dependencies
 [patch.crates-io]
 typid = { git = "https://github.com/hellzbellz123/typid" }
 ### bevy addon local replacements ###
+# Patching local bevy crates does not usually make them work
+# Cargo will use both versions of bevy so the patches usually
+# just break compiling if dependencies use different
+# bevy versions
 bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap" }
 bevy_egui = { path = "deps/bevy_egui" }
 bevy_common_assets = { path = "deps/bevy_common_assets" }
@@ -225,7 +80,7 @@ bevy_diagnostic = { path = "deps/bevy/crates/bevy_diagnostic" }
 bevy_ecs = { path = "deps/bevy/crates/bevy_ecs" }
 bevy_encase_derive = { path = "deps/bevy/crates/bevy_encase_derive" }
 bevy_reflect = { path = "deps/bevy/crates/bevy_reflect" }
-bevy_reflect_derive = { path = "deps/bevy/crates/bevy_reflect/bevy_reflect_derive"}
+bevy_reflect_derive = { path = "deps/bevy/crates/bevy_reflect/bevy_reflect_derive" }
 bevy_gilrs = { path = "deps/bevy/crates/bevy_gilrs" }
 bevy_gizmos = { path = "deps/bevy/crates/bevy_gizmos" }
 bevy_hierarchy = { path = "deps/bevy/crates/bevy_hierarchy" }
@@ -248,10 +103,10 @@ bevy_ui = { path = "deps/bevy/crates/bevy_ui" }
 bevy_utils = { path = "deps/bevy/crates/bevy_utils" }
 bevy_window = { path = "deps/bevy/crates/bevy_window" }
 bevy_winit = { path = "deps/bevy/crates/bevy_winit" }
-bevy_animation = {path = "deps/bevy/crates/bevy_animation"}
-bevy_audio = {path = "deps/bevy/crates/bevy_audio"}
-bevy_gltf = {path = "deps/bevy/crates/bevy_gltf"}
-bevy_dynamic_plugin = {path = "deps/bevy/crates/bevy_dynamic_plugin"}
+bevy_animation = { path = "deps/bevy/crates/bevy_animation" }
+bevy_audio = { path = "deps/bevy/crates/bevy_audio" }
+bevy_gltf = { path = "deps/bevy/crates/bevy_gltf" }
+bevy_dynamic_plugin = { path = "deps/bevy/crates/bevy_dynamic_plugin" }
 
 # TODO: move the virtual touchpad into a reuseable bevy plugin
 # so other people can just throw it in and use it

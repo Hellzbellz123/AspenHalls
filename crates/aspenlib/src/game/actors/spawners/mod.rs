@@ -35,19 +35,16 @@ pub struct SpawnerPlugin;
 
 impl Plugin for SpawnerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnActorEvent>()
-            // .add_event::<SpawnWeaponEvent>()
-            // .add_event::<SpawnEnemyEvent>()
-            .add_systems(
-                Update,
-                (
-                    spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()), //run_once()),
-                    receive_enemy_spawns,
-                    receive_weapon_spawns,
-                    spawner_timer_system,
-                )
-                    .run_if(resource_exists::<ActorTextureHandles>()),
-            );
+        app.add_event::<SpawnActorEvent>().add_systems(
+            Update,
+            (
+                spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()), //run_once()),
+                receive_enemy_spawns,
+                receive_weapon_spawns,
+                spawner_timer_system,
+            )
+                .run_if(resource_exists::<ActorTextureHandles>()),
+        );
     }
 }
 
@@ -61,6 +58,7 @@ fn receive_enemy_spawns(
     for event in events.read() {
         info!("received event: {:#?}", event);
         if event.actor_type != ActorType(Type::Enemy) {
+            warn!("not an enemy: {:?}", event.actor_type);
             return;
         } else if event.spawn_count > 100 {
             warn!("too many spawns requested, will likely panic, aborting");
@@ -175,10 +173,7 @@ pub fn spawner_timer_system(
     time: Res<Time>,
     hard_settings: Res<DifficultyScales>,
     mut event_writer: EventWriter<SpawnActorEvent>,
-    mut spawner_query: Query<
-        (Entity, &GlobalTransform, &mut Spawner, &mut SpawnerTimer),
-        With<Spawner>,
-    >,
+    mut spawner_query: Query<(Entity, &GlobalTransform, &mut Spawner, &mut SpawnerTimer)>,
     all_enemies: Query<&Transform, With<Enemy>>,
 ) {
     if spawner_query.is_empty() {
@@ -191,14 +186,17 @@ pub fn spawner_timer_system(
         1_000_000
     });
 
-    if total_enemy_count.ge(&hard_settings.max_enemies_per_room) {
+    if total_enemy_count.ge(&(hard_settings.max_enemies_per_room * 25)) {
         // warn!("Enemy Count is greater than or equal too total enemies allowed in game");
         return;
     }
+
     for (spawner_entity, spawner_transform, spawner_state, mut spawner_timer) in &mut spawner_query
     {
-        if !spawner_timer.tick(time.delta()).finished() {
-            return;
+        spawner_timer.tick(time.delta());
+
+        if !spawner_timer.finished() {
+            continue;
         }
 
         let mut enemies_in_spawner_area = 0;

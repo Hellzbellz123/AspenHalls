@@ -3,8 +3,10 @@
     After valid configuration is found/created, starts bevy app
 "]
 
-use aspen_lib::ahp::engine as bevy;
-use aspen_lib::ahp::game as asha;
+use aspenlib::ahp::{engine as bevy, game as asha};
+
+// use aspenlib::ahp::engine as bevy;
+// use aspenlib::ahp::game as asha;
 use std::path::Path;
 
 /// this translates too same folder as executable
@@ -13,7 +15,7 @@ pub const APP_SETTINGS_PATH: &str = "./config.toml";
 fn main() {
     bevy::info!("Starting launcher: Native");
     let cfg_file: asha::ConfigFile = load_settings();
-    aspen_lib::start_app(cfg_file).run();
+    aspenlib::start_app(cfg_file).run();
 }
 
 /// loads app settings from `consts::APP_SETTINGS_PATH` and returns a boxed config file

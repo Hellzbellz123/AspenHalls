@@ -15,10 +15,11 @@ runtimes:
     - node@18.12.1
     - python@3.10.8
 lint:
+  disabled:
+    - rustfmt
+    - clippy
   enabled:
     - git-diff-check
-    - clippy@nightly
-    - rustfmt@nightly
     - taplo@0.8.1
     - actionlint@1.6.26
     - checkov@3.0.38
@@ -35,10 +36,8 @@ lint:
   ignore:
     - linters: [ALL]
       paths:
-        # ignore gradlew, this is an external shell tool, i don't care as long as it works
-        - launchers/mobile/android/gradlew
+        # ignore dependencies
         - deps
-        - deps_inhouse
 actions:
   disabled:
     - git-lfs

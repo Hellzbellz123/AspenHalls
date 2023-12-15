@@ -319,21 +319,21 @@ impl Attributes {
 
     /// multiplies all attributes by passed value
     fn scale(scale: i32) -> Self {
-        let scale_i32 = scale;
-        let scale_f32 = scale as f32;
+        let scale_integer = scale;
+        let scale_float = scale as f32;
         Self {
-            max_hp: 100.0 * scale_f32,
-            hp_regen: 5.0 * scale_f32,
-            max_mana: 200.0 * scale_f32,
-            mana_regen: 10.0 * scale_f32,
-            move_speed: 100.0 * scale_f32,
-            strength: 10 * scale_i32,
-            agility: 10 * scale_i32,
-            intelligence: 10 * scale_i32,
-            damage: 5.0 * scale_f32,
-            range: (TILE_SIZE.x * (1.5 * scale_f32)),
-            arm_speed: 1.0 * scale_f32,
-            armor: 10.0 * scale_f32,
+            max_hp: 100.0 * scale_float,
+            hp_regen: 5.0 * scale_float,
+            max_mana: 200.0 * scale_float,
+            mana_regen: 10.0 * scale_float,
+            move_speed: 100.0 * scale_float,
+            strength: 10 * scale_integer,
+            agility: 10 * scale_integer,
+            intelligence: 10 * scale_integer,
+            damage: 5.0 * scale_float,
+            range: (TILE_SIZE.x * (1.5 * scale_float)),
+            arm_speed: 1.0 * scale_float,
+            armor: 10.0 * scale_float,
         }
     }
 

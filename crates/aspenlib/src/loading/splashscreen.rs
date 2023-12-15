@@ -104,7 +104,7 @@ fn splash_setup(
 ) {
     info!("loading splash");
     // let window = window.single();
-    // let img_bytes = include_bytes!("../../res/splashL.png");
+    // let img_bytes = include_bytes!("../../assets-build/splashL.png");
     // let splash_image = Image::from_buffer(
     //     img_bytes,
     //     ImageType::Extension("png"),

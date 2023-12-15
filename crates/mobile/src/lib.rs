@@ -3,8 +3,8 @@
     currently only targets android, should be expanded too ios mobile
 "]
 
-use aspen_lib::ahp::engine::{self as engine, bevy};
-use aspen_lib::ahp::game as asha;
+use aspenlib::ahp::engine::{self as engine, bevy};
+use aspenlib::ahp::game as asha;
 
 #[bevy::prelude::bevy_main]
 fn main() {
@@ -34,7 +34,7 @@ fn main() {
     };
 
     println!("Starting launcher: Mobile");
-    aspen_lib::start_app(config).run();
+    aspenlib::start_app(config).run();
 }
 
 // TODO: use bevy_fluent for localization, keep below functions

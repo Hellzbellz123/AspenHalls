@@ -375,34 +375,35 @@ fn remove_value(vec: &mut Vec<String>, value: &str) {
     vec.retain(|elem| elem != value);
 }
 
-fn random_point_inside(this: &Rect, tile_buffer: f32) -> Option<Vec2> {
+/// returns a point inside the rect with -`inset`. `inset` is multiplied by TILE_SIZE
+fn random_point_inside(rect: &Rect, inset: f32) -> Option<Vec2> {
     let mut rng = ThreadRng::default();
-    let useable_space = this.inset(-(TILE_SIZE.x * tile_buffer));
+    let useable_space = rect.inset(-(TILE_SIZE.x * inset));
     let Rect {
         min: usable_min,
         max: usable_max,
     } = useable_space;
-    let useable_y_range = usable_min.y..usable_max.y;
-    let useable_x_range = usable_min.x..usable_max.x;
+    let vertical_range = usable_min.y..usable_max.y;
+    let horizontal_range = usable_min.x..usable_max.x;
 
-    if this.is_empty() {
+    if rect.is_empty() {
         return None;
     }
 
     Some(Vec2 {
-        x: if useable_x_range.is_empty() {
-            warn!("using center x of {:?}", this);
-            this.center().x
+        x: if horizontal_range.is_empty() {
+            warn!("using center x of {:?}", rect);
+            rect.center().x
         } else {
             warn!("using range x");
-            rng.gen_range(useable_x_range)
+            rng.gen_range(horizontal_range)
         },
-        y: if useable_y_range.is_empty() {
-            warn!("using center y of {:?}", this);
-            this.center().y
+        y: if vertical_range.is_empty() {
+            warn!("using center y of {:?}", rect);
+            rect.center().y
         } else {
             warn!("using range y");
-            rng.gen_range(useable_y_range)
+            rng.gen_range(vertical_range)
         },
     })
 }

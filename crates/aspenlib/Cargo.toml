@@ -1,0 +1,92 @@
+[package]
+name = "aspenlib"
+description = "Aspen Halls: in progress"
+authors = ["Hellzbellz123 (Taylor Smith)"]
+documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
+repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
+homepage = "https://hellzbellz123.github.io/AspenHalls/"
+license-file = "LICENSE"
+readme = "README.md"
+version = "0.0.1"
+edition = "2021"
+
+[lints]
+workspace = true
+
+[features]
+dynamic = ["bevy/dynamic_linking"]
+develop = ["dep:bevy-inspector-egui", "dep:bevy_egui"]
+trace = ["bevy_mod_logfu/trace_tracy", "bevy_mod_logfu/trace_tracy_memory"]
+
+[dependencies]
+lazy_static = { version = "1.4.0" }
+rand = { version = "0.8" }
+log = "0.4.20"
+serde = { version = "1.0" }
+strum = { version = "0.25.0", features = ["derive", "std", "strum_macros"] }
+toml = { version = "0.8.0" }
+winit = { version = "0.28", default-features = false, features = [
+  "x11",
+  "wayland",
+] }
+clap = { version = "4.2" }
+image = { version = "0.24", default_features = false, features = ["png"] }
+voronator = { version = "0.2" }
+petgraph = { version = "0.6" }
+num-integer = { version = "0.1" }
+bevy = { path = "../../deps/bevy", default-features = false, features = [
+  "bevy_pbr",         # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+  "bevy_ui",          # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+  "bevy_winit",       # Support for creating windows
+  "multi-threaded",   # enable multithreading in bevy_ecs / bevy_tasks
+  "x11",              # Support xOrg Windows
+  "wayland",          # Support Wayland windows
+  "png",              # png is my preffered image format
+  "serialize",        # Support for `serde` Serialize/Deserialize
+  "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
+  "ktx2",             # gpu friendly texture format
+  "zstd",             # zstd is for ktx2 compression
+  # "bevy_gilrs",             # Gamepad input support
+  # "subpixel_glyph_atlas",   # Subpixel antialiasing for text/fonts
+  # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet?
+  # "bevy_scene",             # scenes are unused atm
+] }
+# personal bevy plugins
+bevy_mod_logfu = { path = "../../deps/bevy_mod_logfu" }
+# Bevy Dependencies are located in deps folder
+big-brain = { path = "../../deps/big_brain" }
+leafwing-input-manager = { path = "../../deps/leafwing_input_manager" }
+seldom_map_nav = { path = "../../deps/seldom_map_nav", features = ["bevy"] }
+bevy_touch_stick = { path = "../../deps/bevy_touch_stick" }
+bevy_console = { path = "../../deps/bevy_console" }
+bevy-inspector-egui = { path = "../../deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true, default-features = false }
+bevy_common_assets = { path = "../../deps/bevy_common_assets", features = [
+  "ron",
+] }
+bevy_ecs_ldtk = { path = "../../deps/bevy_ecs_ldtk", features = [
+  "atlas",
+  "external_levels",
+] }
+bevy_ecs_tilemap = { path = "../../deps/bevy_ecs_tilemap", features = [
+  "render",
+] }
+bevy_framepace = { path = "../../deps/bevy_framepace" }
+bevy_prototype_lyon = { path = "../../deps/bevy_prototype_lyon" }
+bevy_rapier2d = { path = "../../deps/bevy_rapier/bevy_rapier2d" }
+bevy_egui = { path = "../../deps/bevy_egui", optional = true, default-features = false, features = [
+  "default_fonts",
+  "serde",
+] }
+bevy_asset_loader = { path = "../../deps/bevy_asset_loader/bevy_asset_loader", features = [
+  "2d",
+  "standard_dynamic_assets",
+] }
+bevy_kira_audio = { path = "../../deps/bevy_kira_audio", default-features = false, features = [
+  "ogg",
+] }
+bevy_mod_debugdump = { path = "../../deps/bevy_mod_debugdump", features = [
+  "render_graph",
+] }
+bevy-debug-text-overlay = { path = "../../deps/bevy_debug_text_overlay", default-features = false, features = [
+  "builtin-font",
+] }

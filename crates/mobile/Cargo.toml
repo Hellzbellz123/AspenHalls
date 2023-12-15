@@ -1,9 +1,7 @@
 [package]
 name = "aspen_halls_mobile"
 version = "0.0.1"
-authors = [
-  "Taylor Smith <aspenhalls.org@gmail.com>",
-]
+authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
 edition = "2021"
 description = "aspen halls launcher lib for mobile platform apps"
 documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
@@ -11,43 +9,46 @@ homepage = "https://hellzbellz123.github.io/AspenHalls/"
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
-keywords = [
-  "videogame",
-  "game",
-  "application",
-  "bin",
-]
+keywords = ["videogame", "game", "application", "bin"]
 categories = ["games"]
-# workspace = "../../"
 
 [lib]
 name = "game"
 crate-type = ["staticlib", "cdylib"]
 
 [features]
-develop = ["aspen_lib/develop"]
+develop = ["aspenlib/develop"]
 
 [dependencies]
-aspen_lib = { path = "../../" }
-jni = { version = "0.21.1", features = [
-  "invocation",
-] }
 ndk-context = "0.1.1"
+aspenlib = { path = "../aspenlib" }
+jni = { version = "0.21.1", features = ["invocation"] }
+
+#  dont bother with oboe unless were using ndk too build
+[target.'cfg(target_os = "android")'.dependencies]
+bevy = { version = "*", features = [
+  "android_shared_stdcxx", # this is for cpal/oboe
+] }
+oboe = { version = "0.5", features = ["shared-stdcxx"] }
 
 
 # android manifest definition in toml
 [package.metadata.android]
 package = "com.hellzbellz123.aspen_halls"
 build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
-resources = "../../res/android"
+resources = "../../assets-build/android"
 assets = "../../assets"
 apk_name = "AspenHalls"
 strip = "strip"
 sdk = { target_sdk_version = 34, max_sdk_version = 34, min_sdk_version = 31 }
 # See https://developer.android.com/guide/topics/manifest/uses-feature-element
-uses_feature = [{name = "android.hardware.vulkan.level", required = true, version = 1},]
+uses_feature = [
+  { name = "android.hardware.vulkan.level", required = true, version = 1 },
+]
 # See https://developer.android.com/guide/topics/manifest/uses-permission-element
-uses_permission = [{name = "android.permission.MODIFY_AUDIO_SETTINGS", max_sdk_version = 21},]
+uses_permission = [
+  { name = "android.permission.MODIFY_AUDIO_SETTINGS", max_sdk_version = 21 },
+]
 
 # See https://developer.android.com/guide/topics/manifest/application-element
 [package.metadata.android.application]
@@ -62,7 +63,7 @@ uses_cleartext_traffic = true
 # See https://developer.android.com/guide/topics/manifest/meta-data-element
 # Note: there can be several .meta_data entries.
 # Note: the `resource` attribute is currently not supported.
-meta_data = [{name = "android.app.lib_name", value = "game"}]
+meta_data = [{ name = "android.app.lib_name", value = "game" }]
 
 # See https://developer.android.com/guide/topics/manifest/activity-element
 [package.metadata.android.application.activity]
@@ -107,7 +108,7 @@ always_retain_task_state = true
 # assets = ["../../assets"]
 
 # [package.metadata.apple]
-# resources = ["../../res/apple"]
+# resources = ["../../assets-build/apple"]
 # release_build_targets = [
 #   "aarch64-apple-ios",
 #   "x86_64-apple-ios",

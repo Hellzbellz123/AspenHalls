@@ -1,6 +1,8 @@
 /// functions too create default file and save file
 pub mod save_load;
 
+use bevy::asset::AssetMetaCheck;
+
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
 // use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
 use crate::ahp::{engine::*, game::*, plugins::*};
@@ -225,6 +227,7 @@ impl Default for SoundSettings {
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     println!("Hello World!");
     let mut vanillacoffee = App::new();
+    vanillacoffee.insert_resource(AssetMetaCheck::Never);
 
     vanillacoffee.add_plugins((
         LogFuPlugin {
