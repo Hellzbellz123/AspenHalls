@@ -8,7 +8,7 @@
 		"appVersion": "1.4.1",
 		"url": "https://ldtk.io"
 	},
-	"identifier": "SanctuaryL1",
+	"identifier": "HideoutL1",
 	"iid": "7ab56830-8990-11ee-a550-1380b8d0b8e4",
 	"uid": 59,
 	"worldX": 0,
@@ -31,9 +31,9 @@
 			"id": "V_String",
 			"params": ["Special"]
 		}] },
-		{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Sanctuary", "__tile": null, "defUid": 46, "realEditorValues": [{
+		{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Hideout", "__tile": null, "defUid": 46, "realEditorValues": [{
 			"id": "V_String",
-			"params": ["Sanctuary"]
+			"params": ["Hideout"]
 		}] },
 		{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
 			"id": "V_String",
@@ -69,7 +69,7 @@
 					"__identifier": "PlayerStartLoc",
 					"__grid": [12,26],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
 					"__worldX": 192,
@@ -82,10 +82,10 @@
 					"fieldInstances": []
 				},
 				{
-					"__identifier": "TeleportSensor",
+					"__identifier": "Teleporter",
 					"__grid": [18,8],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#94D9B3",
 					"__worldX": 288,
@@ -96,17 +96,49 @@
 					"defUid": 67,
 					"px": [288,128],
 					"fieldInstances": [
-						{ "__identifier": "Teleport_Type", "__type": "LocalEnum.TeleportType", "__value": "Event", "__tile": null, "defUid": 35, "realEditorValues": [{
+						{ "__identifier": "TeleporterType", "__type": "LocalEnum.TeleportType", "__value": "Event", "__tile": null, "defUid": 35, "realEditorValues": [{
 							"id": "V_String",
 							"params": ["Event"]
 						}] },
-						{ "__identifier": "Teleport_Action", "__type": "String", "__value": "StartDungeonGen", "__tile": null, "defUid": 33, "realEditorValues": [{
+						{ "__identifier": "TeleporterAction", "__type": "String", "__value": "StartDungeonGen", "__tile": null, "defUid": 33, "realEditorValues": [{
 							"id": "V_String",
 							"params": ["StartDungeonGen"]
 						}] },
-						{ "__identifier": "Teleport_Local", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
-						{ "__identifier": "Teleport_Global", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
+						{ "__identifier": "TeleportLocalRef", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
+						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					]
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [12,20],
+					"__pivot": [1,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"__worldX": 208,
+					"__worldY": -1840,
+					"iid": "a1659c20-8990-11ee-ab6b-9bab382f9391",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [208,336],
+					"fieldInstances": [{ "__identifier": "WhatHero", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [28,20],
+					"__pivot": [1,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"__worldX": 464,
+					"__worldY": -1840,
+					"iid": "a2a10250-8990-11ee-ab6b-1562c02690b2",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [464,336],
+					"fieldInstances": [{ "__identifier": "WhatHero", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
 				}
 			]
 		},
@@ -343,8 +375,6 @@
 				{ "px": [192,512], "src": [128,64], "f": 0, "t": 16, "d": [326], "a": 1 },
 				{ "px": [224,512], "src": [128,64], "f": 0, "t": 16, "d": [327], "a": 1 },
 				{ "px": [256,512], "src": [128,64], "f": 0, "t": 16, "d": [328], "a": 1 },
-				{ "px": [288,512], "src": [64,0], "f": 0, "t": 2, "d": [329], "a": 1 },
-				{ "px": [320,512], "src": [64,0], "f": 0, "t": 2, "d": [330], "a": 1 },
 				{ "px": [352,512], "src": [128,64], "f": 0, "t": 16, "d": [331], "a": 1 },
 				{ "px": [384,512], "src": [128,64], "f": 0, "t": 16, "d": [332], "a": 1 },
 				{ "px": [416,512], "src": [128,64], "f": 0, "t": 16, "d": [333], "a": 1 },

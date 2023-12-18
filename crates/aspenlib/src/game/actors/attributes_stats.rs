@@ -31,6 +31,7 @@ pub const MANA_PER_INTELLIGENCE: i32 = 4;
 #[derive(Debug)]
 pub struct StatEffects(VecDeque<Effect>);
 
+/// effects value and how it is applied
 #[derive(Debug)]
 pub enum EffectType {
     // TODO: impl buff modifiers.
@@ -43,14 +44,19 @@ pub enum EffectType {
     ValueModifier(f32),
 }
 
+/// how long should this effect last
 #[derive(Debug, Default)]
 enum EffectDuration {
+    /// effect never wears off unless removed or entitity dies
     Infinite,
-    DamageOverTime(Duration),
+    /// effects value is applied over total duration
+    OverTime(Duration),
+    /// all of this effect is applied instantly
     #[default]
     Instant,
 }
 
+/// modifier applied too player stats
 #[derive(Debug)]
 pub struct Effect {
     /// duration of this effect
@@ -264,7 +270,7 @@ impl Attributes {
         agility: 10,
         intelligence: 10,
         damage: 5.0,
-        range: (TILE_SIZE.x * 1.5),
+        range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10.0,
     };
@@ -280,7 +286,7 @@ impl Attributes {
         agility: 10,
         intelligence: 10,
         damage: 5.0,
-        range: (TILE_SIZE.x * 1.5),
+        range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10.0,
     };
@@ -296,7 +302,7 @@ impl Attributes {
         agility: 10,
         intelligence: 10,
         damage: 5.0,
-        range: (TILE_SIZE.x * 1.5),
+        range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10.0,
     };
@@ -312,7 +318,7 @@ impl Attributes {
         agility: 10,
         intelligence: 10,
         damage: 5.0,
-        range: (TILE_SIZE.x * 1.5),
+        range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10.0,
     };
@@ -331,13 +337,13 @@ impl Attributes {
             agility: 10 * scale_integer,
             intelligence: 10 * scale_integer,
             damage: 5.0 * scale_float,
-            range: (TILE_SIZE.x * (1.5 * scale_float)),
+            range: (TILE_SIZE * (1.5 * scale_float)),
             arm_speed: 1.0 * scale_float,
             armor: 10.0 * scale_float,
         }
     }
 
-    /// checks if all values in `self` are == 0
+    /// checks if all values in `self` are == 07
     fn all_zero(&self) -> bool {
         self.max_hp == 0.0
             && self.hp_regen == 0.0

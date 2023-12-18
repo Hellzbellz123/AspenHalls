@@ -21,7 +21,7 @@ use crate::{
     loading::config::DifficultyScales,
 };
 
-use super::ai::components::{ActorType, Enemy, Type};
+use super::ai::components::{ActorType, Enemy, Faction};
 
 /// spawner components
 pub mod components;
@@ -38,7 +38,7 @@ impl Plugin for SpawnerPlugin {
         app.add_event::<SpawnActorEvent>().add_systems(
             Update,
             (
-                spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()), //run_once()),
+                spawn_enemy_container.run_if(|ect: Query<&EnemyContainerTag>| ect.is_empty()),
                 receive_enemy_spawns,
                 receive_weapon_spawns,
                 spawner_timer_system,
@@ -48,7 +48,12 @@ impl Plugin for SpawnerPlugin {
     }
 }
 
-///TODO: can cause panic if spawn count is larger than 100
+//TODO: move enemy definitions too assets
+// load definitions on startup and put them in a database
+// use actor spawn events too create new events
+// create new weapon_spawn/actor_spawn etc systems that pull definitions from database and spawn in world
+
+/// takes enemy spawn events and actually spawns actors in world
 fn receive_enemy_spawns(
     entity_container: Query<Entity, With<EnemyContainerTag>>,
     mut events: EventReader<SpawnActorEvent>,
@@ -56,28 +61,39 @@ fn receive_enemy_spawns(
     enemy_assets: Res<ActorTextureHandles>,
 ) {
     for event in events.read() {
-        info!("received event: {:#?}", event);
-        if event.actor_type != ActorType(Type::Enemy) {
-            warn!("not an enemy: {:?}", event.actor_type);
-            return;
-        } else if event.spawn_count > 100 {
-            warn!("too many spawns requested, will likely panic, aborting");
+        if event.actor_type != ActorType::Npc(Faction::Enemy) {
             return;
         }
+
         let mut rng = thread_rng();
+        let spawn_count = if event.spawn_count > 100 {
+            warn!(
+                "too many {:?} spawns requested, will likely panic, aborting",
+                event.actor_type
+            );
+            20
+        } else {
+            event.spawn_count
+        };
 
         let pos = vec2(
             event.spawn_position.x + rng.gen_range(-100.0..=100.0),
             event.spawn_position.y + rng.gen_range(-100.0..=100.0),
         );
 
-        let what_too_spawn =
-            EnemyType::from_str(event.what_to_spawn.as_str()).unwrap_or_else(|error| {
-                warn!("error getting Weapon to spawn from event, using EnemyType::Slime {error}");
-                EnemyType::Slime
-            });
+        let Ok(what_too_spawn) = EnemyType::from_str(event.what_to_spawn.as_str()) else {
+            error!(
+                "variant: {}, issue: spawners enemytype could not be converted too concrete type",
+                event.what_to_spawn
+            );
+            return;
+        };
 
-        for _event_num in 0..event.spawn_count {
+        info!(
+            "received enemy spawn. enemy: {}, amount: {}, pos: {}",
+            what_too_spawn, spawn_count, event.spawn_position
+        );
+        for _spawn in 0..spawn_count {
             match what_too_spawn {
                 EnemyType::Skeleton => spawn_skeleton(
                     entity_container.single(),
@@ -110,10 +126,9 @@ fn receive_enemy_spawns(
             }
         }
     }
-    events.clear();
 }
 
-///TODO: can cause panic if spawn count is larger than 100 because spawning items on each other
+/// takes weapon spawn commands and spawns weapons in the world
 fn receive_weapon_spawns(
     mut events: EventReader<SpawnActorEvent>,
     mut commands: Commands,
@@ -121,36 +136,47 @@ fn receive_weapon_spawns(
 ) {
     for event in events.read() {
         info!("received event: {:#?}", event);
-        if event.actor_type != ActorType(Type::Item) {
-            return;
-        } else if event.spawn_count > 100 {
-            warn!("too many spawns requested, will likely panic, aborting");
+        if event.actor_type != ActorType::Item {
             return;
         }
 
-        let what_too_spawn = WeaponType::from_str(event.what_to_spawn.as_str()).unwrap_or_else( |error|{
-            warn!("error getting Weapon to spawn from event, using WeaponType::SmallPistol {error}");
-            WeaponType::SmallPistol
-        });
+        let spawn_count = if event.spawn_count > 100 {
+            warn!(
+                "too many {:?} spawns requested, will likely panic, aborting",
+                event.actor_type
+            );
+            20
+        } else {
+            event.spawn_count
+        };
 
-        match what_too_spawn {
-            WeaponType::SmallSMG => {
-                for _spawn_count in 0..event.spawn_count {
+        let Ok(what_too_spawn) = WeaponType::from_str(event.what_to_spawn.as_str()) else {
+            error!(
+                "variant: {}, issue: spawners weapontype could not be converted too concrete type",
+                event.what_to_spawn
+            );
+            return;
+        };
+
+        info!(
+            "received weapon spawn. weapon: {}, amount: {}, pos: {}",
+            what_too_spawn, spawn_count, event.spawn_position
+        );
+        for _spawn in 0..spawn_count {
+            match &what_too_spawn {
+                WeaponType::SmallSMG => {
                     spawn_small_smg(enemy_assets.to_owned(), &mut commands, event);
                 }
-            }
-            WeaponType::SmallPistol => {
-                for _spawn_count in 0..event.spawn_count {
+                WeaponType::SmallPistol => {
                     spawn_small_pistol(enemy_assets.to_owned(), &mut commands, event);
                 }
-            }
-            #[allow(unreachable_patterns)]
-            weapon_type => {
-                warn!("WeaponType not implemented: {}", weapon_type);
+                #[allow(unreachable_patterns)]
+                weapon_type => {
+                    warn!("WeaponType not implemented: {}", weapon_type);
+                }
             }
         }
     }
-    events.clear();
 }
 
 /// creates enemy container entity, all enemy's are parented to this container
@@ -212,12 +238,12 @@ pub fn spawner_timer_system(
         };
 
         for enemy_transform in &all_enemies {
-            // add buffer for enemies that can maybe walk outside :/
             let distance_too_spawner = spawner_transform
-                .translation()
-                .truncate()
-                .distance(enemy_transform.translation.truncate())
-                .abs()
+            .translation()
+            .truncate()
+            .distance(enemy_transform.translation.truncate())
+            .abs()
+            // add buffer for enemies that can maybe walk outside :/
                 - 50.0;
             if distance_too_spawner.lt(&spawner_state.spawn_radius) {
                 enemies_in_spawner_area += 1;
@@ -231,7 +257,7 @@ pub fn spawner_timer_system(
 
         event_writer.send(SpawnActorEvent {
             spawner: Some(spawner_entity),
-            actor_type: ActorType(Type::Enemy),
+            actor_type: ActorType::Npc(Faction::Enemy),
             what_to_spawn: enemy_type.to_string(),
             spawn_position: (spawner_transform.translation().truncate()),
             spawn_count: 1,

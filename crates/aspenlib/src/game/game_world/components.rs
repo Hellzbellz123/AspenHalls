@@ -1,13 +1,19 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
-/// unfinished player marker
+/// location of hero that player can choose at start of game
 #[derive(Component, Default)]
-pub struct UnBuiltPlayer;
+pub struct HeroSpot {
+    /// name of hero that should be spawned at this `HeroSpot`
+    pub what_hero: String,
+}
 
 /// Marks player start location
 #[derive(Component, Default)]
 pub struct PlayerStartLocation {
+    /// area of this start location
+    /// any point can be chosen
+    /// inset of 2 tiles is applied when spawning
     pub size: Vec2,
 }
 

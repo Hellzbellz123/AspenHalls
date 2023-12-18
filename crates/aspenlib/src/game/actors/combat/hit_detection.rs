@@ -119,7 +119,6 @@ pub fn hits_on_player(
 //             });
 //         }
 //     }
-//     // collision_events.clear();
 // }
 
 // pub fn hits_on_player(
@@ -160,5 +159,4 @@ pub fn hits_on_player(
 //             });
 //         }
 //     }
-//     // collision_events.clear();
 // }

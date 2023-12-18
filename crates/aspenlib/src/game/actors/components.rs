@@ -80,23 +80,28 @@ pub enum TeleportStatus {
 }
 
 impl TeleportStatus {
+    /// are we not teleporting or just finished?
     pub fn teleport_allowed(&self) -> bool {
         self == &Self::None
     }
 
+    /// is teleport requested?
     pub fn wants_teleport(&self) -> bool {
         self == &Self::Requested
     }
 
+    /// was teleport not requested?
     pub fn teleport_not_requested(&self) -> bool {
         self != &Self::Requested
     }
 
+    /// are we currently teleproting?
     pub fn is_teleporting(&self) -> bool {
         self == &Self::Teleporting
     }
 
-    pub fn just_teleported(&self) -> bool {
+    /// is teleport done?
+    pub fn finished_teleport(&self) -> bool {
         self == &Self::Done
     }
 }
@@ -105,12 +110,19 @@ impl TeleportStatus {
 #[derive(Component, Reflect, Clone, Copy, Default)]
 pub struct Player;
 
+/// actor move state
+/// move state and permission
+/// current teleport status
 #[derive(Debug, Component, Reflect, Clone, Default)]
 pub struct ActorMoveState {
+    /// what movment is this actor doing currently
     pub move_status: CurrentMovement,
+    /// how is this actor allowed too move
     pub move_perms: AllowedMovement,
+    /// actors teleport status
     pub teleport_status: TeleportStatus,
 }
+
 impl ActorMoveState {
     /// full speed with no requested teleport
     pub const DEFAULT: Self = Self {

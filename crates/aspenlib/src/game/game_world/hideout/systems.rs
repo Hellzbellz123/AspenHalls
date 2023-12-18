@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
-    prelude::{LevelIid, SpawnExclusions}, IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground,
-    LevelSelection, LevelSpawnBehavior, SetClearColor,
+    prelude::{LevelIid, SpawnExclusions},
+    IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground, LevelSelection,
+    LevelSpawnBehavior, SetClearColor,
 };
 use bevy_rapier2d::prelude::{CollisionEvent, Sensor};
 
@@ -45,10 +46,17 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
         MapContainerTag,
     ));
 
+    #[cfg(not(feature = "develop"))]
+    //TODO: use level progress for this?
+    // probably not needed as this is first actual spawn of hideout.
+    // unless loading a save then we need too account for progress
+    let identifier = "HideoutL1".to_string();
+
+    #[cfg(feature = "develop")]
+    let identifier = "TestingHalls".to_string();
+
     // TODO match on saved state/player progress
-    commands.insert_resource(LevelSelection::Iid(LevelIid::new(
-        "e48949c0-8990-11ee-a550-f91ac169a863",
-    )));
+    commands.insert_resource(LevelSelection::Identifier(identifier));
     commands.insert_resource(LdtkSettings {
         exclusions: SpawnExclusions::default(),
         level_spawn_behavior: LevelSpawnBehavior::UseZeroTranslation,

@@ -66,6 +66,7 @@ command = "cargo"
 args = ["apk", "run", "--package=aspen_halls_mobile", "--features=develop"]
 
 [tasks.run-native]
+dependencies = ["native-assets"]
 cwd = "crates/native/"
 workspace = false
 description = ""
@@ -73,7 +74,7 @@ command = "cargo"
 args = ["run", "--features=develop,dynamic"]
 
 [tasks.run-web]
-cwd ="crates/wasm/"
+cwd = "crates/wasm/"
 workspace = false
 description = ""
 command = "trunk"
@@ -84,6 +85,10 @@ workspace = false
 description = "Connects first android device found by avahi-discover"
 script = "tools/adb-connecter.sh"
 
+[tasks.native-assets]
+workspace = false
+script_runner = "@shell"
+script.pre = "rm -rf crates/native/assets && cp -r assets crates/native/assets"
 
 # [tasks.docs]
 # clear = true

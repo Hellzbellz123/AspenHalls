@@ -4,8 +4,8 @@
 
 use aspenlib::ahp::engine;
 use aspenlib::ahp::game as asha;
-use yew::prelude::*;
 use log::Level;
+use yew::prelude::*;
 
 /// sets browser window title too passed string
 fn set_window_title(title: &str) {
@@ -28,7 +28,7 @@ fn main() {
     #[cfg(feature = "develop")]
     wasm_logger::init(
         wasm_logger::Config::new(Level::Info), // .module_prefix(module_prefix), // .module_prefix("wasm_kill_errors")
-                                                    // .module_prefix("game"),
+                                               // .module_prefix("game"),
     );
     // Mount the DOM
     yew::Renderer::<Root>::new().render();

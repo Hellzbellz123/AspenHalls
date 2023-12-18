@@ -9,12 +9,12 @@ use crate::{
         ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle, StupidAiBundle,
     },
     consts::{
-        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX,
+        actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SIZE, ACTOR_Z_INDEX,
     },
     game::actors::{
         ai::components::{
-            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
-            AIWanderConfig, ActorType, AttackScore, ChaseScore, Enemy, Type,
+            AIChaseAction, AIChaseConfig, AICombatConfig, AIShootAction, AIShootConfig,
+            AIWanderAction, AIWanderConfig, ActorType, AttackScorer, ChaseScorer, Enemy, Faction,
         },
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::{ActorColliderTag, ActorMoveState, EnemyColliderTag},
@@ -39,22 +39,23 @@ pub fn spawn_skeleton(
             .spawn((
                 Enemy {can_see_player: false},
                 StupidAiBundle {
-                    aggro_config: AIChaseConfig { aggro_distance: 250.0, chase_distance: 500.0 },
-                    wander_config: AIWanderConfig { wander_target: None, spawn_position: Some(event.spawn_position), wander_distance: 500.0 },
-                    shoot_config: AIShootConfig { find_target_range: 200.0,
+                    combat_config: AICombatConfig { chase_start: 10, chase_end: 16, shoot_range: 6, personal_space: 3, runaway_hp: 20.0 },
+                    wander_config: AIWanderConfig { wander_target: None, spawn_position: Some(event.spawn_position), wander_distance: 20 },
+                    aggro_config: AIChaseConfig { aggro_distance: 10, max_chase_distance: 16 },
+                    shoot_config: AIShootConfig { find_target_range: 6,
                         timer: Timer::new(Duration::from_secs_f32(0.5), TimerMode::Once),
                         should_shoot: false,
                         can_shoot: false,
                     },
                     thinker: Thinker::build()
                         .picker(big_brain::pickers::Highest)
-                        .when(ChaseScore, AIChaseAction)
-                        .when(AttackScore, AIShootAction)
+                        .when(ChaseScorer, AIChaseAction)
+                        .when(AttackScorer, AIShootAction)
                         .otherwise(AIWanderAction),
                 },
                 ActorBundle {
                     name: Name::new("Skeleton"),
-                    faction: ActorType(Type::Enemy),
+                    faction: ActorType::Npc(Faction::Enemy),
                     stats: ActorAttributesBundle::default(),
                     animation_state: AnimState {
                         animation_type: ActorAnimationType::Idle,
@@ -114,8 +115,7 @@ pub fn spawn_skeleton(
                             }),
                             ..default()
                         },
-                        collider: Collider::capsule(ACTOR_COLLIDER.0, ACTOR_COLLIDER.1, ACTOR_COLLIDER.2),
-                        //capsule_y(10.4, 13.12),
+                        collider: actor_collider(),
                         collision_groups: CollisionGroups { memberships: AspenCollisionLayer::ACTOR, filters: AspenCollisionLayer::EVERYTHING },
                     }));
                 });
@@ -137,23 +137,24 @@ pub fn spawn_slime(
                         .spawn((
                             Enemy {can_see_player: false},
                             StupidAiBundle {
-                                aggro_config: AIChaseConfig { aggro_distance: 150.0, chase_distance: 300.0 },
-                                wander_config: AIWanderConfig { wander_target: None, spawn_position: Some(event.spawn_position), wander_distance: 300.0 },
+                                combat_config: AICombatConfig { chase_start: 10, chase_end: 16, shoot_range: 6, personal_space: 3, runaway_hp: 20.0 },
+                                wander_config: AIWanderConfig { wander_target: None, spawn_position: Some(event.spawn_position), wander_distance: 10 },
+                                aggro_config: AIChaseConfig { aggro_distance: 8, max_chase_distance: 8 },
                                 shoot_config: AIShootConfig {
-                                    find_target_range: 100.0,
+                                    find_target_range: 6,
                                     timer: Timer::new(Duration::from_secs_f32(0.5), TimerMode::Once),
                                     should_shoot: false,
                                     can_shoot: false,
                                 },
                                 thinker: Thinker::build()
                                     .picker(big_brain::pickers::Highest)
-                                    .when(ChaseScore, AIChaseAction)
-                                    .when(AttackScore, AIShootAction)
+                                    .when(ChaseScorer, AIChaseAction)
+                                    .when(AttackScorer, AIShootAction)
                                     .otherwise(AIWanderAction),
                             },
                             ActorBundle {
                                 name: Name::new("Slime"),
-                                faction: ActorType(Type::Enemy),
+                                faction: ActorType::Npc(Faction::Enemy),
                                 move_state: ActorMoveState::DEFAULT,
                                 stats: ActorAttributesBundle::default(),
                                     animation_state: AnimState {
@@ -214,7 +215,7 @@ pub fn spawn_slime(
                                     }),
                                     ..default()
                                 },
-                                collider: Collider::capsule(ACTOR_COLLIDER.0 / 4.0, ACTOR_COLLIDER.1, ACTOR_COLLIDER.2),
+                                collider: actor_collider(),
                                 collision_groups: CollisionGroups { memberships: AspenCollisionLayer::ACTOR, filters: AspenCollisionLayer::EVERYTHING},
                             }));
                         });

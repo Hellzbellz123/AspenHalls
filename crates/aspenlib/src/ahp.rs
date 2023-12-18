@@ -28,7 +28,7 @@ pub mod game {
             actors::{
                 ai::components::{
                     AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
-                    AIWanderConfig, ActorType, ChaseScore, Type,
+                    AIWanderConfig, ActorType, AttackScorer, ChaseScorer, Faction,
                 },
                 animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 combat::components::{

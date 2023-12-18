@@ -5,7 +5,7 @@ use leafwing_input_manager::{
     prelude::{ActionState, ActionStateDriver},
 };
 
-use crate::{loading::splashscreen::MainCamera, ahp::game::Player};
+use crate::{ahp::game::Player, loading::splashscreen::MainCamera};
 
 use super::{
     action_maps::{self},

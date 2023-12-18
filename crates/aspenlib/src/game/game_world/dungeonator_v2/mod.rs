@@ -1,42 +1,55 @@
 use bevy::{
     asset::Assets,
-    ecs::{bundle::Bundle, entity::Entity, query::With, schedule::States, system::Resource},
+    ecs::{entity::Entity, query::With, schedule::States},
     log::{info, warn},
     math::{Rect, Vec2},
     prelude::{
         default, resource_changed, resource_exists, state_exists_and_equals, BuildChildren,
-        Commands, Component, Condition, DespawnRecursiveExt, Handle, IntoSystemConfigs, Name,
-        NextState, OnExit, Plugin, Query, Res, SpatialBundle, Transform, Update, Without, EventWriter,
+        Commands, Condition, DespawnRecursiveExt, EventWriter, Handle, IntoSystemConfigs,
+        NextState, OnExit, Plugin, Query, Res, SpatialBundle, Transform, Update, Without,
     },
     reflect::Reflect,
 };
-use bevy_ecs_ldtk::{
-    assets::LdtkExternalLevel,
-    prelude::{
-        ldtk::{FieldInstance},
-        FieldValue, LdtkProject,
-    },
-    LevelIid,
-};
+use bevy_ecs_ldtk::{assets::LdtkExternalLevel, prelude::LdtkProject};
 use leafwing_input_manager::prelude::ActionState;
-use rand::prelude::{IteratorRandom, Rng, SliceRandom, ThreadRng};
+use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
-    ahp::game::{action_maps, Player, SpawnActorEvent, ActorType, Type},
+    ahp::game::{action_maps, ActorType, Faction, Player, SpawnActorEvent},
     consts::TILE_SIZE,
-    game::actors::components::ActorMoveState,
+    game::{actors::components::ActorMoveState, game_world::dungeonator_v2::components::*},
     loading::assets::MapAssetHandles,
     AppState,
 };
+
+/// Dungeon Generator components
+mod components;
+
+/// are we in dungeon yet?
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default, Reflect)]
+pub enum DungeonGeneratorState {
+    /// no dungeon is spawned
+    #[default]
+    NoDungeon,
+    /// prepare dungeon resources for gen
+    PrepareDungeon,
+    /// CreatingDungeon
+    SpawningDungeon,
+    /// finished making dunegon
+    FinishedDungeonGen,
+}
 
 /// generates dungeons from ldtk level files
 pub struct DungeonGeneratorPlugin;
 
 impl Plugin for DungeonGeneratorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.register_type::<RoomAmounts>()
+        app.register_type::<RoomPreset>()
+            .register_type::<RoomAmounts>()
             .register_type::<DungeonSettings>()
-            .add_state::<DungeonGeneratorState>();
+            .register_type::<DungeonRoomDatabase>();
+
+        app.add_state::<DungeonGeneratorState>();
         app.add_systems(OnExit(AppState::Loading), spawn_dungeon_root);
         app.add_systems(
             Update,
@@ -67,6 +80,7 @@ fn listen_rebuild_dungeon_request(
     mut dungeon_root: Query<(Entity, &mut DungeonSettings), With<DungeonContainerTag>>,
     enemies: Query<Entity, (With<ActorMoveState>, Without<Player>)>,
     player_input: Query<&ActionState<action_maps::Gameplay>>,
+    // app_state:
 ) {
     let Ok(player_input) = player_input.get_single() else {
         return;
@@ -78,7 +92,7 @@ fn listen_rebuild_dungeon_request(
     if player_input.just_pressed(action_maps::Gameplay::DebugF2) {
         cmds.entity(dungeon_root.0).despawn_descendants();
         enemies.for_each(|f| {
-            cmds.entity(f).despawn_descendants();
+            cmds.entity(f).despawn_recursive();
         });
         dungeon_root.1.positioned_presets = Vec::new();
         cmds.insert_resource(NextState(Some(DungeonGeneratorState::PrepareDungeon)));
@@ -106,9 +120,6 @@ fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<MapAssetHand
                 huge_long: 3,
                 special: 2,
             },
-            // looped_hallway_percentage: 0.0,
-            // fill_percentage: 0.0,
-            // positioned_rooms: Vec::new(),
         },
         ldtk_project: ldtk_project_handles.default_levels.clone(),
         spatial: SpatialBundle {
@@ -118,6 +129,8 @@ fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<MapAssetHand
     },));
 }
 
+/// maps `level_assets` too a `DungeonRoomDatabase`
+/// dungeons are filtered into vecs based on level custom data
 fn generate_room_database(
     mut cmds: Commands,
     map_projects: Res<MapAssetHandles>,
@@ -130,18 +143,18 @@ fn generate_room_database(
         .as_parent();
 
     let mut dungeon_database = DungeonRoomDatabase {
-        sactuary: Vec::new(),
-        starts: Vec::new(),
-        ends: Vec::new(),
-        specials: Vec::new(),
-        small_shorts: Vec::new(),
-        small_longs: Vec::new(),
-        medium_shorts: Vec::new(),
-        medium_longs: Vec::new(),
-        large_shorts: Vec::new(),
-        large_longs: Vec::new(),
-        huge_shorts: Vec::new(),
-        huge_longs: Vec::new(),
+        hideouts: Vec::new(),
+        start_rooms: Vec::new(),
+        end_rooms: Vec::new(),
+        special_rooms: Vec::new(),
+        small_short_rooms: Vec::new(),
+        small_long_rooms: Vec::new(),
+        medium_short_rooms: Vec::new(),
+        medium_long_rooms: Vec::new(),
+        large_short_rooms: Vec::new(),
+        large_long_rooms: Vec::new(),
+        huge_short_rooms: Vec::new(),
+        huge_long_rooms: Vec::new(),
     };
 
     dungeon_project
@@ -166,107 +179,106 @@ fn generate_room_database(
             };
 
             match &room_type {
-                RoomType::Sanctuary => dungeon_database.sactuary.push(room),
-                RoomType::DungeonStart => dungeon_database.starts.push(room),
-                RoomType::Boss => dungeon_database.ends.push(room),
-                RoomType::Special => dungeon_database.specials.push(room),
-                RoomType::Normal => match room_shape {
-                    RoomShape::Special => dungeon_database.specials.push(room),
-                    RoomShape::SmallShort => dungeon_database.small_shorts.push(room),
-                    RoomShape::SmallLong => dungeon_database.small_longs.push(room),
-                    RoomShape::MediumShort => dungeon_database.medium_shorts.push(room),
-                    RoomShape::MediumLong => dungeon_database.medium_longs.push(room),
-                    RoomShape::LargeShort => dungeon_database.large_shorts.push(room),
-                    RoomShape::LargeLong => dungeon_database.large_longs.push(room),
-                    RoomShape::HugeShort => dungeon_database.huge_shorts.push(room),
-                    RoomShape::HugeLong => dungeon_database.huge_longs.push(room),
+                RoomType::Hideout => dungeon_database.hideouts.push(room),
+                RoomType::DungeonStart => dungeon_database.start_rooms.push(room),
+                RoomType::Boss => dungeon_database.end_rooms.push(room),
+                RoomType::Normal | RoomType::Special => match room_shape {
+                    RoomShape::NonStandard => dungeon_database.special_rooms.push(room),
+                    RoomShape::SmallShort => dungeon_database.small_short_rooms.push(room),
+                    RoomShape::SmallLong => dungeon_database.small_long_rooms.push(room),
+                    RoomShape::MediumShort => dungeon_database.medium_short_rooms.push(room),
+                    RoomShape::MediumLong => dungeon_database.medium_long_rooms.push(room),
+                    RoomShape::LargeShort => dungeon_database.large_short_rooms.push(room),
+                    RoomShape::LargeLong => dungeon_database.large_long_rooms.push(room),
+                    RoomShape::HugeShort => dungeon_database.huge_short_rooms.push(room),
+                    RoomShape::HugeLong => dungeon_database.huge_long_rooms.push(room),
                 },
             }
         });
     cmds.insert_resource(dungeon_database);
 }
 
+/// creates vec of `RoomPreset` too be built into `DungeonRoomBundles` using  `DungeonSettings` and current progress in the dungeon
 fn prepare_dungeon_rooms(
-    // difficulty: Res<GeneralSettings>,
     mut cmds: Commands,
     room_database: Res<DungeonRoomDatabase>,
     mut dungeon_root: Query<&mut DungeonSettings, With<DungeonContainerTag>>,
 ) {
     let progress_level = RoomLevel::Level1;
-    let mut filled_positions: Vec<Rect> = Vec::new();
-    let mut chosen_rooms: Vec<RoomPreset> = Vec::new();
+    let mut room_positions: Vec<Rect> = Vec::new();
+    let mut rooms_too_spawn: Vec<RoomPreset> = Vec::new();
     let mut settings = dungeon_root.single_mut();
 
+    for _ in 0..settings.room_amount.small_short {
+        if !room_database.small_short_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.small_short_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.small_long {
+        if !room_database.small_long_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.small_long_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.medium_short {
+        if !room_database.medium_short_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.medium_short_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.medium_long {
+        if !room_database.medium_long_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.medium_long_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.large_short {
+        if !room_database.large_short_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.large_short_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.large_long {
+        if !room_database.large_long_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.large_long_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.huge_short {
+        if !room_database.huge_short_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.huge_short_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.huge_long {
+        if !room_database.huge_long_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.huge_long_rooms).unwrap());
+        }
+    }
+
+    for _ in 0..settings.room_amount.special {
+        if !room_database.special_rooms.is_empty() {
+            rooms_too_spawn.push(get_random_preset(&room_database.special_rooms).unwrap());
+        }
+    }
+
     let mut start_room =
-        get_leveled_preset(&room_database.starts, progress_level.clone()).unwrap();
+        get_leveled_preset(&room_database.start_rooms, progress_level.clone()).unwrap();
     let startroom_rect = Rect {
         min: Vec2::ZERO + -(start_room.size / 2.0),
         max: Vec2::ZERO + (start_room.size / 2.0),
     };
     start_room.position = Some(startroom_rect.min);
-    filled_positions.push(startroom_rect);
+    room_positions.push(startroom_rect);
 
-    chosen_rooms.push(get_leveled_preset(&room_database.ends, progress_level).unwrap());
+    rooms_too_spawn.push(get_leveled_preset(&room_database.end_rooms, progress_level).unwrap());
 
-    for _ in 0..settings.room_amount.small_short {
-        if !room_database.small_shorts.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.small_shorts).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.small_long {
-        if !room_database.small_longs.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.small_longs).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.medium_short {
-        if !room_database.medium_shorts.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.medium_shorts).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.medium_long {
-        if !room_database.medium_longs.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.medium_longs).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.large_short {
-        if !room_database.large_shorts.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.large_shorts).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.large_long {
-        if !room_database.large_longs.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.large_longs).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.huge_short {
-        if !room_database.huge_shorts.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.huge_shorts).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.huge_long {
-        if !room_database.huge_longs.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.huge_longs).unwrap());
-        }
-    }
-
-    for _ in 0..settings.room_amount.special {
-        if !room_database.specials.is_empty() {
-            chosen_rooms.push(get_random_preset(&room_database.specials).unwrap());
-        }
-    }
-
-    let mut positioned_rooms = chosen_rooms
+    let mut positioned_rooms = rooms_too_spawn
         .iter_mut()
         .map(|f| {
-            let pos = random_room_positon(&filled_positions, f.size, &settings);
-            filled_positions.push(pos);
+            let pos = random_room_positon(&room_positions, f.size, &settings);
+            room_positions.push(pos);
             f.position = Some(pos.min);
             f.clone()
         })
@@ -274,6 +286,7 @@ fn prepare_dungeon_rooms(
 
     positioned_rooms.insert(0, start_room);
 
+    warn!("rooms passed too room-placer: {:?}", positioned_rooms);
     settings.positioned_presets = positioned_rooms;
     cmds.insert_resource(NextState(Some(DungeonGeneratorState::SpawningDungeon)));
 }
@@ -300,16 +313,17 @@ fn spawn_rooms(
         let pos = preset
             .position
             .expect("all ready presets should have a Vec2 position");
-        let name = format!("[DungeonRoom-{}", ready_preset.name);
+        let name = format!("DungeonRoom-{}", ready_preset.name);
         to_spawn_dungeons.push(DungeonRoomBundle {
             tag: DungeonRoomTag,
             name: name.into(),
             id: preset.room_asset_id.clone().into(),
             spatial: SpatialBundle::from_transform(Transform::from_xyz(pos.x, pos.y, 0.0)),
+            // preset: ready_preset.clone(),
         });
     }
 
-    info!("amount of dungeons too spawn: {}", to_spawn_dungeons.len());
+    info!("room bundles too spawn: {:?}", to_spawn_dungeons);
     cmds.entity(dungeon_root).with_children(|dungeons| {
         if to_spawn_dungeons.is_empty() {
             warn!("no dungeons in to_spawn_dungeons");
@@ -320,12 +334,27 @@ fn spawn_rooms(
         }
     });
 
-    info!("finished spawning dungeons");
-    ew.send(SpawnActorEvent { actor_type: ActorType(Type::Item), what_to_spawn: "smallsmg".to_string(), spawn_position: Vec2::ZERO, spawn_count: 1, spawner: None });
-    ew.send(SpawnActorEvent { actor_type: ActorType(Type::Item), what_to_spawn: "smallpistol".to_string(), spawn_position: Vec2::ZERO, spawn_count: 1, spawner: None });
     cmds.insert_resource(NextState(Some(DungeonGeneratorState::FinishedDungeonGen)));
+    info!("finished spawning dungeons");
+    let item_offset = Vec2 { x: 50.0, y: 0.0 };
+
+    ew.send(SpawnActorEvent {
+        actor_type: ActorType::Item,
+        what_to_spawn: "smallsmg".to_string(),
+        spawn_position: Vec2::ZERO + -item_offset,
+        spawn_count: 1,
+        spawner: None,
+    });
+    ew.send(SpawnActorEvent {
+        actor_type: ActorType::Item,
+        what_to_spawn: "smallpistol".to_string(),
+        spawn_position: Vec2::ZERO + item_offset,
+        spawn_count: 1,
+        spawner: None,
+    });
 }
 
+#[allow(clippy::redundant_else)]
 /// Creates randomly positioned `Rect` that doesnt overlap any `Rect` in `occupied_positions`
 ///
 /// configured with `DungeonSettings`
@@ -345,8 +374,8 @@ fn random_room_positon(filled_positions: &[Rect], size: Vec2, settings: &Dungeon
             range_abs
         };
 
-        let x = ((rng.gen_range(-range..range)) / TILE_SIZE.y).round() * TILE_SIZE.y;
-        let y = (rng.gen_range(-range..range) / TILE_SIZE.x).round() * TILE_SIZE.x;
+        let x = ((rng.gen_range(-range..range)) / TILE_SIZE).round() * TILE_SIZE;
+        let y = (rng.gen_range(-range..range) / TILE_SIZE).round() * TILE_SIZE;
         let (width, height) = (size.x, size.y);
         let tested_rect = Rect::new(x, y, x + width, y + height);
 
@@ -361,8 +390,8 @@ fn random_room_positon(filled_positions: &[Rect], size: Vec2, settings: &Dungeon
         {
             // test if test rect is far enough from other rects
             if cloned_positions.iter().all(|rect| {
-                let t_rec2 = tested_rect.inset(settings.tiles_between_rooms as f32 * TILE_SIZE.x);
-                rect.inset((settings.tiles_between_rooms as f32 * TILE_SIZE.x) * 2.0)
+                let t_rec2 = tested_rect.inset(settings.tiles_between_rooms as f32 * TILE_SIZE);
+                rect.inset((settings.tiles_between_rooms as f32 * TILE_SIZE) * 2.0)
                     .intersect(t_rec2)
                     .is_empty()
             }) {
@@ -381,244 +410,4 @@ fn random_room_positon(filled_positions: &[Rect], size: Vec2, settings: &Dungeon
             continue;
         };
     }
-}
-
-fn get_random_preset(section: &[RoomPreset]) -> Option<RoomPreset> {
-    let mut rng = ThreadRng::default();
-
-    section.iter().choose(&mut rng).cloned()
-}
-
-fn get_leveled_preset(section: &[RoomPreset], level: RoomLevel) -> Option<RoomPreset> {
-    let mut rng = ThreadRng::default();
-
-    section
-        .iter()
-        .filter(|f| f.level == level)
-        .choose(&mut rng)
-        .cloned()
-}
-
-fn try_get_roomshape(field_instances: &[FieldInstance]) -> Option<RoomShape> {
-    let Some(room_ident) = field_instances.iter().find(|f| f.identifier == "IdentSize") else {
-        return None;
-    };
-    let FieldValue::Enum(Some(enum_value)) = &room_ident.value else {
-        return None;
-    };
-
-    match enum_value.as_str() {
-        "SmallShort" => Some(RoomShape::SmallShort),
-        "SmallLong" => Some(RoomShape::SmallLong),
-        "MediumShort" => Some(RoomShape::MediumShort),
-        "MediumLong" => Some(RoomShape::MediumLong),
-        "LargeShort" => Some(RoomShape::LargeShort),
-        "LargeLong" => Some(RoomShape::LargeLong),
-        "HugeShort" => Some(RoomShape::HugeShort),
-        "HugeLong" => Some(RoomShape::HugeLong),
-        "Special" => Some(RoomShape::Special),
-        _ => None,
-    }
-}
-
-fn try_get_roomlevel(field_instances: &[FieldInstance]) -> Option<RoomLevel> {
-    let Some(room_ident) = field_instances
-        .iter()
-        .find(|f| f.identifier == "IdentLevel")
-    else {
-        return None;
-    };
-
-    let FieldValue::Enum(Some(enum_value)) = &room_ident.value else {
-        return None;
-    };
-
-    match enum_value.as_str() {
-        "Level0" => Some(RoomLevel::Level0),
-        "Level1" => Some(RoomLevel::Level1),
-        "Level2" => Some(RoomLevel::Level2),
-        "Level3" => Some(RoomLevel::Level3),
-        _ => None,
-    }
-}
-
-fn try_get_roomtype(field_instances: &[FieldInstance]) -> Option<RoomType> {
-    let Some(room_ident) = field_instances.iter().find(|f| f.identifier == "IdentType") else {
-        return None;
-    };
-
-    let FieldValue::Enum(Some(enum_value)) = &room_ident.value else {
-        return None;
-    };
-
-    match enum_value.as_str() {
-        "DungeonStart" => Some(RoomType::DungeonStart),
-        "Boss" => Some(RoomType::Boss),
-        "Special" => Some(RoomType::Special),
-        "Normal" => Some(RoomType::Normal),
-        "Sanctuary" => Some(RoomType::Sanctuary),
-        _ => None,
-    }
-}
-
-#[derive(Debug, Clone, Default, Reflect)]
-pub struct RoomAmounts {
-    small_short: i32,
-    small_long: i32,
-    medium_short: i32,
-    medium_long: i32,
-    large_short: i32,
-    large_long: i32,
-    huge_short: i32,
-    huge_long: i32,
-    special: i32,
-}
-
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
-pub enum RoomLevel {
-    Level0,
-    Level1,
-    Level2,
-    Level3,
-}
-
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
-pub enum RoomType {
-    DungeonStart,
-    Boss,
-    Special,
-    Normal,
-    Sanctuary,
-}
-
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
-pub enum RoomShape {
-    Special,
-    SmallShort,
-    SmallLong,
-    MediumShort,
-    MediumLong,
-    LargeShort,
-    LargeLong,
-    HugeShort,
-    HugeLong,
-}
-
-#[allow(unused)]
-#[derive(Debug, Resource)]
-pub struct DungeonRoomDatabase {
-    sactuary: Vec<RoomPreset>,
-    starts: Vec<RoomPreset>,
-    ends: Vec<RoomPreset>,
-    specials: Vec<RoomPreset>,
-    small_shorts: Vec<RoomPreset>,
-    small_longs: Vec<RoomPreset>,
-    medium_shorts: Vec<RoomPreset>,
-    medium_longs: Vec<RoomPreset>,
-    large_shorts: Vec<RoomPreset>,
-    large_longs: Vec<RoomPreset>,
-    huge_shorts: Vec<RoomPreset>,
-    huge_longs: Vec<RoomPreset>,
-}
-
-/// are we in dungeon yet?
-#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
-pub enum DungeonGeneratorState {
-    /// no dungeon is spawned
-    #[default]
-    NoDungeon,
-    /// prepare dungeon resources for gen
-    PrepareDungeon,
-    /// CreatingDungeon
-    SpawningDungeon,
-    /// finished making dunegon
-    FinishedDungeonGen,
-}
-
-/// room instances before being placed
-#[derive(Debug, Component, Clone, Reflect)]
-pub struct RoomPreset {
-    /// name of the room
-    name: String,
-    /// asset id for level data
-    room_asset_id: String,
-    /// size of room
-    /// - Rect.max is position + size
-    size: Vec2,
-    /// position of room in dungeon
-    /// - Rect.min is position
-    position: Option<Vec2>,
-    shape: RoomShape,
-    level: RoomLevel,
-    rtype: RoomType,
-}
-
-// TODO: add dungeon level too settings
-/// settings to configure the dungeon generator,
-/// `useable_rooms` and hallways are filled by other systems
-#[derive(Debug, Clone, Component, Default, Reflect)]
-pub struct DungeonSettings {
-    /// dungeon max size / 2.0
-    pub map_halfsize: f32,
-    /// minimum space between dungeon rooms, in tiles
-    pub tiles_between_rooms: i32,
-    /// new pos rooms
-    pub positioned_presets: Vec<RoomPreset>,
-    /// amount of rooms inside dungeon
-    pub room_amount: RoomAmounts,
-    // /// percentage of paths between
-    // /// rooms that are chosen to loop
-    // pub looped_hallway_percentage: f32,
-}
-
-/// tag too identify dungeons
-#[derive(Component)]
-pub struct DungeonContainerTag;
-
-/// tag too identify dungeon hallways
-#[derive(Component)]
-pub struct DungeonHallwayTag;
-
-/// tag too identify dungeon rooms
-#[derive(Component, Debug)]
-pub struct DungeonRoomTag;
-
-/// bundle for easy spawning of dungeon
-/// always 1 per dungeon, all dungeon rooms are children
-#[derive(Bundle)]
-pub struct DungeonContainerBundle {
-    /// identifies dungeon root entity
-    tag: DungeonContainerTag,
-    /// identified dungeon root in hierarchy
-    name: Name,
-    /// configures spawning of child rooms and hallways
-    settings: DungeonSettings,
-    /// data used too spawn with
-    ldtk_project: Handle<LdtkProject>,
-    /// gives dungeons a position
-    spatial: SpatialBundle,
-}
-
-/// placeable room preset
-#[derive(Bundle, Debug)]
-pub struct DungeonRoomBundle {
-    /// identifies dungeon rooms
-    tag: DungeonRoomTag,
-    /// basically just `LevelIid`
-    name: Name,
-    /// id from `LdtkProject`
-    id: LevelIid,
-    /// spatial data
-    spatial: SpatialBundle,
-}
-
-/// bundle for easy spawning of Dungeon Hallways
-#[derive(Bundle)]
-pub struct DungeonHallWayBundle {
-    /// identifies dungeon hallways
-    tag: DungeonHallwayTag,
-    /// Hallway# from-to
-    name: Name,
-    /// spatial data
-    spatial: SpatialBundle,
 }

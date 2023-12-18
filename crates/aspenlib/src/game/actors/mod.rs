@@ -14,6 +14,7 @@ use crate::{
 pub mod ai;
 /// holds animation functionality for actors plugin
 pub mod animation;
+/// holds player stat functionality
 pub mod attributes_stats;
 /// game combat functionality
 pub mod combat;
@@ -67,7 +68,9 @@ fn update_actor_move_status(
                 move_state.move_status = CurrentMovement::Walk;
                 return;
             }
-        } else if velocity.linvel.abs().max_element() <= tert_attrs.speed && move_state.move_status != CurrentMovement::Run {
+        } else if velocity.linvel.abs().max_element() <= tert_attrs.speed
+            && move_state.move_status != CurrentMovement::Run
+        {
             move_state.move_status = CurrentMovement::Run;
             return;
         }

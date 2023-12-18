@@ -1,6 +1,6 @@
 /// actors enemy, chests, anything
 pub mod actors;
-// /// audio data for game
+/// audio data for game
 pub mod audio;
 /// sanctuary and dungeon generator
 pub mod game_world;
@@ -16,11 +16,12 @@ use crate::{
     },
     game::{
         actors::ActorPlugin,
+        audio::InternalAudioPlugin,
+        // interface::InterfacePlugin,
         // audio::InternalAudioPlugin,
         game_world::GameWorldPlugin,
         input::ActionsPlugin,
-        interface::InterfacePlugin, audio::InternalAudioPlugin,
-        // interface::InterfacePlugin,
+        interface::InterfacePlugin,
     },
 };
 

@@ -4,18 +4,17 @@ use bevy::{
     math::Vec2,
     prelude::{
         any_with_component, BackgroundColor, GlobalTransform, ImageBundle, PositionType, Reflect,
-        Window,
     },
     ui::{Node, Style, Val, ZIndex},
 };
 
 use crate::ahp::{
-        engine::{
-            bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
-            IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
-        },
-        game::{action_maps, AppState, InitAssetHandles, Player},
-    };
+    engine::{
+        bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
+        IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
+    },
+    game::{action_maps, AppState, InitAssetHandles, Player},
+};
 
 use super::AspenInputSystemSet;
 

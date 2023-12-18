@@ -95,6 +95,7 @@ where
 
 /// takes array of types and runs `app.register_type::<T>()` on each
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! register_types {
     ($app:expr, [ $($t:ty),* ]) => {
         $(

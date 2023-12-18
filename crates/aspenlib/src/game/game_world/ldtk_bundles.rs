@@ -1,7 +1,9 @@
+#![allow(clippy::unnecessary_struct_initialization)]
+
 use bevy::{
     log::{error, info, warn},
     math::Vec2,
-    prelude::{Bundle, Name, Timer, TimerMode},
+    prelude::{Bundle, Component, Name, Timer, TimerMode},
 };
 use bevy_ecs_ldtk::{
     ldtk::ReferenceToAnEntityInstance,
@@ -12,7 +14,7 @@ use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody,
 use crate::game::{
     actors::spawners::components::{Spawner, SpawnerTimer},
     game_world::components::{
-        PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect, UnBuiltPlayer,
+        HeroSpot, PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect,
     },
 };
 
@@ -72,14 +74,31 @@ pub struct LdtkSpawnerBundle {
     timer: SpawnerTimer,
 }
 
-/// bundle to bind too `LdtkEntity` instance
+/// bundle too bind too `LdtkEntity` instance
 #[derive(Bundle, LdtkEntity, Default)]
-#[worldly]
-pub struct LdtkPlayerBundle {
+pub struct LdtkBossManagerBundle {
+    /// spawner name
+    #[with(name_from_instance)]
+    name: Name,
+    #[with(boss_area_from_instance)]
+    /// what bosses should be spawned
+    manager: BossArea,
+}
+
+#[derive(Debug, Component, Default)]
+pub struct BossArea {
+    /// list of enemys that are considered "bosses"
+    dungeon_boss: Vec<String>,
+    /// true/false are bosses defeated
+    boss_defeated: bool,
+}
+
+// TODO: use this or remove it
+/// locations inside sanctuary too spawn heros that can be played inside dungeon
+#[derive(Bundle, LdtkEntity, Default)]
+pub struct LdtkHeroPlaceBundle {
     /// player not built yet
-    tag: UnBuiltPlayer,
-    /// don't despawn
-    world: Worldly,
+    tag: HeroSpot,
 }
 
 /// used to spawn player start location
@@ -90,6 +109,7 @@ pub struct LdtkStartLocBundle {
     tag: PlayerStartLocation,
 }
 
+/// creates `PlayerStartLocation` from start location `EntityInstance`
 const fn start_location_from_instance(instance: &EntityInstance) -> PlayerStartLocation {
     PlayerStartLocation {
         size: Vec2::new(instance.width as f32, instance.height as f32),
@@ -122,17 +142,32 @@ fn teleporter_from_instance(instance: &EntityInstance) -> Teleporter {
     teleporter
 }
 
+/// creates a `BossManager` from boss manager `EntityInstance`
+fn boss_area_from_instance(instance: &EntityInstance) -> BossArea {
+    let strings = instance
+        .get_maybe_strings_field("DungeonBosses")
+        .expect("Boss Area should ALWAYS have a DungeonBosses field")
+        .iter()
+        .filter_map(std::clone::Clone::clone)
+        .collect::<Vec<String>>();
+    BossArea {
+        dungeon_boss: strings,
+        boss_defeated: false,
+    }
+}
+
 /// creates `Name` from `EntityInstance.identifier`
 fn name_from_instance(instance: &EntityInstance) -> Name {
     Name::new(instance.identifier.clone())
 }
 
+/// creates Spawner from spawner `EntityInstance`
 fn spawner_from_instance(entity_instance: &EntityInstance) -> Spawner {
     let got_ents: Vec<String> = entity_instance
         .get_maybe_strings_field("EnemyTypes")
         .expect("Spawner instances should ALWAYS have an EnemyTypes field")
         .iter()
-        .filter_map( std::clone::Clone::clone)
+        .filter_map(std::clone::Clone::clone)
         .collect();
     let got_max_ents = entity_instance
         .get_maybe_int_field("MaxEnemies")
@@ -147,6 +182,7 @@ fn spawner_from_instance(entity_instance: &EntityInstance) -> Spawner {
     }
 }
 
+/// creates a timer from spawner `EntityInstance`
 fn spawn_timer_from_instance(entity_instance: &EntityInstance) -> SpawnerTimer {
     let ldtk_ent_duration = entity_instance
         .get_maybe_float_field("DurationSecs")
@@ -155,21 +191,22 @@ fn spawn_timer_from_instance(entity_instance: &EntityInstance) -> SpawnerTimer {
     SpawnerTimer(Timer::from_seconds(ldtk_ent_duration, TimerMode::Repeating))
 }
 
+/// creates `TpTriggerEffect` from data defined on teleporter `EntityInstance`
 fn decipher_teleport_type(instance: &EntityInstance) -> Option<TpTriggerEffect> {
-    let Ok(tp_type) = instance.get_enum_field("Teleport_Type") else {
+    let Ok(tp_type) = instance.get_enum_field("TeleporterType") else {
         return None;
     };
 
     match tp_type.as_str() {
         "Event" => instance
-            .get_string_field("Teleport_Action")
+            .get_string_field("TeleporterAction")
             .map_or(None, |action| Some(TpTriggerEffect::Event(action.clone()))),
         "Local" => instance
-            .get_entity_ref_field("Teleport_Local")
+            .get_entity_ref_field("TeleportLocalRef")
             .map_or(None, |local| Some(TpTriggerEffect::Local(local.clone()))),
         "Global" => {
             let Ok(val) = instance
-                .get_maybe_floats_field("Teleport_Global")
+                .get_maybe_floats_field("TeleportGlobalRef")
                 .inspect_err(|e| error!("error getting TPType::Global from spawner instance: {e}"))
             else {
                 return None;

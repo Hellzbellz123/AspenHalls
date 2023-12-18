@@ -1,4 +1,4 @@
-use bevy::{ecs::entity::Entity};
+use bevy::ecs::entity::Entity;
 use std::str::FromStr;
 use strum::VariantNames;
 
@@ -8,7 +8,7 @@ use crate::{
             bevy_console::{reply, ConsoleCommand},
             info, Camera, EventWriter, Query, Transform, Vec2, With, Without,
         },
-        game::{ActorType, EnemyType, Player, SpawnActorEvent, Type, WeaponType},
+        game::{ActorType, EnemyType, Faction, Player, SpawnActorEvent, WeaponType},
         rand::{thread_rng, Rng},
     },
     console::commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
@@ -16,6 +16,9 @@ use crate::{
 };
 
 /// receives spawnweapon command and sens spawn event
+///
+/// # Panics
+/// will panic of there is NO player OR more than ONE
 pub fn spawnweapon_command(
     player_query: Query<&Transform, (With<Player>, Without<Camera>)>,
     mut spawn: ConsoleCommand<SpawnWeaponCommand>,
@@ -48,7 +51,7 @@ pub fn spawnweapon_command(
                     }
                     ew.send(SpawnActorEvent {
                         spawner: None,
-                        actor_type: ActorType(Type::Item),
+                        actor_type: ActorType::Item,
                         what_to_spawn: weapon_type.clone(),
                         spawn_position: command_spawn_location,
                         spawn_count: 1,
@@ -73,6 +76,9 @@ pub fn spawnweapon_command(
 }
 
 /// interprets `SpawnEnemyCommand` from console and sends `SpawnEnemyEvent`
+///
+/// # Panics
+/// will panic of there is NO player OR more than ONE
 pub fn spawnenemy_command(
     player_query: Query<&Transform, With<Player>>,
     mut spawn: ConsoleCommand<SpawnEnemyCommand>,
@@ -104,7 +110,7 @@ pub fn spawnenemy_command(
                 }
 
                 ew.send(SpawnActorEvent {
-                    actor_type: ActorType(Type::Enemy),
+                    actor_type: ActorType::Npc(Faction::Enemy),
                     what_to_spawn: enemy_type,
                     spawner: None,
                     spawn_position: command_spawn_location,
@@ -129,6 +135,9 @@ pub fn spawnenemy_command(
 }
 
 /// receives tp command and teleports player too location
+///
+/// # Panics
+/// will panic of there is NO player OR more than ONE
 pub fn teleport_player_command(
     player_query: Query<Entity, With<Player>>,
     mut spawn: ConsoleCommand<TeleportPlayerCommand>,

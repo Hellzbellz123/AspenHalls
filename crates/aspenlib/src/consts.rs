@@ -1,7 +1,9 @@
+use bevy_rapier2d::prelude::Collider;
+
 use crate::ahp::engine::{bevy, Group, Vec2, Vec3};
 
-/// games tile size as const for easy use
-pub const TILE_SIZE: Vec2 = Vec2 { x: 32.0, y: 32.0 };
+/// width/height of standard tile in gameworld
+pub const TILE_SIZE: f32 = 32.0;
 
 /// Z axis for physics interactions
 pub const ACTOR_PHYSICS_Z_INDEX: f32 = 10.0;
@@ -17,10 +19,10 @@ pub const ACTOR_SCALE: Vec3 = Vec3 {
 };
 
 /// actor size
-pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE.x / 2.0, TILE_SIZE.y);
+pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE / 2.0, TILE_SIZE);
 
 /// common actor capsule dimensions
-pub const ACTOR_COLLIDER: (bevy::prelude::Vec2, bevy::prelude::Vec2, f32) = (
+pub const ACTOR_COLLIDER_DIMENSIONS: (bevy::prelude::Vec2, bevy::prelude::Vec2, f32) = (
     Vec2 {
         x: 0.0,
         y: ACTOR_SIZE.y / 3.0,
@@ -31,6 +33,15 @@ pub const ACTOR_COLLIDER: (bevy::prelude::Vec2, bevy::prelude::Vec2, f32) = (
     },
     ACTOR_SIZE.x / 2.0,
 );
+
+/// default actor collider shape for most entities
+pub fn actor_collider() -> Collider {
+    Collider::capsule(
+        ACTOR_COLLIDER_DIMENSIONS.0,
+        ACTOR_COLLIDER_DIMENSIONS.1,
+        ACTOR_COLLIDER_DIMENSIONS.2,
+    )
+}
 
 /// bullet speed
 pub const BULLET_SPEED_MODIFIER: f32 = 100.0;
@@ -49,6 +60,9 @@ pub const WALK_MODIFIER: f32 = 0.7;
 
 /// if running, speed is multiplied by this
 pub const SPRINT_MODIFIER: f32 = 1.3;
+
+/// actors will move away from enemy if within this distance
+pub const BACKUP_DISTANCE: f32 = 3.0;
 
 #[non_exhaustive]
 /// Collision Groups wrapper

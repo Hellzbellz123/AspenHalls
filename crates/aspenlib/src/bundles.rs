@@ -11,7 +11,7 @@ use crate::{
             AnimState, AnimationSheet, ProjectileStats, TimeToLive,
         },
     },
-    game::actors::components::{ActorColliderTag, ActorMoveState},
+    game::actors::{components::{ActorColliderTag, ActorMoveState}, ai::components::AICombatConfig},
 };
 
 /// bundle used too spawn "actors"
@@ -19,6 +19,7 @@ use crate::{
 pub struct ActorBundle {
     /// actor name
     pub name: Name,
+    /// actors current movement data
     pub move_state: ActorMoveState,
     /// actor type
     pub faction: ActorType,
@@ -82,6 +83,8 @@ pub struct ProjectileColliderBundle {
 /// All Components needed for `stupid_ai` functionality
 #[derive(Bundle)]
 pub struct StupidAiBundle {
+    /// ai chase/attack config
+    pub combat_config: AICombatConfig,
     /// stupid chase action
     pub aggro_config: AIChaseConfig,
     /// stupid wander action

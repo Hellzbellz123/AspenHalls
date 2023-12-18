@@ -35,10 +35,7 @@
 			"id": "V_String",
 			"params": ["Boss"]
 		}] },
-		{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
-			"id": "V_String",
-			"params": ["Level1"]
-		}] }
+		{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [null] }
 	],
 	"layerInstances": [
 		{
@@ -66,30 +63,10 @@
 			"gridTiles": [],
 			"entityInstances": [
 				{
-					"__identifier": "EnemySpawner",
-					"__grid": [15,16],
-					"__pivot": [0.5,0.5],
-					"__tags": [],
-					"__tile": null,
-					"__smartColor": "#94D9B3",
-					"__worldX": 248,
-					"__worldY": -760,
-					"iid": "d513f76a-8990-11ee-94a7-dd76ff176db1",
-					"width": 32,
-					"height": 32,
-					"defUid": 66,
-					"px": [248,264],
-					"fieldInstances": [
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 5, "__tile": null, "defUid": 64, "realEditorValues": [] },
-						{ "__identifier": "EnemyTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 65, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] }
-					]
-				},
-				{
 					"__identifier": "RoomExit",
 					"__grid": [0,14],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
 					"__worldX": 0,
@@ -105,7 +82,7 @@
 					"__identifier": "RoomExit",
 					"__grid": [0,16],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
 					"__worldX": 0,
@@ -116,6 +93,22 @@
 					"defUid": 10,
 					"px": [0,256],
 					"fieldInstances": []
+				},
+				{
+					"__identifier": "BossArea",
+					"__grid": [16,16],
+					"__pivot": [1,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"__worldX": 272,
+					"__worldY": -752,
+					"iid": "e6d00ca0-8990-11ee-ab6b-476c7c19c8b7",
+					"width": 32,
+					"height": 32,
+					"defUid": 69,
+					"px": [272,272],
+					"fieldInstances": [{ "__identifier": "DungeonBosses", "__type": "String", "__value": null, "__tile": null, "defUid": 70, "realEditorValues": [] }]
 				}
 			]
 		},

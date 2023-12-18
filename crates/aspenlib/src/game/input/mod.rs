@@ -14,7 +14,8 @@ use crate::{
         engine::{App, InputManagerPlugin, InputManagerSystem, Plugin, PreUpdate, SystemSet},
         game::MainCamera,
     },
-    game::{action_maps::Gameplay, actors::components::Player}, AppState,
+    game::{action_maps::Gameplay, actors::components::Player},
+    AppState,
 };
 
 /// holds action maps
@@ -51,7 +52,12 @@ impl Plugin for ActionsPlugin {
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
         app.add_plugins(software_cursor::SoftwareCursorPlugin);
 
-        app.add_systems(PreUpdate, fake_mouse_input.after(AspenInputSystemSet::TouchInput).run_if(state_exists_and_equals(AppState::PlayingGame)));
+        app.add_systems(
+            PreUpdate,
+            fake_mouse_input
+                .after(AspenInputSystemSet::TouchInput)
+                .run_if(state_exists_and_equals(AppState::PlayingGame)),
+        );
 
         app.configure_sets(
             PreUpdate,

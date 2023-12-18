@@ -32,7 +32,7 @@
 			"params": ["SmallShort"]
 		}] },
 		{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-		{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+		{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 	],
 	"layerInstances": [
 		{
@@ -63,7 +63,7 @@
 					"__identifier": "RoomExit",
 					"__grid": [14,0],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
 					"__worldX": 1248,
@@ -79,7 +79,7 @@
 					"__identifier": "RoomExit",
 					"__grid": [16,0],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
 					"__worldX": 1280,
@@ -95,7 +95,7 @@
 					"__identifier": "RoomExit",
 					"__grid": [14,30],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
 					"__worldX": 1248,
@@ -111,7 +111,7 @@
 					"__identifier": "RoomExit",
 					"__grid": [16,30],
 					"__pivot": [0,0],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
 					"__worldX": 1280,
@@ -127,7 +127,7 @@
 					"__identifier": "EnemySpawner",
 					"__grid": [15,16],
 					"__pivot": [0.5,0.5],
-					"__tags": [],
+					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#94D9B3",
 					"__worldX": 1272,

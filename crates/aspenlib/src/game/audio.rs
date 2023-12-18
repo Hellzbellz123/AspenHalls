@@ -1,18 +1,13 @@
 use bevy::{prelude::*, utils::HashMap};
-use bevy_kira_audio::{
-    prelude::{AudioControl},
-    AudioApp, AudioChannel, AudioPlugin, AudioSettings,
-};
-use bevy_rapier2d::{dynamics::Velocity};
+use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin, AudioSettings};
+use bevy_rapier2d::dynamics::Velocity;
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
 use crate::{
-    consts::{MIN_VELOCITY},
+    consts::MIN_VELOCITY,
     game::{
-        actors::{
-            components::{ActorMoveState, CurrentMovement, Player},
-        },
+        actors::components::{ActorMoveState, CurrentMovement, Player},
         AppState,
     },
     loading::assets::AudioHandles,
@@ -161,8 +156,7 @@ fn actor_footstep_sound_system(
     >,
     time: Res<Time>,
 ) {
-    for (move_state, _spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query
-    {
+    for (move_state, _spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query {
         let key = "Footstep".to_string();
         let footstep_timer = sound_timers
             .get_mut(&key)

@@ -3,11 +3,11 @@ use bevy::{prelude::*, utils::hashbrown::HashMap};
 use crate::{
     bundles::{ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle},
     consts::{
-        AspenCollisionLayer, ACTOR_COLLIDER, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE,
+        actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE,
         ACTOR_Z_INDEX,
     },
     game::actors::{
-        ai::components::{ActorType, Type},
+        ai::components::{ActorType, Faction},
         animation::components::{ActorAnimationType, AnimState, AnimationSheet},
         components::{
             ActorColliderTag, ActorMoveState, AllowedMovement, CurrentMovement, PlayerColliderTag,
@@ -25,8 +25,8 @@ use crate::{
 };
 
 use bevy_rapier2d::prelude::{
-    Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes, Restitution,
-    RigidBody, Velocity,
+    ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes, Restitution, RigidBody,
+    Velocity,
 };
 
 use self::{
@@ -81,7 +81,7 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
             },
             ActorBundle {
                 name: Name::new("Player"),
-                faction: ActorType(Type::Player),
+                faction: ActorType::Npc(Faction::Player),
                 move_state: ActorMoveState {
                     move_status: CurrentMovement::None,
                     move_perms: AllowedMovement::Run,
@@ -150,11 +150,7 @@ pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHan
                         }),
                         ..default()
                     },
-                    collider: Collider::capsule(
-                        ACTOR_COLLIDER.0,
-                        ACTOR_COLLIDER.1,
-                        ACTOR_COLLIDER.2,
-                    ),
+                    collider: actor_collider(),
                     collision_groups: CollisionGroups::new(
                         AspenCollisionLayer::ACTOR,
                         AspenCollisionLayer::EVERYTHING,

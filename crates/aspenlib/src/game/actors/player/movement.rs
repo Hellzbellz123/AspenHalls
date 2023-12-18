@@ -1,5 +1,3 @@
-
-
 use bevy::prelude::{Query, With, *};
 
 use bevy_rapier2d::prelude::Velocity;
@@ -8,11 +6,7 @@ use leafwing_input_manager::prelude::ActionState;
 use crate::{
     consts::{MIN_VELOCITY, SPRINT_MODIFIER, WALK_MODIFIER},
     game::{
-        actors::{
-            components::{
-                ActorMoveState, ActorTertiaryAttributes, AllowedMovement, Player,
-            },
-        },
+        actors::components::{ActorMoveState, ActorTertiaryAttributes, AllowedMovement, Player},
         input::action_maps,
     },
     loading::splashscreen::MainCamera,

@@ -9,6 +9,8 @@ license-file = "LICENSE"
 readme = "README.md"
 version = "0.0.1"
 edition = "2021"
+keywords = ["videogame", "game", "lib"]
+categories = ["games"]
 
 [lints]
 workspace = true
@@ -62,6 +64,7 @@ bevy_console = { path = "../../deps/bevy_console" }
 bevy-inspector-egui = { path = "../../deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true, default-features = false }
 bevy_common_assets = { path = "../../deps/bevy_common_assets", features = [
   "ron",
+  "toml",
 ] }
 bevy_ecs_ldtk = { path = "../../deps/bevy_ecs_ldtk", features = [
   "atlas",

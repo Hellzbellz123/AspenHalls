@@ -6,8 +6,8 @@ use crate::ahp::{
         GlobalTransform, Parent, Query, Transform, Vec2, Vec3, With, Without,
     },
     game::{
-        action_maps, ActorType, BarrelPointTag, CurrentlySelectedWeapon, Player, SpawnActorEvent,
-        Type, Weapon, WeaponColliderTag, WeaponSlots, WeaponSocket, TILE_SIZE,
+        action_maps, ActorType, BarrelPointTag, CurrentlySelectedWeapon, Faction, Player,
+        SpawnActorEvent, Weapon, WeaponColliderTag, WeaponSlots, WeaponSocket, TILE_SIZE,
     },
 };
 
@@ -34,7 +34,7 @@ pub fn spawn_custom_on_button(
 
         spawn_event_writer.send(SpawnActorEvent {
             spawner: None,
-            actor_type: ActorType(Type::Enemy),
+            actor_type: ActorType::Npc(Faction::Enemy),
             what_to_spawn: "Skeleton".to_string(),
             spawn_position: (player_transform + (direction_offset)),
             spawn_count: 1,

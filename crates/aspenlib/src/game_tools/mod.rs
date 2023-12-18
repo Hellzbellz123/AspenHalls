@@ -35,9 +35,9 @@ pub mod debug_plugin {
         game::{
             AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
             AIWanderConfig, ActorAnimationType, ActorType, AnimState, AnimationSheet, AppState,
-            ChaseScore, CurrentlySelectedWeapon, DamageType, DifficultyScales, GeneralSettings,
-            MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive, Type, Weapon,
-            WeaponSlots, WeaponSocket, WeaponStats, WindowSettings,
+            ChaseScorer, CurrentlySelectedWeapon, DamageType, DifficultyScales, Faction,
+            GeneralSettings, MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive,
+            Weapon, WeaponSlots, WeaponSocket, WeaponStats, WindowSettings,
         },
         plugins::{
             FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
@@ -61,7 +61,7 @@ pub mod debug_plugin {
                 .register_type::<GeneralSettings>()
                 .register_type::<SoundSettings>()
                 .register_type::<Player>()
-                .register_type::<Type>()
+                .register_type::<Faction>()
                 .register_type::<AnimationSheet>()
                 .register_type::<ActorAnimationType>()
                 .register_type::<TimeInfo>()
@@ -83,13 +83,7 @@ pub mod debug_plugin {
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
                 // bigbrain AI
-                .register_type::<ChaseScore>()
-                .register_type::<AIWanderConfig>()
-                .register_type::<AIChaseConfig>()
-                .register_type::<AIShootConfig>()
-                .register_type::<AIChaseAction>()
-                .register_type::<AIWanderAction>()
-                .register_type::<AIShootAction>()
+
                 .register_type::<ActorType>()
                 .add_plugins((
                     WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),

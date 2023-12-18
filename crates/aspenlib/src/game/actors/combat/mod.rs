@@ -15,6 +15,7 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
+    ahp::game::lerp,
     consts::ACTOR_Z_INDEX,
     game::{
         actors::{
@@ -26,7 +27,7 @@ use crate::{
         input::action_maps,
         AppState, TimeInfo,
     },
-    loading::assets::ActorTextureHandles, ahp::game::lerp,
+    loading::assets::ActorTextureHandles,
 };
 
 use self::components::Damage;

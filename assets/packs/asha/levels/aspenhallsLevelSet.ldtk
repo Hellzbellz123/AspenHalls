@@ -11,7 +11,7 @@
 	"iid": "244ce3b0-c640-11ed-aa57-bfc2da97beed",
 	"jsonVersion": "1.4.1",
 	"appBuildId": 471015,
-	"nextUid": 67,
+	"nextUid": 71,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -169,7 +169,7 @@
 		{
 			"identifier": "PlayerStartLoc",
 			"uid": 7,
-			"tags": [],
+			"tags": ["world"],
 			"exportToToc": false,
 			"doc": "Location the player will be placed at if this room is chosen as the spawn location, if multiple exist in a room, locations will be averaged",
 			"width": 32,
@@ -203,7 +203,7 @@
 		{
 			"identifier": "RoomExit",
 			"uid": 10,
-			"tags": [],
+			"tags": ["world"],
 			"exportToToc": false,
 			"doc": "Used too calculate room exits for connecting paths",
 			"width": 32,
@@ -237,7 +237,7 @@
 		{
 			"identifier": "EnemySpawner",
 			"uid": 66,
-			"tags": [],
+			"tags": ["world"],
 			"exportToToc": false,
 			"doc": "Spawns Enemies inside its editor visual",
 			"width": 32,
@@ -375,9 +375,9 @@
 			]
 		},
 		{
-			"identifier": "TeleportSensor",
+			"identifier": "Teleporter",
 			"uid": 67,
-			"tags": [],
+			"tags": ["world"],
 			"exportToToc": false,
 			"doc": null,
 			"width": 32,
@@ -408,8 +408,8 @@
 			"pivotY": 0,
 			"fieldDefs": [
 				{
-					"identifier": "Teleport_Type",
-					"doc": null,
+					"identifier": "TeleporterType",
+					"doc": "what happens when triggered",
 					"__type": "LocalEnum.TeleportType",
 					"uid": 35,
 					"type": "F_Enum(34)",
@@ -446,8 +446,8 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "Teleport_Action",
-					"doc": "simple string corresponding too teleport type",
+					"identifier": "TeleporterAction",
+					"doc": "action this teleporter should perform when triggered",
 					"__type": "String",
 					"uid": 33,
 					"type": "F_String",
@@ -481,8 +481,8 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "Teleport_Local",
-					"doc": null,
+					"identifier": "TeleportLocalRef",
+					"doc": "reference too teleporter on the SAME level",
 					"__type": "EntityRef",
 					"uid": 38,
 					"type": "F_EntityRef",
@@ -516,13 +516,13 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "Teleport_Global",
-					"doc": null,
+					"identifier": "TeleportGlobalRef",
+					"doc": "global vec",
 					"__type": "Array<Float>",
 					"uid": 39,
 					"type": "F_Float",
 					"isArray": true,
-					"canBeNull": false,
+					"canBeNull": true,
 					"arrayMinLength": 2,
 					"arrayMaxLength": 2,
 					"editorDisplayMode": "Hidden",
@@ -553,11 +553,11 @@
 			]
 		},
 		{
-			"identifier": "Player",
+			"identifier": "HeroLocation",
 			"uid": 73,
-			"tags": [],
+			"tags": ["Actor"],
 			"exportToToc": false,
-			"doc": null,
+			"doc": "location for hero that player can select at the start of the game",
 			"width": 32,
 			"height": 32,
 			"resizableX": false,
@@ -582,9 +582,115 @@
 			"maxCount": 0,
 			"limitScope": "PerLevel",
 			"limitBehavior": "MoveLastOne",
-			"pivotX": 0.5,
-			"pivotY": 0.5,
-			"fieldDefs": []
+			"pivotX": 1,
+			"pivotY": 1,
+			"fieldDefs": [
+				{
+					"identifier": "WhatHero",
+					"doc": "what hero is spawned at this particular location",
+					"__type": "String",
+					"uid": 68,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
+				}
+			]
+		},
+		{
+			"identifier": "BossArea",
+			"uid": 69,
+			"tags": ["Actor"],
+			"exportToToc": false,
+			"doc": "Location inside Boss Room that boss spawns at",
+			"width": 32,
+			"height": 32,
+			"resizableX": false,
+			"resizableY": false,
+			"minWidth": null,
+			"maxWidth": null,
+			"minHeight": null,
+			"maxHeight": null,
+			"keepAspectRatio": false,
+			"tileOpacity": 1,
+			"fillOpacity": 0.08,
+			"lineOpacity": 0,
+			"hollow": false,
+			"color": "#9E0000",
+			"renderMode": "Rectangle",
+			"showName": true,
+			"tilesetId": null,
+			"tileRenderMode": "FitInside",
+			"tileRect": { "tilesetUid": 7, "x": 0, "y": 240, "w": 16, "h": 16 },
+			"uiTileRect": null,
+			"nineSliceBorders": [],
+			"maxCount": 0,
+			"limitScope": "PerLevel",
+			"limitBehavior": "MoveLastOne",
+			"pivotX": 1,
+			"pivotY": 1,
+			"fieldDefs": [
+				{
+					"identifier": "DungeonBosses",
+					"doc": null,
+					"__type": "String",
+					"uid": 70,
+					"type": "F_String",
+					"isArray": false,
+					"canBeNull": true,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "Hidden",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
+				}
+			]
 		}
 	], "tilesets": [
 		{
@@ -606,7 +712,6 @@
 				{ "enumValueId": "CollideDown", "tileIds": [16] },
 				{ "enumValueId": "CollideLeft", "tileIds": [20] },
 				{ "enumValueId": "CollideRight", "tileIds": [11] },
-				{ "enumValueId": "CollideWall", "tileIds": [1] },
 				{ "enumValueId": "CollideCornerUL", "tileIds": [14] },
 				{ "enumValueId": "CollideCornerLL", "tileIds": [15] },
 				{ "enumValueId": "CollideCornerUR", "tileIds": [5] },
@@ -615,7 +720,10 @@
 				{ "enumValueId": "CollideInnerLL", "tileIds": [12] },
 				{ "enumValueId": "CollideInnerUR", "tileIds": [7] },
 				{ "enumValueId": "CollideInnerLR", "tileIds": [13] },
-				{ "enumValueId": "CrawlOver", "tileIds": [27,30,33] },
+				{ "enumValueId": "DoubleWallVertical", "tileIds": [0] },
+				{ "enumValueId": "CollideInnerWall", "tileIds": [18] },
+				{ "enumValueId": "CollideOuterWall", "tileIds": [1] },
+				{ "enumValueId": "CrawlOver", "tileIds": [25,27,30,33] },
 				{ "enumValueId": "RoomExit", "tileIds": [2] }
 			],
 			"customData": [],
@@ -627,21 +735,23 @@
 		}
 	], "enums": [
 		{ "identifier": "CollisionType", "uid": 10, "values": [
-			{ "id": "CollideUp", "tileRect": { "tilesetUid": 2, "x": 96, "y": 96, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideDown", "tileRect": { "tilesetUid": 2, "x": 128, "y": 64, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideLeft", "tileRect": { "tilesetUid": 2, "x": 64, "y": 96, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideRight", "tileRect": { "tilesetUid": 2, "x": 160, "y": 32, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideWall", "tileRect": { "tilesetUid": 2, "x": 32, "y": 0, "w": 32, "h": 32 }, "color": 6702114 },
-			{ "id": "CollideCornerUL", "tileRect": { "tilesetUid": 2, "x": 64, "y": 64, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideCornerLL", "tileRect": { "tilesetUid": 2, "x": 96, "y": 64, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideCornerUR", "tileRect": { "tilesetUid": 2, "x": 160, "y": 0, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideCornerLR", "tileRect": { "tilesetUid": 2, "x": 160, "y": 64, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideInnerUL", "tileRect": { "tilesetUid": 2, "x": 0, "y": 32, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideInnerLL", "tileRect": { "tilesetUid": 2, "x": 0, "y": 64, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideInnerUR", "tileRect": { "tilesetUid": 2, "x": 32, "y": 32, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CollideInnerLR", "tileRect": { "tilesetUid": 2, "x": 32, "y": 64, "w": 32, "h": 32 }, "color": 5583667 },
-			{ "id": "CrawlOver", "tileRect": { "tilesetUid": 2, "x": 96, "y": 160, "w": 32, "h": 32 }, "color": 5592405 },
-			{ "id": "RoomExit", "tileRect": { "tilesetUid": 2, "x": 64, "y": 0, "w": 32, "h": 32 }, "color": 12294434 }
+			{ "id": "CollideUp", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideDown", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideLeft", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideRight", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideCornerUL", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideCornerLL", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideCornerUR", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideCornerLR", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideInnerUL", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideInnerLL", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideInnerUR", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideInnerLR", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "DoubleWallVertical", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideInnerWall", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CollideOuterWall", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5583667 },
+			{ "id": "CrawlOver", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 5592405 },
+			{ "id": "RoomExit", "tileRect": { "tilesetUid": 2, "x": 0, "y": 192, "w": 32, "h": 32 }, "color": 12294434 }
 		], "iconTilesetUid": 2, "externalRelPath": null, "externalFileChecksum": null, "tags": ["Level"] },
 		{ "identifier": "TeleportType", "uid": 34, "values": [
 			{ "id": "Event", "tileRect": null, "color": 12470831 },
@@ -664,7 +774,7 @@
 			{ "id": "Boss", "tileRect": null, "color": 14120515 },
 			{ "id": "Special", "tileRect": null, "color": 15389866 },
 			{ "id": "Normal", "tileRect": null, "color": 14984818 },
-			{ "id": "Sanctuary", "tileRect": null, "color": 7552569 }
+			{ "id": "Hideout", "tileRect": null, "color": 7552569 }
 		], "iconTilesetUid": null, "externalRelPath": null, "externalFileChecksum": null, "tags": ["World"] },
 		{ "identifier": "IdentLevel", "uid": 49, "values": [
 			{ "id": "Level0", "tileRect": null, "color": 12470831 },
@@ -773,7 +883,7 @@
 			"acceptFileTypes": null,
 			"defaultOverride": {
 				"id": "V_String",
-				"params": ["Level0"]
+				"params": ["Level1"]
 			},
 			"textLanguageMode": null,
 			"symmetricalRef": false,
@@ -814,10 +924,7 @@
 					"id": "V_String",
 					"params": ["DungeonStart"]
 				}] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
-					"id": "V_String",
-					"params": ["Level1"]
-				}] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [null] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "s" }, { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "n" } ]
@@ -850,7 +957,7 @@
 					"id": "V_String",
 					"params": ["Special"]
 				}] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "s" }, { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "n" } ]
@@ -880,7 +987,7 @@
 					"params": ["SmallShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" }, { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" } ]
@@ -910,7 +1017,7 @@
 					"params": ["SmallShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "n" }, { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" } ]
@@ -943,10 +1050,7 @@
 					"id": "V_String",
 					"params": ["Boss"]
 				}] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
-					"id": "V_String",
-					"params": ["Level1"]
-				}] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [null] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "s" }, { "levelIid": "c24a48e0-8990-11ee-94a7-3d3f425ee144", "dir": "n" } ]
@@ -976,7 +1080,7 @@
 					"params": ["SmallShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "w" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
@@ -1006,7 +1110,7 @@
 					"params": ["SmallShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "w" }, { "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "e" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
@@ -1036,7 +1140,7 @@
 					"params": ["SmallLong"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "n" }, { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "n" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "e" }, { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "s" } ]
@@ -1066,7 +1170,7 @@
 					"params": ["SmallLong"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [
@@ -1102,7 +1206,7 @@
 					"params": ["SmallLong"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "s" } ]
@@ -1132,7 +1236,7 @@
 					"params": ["MediumShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "n" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "e" } ]
@@ -1162,7 +1266,7 @@
 					"params": ["MediumLong"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "n" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "n" }, { "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "e" } ]
@@ -1192,7 +1296,7 @@
 					"params": ["MediumShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "n" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "w" }, { "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "s" } ]
@@ -1222,7 +1326,7 @@
 					"params": ["MediumShort"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "n" }, { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "w" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "e" } ]
@@ -1252,13 +1356,13 @@
 					"params": ["MediumLong"]
 				}] },
 				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Normal", "__tile": null, "defUid": 46, "realEditorValues": [] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [] }
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "n" } ]
 		},
 		{
-			"identifier": "SanctuaryL1",
+			"identifier": "HideoutL1",
 			"iid": "7ab56830-8990-11ee-a550-1380b8d0b8e4",
 			"uid": 59,
 			"worldX": 0,
@@ -1275,15 +1379,15 @@
 			"bgPivotY": 0.5,
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
-			"externalRelPath": "aspenhallsLevelSet/SanctuaryL1.ldtkl",
+			"externalRelPath": "aspenhallsLevelSet/HideoutL1.ldtkl",
 			"fieldInstances": [
 				{ "__identifier": "IdentSize", "__type": "LocalEnum.IdentSize", "__value": "Special", "__tile": null, "defUid": 44, "realEditorValues": [{
 					"id": "V_String",
 					"params": ["Special"]
 				}] },
-				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Sanctuary", "__tile": null, "defUid": 46, "realEditorValues": [{
+				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Hideout", "__tile": null, "defUid": 46, "realEditorValues": [{
 					"id": "V_String",
-					"params": ["Sanctuary"]
+					"params": ["Hideout"]
 				}] },
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
 					"id": "V_String",
@@ -1294,7 +1398,7 @@
 			"__neighbours": [ { "levelIid": "c24a48e0-8990-11ee-94a7-3d3f425ee144", "dir": "s" }, { "levelIid": "dd78f4e0-8990-11ee-a550-8328dbe0c3aa", "dir": "e" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
 		},
 		{
-			"identifier": "SanctuaryL2",
+			"identifier": "HideoutL2",
 			"iid": "dd78f4e0-8990-11ee-a550-8328dbe0c3aa",
 			"uid": 60,
 			"worldX": 640,
@@ -1311,26 +1415,26 @@
 			"bgPivotY": 0.5,
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
-			"externalRelPath": "aspenhallsLevelSet/SanctuaryL2.ldtkl",
+			"externalRelPath": "aspenhallsLevelSet/HideoutL2.ldtkl",
 			"fieldInstances": [
 				{ "__identifier": "IdentSize", "__type": "LocalEnum.IdentSize", "__value": "Special", "__tile": null, "defUid": 44, "realEditorValues": [{
 					"id": "V_String",
 					"params": ["Special"]
 				}] },
-				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Sanctuary", "__tile": null, "defUid": 46, "realEditorValues": [{
+				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Hideout", "__tile": null, "defUid": 46, "realEditorValues": [{
 					"id": "V_String",
-					"params": ["Sanctuary"]
+					"params": ["Hideout"]
 				}] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level2", "__tile": null, "defUid": 50, "realEditorValues": [{
 					"id": "V_String",
-					"params": ["Level1"]
+					"params": ["Level2"]
 				}] }
 			],
 			"layerInstances": null,
 			"__neighbours": [ { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "w" }, { "levelIid": "1f824060-8990-11ee-a550-159737c4cb9e", "dir": "e" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
 		},
 		{
-			"identifier": "SanctuaryL3",
+			"identifier": "HideoutL3",
 			"iid": "1f824060-8990-11ee-a550-159737c4cb9e",
 			"uid": 61,
 			"worldX": 2112,
@@ -1347,19 +1451,19 @@
 			"bgPivotY": 0.5,
 			"__smartColor": "#ADADB5",
 			"__bgPos": null,
-			"externalRelPath": "aspenhallsLevelSet/SanctuaryL3.ldtkl",
+			"externalRelPath": "aspenhallsLevelSet/HideoutL3.ldtkl",
 			"fieldInstances": [
 				{ "__identifier": "IdentSize", "__type": "LocalEnum.IdentSize", "__value": "Special", "__tile": null, "defUid": 44, "realEditorValues": [{
 					"id": "V_String",
 					"params": ["Special"]
 				}] },
-				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Sanctuary", "__tile": null, "defUid": 46, "realEditorValues": [{
+				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Hideout", "__tile": null, "defUid": 46, "realEditorValues": [{
 					"id": "V_String",
-					"params": ["Sanctuary"]
+					"params": ["Hideout"]
 				}] },
-				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [{
+				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level3", "__tile": null, "defUid": 50, "realEditorValues": [{
 					"id": "V_String",
-					"params": ["Level1"]
+					"params": ["Level3"]
 				}] }
 			],
 			"layerInstances": null,
@@ -1389,9 +1493,9 @@
 					"id": "V_String",
 					"params": ["Special"]
 				}] },
-				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Sanctuary", "__tile": null, "defUid": 46, "realEditorValues": [{
+				{ "__identifier": "IdentType", "__type": "LocalEnum.IdentType", "__value": "Hideout", "__tile": null, "defUid": 46, "realEditorValues": [{
 					"id": "V_String",
-					"params": ["Sanctuary"]
+					"params": ["Hideout"]
 				}] },
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level0", "__tile": null, "defUid": 50, "realEditorValues": [{
 					"id": "V_String",
