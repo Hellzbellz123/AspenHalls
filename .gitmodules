@@ -64,3 +64,6 @@
 [submodule "deps/bevy_mod_logfu"]
 	path = deps/bevy_mod_logfu
 	url = https://github.com/Hellzbellz123/bevy_mod_logfu.git
+[submodule "deps/bevy_asepritesheet"]
+	path = deps/bevy_asepritesheet
+	url = https://gitlab.com/Technostalgic/bevy_asepritesheet.git
