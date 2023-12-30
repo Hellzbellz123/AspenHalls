@@ -1,4 +1,4 @@
-use crate::ahp::engine::{
+use crate::prelude::engine::{
     bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey},
     default, App, KeyCode, Plugin,
 };
@@ -27,9 +27,8 @@ impl Plugin for QuakeConPlugin {
                 symbol: "asha$ ".to_owned(),
                 ..default()
             })
-            .add_console_command::<SpawnEnemyCommand, _>(spawnenemy_command)
-            .add_console_command::<SpawnWeaponCommand, _>(spawnweapon_command)
-            .add_console_command::<TeleportPlayerCommand, _>(teleport_player_command);
+            .add_console_command::<SpawnActorCommand, _>(spawn_command)
+            .add_console_command::<TeleportCharacterCommand, _>(teleport_command);
     }
 }
 

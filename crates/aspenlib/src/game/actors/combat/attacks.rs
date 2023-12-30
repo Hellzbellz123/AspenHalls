@@ -5,31 +5,52 @@ use crate::{
     bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
     game::actors::{
-        components::{
-            PlayerProjectileColliderTag, PlayerProjectileTag, ProjectileStats, TimeToLive,
-        },
+        attributes_stats::{Damage, ProjectileStats},
+        combat::components::{AttackDamage, WeaponForm},
+        components::{ProjectileColliderTag, ProjectileTag, TimeToLive},
         player::actions::ShootEvent,
     },
     loading::assets::ActorTextureHandles,
 };
 
-use super::components::WeaponStats;
+// TODO: handle attacks as an event
+// characters should send attack event
+// AttackEvent {weapon: Entity, character: Entity}
+// system takes attack event and sends event for weapon type
+// WeaponTypeUsedEvent {weapon: Entity, character: Entity}
+// systems too handle each weapon type
 
 /// creates player bullet
 pub fn create_bullet(
     cmds: &mut Commands,
     assets: &ResMut<ActorTextureHandles>,
     event: &ShootEvent,
-    weapon_stats: &WeaponStats,
+    weapon_stats: &WeaponForm,
+    weapon_damage: &AttackDamage,
 ) {
+    let gun_data = weapon_stats;
+
+    let WeaponForm::Gun {
+        projectile_speed,
+        projectile_size,
+        barrel_end: _,
+        ammo_amount: _,
+        reload_time: _,
+        fire_rate: _,
+    }: WeaponForm = *gun_data
+    else {
+        panic!("NOT A GUN BUT WANTED TOO SHOOT?")
+    };
+
     cmds.spawn((
-        PlayerProjectileTag,
         ProjectileBundle {
             name: Name::new("PlayerProjectile"),
             projectile_stats: ProjectileStats {
-                damage: weapon_stats.damage,
-                speed: weapon_stats.bullet_speed,
-                size: weapon_stats.projectile_size,
+                damage: Damage {
+                    physical: weapon_damage.physical,
+                    elemental: weapon_damage.elemental,
+                },
+                is_player_projectile: false,
             },
             ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
@@ -38,14 +59,14 @@ pub fn create_bullet(
                     event.bullet_spawn_loc.extend(ACTOR_Z_INDEX), //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
                 ),
                 sprite: Sprite {
-                    custom_size: Some(Vec2::splat(weapon_stats.projectile_size)),
+                    custom_size: Some(Vec2::splat(projectile_size)),
                     ..default()
                 },
                 ..default()
             },
             rigidbody_bundle: RigidBodyBundle {
                 velocity: Velocity::linear(
-                    event.travel_dir * (weapon_stats.bullet_speed * BULLET_SPEED_MODIFIER),
+                    event.travel_dir * (projectile_speed * BULLET_SPEED_MODIFIER),
                 ),
                 rigidbody: RigidBody::Dynamic,
                 friction: Friction::coefficient(0.2),
@@ -57,12 +78,12 @@ pub fn create_bullet(
                     angular_damping: 0.1,
                 },
             },
+            tag: ProjectileTag,
         },
         Sensor,
     ))
     .with_children(|child| {
         child.spawn((
-            PlayerProjectileColliderTag,
             ProjectileColliderBundle {
                 name: Name::new("PlayerProjectileCollider"),
                 transform_bundle: TransformBundle {
@@ -80,6 +101,7 @@ pub fn create_bullet(
                         | AspenCollisionLayer::PROJECTILE,
                 ),
                 ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
+                tag: ProjectileColliderTag,
             },
             ActiveEvents::COLLISION_EVENTS,
         ));

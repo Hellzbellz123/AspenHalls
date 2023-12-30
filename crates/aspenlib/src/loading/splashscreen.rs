@@ -1,4 +1,4 @@
-use crate::ahp::{engine::*, game::*};
+use crate::prelude::{engine::*, game::*};
 
 /// Identifies the Main Camera
 #[derive(Component, Reflect, Default)]
@@ -76,6 +76,7 @@ fn spawn_main_camera(mut commands: Commands) {
             camera_2d: Camera2d {
                 clear_color: ClearColorConfig::Default,
             },
+            transform: Transform::from_xyz(200.0, 100.0, 999.0),
             ..default()
         },
         FogSettings {

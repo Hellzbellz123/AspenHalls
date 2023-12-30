@@ -5,7 +5,7 @@ use bevy::asset::AssetMetaCheck;
 
 /// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
 // use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
-use crate::ahp::{engine::*, game::*, plugins::*};
+use crate::prelude::{engine::*, game::*, plugins::*};
 
 /// Holds game settings deserialized from the config.toml
 #[derive(Reflect, Resource, Serialize, Deserialize, Clone, Debug)]

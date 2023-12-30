@@ -3,8 +3,8 @@
     currently only targets android, should be expanded too ios mobile
 "]
 
-use aspenlib::ahp::engine::{self as engine, bevy};
-use aspenlib::ahp::game as asha;
+use aspenlib::prelude::engine::{self as engine, bevy};
+use aspenlib::prelude::game as asha;
 
 #[bevy::prelude::bevy_main]
 fn main() {

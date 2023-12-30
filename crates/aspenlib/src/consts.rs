@@ -1,6 +1,7 @@
+use bevy::{math::vec4, pbr::StandardMaterial};
 use bevy_rapier2d::prelude::Collider;
 
-use crate::ahp::engine::{bevy, Group, Vec2, Vec3};
+use crate::prelude::engine::{bevy, Group, Vec2, Vec3};
 
 /// width/height of standard tile in gameworld
 pub const TILE_SIZE: f32 = 32.0;
@@ -19,7 +20,7 @@ pub const ACTOR_SCALE: Vec3 = Vec3 {
 };
 
 /// actor size
-pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE / 2.0, TILE_SIZE);
+pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE, TILE_SIZE);
 
 /// common actor capsule dimensions
 pub const ACTOR_COLLIDER_DIMENSIONS: (bevy::prelude::Vec2, bevy::prelude::Vec2, f32) = (
@@ -34,8 +35,38 @@ pub const ACTOR_COLLIDER_DIMENSIONS: (bevy::prelude::Vec2, bevy::prelude::Vec2, 
     ACTOR_SIZE.x / 2.0,
 );
 
+/// creates a collider for a character given a size
+pub fn actor_collider(size: Vec2) -> Collider {
+    Collider::capsule(
+        Vec2 {
+            x: 0.0,
+            y: 6.0,
+        },
+        Vec2 {
+            x: 0.0,
+            y: size.y - 10.0,
+        },
+        size.x / 2.0,
+    )
+}
+
+// /// creates a collider for a character given a size
+// pub fn actor_collider(size: Vec2) -> Collider {
+//     Collider::capsule(
+//         Vec2 {
+//             x: 0.0,
+//             y: -size.y / 5.0,
+//         },
+//         Vec2 {
+//             x: 0.0,
+//             y: size.y / 3.0,
+//         },
+//         size.x / 2.0,
+//     )
+// }
+
 /// default actor collider shape for most entities
-pub fn actor_collider() -> Collider {
+pub fn default_actor_collider() -> Collider {
     Collider::capsule(
         ACTOR_COLLIDER_DIMENSIONS.0,
         ACTOR_COLLIDER_DIMENSIONS.1,
@@ -61,8 +92,8 @@ pub const WALK_MODIFIER: f32 = 0.7;
 /// if running, speed is multiplied by this
 pub const SPRINT_MODIFIER: f32 = 1.3;
 
-/// actors will move away from enemy if within this distance
-pub const BACKUP_DISTANCE: f32 = 3.0;
+/// character will move away from enemy if within this distance
+pub const BACKUP_TILE_DISTANCE: f32 = 3.0;
 
 #[non_exhaustive]
 /// Collision Groups wrapper
@@ -86,6 +117,23 @@ impl AspenCollisionLayer {
     /// use as the membership and bitwise-or what you do NOT want too collide with
     pub const EVERYTHING: Group = Group::ALL;
 }
+
+use bevy_mod_picking::prelude::*;
+/// tint for selectable players
+pub const HIGHLIGHT_TINT: Highlight<StandardMaterial> = Highlight {
+    hovered: Some(HighlightKind::new_dynamic(|matl| StandardMaterial {
+        base_color: matl.base_color + vec4(-0.2, -0.2, 0.4, 0.0),
+        ..matl.to_owned()
+    })),
+    pressed: Some(HighlightKind::new_dynamic(|matl| StandardMaterial {
+        base_color: matl.base_color + vec4(-0.3, -0.3, 0.5, 0.0),
+        ..matl.to_owned()
+    })),
+    selected: Some(HighlightKind::new_dynamic(|matl| StandardMaterial {
+        base_color: matl.base_color + vec4(-0.3, 0.2, -0.3, 0.0),
+        ..matl.to_owned()
+    })),
+};
 
 // supported resolutions
 // const RESOLUTIONS: [(f32, f32); 28] = [

@@ -1,11 +1,21 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
+use crate::loading::custom_assets::npc_definition::RegistryIdentifier;
+
 /// location of hero that player can choose at start of game
 #[derive(Component, Default)]
 pub struct HeroSpot {
     /// name of hero that should be spawned at this `HeroSpot`
     pub what_hero: String,
+}
+
+#[derive(Debug, Component, Default)]
+pub struct BossArea {
+    /// list of enemys that are considered "bosses"
+    pub dungeon_boss: Vec<RegistryIdentifier>,
+    /// true/false are bosses defeated
+    pub boss_defeated: bool,
 }
 
 /// Marks player start location
@@ -66,5 +76,16 @@ pub enum TpTriggerEffect {
 impl Default for TpTriggerEffect {
     fn default() -> Self {
         Self::Global(Vec2::ZERO)
+    }
+}
+
+
+impl TpTriggerEffect {
+    pub fn is_event(&self) -> bool {
+        match self {
+            TpTriggerEffect::Event(_) => true,
+            TpTriggerEffect::Local(_) => false,
+            TpTriggerEffect::Global(_) => false,
+        }
     }
 }

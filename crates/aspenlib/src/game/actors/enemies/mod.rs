@@ -1,10 +1,28 @@
-use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
+use bevy::{
+    ecs::{query::Without, schedule::IntoSystemConfigs},
+    log::info,
+    prelude::{
+        default, resource_exists, state_exists_and_equals, App, BuildChildren, Commands, Deref,
+        DerefMut, Handle, Image, Name, Plugin, Query, Res, ResMut, Resource, Sprite, SpriteBundle,
+        Time, Timer, TimerMode, Transform, TransformBundle, Update, Vec2, Vec3, With,
+    },
+};
+use bevy_rapier2d::prelude::{
+    ActiveEvents, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes,
+    Restitution, RigidBody, Sensor, Velocity,
+};
 
 use crate::{
     bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
+    game::actors::{
+        ai::components::AIShootConfig,
+        attributes_stats::{Damage, ElementalEffect, PhysicalDamage, ProjectileStats},
+        components::TimeToLive,
+    },
     loading::assets::ActorTextureHandles,
+    prelude::{engine, game::action_maps},
+    AppState,
 };
 
 //TODO: on startup, load all ron files in assets/packs/asha/actors
@@ -17,21 +35,10 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            enemy_can_shoot_check.run_if(resource_exists::<ActorTextureHandles>()),
+            enemy_can_shoot_check.run_if(state_exists_and_equals(AppState::PlayingGame)),
         );
     }
 }
-
-use bevy::prelude::{Query, ResMut, Vec2, With};
-
-use super::{
-    ai::components::{AIShootConfig, Enemy},
-    components::{
-        EnemyProjectileColliderTag, EnemyProjectileTag, Player, ProjectileStats, TimeToLive,
-    },
-};
-
-use bevy_rapier2d::prelude::{RigidBody, Velocity};
 
 /// timer for shooting
 #[derive(Resource, Deref, DerefMut)]
@@ -42,12 +49,13 @@ pub fn enemy_can_shoot_check(
     mut cmds: Commands,
     time: Res<Time>,
     assets: ResMut<ActorTextureHandles>,
-    player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<(&Transform, &mut AIShootConfig), With<Enemy>>,
+    player_query: Query<&Transform, With<engine::ActionState<action_maps::Gameplay>>>,
+    mut enemy_query: Query<
+        (&Transform, &mut AIShootConfig),
+        Without<engine::ActionState<action_maps::Gameplay>>,
+    >,
 ) {
-    let Ok(player_transform) = player_query.get_single() else {
-        return;
-    };
+    let player_transform = player_query.single();
 
     for (enemy_transform, mut ai_attack_state) in &mut enemy_query {
         let enemy_loc = enemy_transform.translation.truncate();
@@ -73,6 +81,7 @@ pub fn enemy_can_shoot_check(
     }
 }
 
+//TODO: make this an event
 /// spawns enemy projectile
 pub fn spawn_enemy_projectile(
     cmds: &mut Commands,
@@ -81,13 +90,14 @@ pub fn spawn_enemy_projectile(
     location: Vec2,
 ) {
     cmds.spawn((
-        EnemyProjectileTag,
         ProjectileBundle {
             name: Name::new("EnemyProjectile"),
             projectile_stats: ProjectileStats {
-                damage: 10.0,
-                speed: 100.0,
-                size: 5.0,
+                damage: Damage {
+                    physical: PhysicalDamage(10.0),
+                    elemental: ElementalEffect::default(),
+                },
+                is_player_projectile: false,
             },
             ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
@@ -111,12 +121,12 @@ pub fn spawn_enemy_projectile(
                     angular_damping: 0.1,
                 },
             },
+            tag: super::components::ProjectileTag,
         },
         Sensor,
     ))
     .with_children(|child| {
         child.spawn((
-            EnemyProjectileColliderTag,
             ProjectileColliderBundle {
                 name: Name::new("EnemyProjectileCollider"),
                 transform_bundle: TransformBundle {
@@ -136,6 +146,7 @@ pub fn spawn_enemy_projectile(
                     AspenCollisionLayer::EVERYTHING,
                 ),
                 ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
+                tag: super::components::ProjectileColliderTag,
             },
             ActiveEvents::COLLISION_EVENTS,
         ));

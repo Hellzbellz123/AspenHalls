@@ -2,8 +2,8 @@
     web app built with yew too hold the bevy application
 "]
 
-use aspenlib::ahp::engine;
-use aspenlib::ahp::game as asha;
+use aspenlib::prelude::engine;
+use aspenlib::prelude::game as asha;
 use log::Level;
 use yew::prelude::*;
 

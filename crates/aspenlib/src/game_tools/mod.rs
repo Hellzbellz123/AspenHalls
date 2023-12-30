@@ -23,25 +23,26 @@ pub mod debug_plugin {
         time::Duration,
     };
 
-    use crate::ahp::{
-        engine::{
-            info, render_graph, render_graph_dot, schedule_graph, schedule_graph_dot,
-            state_exists_and_equals, svg_shapes, warn, App, Color, Commands, Entity, Fill,
-            FillOptions, First, GeometryBuilder, GridCoords, Handle, IntGridCell,
-            IntoSystemConfigs, Last, LayerMetadata, LdtkProject, Parent, Plugin, PostStartup,
-            PostUpdate, PreStartup, PreUpdate, Query, Startup, Timer, Transform, Update, Vec2,
-            With, Without,
-        },
-        game::{
-            AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
-            AIWanderConfig, ActorAnimationType, ActorType, AnimState, AnimationSheet, AppState,
-            ChaseScorer, CurrentlySelectedWeapon, DamageType, DifficultyScales, Faction,
-            GeneralSettings, MainCamera, Player, SoundSettings, Spawner, TimeInfo, TimeToLive,
-            Weapon, WeaponSlots, WeaponSocket, WeaponStats, WindowSettings,
-        },
-        plugins::{
-            FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
-            RapierDebugRenderPlugin, StateInspectorPlugin, WorldInspectorPlugin,
+    use crate::{
+        game::actors::combat::components::AttackDamage,
+        prelude::{
+            engine::{
+                info, render_graph, render_graph_dot, schedule_graph, schedule_graph_dot,
+                state_exists_and_equals, svg_shapes, warn, App, Color, Commands, Entity, Fill,
+                FillOptions, First, GeometryBuilder, GridCoords, Handle, IntGridCell,
+                IntoSystemConfigs, Last, LayerMetadata, LdtkProject, Parent, Plugin, PostStartup,
+                PostUpdate, PreStartup, PreUpdate, Query, Startup, Timer, Transform, Update, Vec2,
+                With, Without,
+            },
+            game::{
+                ActorType, AppState, CurrentlyDrawnWeapon, DifficultyScales, EnemySpawner,
+                GeneralSettings, MainCamera, NpcType, SoundSettings, TimeInfo, TimeToLive,
+                WeaponHolder, WeaponSlots, WeaponSocket, WindowSettings,
+            },
+            plugins::{
+                FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
+                RapierDebugRenderPlugin, StateInspectorPlugin, WorldInspectorPlugin,
+            },
         },
     };
 
@@ -60,20 +61,16 @@ pub mod debug_plugin {
                 .register_type::<WindowSettings>()
                 .register_type::<GeneralSettings>()
                 .register_type::<SoundSettings>()
-                .register_type::<Player>()
-                .register_type::<Faction>()
-                .register_type::<AnimationSheet>()
-                .register_type::<ActorAnimationType>()
+                .register_type::<NpcType>()
                 .register_type::<TimeInfo>()
                 .register_type::<MainCamera>() // tells bevy-inspector-egui how to display the struct in the world inspector
-                .register_type::<Spawner>()
-                .register_type::<AnimState>()
+                .register_type::<EnemySpawner>()
                 .register_type::<TimeToLive>()
-                .register_type::<Weapon>()
+                .register_type::<WeaponHolder>()
                 // weapon stuff
-                .register_type::<CurrentlySelectedWeapon>()
-                .register_type::<DamageType>()
-                .register_type::<WeaponStats>()
+                .register_type::<CurrentlyDrawnWeapon>()
+                // .register_type::<DamageType>()
+                // .register_type::<WeaponStats>()
                 .register_type::<WeaponSlots>()
                 .register_type::<WeaponSocket>()
                 // LDTK debug data
@@ -83,7 +80,6 @@ pub mod debug_plugin {
                 .register_type::<IntGridCell>()
                 .register_type::<GridCoords>()
                 // bigbrain AI
-
                 .register_type::<ActorType>()
                 .add_plugins((
                     WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
@@ -119,7 +115,7 @@ pub mod debug_plugin {
     /// query's spawners and creates debug representations for spawner area
     fn debug_visualize_spawner(
         mut cmds: Commands,
-        spawner_query: Query<(Entity, &Transform, &Spawner), Without<Fill>>,
+        spawner_query: Query<(Entity, &Transform, &EnemySpawner), Without<Fill>>,
     ) {
         for (entity, _transform, spawner) in &spawner_query {
             let spawner_box_visual = svg_shapes::Rectangle {
@@ -158,8 +154,8 @@ pub mod debug_plugin {
         mut cmds: Commands,
         weapon_query: Query<
             // this is equivalent to if player has a weapon equipped and out
-            (Entity, &WeaponStats, &Transform),
-            (With<Parent>, With<CurrentlySelectedWeapon>),
+            (Entity, &AttackDamage, &Transform),
+            (With<Parent>, With<CurrentlyDrawnWeapon>),
         >,
     ) {
         for (ent, _w_stats, _trans) in &weapon_query {

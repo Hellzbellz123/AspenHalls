@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
-    prelude::{LevelIid, SpawnExclusions},
+    prelude::SpawnExclusions,
     IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground, LevelSelection,
     LevelSpawnBehavior, SetClearColor,
 };
@@ -8,11 +8,11 @@ use bevy_rapier2d::prelude::{CollisionEvent, Sensor};
 
 use crate::{
     game::{
-        actors::components::{ActorColliderTag, ActorMoveState, TeleportStatus},
+        actors::components::{CharacterColliderTag, ActorMoveState, TeleportStatus},
         game_world::components::{ActorTeleportEvent, Teleporter},
         // game_world::dungeonator::GeneratorStage,
     },
-    loading::assets::MapAssetHandles,
+    loading::assets::MapAssetHandles, prelude::game::ActorType,
 };
 
 /// tag for map entity
@@ -70,9 +70,9 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
 pub fn teleporter_collisions(
     mut collision_events: EventReader<CollisionEvent>,
     mut teleport_events: EventWriter<ActorTeleportEvent>,
-    mut actors: Query<(Entity, &mut ActorMoveState)>,
+    mut actors: Query<(Entity, &mut ActorMoveState, &ActorType)>,
     sensors: Query<(Entity, &Teleporter), With<Sensor>>,
-    parents: Query<&Parent, With<ActorColliderTag>>,
+    parents: Query<&Parent, With<CharacterColliderTag>>,
 ) {
     // TODO: check TeleportStatus if we are allowed too send this teleport
     // or on the EventReader side, get status and return with warning
@@ -151,6 +151,11 @@ pub fn teleporter_collisions(
                 }
             }
         } else if actor.1.teleport_status == TeleportStatus::None && event_is_collision_start {
+            if sensor.1.effect.is_event() && !actor.2.is_hero() {
+                warn!("events should only be triggered by the player");
+                return;
+            }
+
             teleport_events.send(ActorTeleportEvent {
                 tp_type: sensor.1.effect.clone(),
                 target: Some(actor.0),
@@ -160,71 +165,5 @@ pub fn teleporter_collisions(
             warn!("requesting teleport");
             return;
         }
-
-        // for (actor_ent, mut state) in &mut actor_query {
-        //     let ac = children
-        //         .iter_descendants(actor_ent)
-        //         .find(|e| collider_query.get(*e).is_ok())
-        //         .expect("Actors children did not have a collider.");
-        //     let tp_status = state.clone();
-
-        //     match &tp_status.teleport_status {
-        //         TeleportStatus::None => {
-        //             if let CollisionEvent::Started(a, b, _) = event {
-        //                 if *a == ac || *b == ac {
-        //                     if let Some((sensor, teleporter)) = teleporters
-        //                         .iter()
-        //                         .find(|&(sensor, _)| sensor == *a || sensor == *b)
-        //                     {
-        //                         teleport_events.send(ActorTeleportEvent {
-        //                             tp_type: sensor.1.teleport_type.clone(),
-        //                             target: Some(actor),
-        //                             sender: Some(sensor),
-        //                         });
-        //                         actor.1.teleport_status = TeleportStatus::Requested;
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //         a => {
-        //             if let CollisionEvent::Stopped(a, b, _flags) = event {
-        //                 if *a == ac || *b == ac {
-        //                     match state.teleport_status {
-        //                         TeleportStatus::None => {
-        //                             warn!("exited a teleporter while TeleportStatus::None")
-        //                         }
-        //                         TeleportStatus::Requested => {
-        //                             warn!("exited while TeleportStatus::Requested, setting TeleportStatus::Teleporting");
-        //                             state.teleport_status = TeleportStatus::Teleporting;
-        //                         }
-        //                         TeleportStatus::Teleporting => {
-        //                             warn!("exited while TeleportStatus::Teleporting, setting TeleportStatus::Done");
-        //                             state.teleport_status = TeleportStatus::Done;
-        //                         }
-        //                         TeleportStatus::Done => {
-        //                             info!("exited while TeleportStatus::Done, setting TeleportStatus::None");
-        //                             state.teleport_status = TeleportStatus::None;
-        //                         }
-        //                     }
-        //                 }
-        //             }
-
-        //             match a {
-        //                 TeleportStatus::Requested => {
-        //                     warn!("already requested. doing nothing.")
-        //                 }
-        //                 TeleportStatus::Teleporting => {
-        //                     state.teleport_status = TeleportStatus::Done;
-        //                     warn!("already teleporting. doing nothing.")
-        //                 }
-        //                 TeleportStatus::Done => {
-        //                     warn!("just finished. doing nothing.")
-        //                 }
-        //                 _ => {}
-        //             }
-        //             return;
-        //         }
-        //     }
-        // }
     }
 }

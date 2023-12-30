@@ -1,19 +1,20 @@
 use bevy::{
     ecs::{component::Component, schedule::common_conditions::not, system::Res},
-    log::warn,
+    log::error,
     math::Vec2,
     prelude::{
         any_with_component, BackgroundColor, GlobalTransform, ImageBundle, PositionType, Reflect,
+        Window,
     },
     ui::{Node, Style, Val, ZIndex},
 };
 
-use crate::ahp::{
+use crate::prelude::{
     engine::{
         bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
         IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
     },
-    game::{action_maps, AppState, InitAssetHandles, Player},
+    game::{action_maps, AppState, InitAssetHandles},
 };
 
 use super::AspenInputSystemSet;
@@ -85,11 +86,24 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<InitAssetHandles>) {
 
 /// updates software cursor position based on player `LookLocal` (`LookLocal` is just `winit::Window.cursor_position()`)
 fn update_software_cursor_position(
-    player_input: Query<(&ActionState<action_maps::Gameplay>, &GlobalTransform), With<Player>>,
+    player_input: Query<(&ActionState<action_maps::Gameplay>, &GlobalTransform)>,
     mut software_cursor: Query<(&mut Style, &SoftWareCursor, &mut BackgroundColor), With<Node>>,
+    window_query: Query<&Window>,
 ) {
+    let (mut cursor_style, cursor_data, mut cursor_color) = software_cursor.single_mut();
     let Ok((pinput, ptrans)) = player_input.get_single() else {
-        warn!("no player action data too update cursor with");
+        let Ok(window) = window_query.get_single() else {
+            error!("no window too update software cursor");
+            return;
+        };
+
+        let window_cur_pos = window.cursor_position().unwrap_or(Vec2 {
+            x: window.width() / 2.0,
+            y: window.height() / 2.0,
+        });
+
+        cursor_style.left = Val::Px(window_cur_pos.x - cursor_data.offset.x);
+        cursor_style.top = Val::Px(window_cur_pos.y - cursor_data.offset.y);
         return;
     };
 
@@ -101,7 +115,6 @@ fn update_software_cursor_position(
             .action_data(action_maps::Gameplay::CursorWorld)
             .axis_pair,
     );
-    let (mut cursor_style, cursor_data, mut cursor_color) = software_cursor.single_mut();
     let color = cursor_color.0;
 
     if look_local.is_none() || look_world.is_none() {

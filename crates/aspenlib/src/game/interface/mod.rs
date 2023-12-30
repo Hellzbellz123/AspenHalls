@@ -223,7 +223,7 @@ fn spawn_menu_title(child_builder: &mut ChildBuilder<'_, '_, '_>, font: Handle<F
 
 /// generated random Rgba color with alpha between 0.8-1.0
 pub fn random_color(alpha: Option<f32>) -> Color {
-    let mut rng = crate::ahp::rand::thread_rng();
+    let mut rng = crate::prelude::rand::thread_rng();
     Color::Rgba {
         red: rng.gen(),
         green: rng.gen(),
@@ -275,14 +275,14 @@ fn update_button_color(
 
 /// updates color of all buttons with text for interactions
 fn start_button_interaction(
-    mut cmds: Commands,
+    // mut cmds: Commands,
     mut interaction_query: Query<&Interaction, (Changed<Interaction>, With<StartButton>)>,
     mut start_menu_query: Query<&mut Style, (With<Node>, With<StartMenu>)>,
 ) {
     for interaction in &mut interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
             start_menu_query.single_mut().display = Display::None;
+            // cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
         }
     }
 }

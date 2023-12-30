@@ -15,10 +15,10 @@ use leafwing_input_manager::prelude::ActionState;
 use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
-    ahp::game::{action_maps, ActorType, Faction, Player, SpawnActorEvent},
+    prelude::game::{action_maps, ActorType, SpawnActorEvent},
     consts::TILE_SIZE,
     game::{actors::components::ActorMoveState, game_world::dungeonator_v2::components::*},
-    loading::assets::MapAssetHandles,
+    loading::{assets::MapAssetHandles, custom_assets::npc_definition::RegistryIdentifier},
     AppState,
 };
 
@@ -78,9 +78,8 @@ impl Plugin for DungeonGeneratorPlugin {
 fn listen_rebuild_dungeon_request(
     mut cmds: Commands,
     mut dungeon_root: Query<(Entity, &mut DungeonSettings), With<DungeonContainerTag>>,
-    enemies: Query<Entity, (With<ActorMoveState>, Without<Player>)>,
+    enemies: Query<Entity, (With<ActorMoveState>, Without<ActionState<action_maps::Gameplay>>)>,
     player_input: Query<&ActionState<action_maps::Gameplay>>,
-    // app_state:
 ) {
     let Ok(player_input) = player_input.get_single() else {
         return;
@@ -339,18 +338,18 @@ fn spawn_rooms(
     let item_offset = Vec2 { x: 50.0, y: 0.0 };
 
     ew.send(SpawnActorEvent {
-        actor_type: ActorType::Item,
-        what_to_spawn: "smallsmg".to_string(),
+        actor_type: ActorType::Weapon,
+        what_to_spawn: RegistryIdentifier("smallsmg".to_string()),
         spawn_position: Vec2::ZERO + -item_offset,
         spawn_count: 1,
-        spawner: None,
+        who_spawned: None,
     });
     ew.send(SpawnActorEvent {
-        actor_type: ActorType::Item,
-        what_to_spawn: "smallpistol".to_string(),
+        actor_type: ActorType::Weapon,
+        what_to_spawn: RegistryIdentifier("smallpistol".to_string()),
         spawn_position: Vec2::ZERO + item_offset,
         spawn_count: 1,
-        spawner: None,
+        who_spawned: None,
     });
 }
 

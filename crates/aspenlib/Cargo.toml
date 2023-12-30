@@ -26,7 +26,8 @@ rand = { version = "0.8" }
 log = "0.4.20"
 serde = { version = "1.0" }
 strum = { version = "0.25.0", features = ["derive", "std", "strum_macros"] }
-toml = { version = "0.8.0" }
+toml = { version = "0.8" }
+ron = { version = "0.8" }
 winit = { version = "0.28", default-features = false, features = [
   "x11",
   "wayland",
@@ -93,3 +94,11 @@ bevy_mod_debugdump = { path = "../../deps/bevy_mod_debugdump", features = [
 bevy-debug-text-overlay = { path = "../../deps/bevy_debug_text_overlay", default-features = false, features = [
   "builtin-font",
 ] }
+bevy_mod_picking = { path = "../../deps/bevy_mod_picking/", default-features = false, features = [
+  "backend_raycast",
+  "backend_sprite",
+  "debug",
+  "selection",
+  "highlight",
+] }
+bevy_asepritesheet = { path = "../../deps/bevy_asepritesheet" }

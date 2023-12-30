@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use big_brain::prelude::{ActionBuilder, ScorerBuilder};
+use clap::ValueEnum;
 
 /// enemies chase scorer
 #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
@@ -14,7 +15,7 @@ pub struct AttackScorer;
 pub struct WanderScore;
 
 /// actor combat ai cfg
-#[derive(Component, Default, Clone, Debug, Reflect)]
+#[derive(Component, Default, Clone, Debug, Reflect, serde::Deserialize,)]
 pub struct AICombatConfig {
         /// when ai will consider chasing
         pub chase_start: i32,
@@ -22,20 +23,10 @@ pub struct AICombatConfig {
         pub chase_end: i32,
         /// shoot distance
         pub shoot_range: i32,
-        /// if enemy is inside this ai's personal space, move backward
+        /// if enemy is inside this characters personal_space, move backward
         pub personal_space: i32,
         /// scared health
         pub runaway_hp: f32,
-}
-
-
-/// enemies that can chase
-#[derive(Component, Default, Clone, Debug, Reflect)]
-pub struct AIChaseConfig {
-    /// when ai will consider chasing
-    pub aggro_distance: i32,
-    /// max distance from spawn ai will chase
-    pub max_chase_distance: i32,
 }
 
 /// enemies with this will shoot
@@ -54,7 +45,7 @@ pub struct AIShootConfig {
 }
 
 /// enemies that can wander
-#[derive(Component, Default, Clone, Debug, Reflect)]
+#[derive(Component, Default, Clone, Debug, Reflect, serde::Deserialize)]
 pub struct AIWanderConfig {
     /// how far can we wander from spawn
     pub wander_distance: i32,
@@ -76,43 +67,77 @@ pub struct AIChaseAction;
 #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
 pub struct AIWanderAction;
 
-/// marks actor as enemy
-#[derive(Component, Default, Clone, Debug, Reflect)]
-pub struct Enemy {
-    // TODO: make this updated for all enemies globally with a raycast and use it
-    /// does raycast too player hit any objects other than the player?
-    pub can_see_player: bool,
-}
 
-/// faction enemy belongs too
-#[derive(Debug, Component, Reflect, Clone, Copy, PartialEq, Eq, serde::Deserialize)]
+// TODO: change this too be enum of enums
+// yeet Hero, Weapon from ActorType
+// add Hero too NpcType
+// add ObjectType with Weapon/Armor/Trinket
+// rename Npc -> Character and NpcType -> CharacterType / item -> Object
+/// actors function in game
+#[derive(Debug, Component, Reflect, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 pub enum ActorType {
     /// actor is an npc
-    ///
-    /// faction decides who it attacks
-    Npc(Faction),
+    /// - NpcType decides freinds/enemies
+    Npc(NpcType),
+    /// character controlled by human
+    Hero,
+    // TODO: merge weapon / item
+    /// used by npc/player too attack
+    Weapon,
     /// is an item, can be equipped
     Item,
+    // TODO: add Object or some other name for chests/switches world interactables etc
 }
-// (pub Faction);
+
+impl ActorType {
+    /// checks if actor is a creep, ignores ai level
+    pub fn is_creep(&self) -> bool {
+        match self {
+            ActorType::Npc(a) => match a {
+                NpcType::Creep => true,
+                NpcType::Boss => false,
+                NpcType::Minion => false,
+                NpcType::Critter => false,
+                NpcType::Friendly => false,
+            },
+            _ => false,
+        }
+    }
+
+    /// checks if actor is a hero
+    pub fn is_hero(&self) -> bool {
+        match self {
+            ActorType::Hero => true,
+            ActorType::Item => false,
+            ActorType::Npc(_) => false,
+            ActorType::Weapon => false,
+        }
+    }
+}
 
 /// type of actor
-#[derive(Debug, Reflect, Copy, Clone, PartialEq, Eq, serde::Deserialize)]
-pub enum Faction {
-    /// passive too enemy and neutral
-    Enemy,
-    /// fear enemy and player
-    Neutral,
-    /// fear enemy, passive too player
+#[derive(Debug, Reflect, Copy, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+pub enum NpcType {
+    /// - final enemy of dungeon level
+    /// - hostile too all npcs
+    Boss,
+    /// - generic enemy for dungeon levels
+    /// - passive too creep
+    Creep,
+    /// - runs away from creeps
+    /// - passive too self and freindly
+    Critter,
+    /// passive too player
     Friendly,
-    /// enemy will attack
-    Player,
-    /// weapons and items are both actors, but can be equipped or used and are parented too holding enemy
-    Item,
+    /// player pet
+    Minion,
 }
 
-// #[derive(Component, Clone, Reflect)]
-// pub enum AIEnemy {
-//     Skeleton,
-//     Slime,
-// }
+#[derive(Debug, Reflect, Copy, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+pub enum AiType {
+    Stupid,
+    Boss,
+    Critter,
+    PlayerPet,
+    FollowerHero,
+}

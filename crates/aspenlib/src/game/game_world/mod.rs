@@ -1,6 +1,6 @@
-use std::{time::Duration, fmt};
 
-use bevy::{prelude::*, time::common_conditions::on_timer};
+
+use bevy::prelude::*;
 use bevy_ecs_ldtk::{
     prelude::{EntityIid, LdtkEntityAppExt},
     TileEnumTags,
@@ -10,7 +10,7 @@ use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, V
 use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
-    ahp::game::ActorType,
+    prelude::{game::{ActorType, action_maps}, engine},
     consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
     game::{
         actors::components::{ActorMoveState, TeleportStatus},
@@ -18,15 +18,12 @@ use crate::{
             components::{ActorTeleportEvent, PlayerStartLocation, TpTriggerEffect},
             dungeonator_v2::DungeonGeneratorState,
             ldtk_bundles::{
-                LdtkCollisionBundle, LdtkRoomExitBundle, LdtkSpawnerBundle, LdtkStartLocBundle,
-                LdtkTeleporterBundle,
+                LdtkCollisionBundle, LdtkRoomExitBundle, LdtkEnemySpawnerBundle, LdtkStartLocBundle,
+                LdtkTeleporterBundle, LdtkHeroPlaceBundle, LdtkWeaponSpawnerBundle,
             },
         },
     },
-    AppState,
 };
-
-use super::actors::components::Player;
 
 /// shared components for dungeon and home
 pub mod components;
@@ -71,19 +68,16 @@ impl Plugin for GameWorldPlugin {
                 dungeonator_v2::DungeonGeneratorPlugin,
             ))
             .register_ldtk_entity::<LdtkTeleporterBundle>("Teleporter")
-            .register_ldtk_entity::<LdtkSpawnerBundle>("EnemySpawner")
+            .register_ldtk_entity::<LdtkEnemySpawnerBundle>("EnemySpawner")
+            .register_ldtk_entity::<LdtkWeaponSpawnerBundle>("WeaponSpawner")
             .register_ldtk_entity::<LdtkStartLocBundle>("PlayerStartLoc")
             .register_ldtk_entity::<LdtkRoomExitBundle>("RoomExit")
-
+            .register_ldtk_entity::<LdtkHeroPlaceBundle>("HeroLocation")
             .add_systems(
                 Update,
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
-                    teleport_player_too_start_location.run_if(
-                        state_exists_and_equals(AppState::StartMenu)
-                            .and_then(on_timer(Duration::from_secs_f32(0.2)).and_then(run_once())),
-                    ),
                 ),
             )
             .add_systems(
@@ -185,8 +179,7 @@ fn handle_teleport_events(
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
-    // mut cmds: Commands,
-    mut player_query: Query<(Entity, &mut ActorMoveState), With<Player>>,
+    mut player_query: Query<(Entity, &mut ActorMoveState), With<engine::ActionState<action_maps::Gameplay>>>,
     start_location: Query<(&PlayerStartLocation, &GlobalTransform)>,
     mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
@@ -217,17 +210,6 @@ fn teleport_player_too_start_location(
             y: start_pos.y + start_size.y,
         },
     };
-
-    // cmds.spawn(SpriteBundle {
-    //     sprite: Sprite {
-    //         color: Color::rgba(0.0, 0.3, 0.6, 0.4),
-    //         custom_size: Some(start_size),
-    //         anchor: Anchor::default(),
-    //         ..default()
-    //     },
-    //     transform: Transform::from_translation(start_pos.extend(10.0)),
-    //     ..default()
-    // });
 
     let pos = random_point_inside(&start_loc_rect, 3.0).unwrap_or(start_pos);
 

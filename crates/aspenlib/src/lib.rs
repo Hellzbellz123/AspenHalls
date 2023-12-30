@@ -6,6 +6,7 @@
 #![feature(trivial_bounds)]
 #![feature(exact_size_is_empty)]
 #![feature(fs_try_exists)]
+#![feature(let_chains)]
 #![doc = r"
 Vanilla Coffee, My video game.
 it kinda sucks but it'll be finished eventually
@@ -37,9 +38,10 @@ mod utilities;
 ///
 /// common imports for all modules, maybe make it specific, ie no wildcards.
 ///  all modules that aren't plugin should probably be defined here
-pub mod ahp;
+pub mod prelude;
 
-use ahp::{
+use bevy_asepritesheet::core::AsepritesheetPlugin;
+use prelude::{
     engine::{
         bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
         Reflect, Resource, States, Update, Vec2,
@@ -48,7 +50,7 @@ use ahp::{
 };
 
 #[cfg(feature = "develop")]
-use ahp::game::inspect::DebugPlugin;
+use prelude::game::inspect::DebugPlugin;
 use bevy::asset::AssetMetaCheck;
 
 /// application stages
@@ -102,6 +104,8 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         // Never attempts to look up meta files. The default meta configuration will be used for each asset.
         .insert_resource(AssetMetaCheck::Never)
         .add_plugins((
+            AsepritesheetPlugin::new(&["sprite.json"]),
+            bevy_mod_picking::DefaultPickingPlugins,
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
@@ -115,10 +119,10 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         });
 
     vanillacoffee.add_plugins((
-        ahp::plugins::AppAssetLoadingPlugin,
-        ahp::plugins::SplashPlugin,
-        ahp::plugins::QuakeConPlugin,
-        ahp::plugins::AspenHallsPlugin,
+        prelude::plugins::AppAssetLoadingPlugin,
+        prelude::plugins::SplashPlugin,
+        prelude::plugins::QuakeConPlugin,
+        prelude::plugins::AspenHallsPlugin,
     ));
 
     #[cfg(feature = "develop")]

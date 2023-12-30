@@ -1,45 +1,143 @@
+use bevy::math::Vec2;
 use bevy_console::ConsoleCommand;
-use clap::Parser;
+use clap::{Error, Parser};
 
-/// spawn weapon [`WeaponType`] x amount of times using `SpawnWeaponEvent`
-#[derive(ConsoleCommand, Parser, Debug)]
-#[command(name = "spawnweapon")] //, author, version, about, long_about = None)]
-pub struct SpawnWeaponCommand {
-    /// type of w to spawn
-    pub weapon_type: String,
-    /// z transform of weapon
-    pub loc_x: Option<f32>,
-    /// y transform
-    pub loc_y: Option<f32>,
+use crate::loading::custom_assets::npc_definition::RegistryIdentifier;
+
+///  spawns requested actor amount of times
+#[derive(Debug, ConsoleCommand, Parser)]
+#[command(name = "spawn")]
+pub struct SpawnActorCommand {
+    /// type of thing
+    pub actor_type: CommandSpawnType,
+    /// thing too spawn
+    pub identifier: RegistryIdentifier,
+    /// spawn position
+    pub position: Option<CommandPosition>,
+    /// spawn at/near player
+    pub where_spawn: Option<CommandTarget>,
     /// Number of times to spawn
     pub amount: Option<i32>,
-    /// spawn at/near player
-    #[arg(short = '@', long = "at_player")]
-    pub at_player: Option<bool>,
 }
 
-///  spawns enemy [`EnemyType`] x amount of times using `SpawnEnemyEvent`
-#[derive(ConsoleCommand, Parser)]
-#[command(name = "spawnenemy")]
-pub struct SpawnEnemyCommand {
-    /// type of thing to spawn
-    pub enemy_type: String,
-    /// x transform
-    pub loc_x: Option<f32>,
-    /// y transform
-    pub loc_y: Option<f32>,
-    /// Number of times to spawn
-    pub amount: Option<i32>,
-    /// spawn at/near player
-    pub at_player: Option<bool>,
-}
-
-/// Teleports the Player to x y coords
+/// Teleports the character too x y coords
 #[derive(ConsoleCommand, Parser)]
 #[command(name = "teleport")]
-pub struct TeleportPlayerCommand {
-    /// x pos to teleport too
-    pub loc_x: f32,
-    /// y pos to teleport too
-    pub loc_y: f32,
+pub struct TeleportCharacterCommand {
+    /// where too teleport too
+    pub pos: CommandPosition,
+    /// Teleport Target
+    /// - @p : targets player
+    /// - @n : targets nearest character
+    /// - @e : targets everyone
+    pub who: Option<CommandTarget>,
+}
+
+//######## COMMAND ARGS ########//
+#[derive(Debug, Clone, Copy)]
+pub struct CommandPosition(pub f32, pub f32);
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum CommandTarget {
+    Player,
+    Nearest,
+    Everyone,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum CommandSpawnType {
+    Item,
+    Npc,
+}
+
+//######## ARG IMPL ########//
+impl std::str::FromStr for CommandSpawnType {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "npc" | "creep" => Ok(CommandSpawnType::Npc),
+            "weapon" | "item" => Ok(CommandSpawnType::Item),
+            _ => Err(Error::new(clap::error::ErrorKind::ValueValidation)),
+        }
+    }
+}
+
+impl std::str::FromStr for CommandTarget {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "@p" => Ok(CommandTarget::Player),
+            "@n" => Ok(CommandTarget::Nearest),
+            "@e" => Ok(CommandTarget::Everyone),
+            _ => Err(Error::new(clap::error::ErrorKind::ValueValidation)),
+        }
+    }
+}
+
+impl std::str::FromStr for CommandPosition {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        println!("PARSE_VEC: {}", s);
+        // Remove leading and trailing whitespaces
+        let s = s.trim();
+
+        // Check if the string starts with '(' and ends with ')'
+        if s.starts_with('(') && s.ends_with(')') {
+            // Extract the content between '(' and ')' and split it into components
+            let content = &s[1..s.len() - 1];
+            let components: Vec<&str> = content.split(',').collect();
+
+            // Ensure there are exactly two components
+            if components.len() == 2 {
+                // Parse the components into f64 values
+                let Ok(x) = components[0].trim().parse::<f32>() else {
+                    return Err(Error::new(clap::error::ErrorKind::InvalidValue));
+                };
+                let Ok(y) = components[1].trim().parse::<f32>() else {
+                    return Err(Error::new(clap::error::ErrorKind::InvalidValue));
+                };
+                // Return the Vec2
+                Ok(CommandPosition(x, y))
+            } else {
+                return Err(Error::new(clap::error::ErrorKind::TooManyValues));
+            }
+        } else {
+            // Extract the content between '(' and ')' and split it into components
+            let content = &s.trim();
+            let components: Vec<&str> = content.split(',').collect();
+
+            // Ensure there are exactly two components
+            if components.len() == 2 {
+                // Parse the components into f64 values
+                let Ok(x) = components[0].trim().parse::<f32>() else {
+                    return Err(Error::new(clap::error::ErrorKind::InvalidValue));
+                };
+                let Ok(y) = components[1].trim().parse::<f32>() else {
+                    return Err(Error::new(clap::error::ErrorKind::InvalidValue));
+                };
+                // Return the Vec2
+                Ok(CommandPosition(x, y))
+            } else {
+                return Err(Error::new(clap::error::ErrorKind::InvalidSubcommand));
+            }
+        }
+    }
+}
+
+impl From<Vec2> for CommandPosition {
+    fn from(value: Vec2) -> Self {
+        CommandPosition(value.x, value.y)
+    }
+}
+
+impl From<CommandPosition> for Vec2 {
+    fn from(value: CommandPosition) -> Self {
+        Vec2 {
+            x: value.0,
+            y: value.1,
+        }
+    }
 }

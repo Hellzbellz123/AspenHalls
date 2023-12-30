@@ -19,28 +19,20 @@ pub mod game {
     pub use inspect::*;
 
     pub use crate::{
-        console::{
-            command_systems::{spawnenemy_command, spawnweapon_command, teleport_player_command},
-            commands::{SpawnEnemyCommand, SpawnWeaponCommand, TeleportPlayerCommand},
-        },
+        console::{command_systems::teleport_command, commands::TeleportCharacterCommand},
         consts::*,
         game::{
             actors::{
                 ai::components::{
-                    AIChaseAction, AIChaseConfig, AIShootAction, AIShootConfig, AIWanderAction,
-                    AIWanderConfig, ActorType, AttackScorer, ChaseScorer, Faction,
+                    AIChaseAction, AIShootAction, AIShootConfig, AIWanderAction, AIWanderConfig,
+                    ActorType, AttackScorer, ChaseScorer, NpcType,
                 },
-                animation::components::{ActorAnimationType, AnimState, AnimationSheet},
                 combat::components::{
-                    BarrelPointTag, CurrentlySelectedWeapon, DamageType, Weapon, WeaponColliderTag,
-                    WeaponSlots, WeaponSocket, WeaponStats,
+                    CurrentlyDrawnWeapon, WeaponColliderTag, WeaponHolder, WeaponSlots,
+                    WeaponSocket,
                 },
-                components::{
-                    ActorCombatStats, ActorDerivedAttributes, ActorPrimaryAttributes,
-                    ActorSecondaryAttributes, ActorTertiaryAttributes, Player, ProjectileStats,
-                    TimeToLive,
-                },
-                spawners::components::{EnemyType, SpawnActorEvent, Spawner, WeaponType},
+                components::TimeToLive,
+                spawners::components::{SpawnActorEvent, EnemySpawner},
             },
             audio::{ActorSoundTimer, AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel},
             input::action_maps::{self},

@@ -1,43 +1,56 @@
+use bevy::prelude::Reflect;
+use bevy_asepritesheet::animator::AnimatedSpriteBundle;
+
 use crate::{
-    ahp::{
+    prelude::{
         engine::{
             Bundle, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction,
-            LockedAxes, Name, Restitution, RigidBody, SpriteBundle, SpriteSheetBundle,
+            LockedAxes, Name, Restitution, RigidBody, SpriteBundle,
             ThinkerBuilder, TransformBundle, Velocity,
         },
         game::{
-            AIChaseConfig, AIShootConfig, AIWanderConfig, ActorCombatStats, ActorDerivedAttributes,
-            ActorPrimaryAttributes, ActorSecondaryAttributes, ActorTertiaryAttributes, ActorType,
-            AnimState, AnimationSheet, ProjectileStats, TimeToLive,
+            AIShootConfig, AIWanderConfig, ActorType,
+            TimeToLive,
         },
     },
-    game::actors::{components::{ActorColliderTag, ActorMoveState}, ai::components::AICombatConfig},
+    game::actors::{
+        ai::components::AICombatConfig,
+        components::{ActorMoveState, ProjectileTag, ProjectileColliderTag, CharacterColliderTag}, attributes_stats::{CharacterStatBundle, ProjectileStats},
+    }, loading::custom_assets::npc_definition::{AiSetupConfig, RegistryIdentifier},
 };
 
 /// bundle used too spawn "actors"
-#[derive(Bundle)]
-pub struct ActorBundle {
+#[derive(Bundle, Reflect, Clone)]
+pub struct CharacterBundle {
     /// actor name
     pub name: Name,
+    /// id too get actor definition
+    pub identifier: RegistryIdentifier,
     /// actors current movement data
     pub move_state: ActorMoveState,
     /// actor type
-    pub faction: ActorType,
+    pub actor_type: ActorType,
     /// actor stats
-    pub stats: ActorAttributesBundle,
-    /// animation state
-    pub animation_state: AnimState,
-    /// available animations
-    pub available_animations: AnimationSheet,
-    /// texture data
-    pub sprite: SpriteSheetBundle,
+    pub stats: CharacterStatBundle,
+    /// is character ai controlled or player controlled
+    pub controller: AiSetupConfig,
+    /// texture and animations
+    #[reflect(ignore)]
+    pub aseprite: AnimatedSpriteBundle,
     /// actor collisions and movement
+    #[reflect(ignore)]
     pub rigidbody_bundle: RigidBodyBundle,
+    // /// animation state
+    // pub animation_state: AnimState,
+    // /// sprite sheet bundle old
+    // pub sprite: SpriteBundle,
+    // /// available animations
+    // pub available_animations: AnimationSheet,
 }
 
 /// collider bundle for actors
 #[derive(Bundle)]
-pub struct ActorColliderBundle {
+pub struct CharacterColliderBundle {
     /// name of collider
     pub name: Name,
     /// location of collider
@@ -47,7 +60,7 @@ pub struct ActorColliderBundle {
     /// collision groups
     pub collision_groups: CollisionGroups,
     /// tag
-    pub tag: ActorColliderTag,
+    pub tag: CharacterColliderTag,
 }
 
 /// bundle too spawn projectiles
@@ -63,6 +76,8 @@ pub struct ProjectileBundle {
     pub sprite_bundle: SpriteBundle,
     /// projectile collisions and movement
     pub rigidbody_bundle: RigidBodyBundle,
+    /// tag
+    pub tag: ProjectileTag,
 }
 
 /// bundle for projectile colliders
@@ -78,6 +93,8 @@ pub struct ProjectileColliderBundle {
     pub collider: Collider,
     /// collision groups
     pub collision_groups: CollisionGroups,
+    /// tag
+    pub tag: ProjectileColliderTag,
 }
 
 /// All Components needed for `stupid_ai` functionality
@@ -85,8 +102,6 @@ pub struct ProjectileColliderBundle {
 pub struct StupidAiBundle {
     /// ai chase/attack config
     pub combat_config: AICombatConfig,
-    /// stupid chase action
-    pub aggro_config: AIChaseConfig,
     /// stupid wander action
     pub wander_config: AIWanderConfig,
     /// stupid shoot action
@@ -95,25 +110,25 @@ pub struct StupidAiBundle {
     pub thinker: ThinkerBuilder,
 }
 
-/// all attributes actor can possess
-#[derive(Bundle, Default)]
-pub struct ActorAttributesBundle {
-    /// derived from attributes, working stats
-    combat_stat: ActorCombatStats,
-    /// base stats, buffed from equipment
-    primary: ActorPrimaryAttributes,
-    /// secondary stats, buffed from primary
-    secondary: ActorSecondaryAttributes,
-    /// buffed from primary and equipment
-    tertiary: ActorTertiaryAttributes,
-    /// final attribute values
-    /// used for most calculations
-    derived: ActorDerivedAttributes,
-}
+// /// all attributes actor can possess
+// #[derive(Bundle, Default, Debug, Clone)]
+// pub struct ActorAttributesBundle {
+//     /// derived from attributes, working stats
+//     combat_stat: ActorCombatStats,
+//     /// base stats, buffed from equipment
+//     primary: ActorPrimaryAttributes,
+//     /// secondary stats, buffed from primary
+//     secondary: ActorSecondaryAttributes,
+//     /// buffed from primary and equipment
+//     tertiary: ActorTertiaryAttributes,
+//     /// final attribute values
+//     /// used for most calculations
+//     derived: ActorDerivedAttributes,
+// }
 
 /// bundle for collisions and movement
 /// REQUIRES child collider too work properly
-#[derive(Bundle)]
+#[derive(Bundle, Clone)]
 pub struct RigidBodyBundle {
     /// rigidbody
     pub rigidbody: RigidBody,
@@ -129,4 +144,25 @@ pub struct RigidBodyBundle {
     pub rotation_locks: LockedAxes,
     /// velocity damping
     pub damping_prop: Damping,
+}
+
+impl RigidBodyBundle {
+    pub const ENEMY: RigidBodyBundle = RigidBodyBundle {
+        rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
+        velocity: Velocity::zero(),
+        friction: Friction::coefficient(0.7),
+        how_bouncy: Restitution::coefficient(0.3),
+        mass_prop: ColliderMassProperties::Density(0.3),
+        rotation_locks: LockedAxes::ROTATION_LOCKED,
+        damping_prop: Damping {
+            linear_damping: 1.0,
+            angular_damping: 1.0,
+        },
+    };
+}
+
+impl Default for RigidBodyBundle {
+    fn default() -> Self {
+        Self::ENEMY
+    }
 }

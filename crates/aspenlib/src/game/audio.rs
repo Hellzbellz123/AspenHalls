@@ -7,7 +7,7 @@ use std::time::Duration;
 use crate::{
     consts::MIN_VELOCITY,
     game::{
-        actors::components::{ActorMoveState, CurrentMovement, Player},
+        actors::components::{ActorMoveState, CurrentMovement},
         AppState,
     },
     loading::assets::AudioHandles,
@@ -23,7 +23,7 @@ pub struct MusicSoundChannel;
 #[derive(Resource, Component)]
 pub struct AmbienceSoundChannel;
 
-/// `AudioChannel` for footsteps/grunts/etc of npc/enemy/player, weapon sounds.
+/// `AudioChannel` for footsteps/grunts/etc of npc/player, weapon sounds.
 /// can be used to tell if enemies exist?
 #[derive(Resource, Component)]
 pub struct GameSoundChannel;
@@ -91,7 +91,7 @@ fn play_background_audio(
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
-use crate::ahp::engine::AudioEmitter;
+use crate::prelude::engine::AudioEmitter;
 
 /// applies sound data mapps and a spacial emitter for actors that dont already have emitters
 fn prepare_actor_spatial_sound(
@@ -152,7 +152,6 @@ fn actor_footstep_sound_system(
             &mut ActorSoundTimers,
             &Velocity,
         ),
-        With<Player>,
     >,
     time: Res<Time>,
 ) {
@@ -194,8 +193,7 @@ fn actor_footstep_sound_system(
                 }
 
                 if footstep_timer.finished() {
-                    let _snd = game_sound.play(footstep_handle);
-                    // spatial_emitter.instances.push(snd.handle());
+                    game_sound.play(footstep_handle);
                     footstep_timer.reset();
                 }
             }

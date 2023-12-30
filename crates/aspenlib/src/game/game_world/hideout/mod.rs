@@ -1,15 +1,32 @@
+use std::time::Duration;
+
 use bevy::{
-    log::{debug, info},
+    ecs::{schedule::Condition, system::Res},
+    log::{debug, info, error},
+    math::Vec2,
     prelude::{
-        state_exists_and_equals, Commands, DespawnRecursiveExt, Entity, IntoSystemConfigs, OnEnter,
-        Plugin, Query, Update, With,
+        any_with_component, run_once, state_exists_and_equals, Commands, DespawnRecursiveExt,
+        Entity, GlobalTransform, IntoSystemConfigs, OnEnter, OrthographicProjection, Plugin, Query,
+        Transform, Update, With, Without,
     },
+    time::common_conditions::on_timer,
 };
+use bevy_mod_picking::{
+    events::{Down, Pointer},
+    prelude::{On, PickableBundle},
+};
+use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
+    prelude::game::{MainCamera, action_maps},
+    consts::{ACTOR_Z_INDEX, HIGHLIGHT_TINT},
     game::{
-        actors::{ai::components::Enemy, spawners::components::WeaponType},
+        actors::{
+            combat::components::AttackDamage,
+            player::SelectThisHeroForPlayer, components::ActorMoveState,
+        },
         game_world::{
+            components::HeroSpot,
             dungeonator_v2::DungeonGeneratorState,
             hideout::systems::{
                 spawn_hideout,
@@ -18,6 +35,7 @@ use crate::{
             },
         },
     },
+    loading::custom_assets::npc_definition::ActorRegistry,
     AppState,
 };
 
@@ -38,6 +56,15 @@ impl Plugin for HideOutPlugin {
         // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<ScaledBackgroundMaterial>::default());
         app.add_systems(OnEnter(AppState::StartMenu), spawn_hideout)
             .add_systems(
+                Update,
+                (select_hero_focus, populate_selectable_heroes).run_if(
+                    state_exists_and_equals(AppState::StartMenu)
+                        .and_then(on_timer(Duration::from_secs_f32(0.2)))
+                        .and_then(any_with_component::<HeroSpot>())
+                        .and_then(run_once()),
+                ),
+            )
+            .add_systems(
                 OnEnter(DungeonGeneratorState::PrepareDungeon),
                 cleanup_start_world,
             )
@@ -52,13 +79,58 @@ impl Plugin for HideOutPlugin {
     }
 }
 
+fn populate_selectable_heroes(
+    mut commands: Commands,
+    registry: Res<ActorRegistry>,
+    hero_spots: Query<&GlobalTransform, With<HeroSpot>>,
+) {
+    let mut hero_spots = hero_spots.iter();
+    if registry.characters.heroes.is_empty() {
+        error!("no heroes too pick from")
+    }
+    for thing in registry.characters.heroes.values() {
+        let Some(spot) = hero_spots.next() else {
+            error!("no more hero spots");
+            return;
+        };
+        let mut bundle = thing.clone();
+        bundle.aseprite.sprite_bundle.transform.translation = spot.translation().truncate().extend(ACTOR_Z_INDEX);
+        error!("placing at hero spot");
+        commands.spawn((
+            bundle,
+            PickableBundle::default(),
+            On::<Pointer<Down>>::send_event::<SelectThisHeroForPlayer>(),
+            HIGHLIGHT_TINT,
+        ));
+    }
+}
+
+// TODO: re apply camera scale AFTER player is selected
+
+fn select_hero_focus(
+    mut camera_query: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
+    hero_spots: Query<&GlobalTransform, With<HeroSpot>>,
+) {
+    let hero_spots_amnt = hero_spots.iter().len() as f32;
+    let sum_hero_spots: Vec2 = hero_spots.iter().map(|f| f.translation().truncate()).sum();
+    let avg = sum_hero_spots / hero_spots_amnt;
+
+    info!("hero spots amount: {}", hero_spots_amnt);
+    info!("hero spots sum: {}", sum_hero_spots);
+    info!("calculated avg: {}", avg);
+
+    let (mut camera_pos, mut camera_proj) = camera_query.single_mut();
+    camera_proj.scale = 6.0;
+    camera_pos.translation = avg.extend(camera_pos.translation.z)
+}
+
 // TODO: remove this infavor of DespawnWhenStateIs(Option<S: States/State>)
 /// despawn all entities that should be cleaned up on restart
 fn cleanup_start_world(
     mut commands: Commands,
-    enemies_query: Query<Entity, With<Enemy>>,
+    characters_not_player: Query<Entity, (With<ActorMoveState>, Without<ActionState<action_maps::Gameplay>>)>,
     home_world_container: Query<Entity, With<MapContainerTag>>,
-    weapons: Query<Entity, With<WeaponType>>,
+    weapons: Query<Entity, With<AttackDamage>>,
 ) {
     if home_world_container.is_empty() {
         debug!("no home world?");
@@ -70,7 +142,7 @@ fn cleanup_start_world(
     for ent in &weapons {
         commands.entity(ent).despawn_recursive();
     }
-    for ent in &enemies_query {
+    for ent in &characters_not_player {
         commands.entity(ent).despawn_recursive();
     }
 }

@@ -1,5 +1,5 @@
 use bevy::{
-    ecs::{bundle::Bundle, reflect::ReflectResource, schedule::States, system::Resource},
+    ecs::{bundle::Bundle, reflect::ReflectResource, system::Resource},
     log::warn,
     math::Vec2,
     prelude::{Component, Handle, Name, SpatialBundle},

@@ -1,10 +1,11 @@
-use crate::game::actors::components::Player;
 use bevy::prelude::*;
 
-/// find closest entity too (arg1: Entity) With<Player>.
+use crate::prelude::{engine, game::action_maps};
+
+/// find closest entity too controlled actor.
 #[allow(dead_code)]
 fn find_closest_player(
-    player: &Query<&Transform, With<Player>>,
+    player: &Query<&Transform, With<engine::ActionState<action_maps::Gameplay>>>,
     actor_position: &Transform,
 ) -> Transform {
     *(player

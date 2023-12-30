@@ -7,7 +7,7 @@ pub mod custom_assets;
 /// splashscreen functions
 pub mod splashscreen;
 
-use crate::ahp::{engine::*, game::*};
+use crate::{prelude::{engine::*, game::*}, loading::custom_assets::npc_definition::ActorRegistryPlugin};
 /// This plugin loads all assets using [`AssetLoader`] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html/>
@@ -42,5 +42,6 @@ impl Plugin for AppAssetLoadingPlugin {
                 .load_collection::<MapAssetHandles>()
                 .load_collection::<SingleTileTextureHandles>(),
         );
+        app.add_plugins(ActorRegistryPlugin);
     }
 }

@@ -3,19 +3,22 @@
 use bevy::{
     log::{error, info, warn},
     math::Vec2,
-    prelude::{Bundle, Component, Name, Timer, TimerMode},
+    prelude::{Bundle, Name, Timer, TimerMode},
 };
 use bevy_ecs_ldtk::{
     ldtk::ReferenceToAnEntityInstance,
-    prelude::{EntityInstance, GridCoords, LdtkEntity, LdtkFields, LdtkIntCell, Worldly},
+    prelude::{EntityInstance, GridCoords, LdtkEntity, LdtkFields, LdtkIntCell},
 };
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody, Sensor};
 
-use crate::game::{
-    actors::spawners::components::{Spawner, SpawnerTimer},
-    game_world::components::{
-        HeroSpot, PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect,
+use crate::{
+    game::{
+        actors::spawners::components::{EnemySpawner, SpawnerTimer, WeaponSpawner},
+        game_world::components::{
+            BossArea, HeroSpot, PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect,
+        },
     },
+    loading::custom_assets::npc_definition::RegistryIdentifier,
 };
 
 /// tiles that can collide get this
@@ -62,16 +65,27 @@ pub struct LdtkTeleporterBundle {
 
 /// bundle too bind too `LdtkEntity` instance
 #[derive(Bundle, LdtkEntity)]
-pub struct LdtkSpawnerBundle {
+pub struct LdtkEnemySpawnerBundle {
     /// spawner name
     #[with(name_from_instance)]
     name: Name,
-    #[with(spawner_from_instance)]
+    #[with(enemy_spawner_from_instance)]
     /// spawner data
-    state: Spawner,
+    state: EnemySpawner,
     #[with(spawn_timer_from_instance)]
     /// spawner timer
     timer: SpawnerTimer,
+}
+
+/// bundle too bind too `LdtkEntity` instance
+#[derive(Bundle, LdtkEntity)]
+pub struct LdtkWeaponSpawnerBundle {
+    /// spawner name
+    #[with(name_from_instance)]
+    name: Name,
+    #[with(weapon_spawner_from_instance)]
+    /// spawner data
+    state: WeaponSpawner,
 }
 
 /// bundle too bind too `LdtkEntity` instance
@@ -83,14 +97,6 @@ pub struct LdtkBossManagerBundle {
     #[with(boss_area_from_instance)]
     /// what bosses should be spawned
     manager: BossArea,
-}
-
-#[derive(Debug, Component, Default)]
-pub struct BossArea {
-    /// list of enemys that are considered "bosses"
-    dungeon_boss: Vec<String>,
-    /// true/false are bosses defeated
-    boss_defeated: bool,
 }
 
 // TODO: use this or remove it
@@ -144,16 +150,22 @@ fn teleporter_from_instance(instance: &EntityInstance) -> Teleporter {
 
 /// creates a `BossManager` from boss manager `EntityInstance`
 fn boss_area_from_instance(instance: &EntityInstance) -> BossArea {
+    let identifiers_too_spawn = get_spawn_identifiers(instance);
+    BossArea {
+        dungeon_boss: identifiers_too_spawn,
+        boss_defeated: false,
+    }
+}
+
+fn get_spawn_identifiers(instance: &EntityInstance) -> Vec<RegistryIdentifier> {
     let strings = instance
-        .get_maybe_strings_field("DungeonBosses")
+        .get_maybe_strings_field("SpawnIdentifiers")
         .expect("Boss Area should ALWAYS have a DungeonBosses field")
         .iter()
         .filter_map(std::clone::Clone::clone)
-        .collect::<Vec<String>>();
-    BossArea {
-        dungeon_boss: strings,
-        boss_defeated: false,
-    }
+        .map(|f| RegistryIdentifier::from(f))
+        .collect::<Vec<RegistryIdentifier>>();
+    strings
 }
 
 /// creates `Name` from `EntityInstance.identifier`
@@ -162,23 +174,37 @@ fn name_from_instance(instance: &EntityInstance) -> Name {
 }
 
 /// creates Spawner from spawner `EntityInstance`
-fn spawner_from_instance(entity_instance: &EntityInstance) -> Spawner {
-    let got_ents: Vec<String> = entity_instance
-        .get_maybe_strings_field("EnemyTypes")
-        .expect("Spawner instances should ALWAYS have an EnemyTypes field")
-        .iter()
-        .filter_map(std::clone::Clone::clone)
-        .collect();
+fn enemy_spawner_from_instance(entity_instance: &EntityInstance) -> EnemySpawner {
+    let identifiers_too_spawn = get_spawn_identifiers(entity_instance);
     let got_max_ents = entity_instance
         .get_maybe_int_field("MaxEnemies")
         .expect("Spawner should ALWAYS have MaxEnemies field")
         .unwrap_or(5);
 
-    Spawner {
-        enemies_too_spawn: got_ents,
+    EnemySpawner {
+        enemies_too_spawn: identifiers_too_spawn,
         spawn_radius: entity_instance.width as f32,
         max_enemies: got_max_ents,
         spawned_enemies: Vec::new(),
+    }
+}
+
+/// creates Spawner from spawner `EntityInstance`
+fn weapon_spawner_from_instance(entity_instance: &EntityInstance) -> WeaponSpawner {
+    let identifiers_too_spawn = get_spawn_identifiers(entity_instance);
+    let interacted_only = entity_instance
+        .get_bool_field("Interacted")
+        .expect("EnemySpawner should ALWAYS have Interacted field");
+
+    let debug = entity_instance
+        .get_bool_field("DebugWeaponSpawner")
+        .expect("EnemySpawner should ALWAYS have Interacted field");
+
+    WeaponSpawner {
+        wanted_weapons: identifiers_too_spawn,
+        interacted_only: *interacted_only,
+        triggered: false,
+        debug: *debug,
     }
 }
 

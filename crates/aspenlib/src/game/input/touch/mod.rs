@@ -1,23 +1,17 @@
-use bevy::{prelude::*, utils::Instant, window::PrimaryWindow};
+use bevy::prelude::*;
 use bevy_touch_stick::{
     TouchStick, TouchStickGamepadMapping, TouchStickPlugin, TouchStickType, TouchStickUiBundle,
     TouchStickUiKnob, TouchStickUiOutline,
 };
-use leafwing_input_manager::{
-    action_state::{ActionData, Timing},
-    axislike::DualAxisData,
-    buttonlike::ButtonState,
-    prelude::{ActionState, ActionStateDriver},
-};
-use std::{hash::Hash, time::Duration};
+use leafwing_input_manager::prelude::{ActionState, ActionStateDriver};
+use std::hash::Hash;
 
 use super::{
     action_maps::{self, Gameplay},
     AspenInputSystemSet,
 };
 use crate::{
-    ahp::game::MainCamera,
-    game::{actors::components::Player, interface::InterfaceRoot, AppState},
+    game::{interface::InterfaceRoot, AppState},
     loading::assets::{InitAssetHandles, TouchControlAssetHandles},
 };
 
@@ -319,7 +313,7 @@ fn interaction_button_system(
             With<InteractionButtonTag>,
         ),
     >,
-    mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>,
+    mut player_input: Query<&mut ActionState<Gameplay>>,
 ) {
     for (interaction, mut color, mut border_color, _children) in &mut interaction_query {
         match *interaction {
@@ -340,6 +334,7 @@ fn interaction_button_system(
 
         if *interaction == Interaction::Pressed {
             let mut input = player_input.single_mut();
+            debug!("touch too press Interact");
             input.press(action_maps::Gameplay::Interact);
         }
     }
@@ -347,38 +342,34 @@ fn interaction_button_system(
 
 /// triggers player sprint action if touch joystick is dragged past threshold
 fn touch_trigger_sprint(
-    sticks: Query<&TouchStick<TouchStickBinding>>,
-    mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>, //Mut<'_, ActionState<Gameplay>>,
+    sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
+    mut player_input: Query<&mut ActionState<Gameplay>>,
 ) {
     let stick = sticks
         .iter()
         .find(|f| f.id == TouchStickBinding::MoveTouchInput)
         .expect("always exists at this point");
 
-    let Vec2 { x, y } = stick.value;
-
-    // set the action data
-    if x.abs() >= 0.7 || y.abs() >= 0.7 {
+    if stick.value.abs().max_element() >= 0.7 {
         let mut player_input = player_input.single_mut();
+        // debug!("touch too press Sprint");
         player_input.press(action_maps::Gameplay::Sprint);
     }
 }
 
 /// triggers player shoot action if touch joystick is dragged past threshold
 fn touch_trigger_shoot(
-    sticks: Query<&TouchStick<TouchStickBinding>>,
-    mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>, //Mut<'_, ActionState<Gameplay>>,
+    sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
+    mut player_input: Query<&mut ActionState<Gameplay>>,
 ) {
     let stick = sticks
         .iter()
         .find(|f| f.id == TouchStickBinding::LookTouchInput)
         .expect("always exists at this point");
 
-    let Vec2 { x, y } = stick.value;
-
-    // set the action data
-    if x.abs() >= 0.7 || y.abs() >= 0.7 {
-        let mut player_input = player_input.single_mut();
-        player_input.press(action_maps::Gameplay::Shoot);
-    }
+        if stick.value.abs().max_element() >= 0.7 {
+            let mut player_input = player_input.single_mut();
+            // debug!("touch too press Shoot");
+            player_input.press(action_maps::Gameplay::Shoot);
+        }
 }

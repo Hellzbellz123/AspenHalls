@@ -1,40 +1,33 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
+use bevy_mod_picking::{
+    events::{Down, Pointer},
+    prelude::{Highlight, ListenerInput, On, PickingInteraction},
+    PickableBundle,
+};
 
 use crate::{
-    bundles::{ActorAttributesBundle, ActorBundle, ActorColliderBundle, RigidBodyBundle},
-    consts::{
-        actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_SCALE, ACTOR_SIZE,
-        ACTOR_Z_INDEX,
-    },
-    game::actors::{
-        ai::components::{ActorType, Faction},
-        animation::components::{ActorAnimationType, AnimState, AnimationSheet},
-        components::{
-            ActorColliderTag, ActorMoveState, AllowedMovement, CurrentMovement, PlayerColliderTag,
-            TeleportStatus,
-        },
-    },
+    bundles::CharacterColliderBundle,
+    consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
+    game::{actors::components::CharacterColliderTag, interface::StartMenu},
     game::{
         actors::{
             combat::components::WeaponSlots,
             player::movement::{camera_movement_system, update_player_velocity},
         },
-        input::action_maps::PlayerBindings,
+        input::action_maps::PlayerBundle,
     },
-    loading::assets::ActorTextureHandles,
+    loading::custom_assets::npc_definition::{CharacterDefinition, RegistryIdentifier},
+    AppState,
 };
 
-use bevy_rapier2d::prelude::{
-    ColliderMassProperties, CollisionGroups, Damping, Friction, LockedAxes, Restitution, RigidBody,
-    Velocity,
-};
+use bevy_rapier2d::prelude::CollisionGroups;
 
 use self::{
     actions::{equip_closest_weapon, spawn_custom_on_button},
     actions::{player_attack_sender, ShootEvent},
 };
 
-use super::{combat::components::WeaponSocket, components::Player};
+use super::combat::components::WeaponSocket;
 
 /// new type for animations
 #[derive(Component, Deref, DerefMut)]
@@ -47,125 +40,141 @@ mod movement;
 
 /// handles player events, and fn
 pub struct PlayerPlugin;
+
 /// This plugin handles player related stuff like movement
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<ShootEvent>().add_systems(
-            Update,
-            (
-                build_player.run_if(
-                    (|player: Query<&Player>| player.is_empty())
-                        .and_then(resource_exists::<ActorTextureHandles>()),
+        app.add_event::<ShootEvent>()
+            .add_event::<SelectThisHeroForPlayer>()
+            .add_systems(
+                Update,
+                (
+                    update_player_velocity,
+                    camera_movement_system,
+                    spawn_custom_on_button,
+                    player_attack_sender,
+                    equip_closest_weapon,
+                )
+                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+            )
+            .add_systems(
+                OnEnter(AppState::PlayingGame),
+                build_player_from_selected_hero,
+            )
+            .add_systems(
+                Update,
+                select_wanted_hero.run_if(
+                    state_exists_and_equals(AppState::StartMenu)
+                        .and_then(not(any_with_component::<SelectedHero>())),
                 ),
-                update_player_velocity,
-                camera_movement_system,
-                spawn_custom_on_button,
-                player_attack_sender,
-                equip_closest_weapon,
-            ),
-        );
+            );
+    }
+}
+
+#[derive(Debug, Component)]
+pub struct SelectedHero;
+
+#[derive(Event)]
+pub struct SelectThisHeroForPlayer(Entity, f32);
+
+impl From<ListenerInput<Pointer<Down>>> for SelectThisHeroForPlayer {
+    fn from(event: ListenerInput<Pointer<Down>>) -> Self {
+        SelectThisHeroForPlayer(event.target, event.hit.depth)
+    }
+}
+
+/// Unlike callback systems, this is a normal system that can be run in parallel with other systems.
+fn select_wanted_hero(
+    start_menu_query: Query<&Style, (With<Node>, With<StartMenu>)>,
+    mut cmds: Commands,
+    mut select_events: EventReader<SelectThisHeroForPlayer>,
+    // mut pickable_query: Query<Entity, With<On<Pointer<Down>>>>
+) {
+    let start_menu_style = start_menu_query.single();
+    if start_menu_style.display != Display::None {
+        return;
+    }
+
+    for event in select_events.read() {
+        debug!("selecting hero");
+        cmds.entity(event.0).insert(SelectedHero).remove::<(
+            PickableBundle,
+            Highlight<StandardMaterial>,
+            On<Pointer<Down>>,
+        )>();
+        cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
     }
 }
 
 /// spawns player with no weapons
-pub fn build_player(mut commands: Commands, selected_player: Res<ActorTextureHandles>) {
-    info!("spawning player");
+pub fn build_player_from_selected_hero(
+    mut commands: Commands,
+    player_selected_hero: Query<(Entity, &RegistryIdentifier), With<SelectedHero>>,
+    char_assets: Res<Assets<CharacterDefinition>>,
+) {
+    let (selected_hero, player_registry_identifier) = player_selected_hero.single();
+
+    let (_, char_def) = char_assets
+        .iter()
+        .find(|(_, asset)| asset.actor.identifier == *player_registry_identifier)
+        .expect("Spawned characters asset definition did not exist");
+
     commands
-        .spawn((
-            Player,
-            PlayerBindings::default(),
+        .entity(selected_hero)
+        .remove::<(SelectedHero, PickingInteraction)>();
+
+    info!("Finalizing player before game start");
+    commands
+        .entity(selected_hero)
+        .insert((
+            PlayerBundle::default(),
             WeaponSocket {
-                drawn_slot: Some(WeaponSlots::Slot1), // entity id of currently equipped weapon
-                weapon_slots: empty_weapon_slots(),
-            },
-            ActorBundle {
-                name: Name::new("Player"),
-                faction: ActorType::Npc(Faction::Player),
-                move_state: ActorMoveState {
-                    move_status: CurrentMovement::None,
-                    move_perms: AllowedMovement::Run,
-                    teleport_status: TeleportStatus::default(),
-                },
-                animation_state: AnimState {
-                    animation_type: ActorAnimationType::Idle,
-                    timer: Timer::from_seconds(0.2, TimerMode::Repeating),
-                    animation_frames: vec![0, 1, 2, 3, 4],
-                    active_frame: 0,
-                },
-                available_animations: AnimationSheet {
-                    handle: selected_player.rex_sheet.clone(),
-                    idle_animation: [0, 1, 2, 3, 4],
-                    down_animation: [5, 6, 7, 8, 9],
-                    up_animation: [10, 11, 12, 13, 14],
-                    right_animation: [15, 16, 17, 18, 19],
-                },
-                stats: ActorAttributesBundle::default(),
-                sprite: SpriteSheetBundle {
-                    sprite: TextureAtlasSprite {
-                        custom_size: Some(ACTOR_SIZE), //character is 1 tile wide by 2 tiles wide
-                        ..default()
-                    },
-                    texture_atlas: selected_player.rex_sheet.clone(),
-                    transform: (Transform {
-                        translation: Vec3 {
-                            x: 816.0,
-                            y: 464.0,
-                            z: ACTOR_Z_INDEX,
-                        },
-                        rotation: Quat::default(),
-                        scale: ACTOR_SCALE,
-                    }),
-                    ..default()
-                },
-                rigidbody_bundle: RigidBodyBundle {
-                    rigidbody: RigidBody::Dynamic,
-                    velocity: Velocity::default(),
-                    friction: Friction::coefficient(0.7),
-                    how_bouncy: Restitution::coefficient(0.3),
-                    mass_prop: ColliderMassProperties::Density(0.3),
-                    rotation_locks: LockedAxes::ROTATION_LOCKED,
-                    damping_prop: Damping {
-                        linear_damping: 1.0,
-                        angular_damping: 1.0,
-                    },
-                },
+                drawn_slot: Some(WeaponSlots::Slot1),
+                weapon_slots: hero_weapon_slots(),
             },
         ))
         .with_children(|child| {
-            child.spawn((
-                PlayerColliderTag,
-                ActorColliderBundle {
-                    tag: ActorColliderTag,
-                    name: Name::new("PlayerCollider"),
-                    transform_bundle: TransformBundle {
-                        local: (Transform {
-                            // transform relative to parent
-                            translation: (Vec3 {
-                                x: 0.,
-                                y: -2.,
-                                z: ACTOR_PHYSICS_Z_INDEX,
-                            }),
-                            ..default()
+            child.spawn((CharacterColliderBundle {
+                tag: CharacterColliderTag,
+                name: Name::new("PlayerCollider"),
+                transform_bundle: TransformBundle {
+                    local: (Transform {
+                        // transform relative to parent
+                        translation: (Vec3 {
+                            x: 0.,
+                            y: 0.,
+                            z: ACTOR_PHYSICS_Z_INDEX,
                         }),
                         ..default()
-                    },
-                    collider: actor_collider(),
-                    collision_groups: CollisionGroups::new(
-                        AspenCollisionLayer::ACTOR,
-                        AspenCollisionLayer::EVERYTHING,
-                    ),
+                    }),
+                    ..default()
                 },
-            ));
+                collider: actor_collider(char_def.actor.pixel_size),
+                collision_groups: CollisionGroups::new(
+                    AspenCollisionLayer::ACTOR,
+                    AspenCollisionLayer::EVERYTHING,
+                ),
+            },));
         });
 }
 
 /// creates empty weapon slots
-pub fn empty_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
+pub fn hero_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
     let mut weapon_slots = HashMap::new();
     weapon_slots.insert(WeaponSlots::Slot1, None::<Entity>);
     weapon_slots.insert(WeaponSlots::Slot2, None::<Entity>);
     weapon_slots.insert(WeaponSlots::Slot3, None::<Entity>);
     weapon_slots.insert(WeaponSlots::Slot4, None::<Entity>);
+
+    weapon_slots
+}
+
+/// creates empty weapon slots
+pub fn enemy_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
+    let mut weapon_slots = HashMap::new();
+    weapon_slots.insert(WeaponSlots::Slot1, None::<Entity>);
+    weapon_slots.insert(WeaponSlots::Slot2, None::<Entity>);
+
     weapon_slots
 }

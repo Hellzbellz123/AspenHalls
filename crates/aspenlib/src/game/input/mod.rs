@@ -1,27 +1,26 @@
+use std::{hash::Hash, time::Duration};
+
 use bevy::{
     ecs::schedule::IntoSystemSetConfigs, prelude::*, utils::Instant, window::PrimaryWindow,
 };
 use leafwing_input_manager::{
-    action_state::{ActionData, Timing},
+    action_state::{ActionData, ActionStateDriverTarget, Timing},
     axislike::DualAxisData,
     buttonlike::ButtonState,
-    prelude::ActionState,
+    prelude::{ActionState, ActionStateDriver},
 };
-use std::{hash::Hash, time::Duration};
 
 use crate::{
-    ahp::{
+    game::action_maps::Gameplay,
+    prelude::{
         engine::{App, InputManagerPlugin, InputManagerSystem, Plugin, PreUpdate, SystemSet},
         game::MainCamera,
     },
-    game::{action_maps::Gameplay, actors::components::Player},
     AppState,
 };
 
 /// holds action maps
 pub mod action_maps;
-/// keyboard input systems
-mod kbm;
 /// software cursor plugin updated with touch and kbm input settings
 mod software_cursor;
 /// touch input systems
@@ -47,17 +46,33 @@ impl Plugin for ActionsPlugin {
         app.add_plugins(InputManagerPlugin::<action_maps::Gameplay>::default());
         // TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
         app.add_plugins(touch::TouchInputPlugin);
-        // updates LookWorld and LookLocal based off mouse position inside window
-        app.add_plugins(kbm::KBMPlugin);
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
         app.add_plugins(software_cursor::SoftwareCursorPlugin);
 
-        app.add_systems(
-            PreUpdate,
-            fake_mouse_input
-                .after(AspenInputSystemSet::TouchInput)
-                .run_if(state_exists_and_equals(AppState::PlayingGame)),
-        );
+        app.add_systems(Update, apply_look_driver.run_if(run_once()))
+            .add_systems(
+                PreUpdate,
+                fake_mouse_input_from_joystick
+                    .after(AspenInputSystemSet::TouchInput)
+                    .run_if(state_exists_and_equals(AppState::PlayingGame).and_then(
+                        |q: Query<&ActionState<Gameplay>>| {
+                            q.single()
+                                .action_data(Gameplay::JoystickDelta)
+                                .axis_pair
+                                .is_some_and(|f| f.xy().max_element().abs() > 0.0)
+                        },
+                    )),
+            )
+            .add_systems(
+                PreUpdate,
+                update_cursor_state_from_window
+                    .run_if(
+                        any_with_component::<ActionState<action_maps::Gameplay>>().and_then(
+                            any_with_component::<ActionStateDriver<action_maps::Gameplay>>(),
+                        ),
+                    )
+                    .in_set(AspenInputSystemSet::KBMInput),
+            );
 
         app.configure_sets(
             PreUpdate,
@@ -73,11 +88,13 @@ impl Plugin for ActionsPlugin {
 }
 
 /// creates fake mouse input using a joystick x/y value and the window x/y value
-fn fake_mouse_input(
+fn fake_mouse_input_from_joystick(
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut player_input: Query<&mut ActionState<Gameplay>, With<Player>>,
+    mut player_input: Query<&mut ActionState<Gameplay>>,
 ) {
+    debug!("updating fake mouselook");
+
     let mut player_input = player_input.single_mut();
     let joy_axis = player_input
         .action_data(Gameplay::JoystickDelta)
@@ -150,4 +167,62 @@ fn fake_mouse_input(
             },
         },
     );
+}
+
+/// adds look driver too window for updating `Gameplay::Look`
+fn apply_look_driver(
+    mut commands: Commands,
+    window_query: Query<
+        Entity,
+        (
+            With<PrimaryWindow>,
+            Without<ActionStateDriver<action_maps::Gameplay>>,
+        ),
+    >,
+) {
+    commands
+        .entity(window_query.single())
+        .insert(ActionStateDriver {
+            action: action_maps::Gameplay::CursorScreen,
+            targets: ActionStateDriverTarget::None,
+        });
+}
+
+/// updates cursor position in look action with winit window cursor position
+fn update_cursor_state_from_window(
+    window_query: Query<&Window>,
+    camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
+    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
+) {
+    let window = window_query.single();
+    let (camera, camera_global_transform) = camera_query.single();
+
+    let mut new_cursor_local: Vec2 = Vec2 {
+        x: window.width() / 2.0,
+        y: window.height() / 2.0,
+    };
+    let mut new_cursor_world = camera
+        .viewport_to_world_2d(camera_global_transform, new_cursor_local)
+        .unwrap_or_default();
+
+    if let Some(cursor_local_pos) = window.cursor_position() {
+        let cursor_world_pos = camera
+            .viewport_to_world_2d(camera_global_transform, cursor_local_pos)
+            .unwrap_or_else(|| {
+                warn!("Could not get cursors world position");
+                new_cursor_world
+            });
+
+        new_cursor_local = cursor_local_pos;
+        new_cursor_world = cursor_world_pos;
+    }
+
+    let mut action_state = action_state_query.single_mut();
+
+    action_state
+        .action_data_mut(action_maps::Gameplay::CursorScreen)
+        .axis_pair = Some(DualAxisData::from_xy(new_cursor_local));
+    action_state
+        .action_data_mut(action_maps::Gameplay::CursorWorld)
+        .axis_pair = Some(DualAxisData::from_xy(new_cursor_world));
 }

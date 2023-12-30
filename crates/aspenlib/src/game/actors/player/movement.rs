@@ -6,7 +6,10 @@ use leafwing_input_manager::prelude::ActionState;
 use crate::{
     consts::{MIN_VELOCITY, SPRINT_MODIFIER, WALK_MODIFIER},
     game::{
-        actors::components::{ActorMoveState, ActorTertiaryAttributes, AllowedMovement, Player},
+        actors::{
+            attributes_stats::CharacterStats,
+            components::{ActorMoveState, AllowedMovement},
+        },
         input::action_maps,
     },
     loading::splashscreen::MainCamera,
@@ -19,13 +22,13 @@ pub fn update_player_velocity(
         (
             &mut Velocity,
             &ActorMoveState,
-            &ActorTertiaryAttributes,
+            &CharacterStats,
             &ActionState<action_maps::Gameplay>,
         ),
-        With<Player>,
     >,
 ) {
-    let (mut velocity, move_state, tert_attr, action_state) = match player_query.get_single_mut() {
+    let (mut velocity, move_state, player_stats, action_state) = match player_query.get_single_mut()
+    {
         Ok(query) => query,
         Err(e) => {
             warn!("unable too update player velocity: {}", e);
@@ -50,9 +53,9 @@ pub fn update_player_velocity(
     let speed = if action_state.pressed(action_maps::Gameplay::Sprint)
         && move_state.move_perms == AllowedMovement::Run
     {
-        tert_attr.speed * SPRINT_MODIFIER
+        player_stats.attrs().move_speed * SPRINT_MODIFIER
     } else {
-        tert_attr.speed * WALK_MODIFIER
+        player_stats.attrs().move_speed * WALK_MODIFIER
     };
 
     let new_velocity = Velocity::linear(delta * speed);
@@ -65,7 +68,7 @@ pub fn update_player_velocity(
 pub fn camera_movement_system(
     time: Res<Time>,
     mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
-    player_move_query: Query<(&Transform, &Velocity), (With<Player>, Without<MainCamera>)>,
+    player_move_query: Query<(&Transform, &Velocity), (With<ActionState<action_maps::Gameplay>>, Without<MainCamera>)>,
 ) {
     if player_move_query.is_empty() {
         debug!("No Players too focus camera on");

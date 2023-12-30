@@ -1,4 +1,4 @@
-/// actors enemy, chests, anything
+/// characters, chests, anything
 pub mod actors;
 /// audio data for game
 pub mod audio;
@@ -10,7 +10,7 @@ pub mod input;
 pub mod interface;
 
 use crate::{
-    ahp::{
+    prelude::{
         engine::{leafwing_input_manager::prelude::ActionState, *},
         game::{GeneralSettings, TimeToLive, *},
     },
@@ -64,7 +64,7 @@ pub enum DungeonFloor {
     /// easiest level, start here
     #[default]
     One,
-    /// slighlty deeper, bit larger, more enemys
+    /// slighlty deeper, bit larger, more creeps
     Two,
     ///
     Three,

@@ -1,33 +1,52 @@
-use crate::ahp::engine::{
+use crate::prelude::engine::{
     Actionlike, Bundle, DeadZoneShape, DualAxis, GamepadAxisType, GamepadButtonType,
     InputManagerBundle, InputMap, KeyCode, QwertyScanCode, Reflect, VirtualDPad,
 };
 
-/// bundle for player bindings
+/// added too ActorBundle too make it a controllable player
 #[derive(Bundle)]
-pub struct PlayerBindings {
+pub struct PlayerBundle {
     /// actual bindings
     input: InputManagerBundle<Gameplay>,
 }
 
-impl Default for PlayerBindings {
+impl Default for PlayerBundle {
     fn default() -> Self {
         let mut input_map = InputMap::default();
-
-        input_map.insert(DualAxis::right_stick(), Gameplay::JoystickDelta);
-
-        // ## movement ##
-        // keyboard
+        // ##### Keyboard Defaults
+        // move
         input_map.insert(
             VirtualDPad {
-                up: QwertyScanCode::W.into(), //KeyCode::W.into(),
+                up: QwertyScanCode::W.into(),
                 down: QwertyScanCode::S.into(),
                 left: QwertyScanCode::A.into(),
                 right: QwertyScanCode::D.into(),
             },
             Gameplay::Move,
         );
-        // gamepad
+        // cycle weapon
+        input_map.insert(KeyCode::AltLeft, Gameplay::CycleWeapon);
+        // use ability/action/magic
+        input_map.insert(KeyCode::Key1, Gameplay::UseAction1);
+        input_map.insert(KeyCode::Key2, Gameplay::UseAction2);
+        input_map.insert(KeyCode::Key3, Gameplay::UseAction3);
+        input_map.insert(KeyCode::Key4, Gameplay::UseAction4);
+        input_map.insert(KeyCode::Key4, Gameplay::UseAction5);
+        // shoot weapon
+        input_map.insert(KeyCode::Space, Gameplay::Shoot);
+        // move faster
+        input_map.insert(KeyCode::ShiftLeft, Gameplay::Sprint);
+        // pause game
+        input_map.insert(KeyCode::Escape, Gameplay::Pause);
+        input_map.insert(KeyCode::E, Gameplay::Interact);
+        //debug and misc
+        input_map.insert(KeyCode::F1, Gameplay::DebugF1);
+        input_map.insert(KeyCode::F2, Gameplay::DebugF2);
+        input_map.insert(KeyCode::NumpadAdd, Gameplay::ZoomIn);
+        input_map.insert(KeyCode::NumpadSubtract, Gameplay::ZoomOut);
+
+        // ##### Gamepad Defaults
+        // move
         input_map.insert(
             DualAxis::symmetric(
                 GamepadAxisType::LeftStickX,
@@ -39,33 +58,14 @@ impl Default for PlayerBindings {
             ),
             Gameplay::Move,
         );
-
-        // equip slot []
-        input_map.insert(KeyCode::Key1, Gameplay::EquipSlot1);
-        input_map.insert(KeyCode::Key2, Gameplay::EquipSlot2);
-        input_map.insert(KeyCode::Key3, Gameplay::EquipSlot3);
-        input_map.insert(KeyCode::Key4, Gameplay::EquipSlot4);
-
-        input_map.insert(KeyCode::Space, Gameplay::Shoot);
-        // input_map.insert(MouseButton::Left, Gameplay::Shoot);
-
-        input_map.insert(KeyCode::F, Gameplay::Melee);
-
-        input_map.insert(KeyCode::ShiftLeft, Gameplay::Sprint);
+        // joystick too cursor value
+        input_map.insert(DualAxis::right_stick(), Gameplay::JoystickDelta);
+        // move faster
         input_map.insert(GamepadButtonType::West, Gameplay::Sprint);
-
-        input_map.insert(KeyCode::Escape, Gameplay::Pause);
+        // pause game
         input_map.insert(GamepadButtonType::Start, Gameplay::Pause);
 
-        input_map.insert(KeyCode::Q, Gameplay::Heal);
-        input_map.insert(KeyCode::E, Gameplay::Interact);
-
-        //debug and misc
-        input_map.insert(KeyCode::F1, Gameplay::DebugF1);
-        input_map.insert(KeyCode::F2, Gameplay::DebugF2);
-        input_map.insert(KeyCode::NumpadAdd, Gameplay::ZoomIn);
-        input_map.insert(KeyCode::NumpadSubtract, Gameplay::ZoomOut);
-
+        // ##### return default
         Self {
             input: InputManagerBundle::<Gameplay> {
                 input_map,
@@ -94,22 +94,22 @@ pub enum Gameplay {
     Sprint,
     /// Space for keyboard
     Shoot,
-    /// F for keyboard
-    Melee,
-    /// Q for keyboard
-    Heal,
     /// E for keyboard
     Interact,
+    /// cycles equipped weapons
+    CycleWeapon,
 
-    //equip weapons
-    /// 1 for keyboard
-    EquipSlot1,
-    /// 2 for keyboard
-    EquipSlot2,
-    /// 3 for keyboard
-    EquipSlot3,
-    /// 4 for keyboard
-    EquipSlot4,
+    // use actions
+    /// action 1
+    UseAction1,
+    /// action 2
+    UseAction2,
+    /// action 3
+    UseAction3,
+    /// action 4
+    UseAction4,
+    /// action 5
+    UseAction5,
 
     /// Num - for keyboard
     ZoomIn,
@@ -121,4 +121,9 @@ pub enum Gameplay {
     DebugF1,
     /// regenerate dungeon
     DebugF2,
+
+    // /// F for keyboard
+    // Melee,
+    // /// Q for keyboard
+    // Heal,
 }

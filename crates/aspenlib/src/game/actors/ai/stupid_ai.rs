@@ -6,7 +6,7 @@ for being the only real useful example of big-brain as far as im concerned
 use bevy::prelude::*;
 use bevy_rapier2d::{
     math::Rot,
-    prelude::{Collider, CollisionGroups, Group, QueryFilter, RapierContext, Velocity},
+    prelude::{Collider, QueryFilter, RapierContext, Velocity},
 };
 use big_brain::{
     prelude::{ActionState, Actor, Score},
@@ -16,18 +16,15 @@ use big_brain::{
 use rand::{thread_rng, Rng};
 
 use crate::{
-    consts::{actor_collider, AspenCollisionLayer, BACKUP_DISTANCE, TILE_SIZE},
+    consts::{actor_collider, TILE_SIZE, default_actor_collider},
     game::{
-        actors::{
-            ai::components::{
-                AIChaseAction, AIChaseConfig, AICombatConfig, AIWanderAction, AIWanderConfig,
-                AttackScorer, ChaseScorer, Enemy,
-            },
-            animation::components::{ActorAnimationType, AnimState},
-            components::{Player, PlayerColliderTag},
+        actors::ai::components::{
+            AIChaseAction, AICombatConfig, AIWanderAction, AIWanderConfig, AttackScorer,
+            ChaseScorer,
         },
         AppState,
     },
+    prelude::{engine, game::action_maps},
 };
 
 use super::components::{AIShootAction, AIShootConfig};
@@ -63,9 +60,9 @@ fn stupid_ai_aggro_manager(
     names: Query<&Name>,
     rapier_context: Res<RapierContext>,
     // player
-    player_query: Query<(Entity, &Transform), With<Player>>,
+    player_query: Query<(Entity, &Transform), With<engine::ActionState<action_maps::Gameplay>>>,
     // enemies that can aggro
-    enemy_query: Query<(Entity, &Transform, &AICombatConfig), With<Enemy>>,
+    can_attack_query: Query<(Entity, &Transform, &AICombatConfig)>,
     // scorers
     mut scorers: ParamSet<(
         Query<(&Actor, &mut Score), With<ChaseScorer>>,
@@ -84,7 +81,7 @@ fn stupid_ai_aggro_manager(
         .find(|f| colliders.get(*f).is_ok())
         .expect("player should always have a collider");
 
-    for (this_actor, enemy_transform, combat_cfg) in &enemy_query {
+    for (this_actor, enemy_transform, combat_cfg) in &can_attack_query {
         let player_pos = player_transform.translation.truncate();
         let enemy_pos = enemy_transform.translation.truncate();
         let distance_to_target = enemy_pos.distance(player_pos).abs();
@@ -94,7 +91,7 @@ fn stupid_ai_aggro_manager(
             enemy_pos,
             Rot::MIN,
             direction_to_target,
-            &actor_collider(),
+            &default_actor_collider(),
             distance_to_target,
             false,
             QueryFilter::new()
@@ -149,14 +146,8 @@ fn stupid_ai_aggro_manager(
 
 /// handles enemy's that can chase
 fn chase_action(
-    player_query: Query<&Transform, With<Player>>,
-    mut enemy_query: Query<(
-        &Transform,
-        &mut Velocity,
-        &AICombatConfig,
-        &mut AnimState,
-        With<Enemy>,
-    )>,
+    player_query: Query<&Transform, With<engine::ActionState<action_maps::Gameplay>>>,
+    mut enemy_query: Query<(&Transform, &mut Velocity, &AICombatConfig)>,
     mut chasing_enemies: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
@@ -165,7 +156,7 @@ fn chase_action(
     };
 
     for (Actor(actor), mut state) in &mut chasing_enemies {
-        if let Ok((enemy_transform, mut velocity, combat_cfg, mut anim_state, ())) =
+        if let Ok((enemy_transform, mut velocity, combat_cfg)) =
             enemy_query.get_mut(*actor)
         {
             let player_pos = player_transform.translation.truncate();
@@ -211,7 +202,6 @@ fn chase_action(
                 ActionState::Failure | ActionState::Success => {
                     trace!("chase finished/failed");
                     *velocity = Velocity::linear(Vec2::ZERO);
-                    anim_state.animation_type = ActorAnimationType::Idle;
                 }
             }
         }
@@ -222,8 +212,8 @@ fn chase_action(
 fn attack_action(
     // rapier_context: Res<RapierContext>,
     // player_collider_query: Query<Entity, With<PlayerColliderTag>>,
-    player_query: Query<(Entity, &Transform), With<Player>>,
-    mut enemy_query: Query<(&Transform, &mut AIShootConfig, &AnimState), With<Enemy>>,
+    player_query: Query<(Entity, &Transform), With<engine::ActionState<action_maps::Gameplay>>>,
+    mut enemy_query: Query<(&Transform, &mut AIShootConfig)>,
     mut shooting_enemies: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
 ) {
     let Ok((_, _player_transform)) = player_query.get_single() else {
@@ -231,7 +221,7 @@ fn attack_action(
     };
 
     for (Actor(actor), mut state) in &mut shooting_enemies {
-        if let Ok((_enemy_transform, mut shoot_cfg, _anim_state)) = enemy_query.get_mut(*actor) {
+        if let Ok((_enemy_transform, mut shoot_cfg)) = enemy_query.get_mut(*actor) {
             // let player_pos = player_transform.translation.truncate();
             // let enemy_pos = enemy_transform.translation.truncate();
 
@@ -267,15 +257,12 @@ fn attack_action(
 
 /// handles enemy's that are doing the wander action
 fn wander_action(
-    mut enemy_query: Query<
-        (
-            &Transform,
-            &mut Velocity,
-            &mut TextureAtlasSprite,
-            &mut AIWanderConfig,
-        ),
-        With<Enemy>,
-    >,
+    mut enemy_query: Query<(
+        &Transform,
+        &mut Velocity,
+        &mut TextureAtlasSprite,
+        &mut AIWanderConfig,
+    )>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,
     rapier_context: Res<RapierContext>,
 ) {
@@ -335,7 +322,7 @@ fn wander_action(
                         enemy_pos,
                         Rot::MIN,
                         direction,
-                        &actor_collider(),
+                        &default_actor_collider(),
                         distance,
                         false,
                         QueryFilter::new()

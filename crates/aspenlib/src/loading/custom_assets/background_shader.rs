@@ -13,6 +13,9 @@ use bevy::{
 };
 use bevy_tiling_background::ScrollingBackground;
 
+// TODO:
+// fix scaling with camera zoom, related too camera view_projection in shader code
+
 /// background material that is tiled and scaled across the whole screen.
 /// moves with the camera, make sure `NoFrustumCulling` component is added else
 /// you will get strange behavior

@@ -1,8 +1,11 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use big_brain::{
+    actions::ActionState,
     prelude::{Action, Score, Thinker},
-    thinker::{Actor, ActionSpan},
-    BigBrainPlugin, actions::ActionState,
+    thinker::Actor,
+    BigBrainPlugin,
 };
 
 use self::stupid_ai::StupidAiPlugin;
@@ -18,8 +21,12 @@ pub mod utility;
 pub struct AIPlugin;
 
 use crate::{
-    ahp::game::{AttackScorer, ChaseScorer},
-    game::actors::ai::components::{AICombatConfig, AIWanderConfig, AIChaseConfig, AIShootConfig, AIChaseAction, AIWanderAction, AIShootAction},
+    bundles::StupidAiBundle,
+    game::actors::ai::components::{
+        AIChaseAction, AICombatConfig, AIShootAction, AIShootConfig, AIWanderAction, AIWanderConfig,
+    },
+    loading::custom_assets::npc_definition::AiSetupConfig,
+    prelude::game::{AttackScorer, ChaseScorer},
     register_types,
 };
 
@@ -37,7 +44,6 @@ impl Plugin for AIPlugin {
                 AttackScorer,
                 AICombatConfig,
                 AIWanderConfig,
-                AIChaseConfig,
                 AIShootConfig,
                 AIChaseAction,
                 AIWanderAction,
@@ -46,7 +52,7 @@ impl Plugin for AIPlugin {
         );
 
         app.add_plugins((BigBrainPlugin::new(Update), StupidAiPlugin))
-        .add_systems(Update, parent_brains_to_target_actor);
+            .add_systems(Update, initialize_ai);
     }
 }
 
@@ -55,33 +61,47 @@ impl Plugin for AIPlugin {
 #[derive(Debug, Component)]
 struct BigBrainContainerTag;
 
-//TODO: make this system insert `InspectorIgnore` component on each
-/// this feels like a dirty hack but it totally works!!!
-/// ALL HAIL THE ENTITY HIERARCHY!!!
-fn parent_brains_to_target_actor(
+fn initialize_ai(
     mut commands: Commands,
-    brain_query: Query<(Entity, &Actor), Without<Parent>>,
-    // brain_container_query: Query<Entity, With<BigBrainContainerTag>>,
-    // thinkers: Query<&Thinker>,
+    ai_controlled: Query<(Entity, &AiSetupConfig, &GlobalTransform)>,
 ) {
-    // for thinker in &thinkers {
-    //     info!("thinker: {:?}", thinker)
-    // }
-
-    // if brain_container_query.is_empty() {
-    //     commands.spawn((BigBrainContainerTag, Name::new("BigBrainContainer")));
-    //     return;
-    // }
-
-    for brain in &brain_query {
-        match commands.get_entity(brain.0) {
-            Some(mut e) => {
-                e.set_parent(brain.1 .0);
-            }
-            None => {
-                warn!("Could not parent Actor, did not exist");
-                return;
-            }
+    for (character, who_should_control, pos) in &ai_controlled {
+        match who_should_control {
+            AiSetupConfig::Player => {}
+            AiSetupConfig::GameAI(ai_type) => match ai_type {
+                components::AiType::Stupid => {
+                    //TODO: get definition and use values from definition
+                    commands.entity(character).insert(StupidAiBundle {
+                        combat_config: AICombatConfig {
+                            chase_start: 10,
+                            chase_end: 16,
+                            shoot_range: 6,
+                            personal_space: 3,
+                            runaway_hp: 20.0,
+                        },
+                        wander_config: AIWanderConfig {
+                            wander_target: None,
+                            spawn_position: Some(pos.translation().truncate()),
+                            wander_distance: 15,
+                        },
+                        shoot_config: AIShootConfig {
+                            find_target_range: 6,
+                            timer: Timer::new(Duration::from_secs_f32(0.5), TimerMode::Once),
+                            should_shoot: false,
+                            can_shoot: false,
+                        },
+                        thinker: Thinker::build()
+                            .picker(big_brain::pickers::Highest)
+                            .when(ChaseScorer, AIChaseAction)
+                            .when(AttackScorer, AIShootAction)
+                            .otherwise(AIWanderAction),
+                    });
+                }
+                a => {
+                    warn!("AI type unimplemented! {:?}", a)
+                }
+            },
         }
+        commands.entity(character).remove::<AiSetupConfig>();
     }
 }

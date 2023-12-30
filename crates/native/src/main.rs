@@ -3,7 +3,7 @@
     After valid configuration is found/created, starts bevy app
 "]
 
-use aspenlib::ahp::{engine as bevy, game as asha};
+use aspenlib::prelude::{engine as bevy, game as asha};
 
 // use aspenlib::ahp::engine as bevy;
 // use aspenlib::ahp::game as asha;
