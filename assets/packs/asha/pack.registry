@@ -45,8 +45,8 @@
     // hero/creep/boss/etc definitions
     "character_definitions": Files (
         paths: [
-            "packs/asha/characters/hRexxen/Rexxen.character.toml",
-            "packs/asha/characters/hBennen/Bennen.character.toml",
+            "packs/asha/characters/hRexxen/rexxen.character.toml",
+            "packs/asha/characters/hBennen/bennen.character.toml",
             "packs/asha/characters/bOldHag/oldhag.character.toml",
             "packs/asha/characters/cSkeleton/skeleton.character.toml",
             "packs/asha/characters/cSlime/slime.character.toml",
