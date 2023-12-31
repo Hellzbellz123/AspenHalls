@@ -87,7 +87,7 @@
 					"__pivot": [0,0],
 					"__tags": ["world"],
 					"__tile": null,
-					"__smartColor": "#94D9B3",
+					"__smartColor": "#D06A06",
 					"__worldX": 288,
 					"__worldY": -2048,
 					"iid": "6f12c7b0-8990-11ee-a550-011dfc6ca7d0",
@@ -122,7 +122,7 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [208,336],
-					"fieldInstances": [{ "__identifier": "WhatHero", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -138,7 +138,7 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [464,336],
-					"fieldInstances": [{ "__identifier": "WhatHero", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
 				}
 			]
 		},

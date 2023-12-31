@@ -1,0 +1,31 @@
+[damage]
+physical = 1.0
+elemental = "None"
+
+[weapon_type.Gun]
+projectile_speed = 5.0
+projectile_size = 5.0
+barrel_end = [20.0, 0.0]
+ammo_amount = 12
+reload_time = 2.5
+fire_rate = 0.77
+
+[actor]
+name = "Auto Pistol"
+identifier = "autopistol"
+aseprite_path = "AutoPistol.png"
+pixel_size =  [32.0, 32.0]
+
+[actor.stats]
+max_hp = 10
+max_mana = 20
+armor = 2
+hp_regen = 0.5
+mana_regen = 0.5
+move_speed = 10.0
+strength = 2
+agility = 2
+intelligence = 6
+damage = { physical = 2.0, elemental = "None" }
+range = 48.0
+arm_speed = 0.4

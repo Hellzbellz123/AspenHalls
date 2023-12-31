@@ -1,0 +1,22 @@
+character_type = { Npc = "Boss" }
+controller = { GameAI = "Boss" }
+
+[actor]
+name = "Old Hag"
+identifier = "oldhag"
+aseprite_path = "oldhag.sprite.json"
+pixel_size = [32.0, 32.0]
+
+[actor.stats]
+max_hp = 1000
+max_mana = 600
+strength = 30
+agility = 30
+intelligence = 40
+armor = 50
+hp_regen = 5.0
+mana_regen = 5.0
+move_speed = 180.0
+range = 150.0
+arm_speed = 1.0
+damage = { physical = 40.0, elemental = "None" }

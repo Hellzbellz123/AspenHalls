@@ -129,7 +129,7 @@
 					"__pivot": [0,0],
 					"__tags": ["world"],
 					"__tile": null,
-					"__smartColor": "#94D9B3",
+					"__smartColor": "#D06A06",
 					"__worldX": 3168,
 					"__worldY": 2336,
 					"iid": "cb792120-8990-11ee-abce-4780e72d7cc8",
@@ -158,7 +158,7 @@
 					"__pivot": [0,0],
 					"__tags": ["world"],
 					"__tile": null,
-					"__smartColor": "#94D9B3",
+					"__smartColor": "#D06A06",
 					"__worldX": 3584,
 					"__worldY": 2848,
 					"iid": "d8ce1010-8990-11ee-abce-89857bdb1903",
@@ -187,7 +187,7 @@
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": null,
-					"__smartColor": "#94D9B3",
+					"__smartColor": "#8DCCA9",
 					"__worldX": 3000,
 					"__worldY": 2552,
 					"iid": "7bca5240-8990-11ee-9241-0df0b9221c91",
@@ -196,9 +196,12 @@
 					"defUid": 66,
 					"px": [952,504],
 					"fieldInstances": [
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 5, "__tile": null, "defUid": 64, "realEditorValues": [] },
-						{ "__identifier": "EnemyTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 65, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] }
+						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
+						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
+						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
+						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
+						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
 					]
 				}
 			]

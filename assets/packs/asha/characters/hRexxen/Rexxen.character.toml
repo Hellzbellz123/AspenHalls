@@ -1,0 +1,22 @@
+character_type = "Hero"
+controller = "Player"
+
+[actor]
+name = "Rexxen"
+identifier = "rexxen"
+aseprite_path = "rexxen.sprite.json"
+pixel_size =  [18.0, 32.0]
+
+[actor.stats]
+max_hp = 150
+max_mana = 200
+strength = 10
+agility = 10
+intelligence = 10
+armor = 10
+hp_regen = 5.0
+mana_regen = 5.0
+move_speed = 150.0
+range = 150.0
+arm_speed = 1.0
+damage = { physical = 20.0, elemental = "None" }

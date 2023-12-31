@@ -193,7 +193,7 @@
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": null,
-					"__smartColor": "#94D9B3",
+					"__smartColor": "#8DCCA9",
 					"__worldX": 2920,
 					"__worldY": 776,
 					"iid": "2890d9a0-1460-11ee-88e8-f35bdbea5309",
@@ -202,9 +202,12 @@
 					"defUid": 66,
 					"px": [872,264],
 					"fieldInstances": [
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 5, "__tile": null, "defUid": 64, "realEditorValues": [] },
-						{ "__identifier": "EnemyTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 65, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] }
+						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
+						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
+						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
+						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
+						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
 					]
 				},
 				{
@@ -213,7 +216,7 @@
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": null,
-					"__smartColor": "#94D9B3",
+					"__smartColor": "#8DCCA9",
 					"__worldX": 2200,
 					"__worldY": 776,
 					"iid": "2926d810-1460-11ee-88e8-03a2c4be5f0e",
@@ -222,9 +225,12 @@
 					"defUid": 66,
 					"px": [152,264],
 					"fieldInstances": [
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 5, "__tile": null, "defUid": 64, "realEditorValues": [] },
-						{ "__identifier": "EnemyTypes", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 65, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] }
+						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
+						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
+						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
+						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
+						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
 					]
 				}
 			]

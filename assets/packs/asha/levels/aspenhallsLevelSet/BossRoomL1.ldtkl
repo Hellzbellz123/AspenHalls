@@ -108,7 +108,7 @@
 					"height": 32,
 					"defUid": 69,
 					"px": [272,272],
-					"fieldInstances": [{ "__identifier": "DungeonBosses", "__type": "String", "__value": null, "__tile": null, "defUid": 70, "realEditorValues": [] }]
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 70, "realEditorValues": [] }]
 				}
 			]
 		},
