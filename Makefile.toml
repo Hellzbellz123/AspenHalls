@@ -67,7 +67,7 @@ args = ["apk", "run", "--package=aspen_halls_mobile", "--features=develop"]
 
 [tasks.run-native]
 dependencies = ["native-assets"]
-cwd = "crates/native/"
+cwd = "crates/desktop/"
 workspace = false
 description = ""
 command = "cargo"
@@ -88,7 +88,7 @@ script = "tools/adb-connecter.sh"
 [tasks.native-assets]
 workspace = false
 script_runner = "@shell"
-script.pre = "rm -rf crates/native/assets && cp -r assets crates/native/assets"
+script.pre = "rm -rf crates/desktop/assets && cp -r assets crates/desktop/assets"
 
 # [tasks.docs]
 # clear = true
@@ -348,18 +348,6 @@ script.pre = "rm -rf crates/native/assets && cp -r assets crates/native/assets"
 # [tasks.RRNative]
 # run_task = "rrnative"
 # private = true
-
-# TODO: fix this broken target
-# not sure what that entails, probably a container
-# [tasks.build-release-macos]
-# env_files = ["../../.env"]
-# command = "cargo"
-# args = [
-#   "build",
-#   "--release",
-#   "--target=x86_64-apple-darwin ",
-# ]
-
 
 # dont use this until some logic is implemented too properly handle git repository status
 # if there is changes too the assets folder/src this function should exit with an error message

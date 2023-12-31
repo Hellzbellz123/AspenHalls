@@ -2,8 +2,8 @@
 target/
 
 crates/aspenlib/src/app/*
-crates/native/debug.log
-crates/native/config.toml
+crates/desktop/debug.log
+crates/desktop/config.toml
 crates/wasm/dist
 crates/*/assets/
 assets/packs/asha/levels/aspenhallsLevelSet/backups

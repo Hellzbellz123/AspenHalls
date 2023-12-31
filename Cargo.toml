@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-default-members = ["crates/aspenlib", "crates/native"]
-members = ["crates/aspenlib", "crates/native", "crates/mobile", "crates/wasm"]
+default-members = ["crates/aspenlib", "crates/desktop"]
+members = ["crates/aspenlib", "crates/desktop", "crates/mobile", "crates/wasm"]
 exclude = ["deps"]
 
 [workspace.lints.rust]

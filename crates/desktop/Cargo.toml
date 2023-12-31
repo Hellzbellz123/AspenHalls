@@ -1,5 +1,5 @@
 [package]
-name = "aspen_halls_native"
+name = "aspen_halls_desktop"
 version = "0.0.1"
 authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
 edition = "2021"
@@ -11,7 +11,7 @@ readme = "README.md"
 repository = "https://github.com/Hellzbellz123/VanillaCoffee/"
 keywords = ["videogame", "game", "application", "bin"]
 categories = ["games"]
-default-run = "aspen_halls_native"
+default-run = "aspen_halls_desktop"
 
 [lints]
 workspace = true
