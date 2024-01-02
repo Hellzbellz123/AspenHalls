@@ -13,7 +13,7 @@ use bevy_rapier2d::prelude::{
 };
 
 use crate::{
-    bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
+    bundles::{ProjectileBundle, ObjectColliderBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
     game::actors::{
         ai::components::AIShootConfig,
@@ -121,13 +121,12 @@ pub fn spawn_enemy_projectile(
                     angular_damping: 0.1,
                 },
             },
-            tag: super::components::ProjectileTag,
         },
         Sensor,
     ))
     .with_children(|child| {
         child.spawn((
-            ProjectileColliderBundle {
+            ObjectColliderBundle {
                 name: Name::new("EnemyProjectileCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {
@@ -145,8 +144,7 @@ pub fn spawn_enemy_projectile(
                     AspenCollisionLayer::PROJECTILE,
                     AspenCollisionLayer::EVERYTHING,
                 ),
-                ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
-                tag: super::components::ProjectileColliderTag,
+                tag: super::components::ActorColliderType::Projectile,
             },
             ActiveEvents::COLLISION_EVENTS,
         ));

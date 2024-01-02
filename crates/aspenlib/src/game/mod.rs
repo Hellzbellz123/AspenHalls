@@ -147,7 +147,7 @@ fn time_to_live(
 ) {
     for (entity, mut timer) in &mut query {
         if timer.tick(time.delta()).finished() {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

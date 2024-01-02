@@ -4,8 +4,9 @@ use bevy_asepritesheet::animator::AnimatedSpriteBundle;
 use crate::{
     game::actors::{
         ai::components::AICombatConfig,
-        attributes_stats::{CharacterStatBundle, ProjectileStats, EquipmentStats},
-        components::{ActorMoveState, CharacterColliderTag, ProjectileColliderTag, ProjectileTag}, combat::components::{WeaponHolder, AttackDamage, WeaponForm, WeaponColliderTag},
+        attributes_stats::{CharacterStatBundle, EquipmentStats, ProjectileStats},
+        combat::components::{AttackDamage, WeaponForm, WeaponHolder},
+        components::{ActorColliderType, ActorMoveState},
     },
     loading::{custom_assets::actor_definitions::AiSetupConfig, registry::RegistryIdentifier},
     prelude::{
@@ -81,55 +82,21 @@ pub struct ProjectileBundle {
     pub sprite_bundle: SpriteBundle,
     /// projectile collisions and movement
     pub rigidbody_bundle: RigidBodyBundle,
-    /// tag
-    pub tag: ProjectileTag,
 }
 
 /// collider bundle for actors
 #[derive(Bundle)]
-pub struct CharacterColliderBundle {
+pub struct ObjectColliderBundle {
     /// name of collider
     pub name: Name,
-    /// location of collider
-    pub transform_bundle: TransformBundle,
-    /// collider shape
-    pub collider: Collider,
-    /// collision groups
-    pub collision_groups: CollisionGroups,
-    /// tag
-    pub tag: CharacterColliderTag,
-}
-
-/// weapon collider
-#[derive(Bundle)]
-pub struct WeaponColliderBundle {
-    /// collider name
-    pub name: Name,
-    /// collider tag
-    pub tag: WeaponColliderTag,
+    /// type of collider
+    pub tag: ActorColliderType,
     /// collider shape
     pub collider: Collider,
     /// collision groups
     pub collision_groups: CollisionGroups,
     /// collider transform
     pub transform_bundle: TransformBundle,
-}
-
-/// bundle for projectile colliders
-#[derive(Bundle)]
-pub struct ProjectileColliderBundle {
-    /// collider name
-    pub name: Name,
-    /// collider lifetime
-    pub ttl: TimeToLive,
-    /// collider transform
-    pub transform_bundle: TransformBundle,
-    /// collider shape
-    pub collider: Collider,
-    /// collision groups
-    pub collision_groups: CollisionGroups,
-    /// tag
-    pub tag: ProjectileColliderTag,
 }
 
 /// All Components needed for `stupid_ai` functionality

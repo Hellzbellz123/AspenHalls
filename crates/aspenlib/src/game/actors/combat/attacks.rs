@@ -2,12 +2,12 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bundles::{ProjectileBundle, ProjectileColliderBundle, RigidBodyBundle},
+    bundles::{ProjectileBundle, ObjectColliderBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
     game::actors::{
         attributes_stats::{Damage, ProjectileStats},
         combat::components::{AttackDamage, WeaponForm},
-        components::{ProjectileColliderTag, ProjectileTag, TimeToLive},
+        components::{ActorColliderType, TimeToLive},
         player::actions::ShootEvent,
     },
     prelude::game::AspenInitHandles,
@@ -78,13 +78,12 @@ pub fn create_bullet(
                     angular_damping: 0.1,
                 },
             },
-            tag: ProjectileTag,
         },
         Sensor,
     ))
     .with_children(|child| {
         child.spawn((
-            ProjectileColliderBundle {
+            ObjectColliderBundle {
                 name: Name::new("PlayerProjectileCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {
@@ -100,8 +99,7 @@ pub fn create_bullet(
                         | AspenCollisionLayer::ACTOR
                         | AspenCollisionLayer::PROJECTILE,
                 ),
-                ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
-                tag: ProjectileColliderTag,
+                tag: ActorColliderType::Projectile,
             },
             ActiveEvents::COLLISION_EVENTS,
         ));

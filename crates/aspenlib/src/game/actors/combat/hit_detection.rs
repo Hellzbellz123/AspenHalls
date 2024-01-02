@@ -3,7 +3,7 @@ use bevy_rapier2d::{prelude::*, rapier::prelude::CollisionEventFlags};
 
 use crate::game::actors::{
     attributes_stats::{DamageQueue, ProjectileStats},
-    components::{CharacterColliderTag, ProjectileColliderTag},
+    components::ActorColliderType,
 };
 
 /// detects projectile hits on player, adds hits too Player
@@ -12,8 +12,7 @@ pub fn projectile_hits(
     mut cmds: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut damage_queue_query: Query<&mut DamageQueue>,
-    character_collider_q: Query<(Entity, &Parent), (With<Collider>, With<CharacterColliderTag>)>,
-    projectile_collider_q: Query<(Entity, &Parent), (With<Collider>, With<ProjectileColliderTag>)>,
+    parented_collider_query: Query<(Entity, &Parent), (With<Collider>, With<ActorColliderType>)>,
     projectile_info: Query<&ProjectileStats>,
 ) {
     for event in collision_events.read() {
@@ -21,15 +20,15 @@ pub fn projectile_hits(
             if flags.contains(CollisionEventFlags::SENSOR) {
                 return;
             }
-            let hit_actor = character_collider_q
+            let hit_actor = parented_collider_query
                 .get(*b)
-                .or_else(|_| character_collider_q.get(*a))
+                .or_else(|_| parented_collider_query.get(*a))
                 .map(|(_collider, parent)| parent.get())
                 .ok();
 
-            let hitting_projectile = projectile_collider_q
+            let hitting_projectile = parented_collider_query
                 .get(*a)
-                .or_else(|_| projectile_collider_q.get(*b))
+                .or_else(|_| parented_collider_query.get(*b))
                 .map(|(_a, parent)| parent.get())
                 .ok();
 

@@ -1,23 +1,11 @@
 use bevy::{
     math::Vec2,
-    prelude::{Bundle, Component, Deref, DerefMut, Entity, Name, ReflectComponent},
+    prelude::{Component, Deref, DerefMut, Entity, ReflectComponent},
     reflect::Reflect,
     time::Timer,
-    transform::TransformBundle,
     utils::hashbrown::HashMap,
 };
-
-use bevy_asepritesheet::animator::AnimatedSpriteBundle;
-use bevy_rapier2d::prelude::{Collider, CollisionGroups};
-
-use crate::{
-    bundles::RigidBodyBundle,
-    game::actors::attributes_stats::{Damage, EquipmentStats,}, loading::registry::RegistryIdentifier,
-};
-
-/// collider tag for weapons
-#[derive(Debug, Component)]
-pub struct WeaponColliderTag;
+use crate::game::actors::attributes_stats::Damage;
 
 /// entity that holds this weapon, and the slot that it is in
 #[derive(Debug, Clone, Copy, Component, Default, Reflect, Deref, DerefMut)]

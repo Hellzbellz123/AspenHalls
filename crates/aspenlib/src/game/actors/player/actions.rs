@@ -1,7 +1,9 @@
 use bevy_rapier2d::geometry::{Collider, CollisionGroups};
 
 use crate::{
-    game::actors::combat::components::{AttackDamage, WeaponForm},
+    bundles::ObjectColliderBundle,
+    game::actors::{combat::components::WeaponForm, components::ActorColliderType},
+    loading::registry::RegistryIdentifier,
     prelude::{
         engine::{
             debug, info, warn, ActionState, BuildChildren, Commands, Entity, Event, EventWriter,
@@ -9,10 +11,10 @@ use crate::{
             Without,
         },
         game::{
-            action_maps, ActorType, CurrentlyDrawnWeapon, NpcType, SpawnActorEvent,
-            WeaponColliderTag, WeaponHolder, WeaponSlots, WeaponSocket, TILE_SIZE,
+            action_maps, ActorType, CurrentlyDrawnWeapon, NpcType, SpawnActorEvent, WeaponHolder,
+            WeaponSlots, WeaponSocket, TILE_SIZE,
         },
-    }, loading::registry::RegistryIdentifier, bundles::WeaponColliderBundle,
+    },
 };
 
 /// spawns skeleton near player if `Gameplay::DebugF1` is pressed
@@ -120,7 +122,7 @@ pub fn equip_closest_weapon(
         &mut Transform,
         &ActionState<action_maps::Gameplay>,
     )>,
-    query_child_weapon_collider: Query<(Entity, &Parent), With<WeaponColliderTag>>,
+    query_child_weapon_collider: Query<(Entity, &Parent), With<ActorColliderType>>,
     mut weapon_query: Query<
         (Entity, &mut WeaponHolder, &mut Transform),
         (Without<Parent>, Without<WeaponSocket>),
@@ -168,8 +170,9 @@ pub fn equip_closest_weapon(
     // equipping weapon too player
     if slots_full {
         if drawn_weapon.is_some() {
+            warn!("slots full, unequipping drawn weapon");
+            // TODO: recreate weapon collider properly?
             let weapon_ent = slot_value.unwrap();
-            warn!("slots full, replacing weapon");
             weapon_pos.translation = Vec3 {
                 x: 50.0,
                 y: 0.0,
@@ -177,9 +180,9 @@ pub fn equip_closest_weapon(
             };
             cmds.entity(weapon_ent).remove_parent();
             cmds.entity(weapon_ent).with_children(|f| {
-                f.spawn(WeaponColliderBundle {
+                f.spawn(ObjectColliderBundle {
                     name: Name::new("DroppedWeaponCollider"),
-                    tag: WeaponColliderTag,
+                    tag: ActorColliderType::Object,
                     collider: Collider::default(),
                     collision_groups: CollisionGroups::default(),
                     transform_bundle: TransformBundle::default(),

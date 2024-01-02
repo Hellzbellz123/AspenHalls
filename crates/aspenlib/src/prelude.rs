@@ -28,7 +28,7 @@ pub mod game {
                     ActorType, AttackScorer, ChaseScorer, NpcType,
                 },
                 combat::components::{
-                    CurrentlyDrawnWeapon, WeaponColliderTag, WeaponHolder, WeaponSlots,
+                    CurrentlyDrawnWeapon, WeaponHolder, WeaponSlots,
                     WeaponSocket,
                 },
                 components::TimeToLive,

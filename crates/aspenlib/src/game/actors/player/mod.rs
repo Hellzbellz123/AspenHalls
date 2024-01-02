@@ -6,17 +6,19 @@ use bevy_mod_picking::{
 };
 
 use crate::{
-    bundles::CharacterColliderBundle,
+    bundles::ObjectColliderBundle,
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
-    game::{actors::components::CharacterColliderTag, interface::StartMenu},
     game::{
         actors::{
             combat::components::WeaponSlots,
-            player::movement::{camera_movement_system, update_player_velocity},
+            player::movement::{camera_movement_system, update_player_velocity}, components::ActorColliderType,
         },
         input::action_maps::PlayerBundle,
+        interface::StartMenu,
     },
-    loading::{custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier},
+    loading::{
+        custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
+    },
     AppState,
 };
 
@@ -135,8 +137,8 @@ pub fn build_player_from_selected_hero(
             },
         ))
         .with_children(|child| {
-            child.spawn((CharacterColliderBundle {
-                tag: CharacterColliderTag,
+            child.spawn((ObjectColliderBundle {
+                tag: ActorColliderType::Character,
                 name: Name::new("PlayerCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {

@@ -8,7 +8,7 @@ use bevy_rapier2d::prelude::{CollisionEvent, Sensor};
 
 use crate::{
     game::{
-        actors::components::{CharacterColliderTag, ActorMoveState, TeleportStatus},
+        actors::components::{ActorColliderType, ActorMoveState, TeleportStatus},
         game_world::components::{ActorTeleportEvent, Teleporter},
         // game_world::dungeonator::GeneratorStage,
     },
@@ -72,7 +72,7 @@ pub fn teleporter_collisions(
     mut teleport_events: EventWriter<ActorTeleportEvent>,
     mut actors: Query<(Entity, &mut ActorMoveState, &ActorType)>,
     sensors: Query<(Entity, &Teleporter), With<Sensor>>,
-    parents: Query<&Parent, With<CharacterColliderTag>>,
+    parents: Query<&Parent, With<ActorColliderType>>,
 ) {
     // TODO: check TeleportStatus if we are allowed too send this teleport
     // or on the EventReader side, get status and return with warning

@@ -3,17 +3,15 @@ use bevy::{
     prelude::{Component, Deref, DerefMut, Reflect, Timer},
 };
 
-/// tag for character collider
-#[derive(Component)]
-pub struct CharacterColliderTag;
-
-/// tag for combat projectiles
-#[derive(Component)]
-pub struct ProjectileTag;
-
-/// tag for projectile collider
-#[derive(Debug, Component)]
-pub struct ProjectileColliderTag;
+/// collider tag, type of collider
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Reflect, Component, Default)]
+#[reflect(Component)]
+pub enum ActorColliderType {
+    #[default]
+    Character,
+    Object,
+    Projectile,
+}
 
 /// new type for `Timer` for use with bullet lifetimes
 #[derive(Debug, Component, Default, Reflect, Deref, DerefMut)]

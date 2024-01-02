@@ -11,22 +11,18 @@ use rand::{
 
 use self::components::{EnemyContainerTag, EnemySpawner, SpawnActorEvent, SpawnerTimer};
 use crate::{
-    bundles::{CharacterBundle, CharacterColliderBundle, WeaponColliderBundle},
+    bundles::{CharacterBundle, ObjectColliderBundle},
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
-    game::actors::{ai::components::AiType, components::CharacterColliderTag},
+    game::actors::{
+        ai::components::{ActorType, NpcType},
+        components::ActorColliderType,
+    },
     loading::{custom_assets::actor_definitions::CharacterDefinition, registry::ActorRegistry},
-    prelude::game::WeaponColliderTag,
     AppState,
 };
 
-use super::ai::components::{ActorType, NpcType};
-
 /// spawner components
 pub mod components;
-/// fn for enemy's
-// mod spawn_functions_enemy;
-/// fn for weapons
-// mod spawn_functions_weapons;
 
 /// spawner functionality
 pub struct SpawnerPlugin;
@@ -194,8 +190,8 @@ fn spawn_creeps_on_event(
                         let collider_name =
                             format!("{}Collider", bundle_copy.name.clone().as_str());
                         let spawned_enemy = child
-                            .spawn((CharacterColliderBundle {
-                                tag: CharacterColliderTag,
+                            .spawn((ObjectColliderBundle {
+                                tag: ActorColliderType::Character,
                                 name: Name::new(collider_name),
                                 transform_bundle: TransformBundle {
                                     local: (Transform {
@@ -276,8 +272,8 @@ fn spawn_weapon_bundle(
 ) {
     commands.spawn(bundle_copy.clone()).with_children(|child| {
         let collider_name = format!("{}Collider", bundle_copy.name.as_str());
-        child.spawn(WeaponColliderBundle {
-            tag: WeaponColliderTag,
+        child.spawn(ObjectColliderBundle {
+            tag: ActorColliderType::Object,
             name: Name::new(collider_name),
             collider: Collider::capsule(Vec2 { x: 0.0, y: -10.0 }, Vec2 { x: 0.0, y: 10.0 }, 2.0),
             collision_groups: CollisionGroups::new(
