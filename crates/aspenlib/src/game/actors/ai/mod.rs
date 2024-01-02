@@ -25,7 +25,7 @@ use crate::{
     game::actors::ai::components::{
         AIChaseAction, AICombatConfig, AIShootAction, AIShootConfig, AIWanderAction, AIWanderConfig,
     },
-    loading::custom_assets::npc_definition::AiSetupConfig,
+    loading::custom_assets::actor_definitions::AiSetupConfig,
     prelude::game::{AttackScorer, ChaseScorer},
     register_types,
 };

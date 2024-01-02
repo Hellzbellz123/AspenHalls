@@ -18,7 +18,7 @@ use crate::{
             BossArea, HeroSpot, PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect,
         },
     },
-    loading::custom_assets::npc_definition::RegistryIdentifier,
+    loading::registry::RegistryIdentifier,
 };
 
 /// tiles that can collide get this

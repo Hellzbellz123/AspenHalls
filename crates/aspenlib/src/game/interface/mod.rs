@@ -1,4 +1,4 @@
-use crate::{game::AppState, loading::assets::InitAssetHandles};
+use crate::{game::AppState, loading::assets::AspenInitHandles};
 use bevy::{app::AppExit, prelude::*};
 use rand::Rng;
 
@@ -67,7 +67,7 @@ pub struct StartMenu;
 /// spawns start menu with buttons
 fn spawn_start_menu(
     mut cmds: Commands,
-    assets: Res<InitAssetHandles>,
+    assets: Res<AspenInitHandles>,
     interface_root: Query<Entity, With<InterfaceRoot>>,
 ) {
     cmds.entity(interface_root.single())

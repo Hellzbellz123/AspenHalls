@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
-use crate::loading::custom_assets::npc_definition::RegistryIdentifier;
+use crate::loading::registry::RegistryIdentifier;
 
 /// location of hero that player can choose at start of game
 #[derive(Component, Default)]

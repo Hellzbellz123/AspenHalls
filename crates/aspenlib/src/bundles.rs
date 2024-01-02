@@ -2,21 +2,20 @@ use bevy::prelude::Reflect;
 use bevy_asepritesheet::animator::AnimatedSpriteBundle;
 
 use crate::{
+    game::actors::{
+        ai::components::AICombatConfig,
+        attributes_stats::{CharacterStatBundle, ProjectileStats, EquipmentStats},
+        components::{ActorMoveState, CharacterColliderTag, ProjectileColliderTag, ProjectileTag}, combat::components::{WeaponHolder, AttackDamage, WeaponForm, WeaponColliderTag},
+    },
+    loading::{custom_assets::actor_definitions::AiSetupConfig, registry::RegistryIdentifier},
     prelude::{
         engine::{
             Bundle, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction,
-            LockedAxes, Name, Restitution, RigidBody, SpriteBundle,
-            ThinkerBuilder, TransformBundle, Velocity,
+            LockedAxes, Name, Restitution, RigidBody, SpriteBundle, ThinkerBuilder,
+            TransformBundle, Velocity,
         },
-        game::{
-            AIShootConfig, AIWanderConfig, ActorType,
-            TimeToLive,
-        },
+        game::{AIShootConfig, AIWanderConfig, ActorType, TimeToLive},
     },
-    game::actors::{
-        ai::components::AICombatConfig,
-        components::{ActorMoveState, ProjectileTag, ProjectileColliderTag, CharacterColliderTag}, attributes_stats::{CharacterStatBundle, ProjectileStats},
-    }, loading::custom_assets::npc_definition::{AiSetupConfig, RegistryIdentifier},
 };
 
 /// bundle used too spawn "actors"
@@ -40,27 +39,33 @@ pub struct CharacterBundle {
     /// actor collisions and movement
     #[reflect(ignore)]
     pub rigidbody_bundle: RigidBodyBundle,
-    // /// animation state
-    // pub animation_state: AnimState,
-    // /// sprite sheet bundle old
-    // pub sprite: SpriteBundle,
-    // /// available animations
-    // pub available_animations: AnimationSheet,
 }
 
-/// collider bundle for actors
-#[derive(Bundle)]
-pub struct CharacterColliderBundle {
-    /// name of collider
+// TODO: rename too ObjectBundle
+// make ObjectType hold the important bits
+/// bundle for spawning weapons
+#[derive(Bundle, Reflect, Clone)]
+pub struct WeaponBundle {
+    /// weapon name
     pub name: Name,
-    /// location of collider
-    pub transform_bundle: TransformBundle,
-    /// collider shape
-    pub collider: Collider,
-    /// collision groups
-    pub collision_groups: CollisionGroups,
-    /// tag
-    pub tag: CharacterColliderTag,
+    /// accesor for weapon definition
+    pub identifier: RegistryIdentifier,
+    /// weapon stored slot
+    pub holder: WeaponHolder,
+    /// weapons function when used
+    pub damage: AttackDamage,
+    /// how this weapon attacks, along with data for attack
+    pub weapon_type: WeaponForm,
+    /// stats applied too holder
+    pub stats: EquipmentStats,
+    /// sprite for weapon
+    #[reflect(ignore)]
+    pub sprite: AnimatedSpriteBundle,
+    /// weapon physics
+    #[reflect(ignore)]
+    pub rigidbody_bundle: RigidBodyBundle,
+    // /// weapon stats
+    // pub weapon_stats: WeaponStats,
 }
 
 /// bundle too spawn projectiles
@@ -78,6 +83,36 @@ pub struct ProjectileBundle {
     pub rigidbody_bundle: RigidBodyBundle,
     /// tag
     pub tag: ProjectileTag,
+}
+
+/// collider bundle for actors
+#[derive(Bundle)]
+pub struct CharacterColliderBundle {
+    /// name of collider
+    pub name: Name,
+    /// location of collider
+    pub transform_bundle: TransformBundle,
+    /// collider shape
+    pub collider: Collider,
+    /// collision groups
+    pub collision_groups: CollisionGroups,
+    /// tag
+    pub tag: CharacterColliderTag,
+}
+
+/// weapon collider
+#[derive(Bundle)]
+pub struct WeaponColliderBundle {
+    /// collider name
+    pub name: Name,
+    /// collider tag
+    pub tag: WeaponColliderTag,
+    /// collider shape
+    pub collider: Collider,
+    /// collision groups
+    pub collision_groups: CollisionGroups,
+    /// collider transform
+    pub transform_bundle: TransformBundle,
 }
 
 /// bundle for projectile colliders
@@ -109,22 +144,6 @@ pub struct StupidAiBundle {
     /// chooses action
     pub thinker: ThinkerBuilder,
 }
-
-// /// all attributes actor can possess
-// #[derive(Bundle, Default, Debug, Clone)]
-// pub struct ActorAttributesBundle {
-//     /// derived from attributes, working stats
-//     combat_stat: ActorCombatStats,
-//     /// base stats, buffed from equipment
-//     primary: ActorPrimaryAttributes,
-//     /// secondary stats, buffed from primary
-//     secondary: ActorSecondaryAttributes,
-//     /// buffed from primary and equipment
-//     tertiary: ActorTertiaryAttributes,
-//     /// final attribute values
-//     /// used for most calculations
-//     derived: ActorDerivedAttributes,
-// }
 
 /// bundle for collisions and movement
 /// REQUIRES child collider too work properly
@@ -164,5 +183,19 @@ impl RigidBodyBundle {
 impl Default for RigidBodyBundle {
     fn default() -> Self {
         Self::ENEMY
+    }
+}
+
+impl std::fmt::Debug for WeaponBundle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("WeaponBundle")
+            .field("name", &self.name)
+            .field("holder", &self.holder)
+            .field("damage", &self.damage)
+            .field("weapon_type", &self.weapon_type)
+            .field("stats", &self.stats)
+            .field("sprite", &self.sprite.spritesheet)
+            .field("rigidbody_bundle", &self.rigidbody_bundle.rigidbody)
+            .finish()
     }
 }

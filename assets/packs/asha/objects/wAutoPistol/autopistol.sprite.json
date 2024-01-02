@@ -1,0 +1,121 @@
+{ "frames": [
+   {
+    "filename": "wiggle_0",
+    "frame": { "x": 39, "y": 35, "w": 32, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 15, "y": 18, "w": 32, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "idle_1",
+    "frame": { "x": 0, "y": 53, "w": 32, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 32, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "wiggle_2",
+    "frame": { "x": 81, "y": 27, "w": 33, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 14, "y": 17, "w": 33, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "fire_3",
+    "frame": { "x": 0, "y": 26, "w": 39, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 39, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "fire_4",
+    "frame": { "x": 0, "y": 0, "w": 47, "h": 26 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 19, "w": 47, "h": 26 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "fire_5",
+    "frame": { "x": 81, "y": 0, "w": 44, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 19, "w": 44, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "reload_6",
+    "frame": { "x": 0, "y": 53, "w": 32, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 32, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "reload_7",
+    "frame": { "x": 47, "y": 0, "w": 34, "h": 35 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 34, "h": 35 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "reload_8",
+    "frame": { "x": 71, "y": 54, "w": 32, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 32, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "reload_9",
+    "frame": { "x": 103, "y": 54, "w": 32, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 32, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "reload_10",
+    "frame": { "x": 0, "y": 53, "w": 32, "h": 27 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 16, "y": 18, "w": 32, "h": 27 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.x-dev",
+  "image": "autopistol.png",
+  "format": "RGBA8888",
+  "size": { "w": 135, "h": 81 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "wiggle", "from": 0, "to": 2, "direction": "forward", "color": "#000000ff" },
+   { "name": "idle", "from": 1, "to": 1, "direction": "forward", "color": "#000000ff" },
+   { "name": "fire", "from": 3, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "reload", "from": 6, "to": 10, "direction": "forward", "color": "#000000ff" }
+  ],
+  "layers": [
+   { "name": "Layer", "opacity": 255, "blendMode": "normal" }
+  ],
+  "slices": [
+  ]
+ }
+}

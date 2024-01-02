@@ -16,7 +16,7 @@ use crate::{
         },
         input::action_maps::PlayerBundle,
     },
-    loading::custom_assets::npc_definition::{CharacterDefinition, RegistryIdentifier},
+    loading::{custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier},
     AppState,
 };
 

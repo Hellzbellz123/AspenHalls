@@ -101,7 +101,7 @@ fn splash_setup(
     // mut images: ResMut<Assets<Image>>,
     // window: Query<&Window>,
     mut commands: Commands,
-    init_assets: Res<InitAssetHandles>,
+    init_assets: Res<AspenInitHandles>,
 ) {
     info!("loading splash");
     // let window = window.single();

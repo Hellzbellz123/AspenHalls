@@ -18,7 +18,7 @@ use crate::{
     prelude::game::{action_maps, ActorType, SpawnActorEvent},
     consts::TILE_SIZE,
     game::{actors::components::ActorMoveState, game_world::dungeonator_v2::components::*},
-    loading::{assets::MapAssetHandles, custom_assets::npc_definition::RegistryIdentifier},
+    loading::{assets::AspenMapHandles, registry::RegistryIdentifier},
     AppState,
 };
 
@@ -55,7 +55,7 @@ impl Plugin for DungeonGeneratorPlugin {
             Update,
             (
                 generate_room_database.run_if(
-                    resource_exists::<MapAssetHandles>().and_then(
+                    resource_exists::<AspenMapHandles>().and_then(
                         resource_changed::<Assets<LdtkExternalLevel>>()
                             .or_else(resource_changed::<Assets<LdtkProject>>()),
                     ),
@@ -99,7 +99,7 @@ fn listen_rebuild_dungeon_request(
 }
 
 /// spawns dungeon root
-fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<MapAssetHandles>) {
+fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<AspenMapHandles>) {
     info!("spawning dungeon container");
     cmds.spawn((DungeonContainerBundle {
         tag: DungeonContainerTag,
@@ -132,7 +132,7 @@ fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<MapAssetHand
 /// dungeons are filtered into vecs based on level custom data
 fn generate_room_database(
     mut cmds: Commands,
-    map_projects: Res<MapAssetHandles>,
+    map_projects: Res<AspenMapHandles>,
     ldtk_project_assets: Res<Assets<LdtkProject>>,
     level_assets: Res<Assets<LdtkExternalLevel>>,
 ) {

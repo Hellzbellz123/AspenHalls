@@ -1,14 +1,13 @@
-// custom background shader asset for tiled single image
-// pub mod background_shader;
-
-pub mod npc_definition;
-
 use bevy::app::Plugin;
+use crate::loading::custom_assets::actor_definitions::ActorAssetPlugin;
+
+pub mod actor_definitions;
 
 /// handles initialization of all custom assets
-pub struct AspenAssetsPlugin;
+pub struct AspenCustomAssetsPlugin;
 
-impl Plugin for AspenAssetsPlugin {
-    fn build(&self, _app: &mut bevy::prelude::App) {
+impl Plugin for AspenCustomAssetsPlugin {
+    fn build(&self, app: &mut bevy::prelude::App) {
+        app.add_plugins(ActorAssetPlugin);
     }
 }

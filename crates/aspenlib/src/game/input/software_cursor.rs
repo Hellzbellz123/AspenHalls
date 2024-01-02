@@ -14,7 +14,7 @@ use crate::prelude::{
         bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
         IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
     },
-    game::{action_maps, AppState, InitAssetHandles},
+    game::{action_maps, AppState, AspenInitHandles},
 };
 
 use super::AspenInputSystemSet;
@@ -57,7 +57,7 @@ pub struct SoftWareCursor {
 
 /// creates software cursor entity
 /// image selected from `init_resources.custom_cursor` ?
-fn spawn_software_cursor(mut cmds: Commands, tex: Res<InitAssetHandles>) {
+fn spawn_software_cursor(mut cmds: Commands, tex: Res<AspenInitHandles>) {
     cmds.spawn((
         Name::new("SoftwareCursor"),
         SoftWareCursor {

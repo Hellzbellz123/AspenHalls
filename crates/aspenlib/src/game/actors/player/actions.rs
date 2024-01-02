@@ -1,7 +1,7 @@
 use bevy_rapier2d::geometry::{Collider, CollisionGroups};
 
 use crate::{
-    game::actors::combat::components::{AttackDamage, WeaponColliderBundle, WeaponForm},
+    game::actors::combat::components::{AttackDamage, WeaponForm},
     prelude::{
         engine::{
             debug, info, warn, ActionState, BuildChildren, Commands, Entity, Event, EventWriter,
@@ -12,7 +12,7 @@ use crate::{
             action_maps, ActorType, CurrentlyDrawnWeapon, NpcType, SpawnActorEvent,
             WeaponColliderTag, WeaponHolder, WeaponSlots, WeaponSocket, TILE_SIZE,
         },
-    }, loading::custom_assets::npc_definition::RegistryIdentifier,
+    }, loading::registry::RegistryIdentifier, bundles::WeaponColliderBundle,
 };
 
 /// spawns skeleton near player if `Gameplay::DebugF1` is pressed

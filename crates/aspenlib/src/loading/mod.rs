@@ -6,8 +6,11 @@ pub mod config;
 pub mod custom_assets;
 /// splashscreen functions
 pub mod splashscreen;
+/// registry data
+pub mod registry;
 
-use crate::{prelude::{engine::*, game::*}, loading::custom_assets::npc_definition::ActorRegistryPlugin};
+use crate::prelude::{engine::*, game::*};
+
 /// This plugin loads all assets using [`AssetLoader`] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html/>
@@ -18,13 +21,16 @@ impl Plugin for AppAssetLoadingPlugin {
     // this can probably reside in the config file, the native launcher should be used too select packs
     // mobile and web platforms will not make use of packs at this moment
     fn build(&self, app: &mut App) {
-        info!("asset loader init");
+        app.add_plugins(custom_assets::AspenCustomAssetsPlugin);
+        app.add_plugins(registry::RegistryPlugin);
+
         // TODO:
         // make the pack plugin, using bevy_asset_loader and bevy_common_assets
+
         app.add_loading_state(
             LoadingState::new(AppState::BootingApp)
-                .load_collection::<InitAssetHandles>()
-                .load_collection::<TouchControlAssetHandles>()
+                .load_collection::<AspenInitHandles>()
+                .load_collection::<AspenTouchHandles>()
                 .set_standard_dynamic_asset_collection_file_endings(["registry"].to_vec())
                 .with_dynamic_assets_file::<StandardDynamicAssetCollection>("init/pack.registry")
                 .continue_to_state(AppState::Loading)
@@ -38,10 +44,9 @@ impl Plugin for AppAssetLoadingPlugin {
                 .with_dynamic_assets_file::<StandardDynamicAssetCollection>(
                     "packs/asha/pack.registry",
                 )
-                .load_collection::<ActorTextureHandles>()
-                .load_collection::<MapAssetHandles>()
-                .load_collection::<SingleTileTextureHandles>(),
+                .load_collection::<AspenDefinitionHandles>()
+                .load_collection::<AspenMapHandles>()
+                .load_collection::<AspenTextureHandles>(),
         );
-        app.add_plugins(ActorRegistryPlugin);
     }
 }

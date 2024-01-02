@@ -18,8 +18,7 @@ use crate::{
         input::action_maps,
         AppState,
     },
-    loading::assets::ActorTextureHandles,
-    prelude::engine,
+    prelude::{engine, game::AspenInitHandles},
 };
 
 /// different attacks that can exist in the game
@@ -155,35 +154,33 @@ fn flip_weapon_sprites(
 /// keeps all weapons centered too parented entity
 #[allow(clippy::type_complexity)]
 fn equipped_weapon_positioning(
+    children: Query<&Children>,
     // actors that can equip weapons
-    weapon_carrying_actors: Query<(&Velocity, &WeaponSocket, Entity)>,
+    characters: Query<Entity, With<WeaponSocket>>,
     mut weapon_query: Query<
         // all weapons equipped too entity
-        (&WeaponHolder, &mut Transform, &mut Velocity),
-        (With<Parent>, Without<WeaponSocket>),
+        (&mut Transform, &mut Velocity),
+        (With<WeaponHolder>, Without<WeaponSocket>),
     >,
 ) {
-    if weapon_query.is_empty() || weapon_carrying_actors.is_empty() {
-        return;
-    }
-
-    // TODO: iter children, equipped weapon is child
-    for (animation_state, weapon_socket, weapon_carrier) in &weapon_carrying_actors {
-        if weapon_socket.drawn_slot.is_none() {}
-        for (weapon_holder, mut weapon_transform, mut weapon_velocity) in &mut weapon_query {
-            weapon_velocity.linvel = Vec2::ZERO;
-            weapon_velocity.angvel = 0.0;
-
-            if weapon_holder.is_some_and(|holder| holder.0 == weapon_carrier) {
-                // modify weapon sprite to be below player when facing up, this
-                // still looks strange but looks better than a back mounted smg
+    for character in &characters {
+        children.iter_descendants(character).for_each(|f| {
+            if let Ok((mut weapon_transform, mut weapon_velocity)) =
+                weapon_query.get_mut(f)
+            {
+                if weapon_velocity.linvel != Vec2::ZERO {
+                    weapon_velocity.linvel = Vec2::ZERO;
+                }
+                if weapon_velocity.angvel != 0.0 {
+                    weapon_velocity.angvel = 0.0;
+                }
                 weapon_transform.translation = Vec3 {
                     x: 0.0,
-                    y: 15.0,
+                    y: 12.0,
                     z: 1.0,
                 }
             }
-        }
+        });
     }
 }
 
@@ -346,7 +343,7 @@ fn update_player_equipped_weapon(
 pub fn receive_shoot_weapon(
     mut cmds: Commands,
     time: Res<Time>,
-    assets: ResMut<ActorTextureHandles>,
+    assets: Res<AspenInitHandles>,
     mut firing_timer: ResMut<WeaponFiringTimer>,
     mut attack_event_reader: EventReader<ShootEvent>,
     weapon_query: Query<

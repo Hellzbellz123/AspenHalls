@@ -2,7 +2,7 @@ use bevy::math::Vec2;
 use bevy_console::ConsoleCommand;
 use clap::{Error, Parser};
 
-use crate::loading::custom_assets::npc_definition::RegistryIdentifier;
+use crate::loading::registry::RegistryIdentifier;
 
 ///  spawns requested actor amount of times
 #[derive(Debug, ConsoleCommand, Parser)]

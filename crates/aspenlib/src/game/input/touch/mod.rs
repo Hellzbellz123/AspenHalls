@@ -12,7 +12,7 @@ use super::{
 };
 use crate::{
     game::{interface::InterfaceRoot, AppState},
-    loading::assets::{InitAssetHandles, TouchControlAssetHandles},
+    loading::assets::{AspenInitHandles, AspenTouchHandles},
 };
 
 // TODO: handle controllers on mobile properly
@@ -72,8 +72,8 @@ pub enum TouchStickBinding {
 fn spawn_touch_controls(
     mut cmds: Commands,
     touch_root_query: Query<Entity, With<InterfaceRoot>>,
-    init_handles: Res<InitAssetHandles>,
-    touch_assets: Res<TouchControlAssetHandles>,
+    init_handles: Res<AspenInitHandles>,
+    touch_assets: Res<AspenTouchHandles>,
 ) {
     cmds.entity(touch_root_query.single())
         .with_children(|ui_root_children| {
@@ -150,7 +150,7 @@ fn spawn_touch_controls(
 /// takes button size, button name, button position and button id (just a component for querying)
 fn spawn_controlsbutton<S: Component>(
     touch_controls_builder: &mut ChildBuilder<'_, '_, '_>,
-    init_handles: Res<'_, InitAssetHandles>,
+    init_handles: Res<'_, AspenInitHandles>,
     name: String,
     position: UiRect,
     size: (Val, Val),
@@ -218,7 +218,7 @@ fn spawn_touchstick<
     S: Hash + Sync + Send + Clone + Default + Reflect + FromReflect + TypePath + 'static,
 >(
     touch_controls_builder: &mut ChildBuilder<'_, '_, '_>,
-    touch_assets: &Res<'_, TouchControlAssetHandles>,
+    touch_assets: &Res<'_, AspenTouchHandles>,
     name: String,
     position: UiRect,
     size: (Val, Val),

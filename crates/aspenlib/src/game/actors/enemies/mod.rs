@@ -20,7 +20,7 @@ use crate::{
         attributes_stats::{Damage, ElementalEffect, PhysicalDamage, ProjectileStats},
         components::TimeToLive,
     },
-    loading::assets::ActorTextureHandles,
+    loading::assets::AspenInitHandles,
     prelude::{engine, game::action_maps},
     AppState,
 };
@@ -48,7 +48,7 @@ pub struct ShootTimer(pub Timer);
 pub fn enemy_can_shoot_check(
     mut cmds: Commands,
     time: Res<Time>,
-    assets: ResMut<ActorTextureHandles>,
+    assets: Res<AspenInitHandles>,
     player_query: Query<&Transform, With<engine::ActionState<action_maps::Gameplay>>>,
     mut enemy_query: Query<
         (&Transform, &mut AIShootConfig),
@@ -71,7 +71,7 @@ pub fn enemy_can_shoot_check(
             if ai_attack_state.timer.tick(time.delta()).finished() {
                 spawn_enemy_projectile(
                     &mut cmds,
-                    assets.bevy_icon.clone(),
+                    assets.img_favicon.clone(),
                     direction,
                     modified_spawn_location,
                 );

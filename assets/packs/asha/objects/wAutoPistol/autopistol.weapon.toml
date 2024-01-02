@@ -1,8 +1,8 @@
-[damage]
+[object_type.Weapon.damage]
 physical = 1.0
 elemental = "None"
 
-[weapon_type.Gun]
+[object_type.Weapon.form.Gun]
 projectile_speed = 5.0
 projectile_size = 5.0
 barrel_end = [20.0, 0.0]
@@ -13,8 +13,8 @@ fire_rate = 0.77
 [actor]
 name = "Auto Pistol"
 identifier = "autopistol"
-aseprite_path = "AutoPistol.png"
-pixel_size =  [32.0, 32.0]
+aseprite_path = "autopistol.sprite.json"
+pixel_size =  [10.0, 10.0]
 
 [actor.stats]
 max_hp = 10

@@ -3,7 +3,7 @@ use crate::prelude::{
         bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image, NonSend, Query, Res, Window,
         With,
     },
-    game::InitAssetHandles,
+    game::AspenInitHandles,
 };
 
 use bevy::{
@@ -23,7 +23,7 @@ use winit::window::Icon;
 /// will panic if it cant find a window to attach icons, or the icon is not present
 pub fn set_window_icon(
     window_query: Query<Entity, &Window>,
-    init_assets: Res<InitAssetHandles>,
+    init_assets: Res<AspenInitHandles>,
     image_assets: Res<Assets<Image>>,
     // we have to use `NonSend` here
     windows: NonSend<bevy::winit::WinitWindows>,

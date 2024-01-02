@@ -1,16 +1,29 @@
 use bevy::{
     app::Update,
-    ecs::{query::Changed, system::Query},
+    asset::{Assets, Handle},
+    ecs::{
+        query::{Changed, With},
+        system::{Query, Res},
+    },
+    log::info,
+    math::Vec2,
+    prelude::{state_exists_and_equals, warn, IntoSystemConfigs},
+    sprite::{TextureAtlas, TextureAtlasSprite},
 };
 use bevy_rapier2d::dynamics::Velocity;
 
 use crate::{
-    prelude::engine::{App, Plugin},
     consts::{MIN_VELOCITY, WALK_MODIFIER},
     game::actors::{
-        attributes_stats::CharacterStats,
+        attributes_stats::{CharacterStats, EquipmentStats},
         components::{ActorMoveState, CurrentMovement},
     },
+    loading::{
+        custom_assets::actor_definitions::{CharacterDefinition, ObjectDefinition},
+        registry::RegistryIdentifier,
+    },
+    prelude::engine::{App, Plugin},
+    AppState,
 };
 
 /// all functionality for artificial intelligence on actors is stored here
@@ -46,12 +59,16 @@ impl Plugin for ActorPlugin {
                 enemies::EnemyPlugin,
                 ai::AIPlugin,
             ))
-            .add_systems(Update, update_actor_move_status);
+            .add_systems(
+                Update,
+                (update_character_move_status, update_character_size)
+                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+            );
     }
 }
 
 /// updates actors move status component based on actors velocity and speed attribute
-fn update_actor_move_status(
+fn update_character_move_status(
     mut actor_query: Query<(&mut ActorMoveState, &Velocity, &CharacterStats), Changed<Velocity>>,
 ) {
     for (mut move_state, velocity, stats) in &mut actor_query {
@@ -73,4 +90,76 @@ fn update_actor_move_status(
             return;
         }
     }
+}
+
+fn update_character_size(
+    mut query: Query<(
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+        &RegistryIdentifier,
+    )>,
+    texture_atlass: Res<Assets<TextureAtlas>>,
+    obje_assets: Res<Assets<ObjectDefinition>>,
+    char_assets: Res<Assets<CharacterDefinition>>,
+) {
+    for (mut sprite, texture_atlas, registry_identifier) in &mut query {
+        if sprite.custom_size.is_some() {
+            continue;
+        }
+
+        let atlas = texture_atlass
+            .get(texture_atlas)
+            .expect("texture for this spritesheet is missing");
+        let original_size = atlas.textures.first().expect("no textures in atlas").size();
+        let aspect_ratio = original_size.x / original_size.y;
+
+        info!(
+            "image size: {}, aspect ratio: {}",
+            original_size, aspect_ratio
+        );
+
+        let final_size: Vec2 = {
+            let maybe_characer = char_assets
+                .iter()
+                .find(|(_, asset)| asset.actor.identifier == *registry_identifier);
+            let maybe_object = obje_assets
+                .iter()
+                .find(|(_, asset)| asset.actor.identifier == *registry_identifier);
+
+            if let Some((_, def)) = maybe_characer {
+                def.actor.pixel_size
+            } else if let Some((_, def)) = maybe_object {
+                def.actor.pixel_size
+            } else {
+                warn!("character has no asset");
+                return;
+            }
+        };
+
+        let new_custom_size = scale_to_fit(original_size, final_size);
+
+        info!(
+            "target size: {}, new_custom_size: {}",
+            final_size, new_custom_size
+        );
+        sprite.custom_size = Some(new_custom_size)
+    }
+}
+
+fn scale_to_fit(current: Vec2, final_size: Vec2) -> Vec2 {
+    // Calculate scaling factors for both dimensions
+    let scale_x = final_size.x / current.x;
+    let scale_y = final_size.y / current.y;
+
+    // Use the minimum scaling factor to maintain aspect ratio
+    let min_scale = scale_x.min(scale_y);
+
+    // Scale the Vec2
+    let scaled_vec = Vec2 {
+        x: current.x * min_scale,
+        y: current.y * min_scale,
+    };
+
+    // Return the scaled Vec2
+    scaled_vec
 }

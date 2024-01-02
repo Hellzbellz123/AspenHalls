@@ -10,7 +10,7 @@ use crate::{
         actors::components::{ActorMoveState, CurrentMovement},
         AppState,
     },
-    loading::assets::AudioHandles,
+    loading::assets::AspenAudioHandles,
     loading::config::SoundSettings,
     utilities::state_exists_and_entered,
 };
@@ -64,7 +64,7 @@ impl Plugin for InternalAudioPlugin {
                 actor_footstep_sound_system.run_if(state_exists_and_equals(AppState::PlayingGame)),
                 play_background_audio.run_if(run_once()),
             )
-                .run_if(resource_exists::<AudioHandles>()),
+                .run_if(resource_exists::<AspenAudioHandles>()),
         );
         // .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
     }
@@ -85,7 +85,7 @@ fn setup_sound_volume(
 
 /// play game soundtrack
 fn play_background_audio(
-    audio_assets: Res<AudioHandles>,
+    audio_assets: Res<AspenAudioHandles>,
     audio: Res<AudioChannel<MusicSoundChannel>>,
 ) {
     audio.play(audio_assets.game_soundtrack.clone()).looped();
@@ -95,7 +95,7 @@ use crate::prelude::engine::AudioEmitter;
 
 /// applies sound data mapps and a spacial emitter for actors that dont already have emitters
 fn prepare_actor_spatial_sound(
-    audio: Res<AudioHandles>,
+    audio: Res<AspenAudioHandles>,
     mut cmds: Commands,
     actors: Query<Entity, (With<ActorMoveState>, Without<AudioEmitter>)>,
 ) {

@@ -10,7 +10,7 @@ use crate::{
         components::{ProjectileColliderTag, ProjectileTag, TimeToLive},
         player::actions::ShootEvent,
     },
-    loading::assets::ActorTextureHandles,
+    prelude::game::AspenInitHandles,
 };
 
 // TODO: handle attacks as an event
@@ -23,7 +23,7 @@ use crate::{
 /// creates player bullet
 pub fn create_bullet(
     cmds: &mut Commands,
-    assets: &ResMut<ActorTextureHandles>,
+    assets: &Res<AspenInitHandles>,
     event: &ShootEvent,
     weapon_stats: &WeaponForm,
     weapon_damage: &AttackDamage,
@@ -54,7 +54,7 @@ pub fn create_bullet(
             },
             ttl: TimeToLive(Timer::from_seconds(2.0, TimerMode::Repeating)),
             sprite_bundle: SpriteBundle {
-                texture: assets.bevy_icon.clone(),
+                texture: assets.img_favicon.clone(),
                 transform: Transform::from_translation(
                     event.bullet_spawn_loc.extend(ACTOR_Z_INDEX), //- Vec3 { x: 0.0, y: -5.0, z: 0.0 },
                 ),

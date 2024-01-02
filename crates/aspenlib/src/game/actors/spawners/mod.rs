@@ -11,15 +11,10 @@ use rand::{
 
 use self::components::{EnemyContainerTag, EnemySpawner, SpawnActorEvent, SpawnerTimer};
 use crate::{
-    bundles::{CharacterBundle, CharacterColliderBundle},
+    bundles::{CharacterBundle, CharacterColliderBundle, WeaponColliderBundle},
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
-    game::actors::{
-        ai::components::AiType, combat::components::WeaponColliderBundle,
-        components::CharacterColliderTag,
-    },
-    loading::config::DifficultyScales,
-    // game::actors::spawners::components::{EnemyType, WeaponType},
-    loading::custom_assets::npc_definition::{ActorRegistry, CharacterDefinition},
+    game::actors::{ai::components::AiType, components::CharacterColliderTag},
+    loading::{custom_assets::actor_definitions::CharacterDefinition, registry::ActorRegistry},
     prelude::game::WeaponColliderTag,
     AppState,
 };
@@ -198,26 +193,28 @@ fn spawn_creeps_on_event(
                     f.spawn(bundle_copy.clone()).with_children(|child| {
                         let collider_name =
                             format!("{}Collider", bundle_copy.name.clone().as_str());
-                        let spawned_enemy = child.spawn((CharacterColliderBundle {
-                            tag: CharacterColliderTag,
-                            name: Name::new(collider_name),
-                            transform_bundle: TransformBundle {
-                                local: (Transform {
-                                    translation: (Vec3 {
-                                        x: 0.0,
-                                        y: 0.0,
-                                        z: ACTOR_PHYSICS_Z_INDEX,
+                        let spawned_enemy = child
+                            .spawn((CharacterColliderBundle {
+                                tag: CharacterColliderTag,
+                                name: Name::new(collider_name),
+                                transform_bundle: TransformBundle {
+                                    local: (Transform {
+                                        translation: (Vec3 {
+                                            x: 0.0,
+                                            y: 0.0,
+                                            z: ACTOR_PHYSICS_Z_INDEX,
+                                        }),
+                                        ..default()
                                     }),
                                     ..default()
-                                }),
-                                ..default()
-                            },
-                            collider: actor_collider(char_def.actor.pixel_size),
-                            collision_groups: CollisionGroups {
-                                memberships: AspenCollisionLayer::ACTOR,
-                                filters: AspenCollisionLayer::EVERYTHING,
-                            },
-                        },)).id();
+                                },
+                                collider: actor_collider(char_def.actor.pixel_size),
+                                collision_groups: CollisionGroups {
+                                    memberships: AspenCollisionLayer::ACTOR,
+                                    filters: AspenCollisionLayer::EVERYTHING,
+                                },
+                            },))
+                            .id();
 
                         if let Some(ent) = event.who_spawned {
                             if let Ok(mut spawner_state) = enemy_spawners.get_mut(ent) {
@@ -243,7 +240,7 @@ fn spawn_weapon_on_event(
 
         let spawn_count = if event.spawn_count > 100 {
             warn!(
-                "too many {:?} spawns requested, will likely panic, aborting",
+                "too many {:?} spawns requested, using 20 instead",
                 event.actor_type
             );
             20
@@ -257,41 +254,48 @@ fn spawn_weapon_on_event(
         );
 
         let Some(weapon_bundle) = registry.objects.weapons.get(&event.what_to_spawn) else {
-            panic!("requested weapon did not exist in weapon registry")
+            panic!(
+                "requested weapon did not exist in weapon registry: {:?}",
+                event.what_to_spawn
+            )
         };
-        let mut bundle_copy = weapon_bundle.clone();
-        bundle_copy.sprite.transform =
+        let mut modified_weapon_ref = weapon_bundle.clone();
+        modified_weapon_ref.sprite.sprite_bundle.transform =
             Transform::from_translation(event.spawn_position.extend(ACTOR_Z_INDEX));
 
         for _spawn in 0..spawn_count {
-            commands.spawn(bundle_copy.clone()).with_children(|child| {
-                let collider_name = format!("{}Collider", bundle_copy.name.clone().as_str());
-                child.spawn(WeaponColliderBundle {
-                    tag: WeaponColliderTag,
-                    name: Name::new(collider_name),
-                    collider: Collider::capsule(
-                        Vec2 { x: 0.0, y: -10.0 },
-                        Vec2 { x: 0.0, y: 10.0 },
-                        2.0,
-                    ),
-                    collision_groups: CollisionGroups::new(
-                        AspenCollisionLayer::ACTOR,
-                        AspenCollisionLayer::EVERYTHING,
-                    ),
-                    transform_bundle: TransformBundle {
-                        local: Transform {
-                            translation: Vec3 {
-                                x: -2.25,
-                                y: -2.525,
-                                z: ACTOR_PHYSICS_Z_INDEX,
-                            },
-                            rotation: Quat::IDENTITY,
-                            scale: Vec3::ONE,
-                        },
-                        global: GlobalTransform::IDENTITY,
-                    },
-                });
-            });
+            spawn_weapon_bundle(&mut commands, &modified_weapon_ref);
         }
     }
+}
+
+/// spawns weapon in ecs world with child collider
+fn spawn_weapon_bundle(
+    commands: &mut Commands<'_, '_>,
+    bundle_copy: &crate::bundles::WeaponBundle,
+) {
+    commands.spawn(bundle_copy.clone()).with_children(|child| {
+        let collider_name = format!("{}Collider", bundle_copy.name.as_str());
+        child.spawn(WeaponColliderBundle {
+            tag: WeaponColliderTag,
+            name: Name::new(collider_name),
+            collider: Collider::capsule(Vec2 { x: 0.0, y: -10.0 }, Vec2 { x: 0.0, y: 10.0 }, 2.0),
+            collision_groups: CollisionGroups::new(
+                AspenCollisionLayer::ACTOR,
+                AspenCollisionLayer::EVERYTHING,
+            ),
+            transform_bundle: TransformBundle {
+                local: Transform {
+                    translation: Vec3 {
+                        x: -2.25,
+                        y: -2.525,
+                        z: ACTOR_PHYSICS_Z_INDEX,
+                    },
+                    rotation: Quat::IDENTITY,
+                    scale: Vec3::ONE,
+                },
+                global: GlobalTransform::IDENTITY,
+            },
+        });
+    });
 }

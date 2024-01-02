@@ -1,19 +1,14 @@
 use bevy::{
-    asset::Handle, ecs::system::Resource, reflect::TypeUuid, render::texture::Image,
-    sprite::TextureAtlas, text::Font,
+    asset::Handle, ecs::system::Resource, render::texture::Image, text::Font, prelude::Reflect,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;
 
+use crate::loading::custom_assets::actor_definitions::{CharacterDefinition, ObjectDefinition};
+
 /// ui textures
-#[derive(AssetCollection, Resource, Clone)]
-pub struct InitAssetHandles {
-    // /// global style sheet
-    // #[asset(key = "global_style")]
-    // pub global_style_sheet: Handle<StyleSheet>,
-    // /// style sheet for game menus
-    // #[asset(key = "menu_style")]
-    // pub menu_style_sheet: Handle<StyleSheet>,
+#[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
+pub struct AspenInitHandles {
     /// game icon
     #[asset(key = "favicon")]
     pub img_favicon: Handle<Image>,
@@ -45,8 +40,8 @@ pub struct InitAssetHandles {
 }
 
 /// asset handles for touch controls UI
-#[derive(AssetCollection, Resource, Debug)]
-pub struct TouchControlAssetHandles {
+#[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
+pub struct AspenTouchHandles {
     /// knob with arrows
     #[asset(key = "knob_arrows")]
     pub knob_arrows: Handle<Image>,
@@ -59,14 +54,11 @@ pub struct TouchControlAssetHandles {
     /// knob container without arrows
     #[asset(key = "outline_no_arrows")]
     pub outline_no_arrows: Handle<Image>,
-    // interact button image handle
-    // #[asset(key = "interact_button")]
-    // pub interact_button: Handle<Image>,
 }
 
 /// audio resource available
-#[derive(AssetCollection, Resource, Debug)]
-pub struct AudioHandles {
+#[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
+pub struct AspenAudioHandles {
     /// looping background soundtrack
     #[asset(key = "ost")]
     pub game_soundtrack: Handle<bevy_kira_audio::AudioSource>,
@@ -74,46 +66,21 @@ pub struct AudioHandles {
     #[asset(key = "footsteps", collection(typed))]
     pub footsteps: Vec<Handle<bevy_kira_audio::AudioSource>>,
 }
-/// Actor Textures
-#[derive(AssetCollection, Resource, Clone)]
-pub struct ActorTextureHandles {
-    /// player character 1 texture handle
-    #[asset(key = "hero_rex")]
-    pub rex_sheet: Handle<TextureAtlas>,
-    /// skeleton enemy asset
-    #[asset(key = "skeleton")]
-    pub skeleton_sheet: Handle<TextureAtlas>,
-
-    /// slime enemy asset
-    #[asset(key = "slime")]
-    pub slime_sheet: Handle<TextureAtlas>,
-
-    /// first weapon, small smg
-    #[asset(key = "small_smg")]
-    pub small_smg: Handle<TextureAtlas>,
-
-    /// second weapon a small pistol
-    #[asset(key = "small_pistol")]
-    pub small_pistol: Handle<TextureAtlas>,
-
-    /// bevy icon
-    #[asset(key = "bevy_icon")]
-    pub bevy_icon: Handle<Image>,
-}
 
 /// map asset handle
-#[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
-#[uuid = "a8923dfa-1245-1ab2-901b-129264012320"]
-pub struct MapAssetHandles {
+#[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
+pub struct AspenMapHandles {
     /// dungeons
     #[asset(key = "default_levels")]
     pub default_levels: Handle<LdtkProject>,
 }
 
 /// miscellaneous texture asset handles for tiles
-#[derive(AssetCollection, Resource, Clone, Debug, TypeUuid)]
-#[uuid = "c904a07a-9d11-4a5b-91e3-c6ee60db599a"]
-pub struct SingleTileTextureHandles {
+#[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
+pub struct AspenTextureHandles {
+    /// debug tile for dev purposes
+    #[asset(key = "debug")]
+    pub debug: Handle<Image>,
     /// full tile grass texture
     #[asset(key = "grass")]
     pub grass: Handle<Image>,
@@ -123,4 +90,16 @@ pub struct SingleTileTextureHandles {
     ///grass and dirt on 1 side
     #[asset(key = "grass_dirt_top")]
     pub grass_dirt_top: Handle<Image>,
+}
+
+/// list of definitions that should be loaded as assets
+#[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
+pub struct AspenDefinitionHandles {
+    /// character definitons
+    #[asset(key = "character_definitions", collection(typed))]
+    pub characters: Vec<Handle<CharacterDefinition>>,
+
+    /// weapon item etc definitions
+    #[asset(key = "object_definitions", collection(typed))]
+    pub objects: Vec<Handle<ObjectDefinition>>,
 }

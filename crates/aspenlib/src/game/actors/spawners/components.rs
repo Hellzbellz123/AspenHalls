@@ -4,7 +4,7 @@ use bevy::{
     time::Timer,
 };
 
-use crate::{game::actors::ai::components::ActorType, loading::custom_assets::npc_definition::RegistryIdentifier};
+use crate::{game::actors::ai::components::ActorType, loading::registry::RegistryIdentifier};
 
 /// Marker for enemy container
 #[derive(Component)]

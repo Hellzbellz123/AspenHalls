@@ -35,7 +35,7 @@ use crate::{
             },
         },
     },
-    loading::custom_assets::npc_definition::ActorRegistry,
+    loading::registry::ActorRegistry,
     AppState,
 };
 

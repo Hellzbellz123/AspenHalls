@@ -12,7 +12,7 @@ use crate::{
         game_world::components::{ActorTeleportEvent, Teleporter},
         // game_world::dungeonator::GeneratorStage,
     },
-    loading::assets::MapAssetHandles, prelude::game::ActorType,
+    loading::assets::AspenMapHandles, prelude::game::ActorType,
 };
 
 /// tag for map entity
@@ -21,7 +21,7 @@ use crate::{
 pub struct MapContainerTag;
 
 /// spawns hideout and related resources
-pub fn spawn_hideout(mut commands: Commands, maps: Res<MapAssetHandles>) {
+pub fn spawn_hideout(mut commands: Commands, maps: Res<AspenMapHandles>) {
     info!("spawning LdtkWorldBundle");
 
     commands.spawn((

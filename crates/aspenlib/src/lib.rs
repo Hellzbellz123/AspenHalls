@@ -15,7 +15,7 @@ A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 
 #[cfg(feature = "develop")]
 /// Debug and Development related functions
-mod game_tools;
+mod debug;
 
 /// general component store
 mod bundles;
@@ -32,11 +32,9 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-/// TODO: wip
-///
 /// A.H.P. Aspen Halls Prelude, in the future this can be the only import for mods, no need too manually specify bevy, or other dependency versions
 ///
-/// common imports for all modules, maybe make it specific, ie no wildcards.
+/// - common imports for all modules, maybe make it specific, ie no wildcards.
 ///  all modules that aren't plugin should probably be defined here
 pub mod prelude;
 
@@ -46,7 +44,7 @@ use prelude::{
         bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
         Reflect, Resource, States, Update, Vec2,
     },
-    game::{ConfigFile, InitAssetHandles},
+    game::{ConfigFile, AspenInitHandles},
 };
 
 #[cfg(feature = "develop")]
@@ -54,15 +52,16 @@ use prelude::game::inspect::DebugPlugin;
 use bevy::asset::AssetMetaCheck;
 
 /// application stages
-pub enum ClientStage {
+pub enum ApplicationStage {
+    // TODO: impl this  stuff
     /// load client resources
-    LoadingClient,
+    LoadingClient, // --> BootingApp
     /// start client
-    StartingClient,
+    StartingGame, // --> LoadingApp
     /// succesfully started client
-    ClientRunning,
+    GameRunning, // --> add gamestate here
     /// Failed too load required assets
-    ClientFailed,
+    ClientFailed, // --> FailedLoadInit / FailedLoadMenu
 }
 
 /// main game state loop
@@ -132,7 +131,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         Update,
         (
             utilities::set_window_icon
-                .run_if(resource_exists::<InitAssetHandles>().and_then(run_once())),
+                .run_if(resource_exists::<AspenInitHandles>().and_then(run_once())),
             utilities::cursor_grab_system,
         ),
     );

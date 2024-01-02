@@ -12,7 +12,7 @@ use crate::{
         actors::{components::ActorMoveState, ai::components::ActorType},
         game_world::components::{ActorTeleportEvent, TpTriggerEffect},
     },
-    loading::custom_assets::npc_definition::ActorRegistry,
+    loading::registry::ActorRegistry,
     prelude::{
         engine::{
             bevy_console::ConsoleCommand, ActionState, EventWriter, Query, Transform, Vec2, With,

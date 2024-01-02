@@ -12,7 +12,7 @@ pub mod game {
     #[cfg(feature = "develop")]
     /// holds features/tools for inspecting state of application
     pub mod inspect {
-        pub use crate::game_tools::debug_plugin::DebugPlugin;
+        pub use crate::debug::debug_plugin::DebugPlugin;
         pub use bevy_inspector_egui::prelude::{InspectorOptions, ReflectInspectorOptions};
     }
     #[cfg(feature = "develop")]
@@ -38,11 +38,10 @@ pub mod game {
             input::action_maps::{self},
             TimeInfo,
         },
-        // AudioHandles,
         loading::{
             assets::{
-                ActorTextureHandles, AudioHandles, InitAssetHandles, MapAssetHandles,
-                SingleTileTextureHandles, TouchControlAssetHandles,
+                AspenAudioHandles, AspenInitHandles, AspenMapHandles, AspenDefinitionHandles,
+                AspenTextureHandles, AspenTouchHandles,
             },
             config::{
                 save_load::save_settings, ConfigFile, DifficultyScales, GameDifficulty,
