@@ -10,6 +10,7 @@ pub struct HeroSpot {
     pub what_hero: String,
 }
 
+/// location for Dungeon final bosses
 #[derive(Debug, Component, Default)]
 pub struct BossArea {
     /// list of enemys that are considered "bosses"
@@ -79,13 +80,12 @@ impl Default for TpTriggerEffect {
     }
 }
 
-
 impl TpTriggerEffect {
-    pub fn is_event(&self) -> bool {
+    /// checks if this `TpTriggerEffect` is of the event type
+    pub const fn is_event(&self) -> bool {
         match self {
-            TpTriggerEffect::Event(_) => true,
-            TpTriggerEffect::Local(_) => false,
-            TpTriggerEffect::Global(_) => false,
+            Self::Event(_) => true,
+            Self::Local(_) | Self::Global(_) => false,
         }
     }
 }

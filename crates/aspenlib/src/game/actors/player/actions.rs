@@ -1,8 +1,8 @@
 use bevy_rapier2d::geometry::{Collider, CollisionGroups};
 
 use crate::{
-    bundles::ObjectColliderBundle,
-    game::actors::{combat::components::WeaponForm, components::ActorColliderType},
+    bundles::ItemColliderBundle,
+    game::actors::{combat::components::WeaponDescriptor, components::ActorColliderType},
     loading::registry::RegistryIdentifier,
     prelude::{
         engine::{
@@ -60,7 +60,7 @@ pub struct ShootEvent {
 #[allow(clippy::type_complexity)]
 pub fn player_attack_sender(
     weapon_query: Query<
-        (Entity, &Transform, &GlobalTransform, &WeaponForm),
+        (Entity, &Transform, &GlobalTransform, &WeaponDescriptor),
         (With<Parent>, With<CurrentlyDrawnWeapon>),
     >,
     player_query: Query<(&mut Transform, &ActionState<action_maps::Gameplay>), Without<Parent>>,
@@ -72,7 +72,7 @@ pub fn player_attack_sender(
 
     //TODO: split this into different systems
     // match on weapon type
-    let (weapon_entity, ltrans, gtrans, weapon_attack) = weapon_query.single();
+    let (_weapon_entity, local_transform, global_transform, weapon_attack) = weapon_query.single();
 
     let player = player_query.single();
     let player_position = player.0.translation.truncate();
@@ -82,7 +82,7 @@ pub fn player_attack_sender(
         .axis_pair
         .expect("no axis pair on Gameplay::LookWorld")
         .xy();
-    let WeaponForm::Gun {
+    let WeaponDescriptor::Gun {
         projectile_speed,
         projectile_size,
         barrel_end,
@@ -94,7 +94,8 @@ pub fn player_attack_sender(
         return;
     };
 
-    let barrel_loc = gtrans.transform_point(ltrans.translation + barrel_end.extend(0.0));
+    let barrel_loc =
+        global_transform.transform_point(local_transform.translation + barrel_end.extend(0.0));
     let direction: Vec2 = (cursor_world - player_position).normalize_or_zero();
 
     if action_state.pressed(action_maps::Gameplay::Shoot) {
@@ -114,6 +115,7 @@ pub fn player_attack_sender(
 // make picking up thing an event
 // depending on event send new event
 /// equips closest weapon too player if `WeaponSlots` is not full
+#[allow(clippy::type_complexity)]
 pub fn equip_closest_weapon(
     mut cmds: Commands,
     mut player_query: Query<(
@@ -139,9 +141,9 @@ pub fn equip_closest_weapon(
     info!("interact pressed");
 
     let weapon_slots = weapon_socket_on_player.weapon_slots.clone();
-    let drawn_weapon = weapon_socket_on_player.drawn_slot.clone();
+    let drawn_weapon = weapon_socket_on_player.drawn_slot;
 
-    let slots_full = weapon_slots.values().all(|x| x.is_some());
+    let slots_full = weapon_slots.values().all(std::option::Option::is_some);
 
     let Some((closest_weapon, mut weapon_holder, mut weapon_pos)) = weapon_query
         .iter_mut()
@@ -180,14 +182,16 @@ pub fn equip_closest_weapon(
             };
             cmds.entity(weapon_ent).remove_parent();
             cmds.entity(weapon_ent).with_children(|f| {
-                f.spawn(ObjectColliderBundle {
+                f.spawn(ItemColliderBundle {
                     name: Name::new("DroppedWeaponCollider"),
-                    tag: ActorColliderType::Object,
+                    tag: ActorColliderType::Item,
                     collider: Collider::default(),
                     collision_groups: CollisionGroups::default(),
                     transform_bundle: TransformBundle::default(),
                 });
             });
+        } else {
+            warn!("no weapon selected too replace");
         }
     }
     debug!(

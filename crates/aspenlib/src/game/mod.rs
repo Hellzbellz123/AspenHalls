@@ -10,10 +10,6 @@ pub mod input;
 pub mod interface;
 
 use crate::{
-    prelude::{
-        engine::{leafwing_input_manager::prelude::ActionState, *},
-        game::{GeneralSettings, TimeToLive, *},
-    },
     game::{
         actors::ActorPlugin,
         audio::InternalAudioPlugin,
@@ -22,6 +18,10 @@ use crate::{
         game_world::GameWorldPlugin,
         input::ActionsPlugin,
         interface::InterfacePlugin,
+    },
+    prelude::{
+        engine::{leafwing_input_manager::prelude::ActionState, *},
+        game::{GeneralSettings, TimeToLive, *},
     },
 };
 

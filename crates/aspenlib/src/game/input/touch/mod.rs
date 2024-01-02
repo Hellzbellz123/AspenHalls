@@ -367,9 +367,9 @@ fn touch_trigger_shoot(
         .find(|f| f.id == TouchStickBinding::LookTouchInput)
         .expect("always exists at this point");
 
-        if stick.value.abs().max_element() >= 0.7 {
-            let mut player_input = player_input.single_mut();
-            // debug!("touch too press Shoot");
-            player_input.press(action_maps::Gameplay::Shoot);
-        }
+    if stick.value.abs().max_element() >= 0.7 {
+        let mut player_input = player_input.single_mut();
+        // debug!("touch too press Shoot");
+        player_input.press(action_maps::Gameplay::Shoot);
+    }
 }

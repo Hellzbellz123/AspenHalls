@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
-    prelude::SpawnExclusions,
-    IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground, LevelSelection,
-    LevelSpawnBehavior, SetClearColor,
+    prelude::SpawnExclusions, IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground,
+    LevelSelection, LevelSpawnBehavior, SetClearColor,
 };
 use bevy_rapier2d::prelude::{CollisionEvent, Sensor};
 
@@ -12,7 +11,8 @@ use crate::{
         game_world::components::{ActorTeleportEvent, Teleporter},
         // game_world::dungeonator::GeneratorStage,
     },
-    loading::assets::AspenMapHandles, prelude::game::ActorType,
+    loading::assets::AspenMapHandles,
+    prelude::game::ActorType,
 };
 
 /// tag for map entity

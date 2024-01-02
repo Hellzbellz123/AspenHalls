@@ -28,11 +28,10 @@ pub mod game {
                     ActorType, AttackScorer, ChaseScorer, NpcType,
                 },
                 combat::components::{
-                    CurrentlyDrawnWeapon, WeaponHolder, WeaponSlots,
-                    WeaponSocket,
+                    CurrentlyDrawnWeapon, WeaponHolder, WeaponSlots, WeaponSocket,
                 },
                 components::TimeToLive,
-                spawners::components::{SpawnActorEvent, EnemySpawner},
+                spawners::components::{EnemySpawner, SpawnActorEvent},
             },
             audio::{ActorSoundTimer, AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel},
             input::action_maps::{self},
@@ -40,7 +39,7 @@ pub mod game {
         },
         loading::{
             assets::{
-                AspenAudioHandles, AspenInitHandles, AspenMapHandles, AspenDefinitionHandles,
+                AspenAudioHandles, AspenDefinitionHandles, AspenInitHandles, AspenMapHandles,
                 AspenTextureHandles, AspenTouchHandles,
             },
             config::{

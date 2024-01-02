@@ -1,3 +1,4 @@
+use crate::game::actors::attributes_stats::Damage;
 use bevy::{
     math::Vec2,
     prelude::{Component, Deref, DerefMut, Entity, ReflectComponent},
@@ -5,7 +6,6 @@ use bevy::{
     time::Timer,
     utils::hashbrown::HashMap,
 };
-use crate::game::actors::attributes_stats::Damage;
 
 /// entity that holds this weapon, and the slot that it is in
 #[derive(Debug, Clone, Copy, Component, Default, Reflect, Deref, DerefMut)]
@@ -42,23 +42,37 @@ pub struct WeaponSocket {
     pub drawn_slot: Option<WeaponSlots>,
 }
 
+/// damage that weapon attacks can do
 #[derive(
-    Debug, Copy, Clone, Component, Reflect, Default, Deref, DerefMut, serde::Deserialize, serde::Serialize,
+    Debug,
+    Copy,
+    Clone,
+    Component,
+    Reflect,
+    Default,
+    Deref,
+    DerefMut,
+    serde::Deserialize,
+    serde::Serialize,
 )]
 #[reflect(Component)]
 pub struct AttackDamage(pub Damage);
 
+/// information describing how a weapon attacks and the paramaters for attack
 #[derive(
     Debug, Clone, Copy, PartialEq, Component, Reflect, serde::Deserialize, serde::Serialize,
 )]
 #[reflect(Component)]
-pub enum WeaponForm {
+pub enum WeaponDescriptor {
     /// ball and chain
     ///
     /// extends from then orbits around character
     Flail {
+        /// how large is flail end
         ball_size: f32,
+        /// how far from character can flail be
         chain_lenght: f32,
+        /// how long is flail away from character
         extend_time: f32,
     },
 
@@ -72,6 +86,7 @@ pub enum WeaponForm {
         swing_speed: f32,
     },
 
+    /// shoots projectiles from a clip, reloads self usually
     Gun {
         /// projectile velocity
         projectile_speed: f32,
@@ -88,7 +103,7 @@ pub enum WeaponForm {
     },
 }
 
-impl Default for WeaponForm {
+impl Default for WeaponDescriptor {
     fn default() -> Self {
         Self::Gun {
             projectile_speed: 100.0,
@@ -101,14 +116,15 @@ impl Default for WeaponForm {
     }
 }
 
+/// timers used for weapon attacks
 #[derive(Debug, Clone, Default, Reflect, serde::Deserialize, serde::Serialize)]
 pub struct WeaponTimers {
     /// time between weapon attacks
-    pub attack_timer: Timer,
+    pub attack: Timer,
     /// time between weapon reloads / charge refills
-    pub refill_timer: Timer,
+    pub refill: Timer,
     /// timer for max weapon attack time
     ///
     /// basically weapon heat
-    pub duration_timer: Timer,
+    pub duration: Timer,
 }

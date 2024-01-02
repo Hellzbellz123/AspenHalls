@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use bevy::{
     ecs::{schedule::Condition, system::Res},
-    log::{debug, info, error},
+    log::{debug, error, info},
     math::Vec2,
     prelude::{
         any_with_component, run_once, state_exists_and_equals, Commands, DespawnRecursiveExt,
@@ -18,12 +18,11 @@ use bevy_mod_picking::{
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    prelude::game::{MainCamera, action_maps},
     consts::{ACTOR_Z_INDEX, HIGHLIGHT_TINT},
     game::{
         actors::{
-            combat::components::AttackDamage,
-            player::SelectThisHeroForPlayer, components::ActorMoveState,
+            combat::components::AttackDamage, components::ActorMoveState,
+            player::SelectThisHeroForPlayer,
         },
         game_world::{
             components::HeroSpot,
@@ -36,6 +35,7 @@ use crate::{
         },
     },
     loading::registry::ActorRegistry,
+    prelude::game::{action_maps, MainCamera},
     AppState,
 };
 
@@ -79,6 +79,7 @@ impl Plugin for HideOutPlugin {
     }
 }
 
+/// spawns selectable heroes at each available `HeroSpot`
 fn populate_selectable_heroes(
     mut commands: Commands,
     registry: Res<ActorRegistry>,
@@ -86,7 +87,7 @@ fn populate_selectable_heroes(
 ) {
     let mut hero_spots = hero_spots.iter();
     if registry.characters.heroes.is_empty() {
-        error!("no heroes too pick from")
+        error!("no heroes too pick from");
     }
     for thing in registry.characters.heroes.values() {
         let Some(spot) = hero_spots.next() else {
@@ -94,7 +95,8 @@ fn populate_selectable_heroes(
             return;
         };
         let mut bundle = thing.clone();
-        bundle.aseprite.sprite_bundle.transform.translation = spot.translation().truncate().extend(ACTOR_Z_INDEX);
+        bundle.aseprite.sprite_bundle.transform.translation =
+            spot.translation().truncate().extend(ACTOR_Z_INDEX);
         error!("placing at hero spot");
         commands.spawn((
             bundle,
@@ -106,7 +108,7 @@ fn populate_selectable_heroes(
 }
 
 // TODO: re apply camera scale AFTER player is selected
-
+/// modifies main camera too focus all the available hero spots
 fn select_hero_focus(
     mut camera_query: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
     hero_spots: Query<&GlobalTransform, With<HeroSpot>>,
@@ -121,14 +123,20 @@ fn select_hero_focus(
 
     let (mut camera_pos, mut camera_proj) = camera_query.single_mut();
     camera_proj.scale = 6.0;
-    camera_pos.translation = avg.extend(camera_pos.translation.z)
+    camera_pos.translation = avg.extend(camera_pos.translation.z);
 }
 
 // TODO: remove this infavor of DespawnWhenStateIs(Option<S: States/State>)
 /// despawn all entities that should be cleaned up on restart
 fn cleanup_start_world(
     mut commands: Commands,
-    characters_not_player: Query<Entity, (With<ActorMoveState>, Without<ActionState<action_maps::Gameplay>>)>,
+    characters_not_player: Query<
+        Entity,
+        (
+            With<ActorMoveState>,
+            Without<ActionState<action_maps::Gameplay>>,
+        ),
+    >,
     home_world_container: Query<Entity, With<MapContainerTag>>,
     weapons: Query<Entity, With<AttackDamage>>,
 ) {

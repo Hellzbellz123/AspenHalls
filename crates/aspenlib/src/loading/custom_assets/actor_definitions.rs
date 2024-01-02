@@ -15,32 +15,35 @@ use bevy_common_assets::toml::TomlAssetPlugin;
 use crate::{
     game::actors::{
         ai::components::AiType,
-        attributes_stats::{Attributes, Damage, EffectQueue, ElementalEffect, PhysicalDamage},
-        combat::components::{AttackDamage, WeaponForm},
+        attributes_stats::{Attributes, Damage, ElementalEffect, PhysicalDamage},
+        combat::components::{AttackDamage, WeaponDescriptor},
     },
     loading::registry::RegistryIdentifier,
     prelude::game::{ActorType, NpcType},
 };
 
+/// plugin for actor asset definitions
 pub struct ActorAssetPlugin;
 
 impl Plugin for ActorAssetPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.register_asset_reflect::<CharacterDefinition>()
-            .register_asset_reflect::<ObjectDefinition>()
+            .register_asset_reflect::<ItemDefinition>()
             .add_systems(Startup, write_example_definitions)
             .add_plugins(TomlAssetPlugin::<CharacterDefinition>::new(&[
                 "character.toml",
             ]))
-            .add_plugins(TomlAssetPlugin::<ObjectDefinition>::new(&["weapon.toml"]));
+            .add_plugins(TomlAssetPlugin::<ItemDefinition>::new(&["weapon.toml"]));
     }
 }
 
+/// writes example actor asset definiitons too respective folders on game start
 fn write_example_definitions() {
     write_character_def(None);
     write_weapon_def(None);
 }
 
+/// character actor asset definition
 #[derive(Debug, Asset, Reflect, serde::Deserialize, serde::Serialize)]
 #[reflect(Asset)]
 pub struct CharacterDefinition {
@@ -48,17 +51,21 @@ pub struct CharacterDefinition {
     pub character_type: CharacterType,
     /// does ai or player control this character
     pub controller: AiSetupConfig,
-    /// generic data for all actors
+    /// shared data for all actors
     pub actor: ActorData,
 }
 
+/// item actor asset definition
 #[derive(Debug, Asset, Reflect, serde::Deserialize, serde::Serialize)]
 #[reflect(Asset)]
-pub struct ObjectDefinition {
-    pub object_type: ObjectType,
+pub struct ItemDefinition {
+    /// info that describes this item
+    pub item_type: ItemType,
+    /// shared data required for all actors
     pub actor: ActorData,
 }
 
+/// shared actor asset data
 #[derive(Debug, Reflect, serde::Deserialize, serde::Serialize)]
 pub struct ActorData {
     /// actors name
@@ -73,48 +80,62 @@ pub struct ActorData {
     pub stats: Attributes,
 }
 
+/// TODO: how affect heroes being in player "party"
 #[derive(Debug, Clone, Component, Reflect, serde::Deserialize, serde::Serialize)]
 pub enum CharacterType {
+    /// npc gets no ai
     Hero,
+    /// npc gets ai
     Npc(NpcType),
 }
 
+/// describes how characters should get AI when spawned into world
 #[derive(Debug, Clone, Component, Reflect, serde::Deserialize, serde::Serialize)]
 pub enum AiSetupConfig {
+    /// character is not ai controller
     Player,
+    /// character should have ai added too it based on AIType enum
     GameAI(AiType),
 }
 
+/// different classes of items that can exist in the game
 #[derive(Debug, Copy, Clone, Reflect, serde::Deserialize, serde::Serialize)]
-pub enum ObjectType {
+pub enum ItemType {
+    /// items that the holder can attack with
     Weapon {
+        /// weapon damage
         damage: AttackDamage,
-        form: WeaponForm,
+        /// weapon form and function descriptor
+        form: WeaponDescriptor,
     },
+    /// items that give the holder small bonus / unique effects
     Trinket {},
+    /// items that give the holder armor and attrs
     Armor {},
+    /// items that give the user status effects
     Food {},
 }
 
 impl CharacterType {
-    pub fn into_actor_type(&self) -> ActorType {
+    /// returns actor type for this character asset type
+    pub const fn into_actor_type(self) -> ActorType {
         match self {
-            CharacterType::Hero => ActorType::Hero,
-            CharacterType::Npc(a) => ActorType::Npc(*a),
+            Self::Hero => ActorType::Hero,
+            Self::Npc(a) => ActorType::Npc(a),
         }
     }
 }
 
 /// creates new weapon definition folder
 #[allow(unused)]
-pub fn write_weapon_def(def: Option<ObjectDefinition>) {
-    let def = def.unwrap_or(ObjectDefinition {
-        object_type: ObjectType::Weapon {
+pub fn write_weapon_def(def: Option<ItemDefinition>) {
+    let def = def.unwrap_or(ItemDefinition {
+        item_type: ItemType::Weapon {
             damage: AttackDamage(Damage {
                 physical: PhysicalDamage(30.0),
                 elemental: ElementalEffect::Fire(10.0),
             }),
-            form: WeaponForm::Gun {
+            form: WeaponDescriptor::Gun {
                 projectile_speed: 50.0,
                 projectile_size: 15.0,
                 barrel_end: Vec2 { x: 20.0, y: 0.0 },
@@ -132,7 +153,7 @@ pub fn write_weapon_def(def: Option<ObjectDefinition>) {
         },
     });
 
-    let folder_path = format!("assets/packs/asha/objects/w{}", def.actor.identifier.0);
+    let folder_path = format!("assets/packs/asha/items/w{}", def.actor.identifier.0);
     let file_path = format!("{}/{}.weapon.toml", folder_path, def.actor.identifier.0);
 
     write_definition(def, folder_path, file_path);
@@ -213,7 +234,7 @@ fn write_definition<T: Sized + serde::Serialize>(def: T, folder_path: String, fi
 //         /// how much weapon this damage does on attack
 //         damage: AttackDamage,
 //         /// what kind of weapon this is
-//         form: WeaponForm,
+//         form: WeaponDescriptor,
 //         /// how much this weapon improves its holders stats
 //         stats: Attributes,
 //     },
@@ -225,7 +246,7 @@ fn write_definition<T: Sized + serde::Serialize>(def: T, folder_path: String, fi
 //             physical: PhysicalDamage(10.0),
 //             elemental: ElementalEffect::None,
 //         }),
-//         form: WeaponForm::Gun {
+//         form: WeaponDescriptor::Gun {
 //             projectile_speed: 10.0,
 //             projectile_size: 2.0,
 //             barrel_end: Vec2 { x: 0.0, y: 0.0 },

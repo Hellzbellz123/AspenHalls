@@ -54,11 +54,11 @@
     ),
 
     // weapons/armor/trinkets/etc definitions
-    "object_definitions": Files (
+    "item_definitions": Files (
         paths: [
-            "packs/asha/objects/wSmallPistol/smallpistol.weapon.toml",
-            "packs/asha/objects/wSmallSmg/smallsmg.weapon.toml",
-            "packs/asha/objects/wAutoPistol/autopistol.weapon.toml",
+            "packs/asha/items/wSmallPistol/smallpistol.weapon.toml",
+            "packs/asha/items/wSmallSmg/smallsmg.weapon.toml",
+            "packs/asha/items/wAutoPistol/autopistol.weapon.toml",
             ],
     ),
 })

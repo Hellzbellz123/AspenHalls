@@ -4,27 +4,29 @@ use bevy::{
     app::Plugin,
     ecs::{
         component::Component,
-        reflect::ReflectResource,
+        reflect::{ReflectComponent, ReflectResource},
         system::{Res, Resource},
     },
-    prelude::{AssetServer, Assets, Commands, OnExit, ResMut, Deref, DerefMut},
+    prelude::{AssetServer, Assets, Commands, OnExit},
     reflect::Reflect,
-    sprite::TextureAtlas,
     utils::HashMap,
 };
 
 use crate::{
     bundles::{CharacterBundle, WeaponBundle},
     loading::{
-        custom_assets::actor_definitions::{CharacterDefinition, ObjectDefinition},
-        registry::utils::{build_character_prefabs, build_object_bundles},
+        custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition},
+        registry::utils::{build_character_bundles, build_item_bundles},
     },
     AppState,
 };
 
+/// impls for registry and supporting parts
 mod reg_impl;
+/// misc functions for registry building
 mod utils;
 
+/// plugin handles creating of actor registry
 pub struct RegistryPlugin;
 
 impl Plugin for RegistryPlugin {
@@ -35,20 +37,20 @@ impl Plugin for RegistryPlugin {
     }
 }
 
+/// ID for all spawnable things in the game, one per spawnable actor
 #[derive(
-    Debug,
     Default,
+    Debug,
     Hash,
     Eq,
     PartialEq,
     Clone,
-    Deref,
-    DerefMut,
     serde::Deserialize,
     serde::Serialize,
     Component,
     Reflect,
 )]
+#[reflect(Component)]
 pub struct RegistryIdentifier(pub String);
 
 // create items before weapons and weapons before characters
@@ -57,10 +59,13 @@ pub struct RegistryIdentifier(pub String);
 #[derive(Resource, Default, Reflect)]
 #[reflect(Resource)]
 pub struct ActorRegistry {
-    pub objects: ObjectRegistry,
+    /// database of all carryables
+    pub items: ItemRegistry,
+    /// database of all characters
     pub characters: CharacterRegistry,
 }
 
+/// list of all NPCs for the game, one of the heroes is the player
 #[derive(Default, Reflect)]
 pub struct CharacterRegistry {
     /// final bad guys
@@ -77,28 +82,30 @@ pub struct CharacterRegistry {
     pub freindlies: HashMap<RegistryIdentifier, CharacterBundle>,
 }
 
+/// list of all useable/equipabble/holdable actors for the game
 #[derive(Default, Reflect)]
-pub struct ObjectRegistry {
+pub struct ItemRegistry {
     /// availbe weapons for game
     pub weapons: HashMap<RegistryIdentifier, WeaponBundle>,
 }
 
+/// creates an actor registry and populates it from actor asset definitons
 pub fn create_actor_registry(
     mut cmds: Commands,
     asset_server: Res<AssetServer>,
     character_definitions: Res<Assets<CharacterDefinition>>,
-    weapon_definition: Res<Assets<ObjectDefinition>>,
+    weapon_definition: Res<Assets<ItemDefinition>>,
 ) {
     let mut registry = ActorRegistry::default();
 
-    build_object_bundles(
+    build_item_bundles(
         &mut cmds,
         weapon_definition,
         &asset_server,
-        &mut registry.objects,
+        &mut registry.items,
     );
 
-    build_character_prefabs(
+    build_character_bundles(
         &mut cmds,
         character_definitions,
         asset_server,

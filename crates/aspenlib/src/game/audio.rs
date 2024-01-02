@@ -144,15 +144,13 @@ pub struct ActorSoundTimers(HashMap<String, ActorSoundTimer>);
 fn actor_footstep_sound_system(
     // mut audio_instances: ResMut<Assets<AudioInstance>>,
     game_sound: Res<AudioChannel<GameSoundChannel>>,
-    mut actor_query: Query<
-        (
-            &ActorMoveState,
-            &mut AudioEmitter,
-            &ActorSoundMap,
-            &mut ActorSoundTimers,
-            &Velocity,
-        ),
-    >,
+    mut actor_query: Query<(
+        &ActorMoveState,
+        &mut AudioEmitter,
+        &ActorSoundMap,
+        &mut ActorSoundTimers,
+        &Velocity,
+    )>,
     time: Res<Time>,
 ) {
     for (move_state, _spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query {

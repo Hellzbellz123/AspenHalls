@@ -9,7 +9,7 @@ use crate::{
         CommandPosition, CommandSpawnType, CommandTarget,
     },
     game::{
-        actors::{components::ActorMoveState, ai::components::ActorType},
+        actors::{ai::components::ActorType, components::ActorMoveState},
         game_world::components::{ActorTeleportEvent, TpTriggerEffect},
     },
     loading::registry::ActorRegistry,
@@ -47,31 +47,31 @@ pub fn spawn_command(
 
     let spawn_count = amount.unwrap_or(1);
 
-    let spawn_position: Vec2;
-    if where_spawn.is_some_and(|f| f == CommandTarget::Player) || position.is_none() {
-        let player_pos: Vec2 = player_query.get_single().map_or_else(
-            |f| {
-                error!("could not et player pos: {f}");
-                Vec2::ZERO
-            },
-            |f| f.translation.truncate(),
-        );
-        spawn_position = player_pos;
-    } else {
-        spawn_position = position.unwrap_or(CommandPosition(0.0, 0.0)).into();
-    }
+    let spawn_position: Vec2 =
+        if where_spawn.is_some_and(|f| f == CommandTarget::Player) || position.is_none() {
+            let player_pos: Vec2 = player_query.get_single().map_or_else(
+                |f| {
+                    error!("could not et player pos: {f}");
+                    Vec2::ZERO
+                },
+                |f| f.translation.truncate(),
+            );
+            player_pos
+        } else {
+            position.unwrap_or(CommandPosition(0.0, 0.0)).into()
+        };
 
     match actor_type {
         CommandSpawnType::Item => {
-            let obje_reg = &registry.objects;
-            if obje_reg.weapons.contains_key(&identifier) {
-                spawn.reply("got weapon");
+            let item_reg = &registry.items;
+            if item_reg.weapons.contains_key(&identifier) {
+                spawn.reply("got weapon item");
             } else {
-                spawn.reply_failed("object did not exist in registry");
+                spawn.reply_failed("item did not exist in registry");
                 return;
             }
 
-            spawn.reply_ok("Spawning object");
+            spawn.reply_ok("Spawning item");
             ew.send(SpawnActorEvent {
                 what_to_spawn: identifier,
                 who_spawned: None,
@@ -81,17 +81,16 @@ pub fn spawn_command(
             });
         }
         CommandSpawnType::Npc => {
-            let bundle = {
-                let char_reg = &registry.characters;
-                if char_reg.creeps.contains_key(&identifier) {}
-                if registry.characters.creeps.contains_key(&identifier) {
-                    registry.characters.creeps.get(&identifier).unwrap()
-                } else if registry.characters.heroes.contains_key(&identifier) {
-                    registry.characters.creeps.get(&identifier).unwrap()
-                } else {
-                    spawn.reply_failed("Npc did not exist in registry");
-                    return;
-                }
+            let char_reg = &registry.characters;
+            let bundle = if char_reg.creeps.contains_key(&identifier) {
+                registry.characters.creeps.get(&identifier).unwrap()
+            } else if char_reg.bosses.contains_key(&identifier) {
+                registry.characters.bosses.get(&identifier).unwrap()
+            } else if char_reg.heroes.contains_key(&identifier) {
+                registry.characters.heroes.get(&identifier).unwrap()
+            } else {
+                spawn.reply_failed("Npc did not exist in registry");
+                return;
             };
 
             spawn.reply_ok("Spawning Npc");
@@ -107,6 +106,7 @@ pub fn spawn_command(
 }
 
 /// receives tp command and teleports actor too location
+#[allow(clippy::type_complexity)]
 pub fn teleport_command(
     player_query: Query<(Entity, &Transform), With<ActionState<action_maps::Gameplay>>>,
     other_actors: Query<
@@ -147,7 +147,7 @@ pub fn teleport_command(
                     let distance_b = rhs.1.translation.distance_squared(player_pos.translation);
                     distance_a
                         .partial_cmp(&distance_b)
-                        .expect("distance should always be valid")
+                        .unwrap_or(std::cmp::Ordering::Less)
                 }) else {
                     spawn.reply_failed("Closest Enemy error");
                     return;
@@ -158,32 +158,27 @@ pub fn teleport_command(
                     tp_type: TpTriggerEffect::Global(pos.into()),
                     target: Some(closest.0),
                     sender: Some(player),
-                })
+                });
             }
             super::CommandTarget::Everyone => {
-                let Ok((player, player_pos)) = player else {
-                    spawn.reply_failed("No Player too teleport");
+                let mut too_teleport: Vec<Entity> = Vec::new();
+                let Ok((player, _)) = player else {
+                    error!("no player too teleport");
                     return;
                 };
-                let Some(closest) = other_actors.iter().min_by(|lhs, rhs| {
-                    let distance_a = lhs.1.translation.distance_squared(player_pos.translation);
-                    let distance_b = rhs.1.translation.distance_squared(player_pos.translation);
-                    distance_a
-                        .partial_cmp(&distance_b)
-                        .expect("distance should always be valid")
-                }) else {
-                    spawn.reply_failed("Closest Enemy error");
-                    return;
-                };
+                too_teleport.push(player);
+                other_actors.iter().for_each(|f| {
+                    too_teleport.push(f.0);
+                });
 
-                spawn.reply_ok("Teleporting nearest character");
-                other_actors.for_each(|f| {
+                spawn.reply_ok("Teleporting all characters");
+                for f in &too_teleport {
                     ew.send(ActorTeleportEvent {
                         tp_type: TpTriggerEffect::Global(pos.into()),
-                        target: Some(f.0),
+                        target: Some(*f),
                         sender: Some(player),
-                    })
-                });
+                    });
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ use crate::prelude::engine::{
     InputManagerBundle, InputMap, KeyCode, QwertyScanCode, Reflect, VirtualDPad,
 };
 
-/// added too ActorBundle too make it a controllable player
+/// added too `ActorBundle` too make it a controllable player
 #[derive(Bundle)]
 pub struct PlayerBundle {
     /// actual bindings
@@ -121,7 +121,6 @@ pub enum Gameplay {
     DebugF1,
     /// regenerate dungeon
     DebugF2,
-
     // /// F for keyboard
     // Melee,
     // /// Q for keyboard

@@ -1,9 +1,9 @@
-use crate::loading::registry::{RegistryIdentifier, ActorRegistry};
+use crate::loading::registry::{ActorRegistry, RegistryIdentifier};
 use std::fmt::Debug;
 
 impl From<String> for RegistryIdentifier {
     fn from(s: String) -> Self {
-        RegistryIdentifier(s)
+        Self(s)
     }
 }
 
@@ -20,7 +20,7 @@ impl Debug for ActorRegistry {
             .keys()
             .collect::<Vec<&RegistryIdentifier>>();
         let vec_items = &self
-            .objects
+            .items
             .weapons
             .keys()
             .collect::<Vec<&RegistryIdentifier>>();

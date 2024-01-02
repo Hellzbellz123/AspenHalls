@@ -2,11 +2,11 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bundles::{ProjectileBundle, ObjectColliderBundle, RigidBodyBundle},
+    bundles::{ItemColliderBundle, ProjectileBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
     game::actors::{
         attributes_stats::{Damage, ProjectileStats},
-        combat::components::{AttackDamage, WeaponForm},
+        combat::components::{AttackDamage, WeaponDescriptor},
         components::{ActorColliderType, TimeToLive},
         player::actions::ShootEvent,
     },
@@ -25,19 +25,19 @@ pub fn create_bullet(
     cmds: &mut Commands,
     assets: &Res<AspenInitHandles>,
     event: &ShootEvent,
-    weapon_stats: &WeaponForm,
+    weapon_stats: &WeaponDescriptor,
     weapon_damage: &AttackDamage,
 ) {
     let gun_data = weapon_stats;
 
-    let WeaponForm::Gun {
+    let WeaponDescriptor::Gun {
         projectile_speed,
         projectile_size,
         barrel_end: _,
         ammo_amount: _,
         reload_time: _,
         fire_rate: _,
-    }: WeaponForm = *gun_data
+    }: WeaponDescriptor = *gun_data
     else {
         panic!("NOT A GUN BUT WANTED TOO SHOOT?")
     };
@@ -83,7 +83,7 @@ pub fn create_bullet(
     ))
     .with_children(|child| {
         child.spawn((
-            ObjectColliderBundle {
+            ItemColliderBundle {
                 name: Name::new("PlayerProjectileCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {

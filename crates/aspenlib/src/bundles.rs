@@ -5,7 +5,7 @@ use crate::{
     game::actors::{
         ai::components::AICombatConfig,
         attributes_stats::{CharacterStatBundle, EquipmentStats, ProjectileStats},
-        combat::components::{AttackDamage, WeaponForm, WeaponHolder},
+        combat::components::{AttackDamage, WeaponDescriptor, WeaponHolder},
         components::{ActorColliderType, ActorMoveState},
     },
     loading::{custom_assets::actor_definitions::AiSetupConfig, registry::RegistryIdentifier},
@@ -42,8 +42,6 @@ pub struct CharacterBundle {
     pub rigidbody_bundle: RigidBodyBundle,
 }
 
-// TODO: rename too ObjectBundle
-// make ObjectType hold the important bits
 /// bundle for spawning weapons
 #[derive(Bundle, Reflect, Clone)]
 pub struct WeaponBundle {
@@ -56,7 +54,7 @@ pub struct WeaponBundle {
     /// weapons function when used
     pub damage: AttackDamage,
     /// how this weapon attacks, along with data for attack
-    pub weapon_type: WeaponForm,
+    pub weapon_type: WeaponDescriptor,
     /// stats applied too holder
     pub stats: EquipmentStats,
     /// sprite for weapon
@@ -65,8 +63,6 @@ pub struct WeaponBundle {
     /// weapon physics
     #[reflect(ignore)]
     pub rigidbody_bundle: RigidBodyBundle,
-    // /// weapon stats
-    // pub weapon_stats: WeaponStats,
 }
 
 /// bundle too spawn projectiles
@@ -86,7 +82,7 @@ pub struct ProjectileBundle {
 
 /// collider bundle for actors
 #[derive(Bundle)]
-pub struct ObjectColliderBundle {
+pub struct ItemColliderBundle {
     /// name of collider
     pub name: Name,
     /// type of collider
@@ -133,7 +129,8 @@ pub struct RigidBodyBundle {
 }
 
 impl RigidBodyBundle {
-    pub const ENEMY: RigidBodyBundle = RigidBodyBundle {
+    /// default enemy rigidbody stats
+    pub const DEFAULT_CHARACTER: Self = Self {
         rigidbody: bevy_rapier2d::prelude::RigidBody::Dynamic,
         velocity: Velocity::zero(),
         friction: Friction::coefficient(0.7),
@@ -149,7 +146,7 @@ impl RigidBodyBundle {
 
 impl Default for RigidBodyBundle {
     fn default() -> Self {
-        Self::ENEMY
+        Self::DEFAULT_CHARACTER
     }
 }
 
@@ -157,6 +154,7 @@ impl std::fmt::Debug for WeaponBundle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("WeaponBundle")
             .field("name", &self.name)
+            .field("identifier", &self.identifier)
             .field("holder", &self.holder)
             .field("damage", &self.damage)
             .field("weapon_type", &self.weapon_type)

@@ -6,12 +6,13 @@ use bevy_mod_picking::{
 };
 
 use crate::{
-    bundles::ObjectColliderBundle,
+    bundles::ItemColliderBundle,
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
         actors::{
             combat::components::WeaponSlots,
-            player::movement::{camera_movement_system, update_player_velocity}, components::ActorColliderType,
+            components::ActorColliderType,
+            player::movement::{camera_movement_system, update_player_velocity},
         },
         input::action_maps::PlayerBundle,
         interface::StartMenu,
@@ -74,15 +75,17 @@ impl Plugin for PlayerPlugin {
     }
 }
 
+/// hero player has selected for dungeon run
 #[derive(Debug, Component)]
 pub struct SelectedHero;
 
+/// event sent when player selects available hero too play
 #[derive(Event)]
 pub struct SelectThisHeroForPlayer(Entity, f32);
 
 impl From<ListenerInput<Pointer<Down>>> for SelectThisHeroForPlayer {
     fn from(event: ListenerInput<Pointer<Down>>) -> Self {
-        SelectThisHeroForPlayer(event.target, event.hit.depth)
+        Self(event.target, event.hit.depth)
     }
 }
 
@@ -137,7 +140,7 @@ pub fn build_player_from_selected_hero(
             },
         ))
         .with_children(|child| {
-            child.spawn((ObjectColliderBundle {
+            child.spawn((ItemColliderBundle {
                 tag: ActorColliderType::Character,
                 name: Name::new("PlayerCollider"),
                 transform_bundle: TransformBundle {

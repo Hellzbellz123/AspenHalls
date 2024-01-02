@@ -36,12 +36,10 @@ pub const ACTOR_COLLIDER_DIMENSIONS: (bevy::prelude::Vec2, bevy::prelude::Vec2, 
 );
 
 /// creates a collider for a character given a size
+#[must_use]
 pub fn actor_collider(size: Vec2) -> Collider {
     Collider::capsule(
-        Vec2 {
-            x: 0.0,
-            y: 6.0,
-        },
+        Vec2 { x: 0.0, y: 6.0 },
         Vec2 {
             x: 0.0,
             y: size.y - 10.0,
@@ -66,6 +64,7 @@ pub fn actor_collider(size: Vec2) -> Collider {
 // }
 
 /// default actor collider shape for most entities
+#[must_use]
 pub fn default_actor_collider() -> Collider {
     Collider::capsule(
         ACTOR_COLLIDER_DIMENSIONS.0,

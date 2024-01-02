@@ -2,9 +2,9 @@ use bevy::{
     ecs::{query::Without, schedule::IntoSystemConfigs},
     log::info,
     prelude::{
-        default, resource_exists, state_exists_and_equals, App, BuildChildren, Commands, Deref,
-        DerefMut, Handle, Image, Name, Plugin, Query, Res, ResMut, Resource, Sprite, SpriteBundle,
-        Time, Timer, TimerMode, Transform, TransformBundle, Update, Vec2, Vec3, With,
+        default, state_exists_and_equals, App, BuildChildren, Commands, Deref, DerefMut, Handle,
+        Image, Name, Plugin, Query, Res, Resource, Sprite, SpriteBundle, Time, Timer, TimerMode,
+        Transform, TransformBundle, Update, Vec2, Vec3, With,
     },
 };
 use bevy_rapier2d::prelude::{
@@ -13,7 +13,7 @@ use bevy_rapier2d::prelude::{
 };
 
 use crate::{
-    bundles::{ProjectileBundle, ObjectColliderBundle, RigidBodyBundle},
+    bundles::{ItemColliderBundle, ProjectileBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX, BULLET_SPEED_MODIFIER},
     game::actors::{
         ai::components::AIShootConfig,
@@ -126,7 +126,7 @@ pub fn spawn_enemy_projectile(
     ))
     .with_children(|child| {
         child.spawn((
-            ObjectColliderBundle {
+            ItemColliderBundle {
                 name: Name::new("EnemyProjectileCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {

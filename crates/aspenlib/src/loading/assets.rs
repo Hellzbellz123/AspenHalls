@@ -1,10 +1,10 @@
 use bevy::{
-    asset::Handle, ecs::system::Resource, render::texture::Image, text::Font, prelude::Reflect,
+    asset::Handle, ecs::system::Resource, prelude::Reflect, render::texture::Image, text::Font,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;
 
-use crate::loading::custom_assets::actor_definitions::{CharacterDefinition, ObjectDefinition};
+use crate::loading::custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition};
 
 /// ui textures
 #[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
@@ -100,6 +100,6 @@ pub struct AspenDefinitionHandles {
     pub characters: Vec<Handle<CharacterDefinition>>,
 
     /// weapon item etc definitions
-    #[asset(key = "object_definitions", collection(typed))]
-    pub objects: Vec<Handle<ObjectDefinition>>,
+    #[asset(key = "item_definitions", collection(typed))]
+    pub items: Vec<Handle<ItemDefinition>>,
 }

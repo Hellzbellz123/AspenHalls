@@ -4,10 +4,10 @@ pub mod assets;
 pub mod config;
 /// extra custom asset useable in game
 pub mod custom_assets;
-/// splashscreen functions
-pub mod splashscreen;
 /// registry data
 pub mod registry;
+/// splashscreen functions
+pub mod splashscreen;
 
 use crate::prelude::{engine::*, game::*};
 

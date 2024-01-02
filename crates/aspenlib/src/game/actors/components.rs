@@ -7,9 +7,12 @@ use bevy::{
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Reflect, Component, Default)]
 #[reflect(Component)]
 pub enum ActorColliderType {
+    /// actor collider belongs too character
     #[default]
     Character,
-    Object,
+    /// actor collider belongs too item
+    Item,
+    /// actor collider belongs too projectile
     Projectile,
 }
 

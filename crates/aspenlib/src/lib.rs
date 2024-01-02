@@ -44,12 +44,12 @@ use prelude::{
         bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
         Reflect, Resource, States, Update, Vec2,
     },
-    game::{ConfigFile, AspenInitHandles},
+    game::{AspenInitHandles, ConfigFile},
 };
 
+use bevy::asset::AssetMetaCheck;
 #[cfg(feature = "develop")]
 use prelude::game::inspect::DebugPlugin;
-use bevy::asset::AssetMetaCheck;
 
 /// application stages
 pub enum ApplicationStage {

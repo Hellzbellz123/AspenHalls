@@ -1,8 +1,8 @@
-[object_type.Weapon.damage]
-physical = 1.0
+[item_type.Weapon.damage]
+physical = 70.0
 elemental = "None"
 
-[object_type.Weapon.form.Gun]
+[item_type.Weapon.form.Gun]
 projectile_speed = 5.0
 projectile_size = 5.0
 barrel_end = [20.0, 0.0]
@@ -11,10 +11,10 @@ reload_time = 2.5
 fire_rate = 0.77
 
 [actor]
-name = "Small Smg"
-identifier = "smallsmg"
-aseprite_path = "smallsmg.sprite.json"
-pixel_size =  [16.0, 16.0]
+name = "Small Pistol"
+identifier = "smallpistol"
+aseprite_path = "smallpistol.sprite.json"
+pixel_size =  [10.0, 10.0]
 
 [actor.stats]
 max_hp = 10

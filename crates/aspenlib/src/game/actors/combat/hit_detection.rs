@@ -8,11 +8,10 @@ use crate::game::actors::{
 
 /// detects projectile hits on player, adds hits too Player
 pub fn projectile_hits(
-    // mut game_info: ResMut<CurrentRunInformation>,
     mut cmds: Commands,
     mut collision_events: EventReader<CollisionEvent>,
     mut damage_queue_query: Query<&mut DamageQueue>,
-    parented_collider_query: Query<(Entity, &Parent), (With<Collider>, With<ActorColliderType>)>,
+    parented_collider_query: Query<(Entity, &Parent, &ActorColliderType), With<Collider>>,
     projectile_info: Query<&ProjectileStats>,
 ) {
     for event in collision_events.read() {
@@ -20,17 +19,24 @@ pub fn projectile_hits(
             if flags.contains(CollisionEventFlags::SENSOR) {
                 return;
             }
-            let hit_actor = parented_collider_query
-                .get(*b)
-                .or_else(|_| parented_collider_query.get(*a))
-                .map(|(_collider, parent)| parent.get())
-                .ok();
 
-            let hitting_projectile = parented_collider_query
-                .get(*a)
-                .or_else(|_| parented_collider_query.get(*b))
-                .map(|(_a, parent)| parent.get())
-                .ok();
+            let hit_actor = {
+                let mut character_colliders = parented_collider_query
+                    .iter()
+                    .filter(|(_, _, at)| at == &&ActorColliderType::Character);
+                character_colliders
+                    .find(|f| f.0 == *b || f.0 == *a)
+                    .map(|f| f.1.get())
+            };
+
+            let hitting_projectile = {
+                let mut projectile_colliders = parented_collider_query
+                    .iter()
+                    .filter(|(_, _, at)| at == &&ActorColliderType::Projectile);
+                projectile_colliders
+                    .find(|f| f.0 == *b || f.0 == *a)
+                    .map(|f| f.1.get())
+            };
 
             if let Some(projectile) = hitting_projectile {
                 info!("projectile hit detected");

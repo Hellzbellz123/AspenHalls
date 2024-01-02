@@ -15,10 +15,10 @@ use leafwing_input_manager::prelude::ActionState;
 use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
-    prelude::game::{action_maps, ActorType, SpawnActorEvent},
     consts::TILE_SIZE,
     game::{actors::components::ActorMoveState, game_world::dungeonator_v2::components::*},
     loading::{assets::AspenMapHandles, registry::RegistryIdentifier},
+    prelude::game::{action_maps, ActorType, SpawnActorEvent},
     AppState,
 };
 
@@ -78,7 +78,13 @@ impl Plugin for DungeonGeneratorPlugin {
 fn listen_rebuild_dungeon_request(
     mut cmds: Commands,
     mut dungeon_root: Query<(Entity, &mut DungeonSettings), With<DungeonContainerTag>>,
-    enemies: Query<Entity, (With<ActorMoveState>, Without<ActionState<action_maps::Gameplay>>)>,
+    enemies: Query<
+        Entity,
+        (
+            With<ActorMoveState>,
+            Without<ActionState<action_maps::Gameplay>>,
+        ),
+    >,
     player_input: Query<&ActionState<action_maps::Gameplay>>,
 ) {
     let Ok(player_input) = player_input.get_single() else {

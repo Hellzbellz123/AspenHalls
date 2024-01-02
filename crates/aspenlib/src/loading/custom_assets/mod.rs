@@ -1,6 +1,7 @@
-use bevy::app::Plugin;
 use crate::loading::custom_assets::actor_definitions::ActorAssetPlugin;
+use bevy::app::Plugin;
 
+/// holds aspen halls custom actor asset plugins
 pub mod actor_definitions;
 
 /// handles initialization of all custom assets

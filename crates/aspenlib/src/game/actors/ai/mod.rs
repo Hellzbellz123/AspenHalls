@@ -61,6 +61,7 @@ impl Plugin for AIPlugin {
 #[derive(Debug, Component)]
 struct BigBrainContainerTag;
 
+/// finds all characters wanting ai and adds required ai components
 fn initialize_ai(
     mut commands: Commands,
     ai_controlled: Query<(Entity, &AiSetupConfig, &GlobalTransform)>,
@@ -98,7 +99,7 @@ fn initialize_ai(
                     });
                 }
                 a => {
-                    warn!("AI type unimplemented! {:?}", a)
+                    warn!("AI type unimplemented! {:?}", a);
                 }
             },
         }

@@ -10,7 +10,7 @@ use crate::{
         actors::{
             attributes_stats::{CharacterStats, DamageQueue, EquipmentStats},
             combat::components::{
-                AttackDamage, CurrentlyDrawnWeapon, WeaponForm, WeaponHolder, WeaponSlots,
+                AttackDamage, CurrentlyDrawnWeapon, WeaponDescriptor, WeaponHolder, WeaponSlots,
                 WeaponSocket,
             },
             player::actions::ShootEvent,
@@ -49,10 +49,17 @@ pub struct CurrentRunInformation {
 /// information tracked for player save state
 #[derive(Debug, Clone, Copy, Resource)]
 pub struct PlayerSaveInformation {
+    /// damage player has cause with this save
     pub all_time_damage: f32,
+    /// amount of times player has finishes a run
     pub runs_completed: i32,
+    /// amount of times play has started a run
+    pub runs_started: i32,
+    /// amount of money player has earned
     pub player_money: i32,
+    /// total amount of player deaths
     pub total_deaths: i32,
+    /// total amonut of items player has collected
     pub items_got: i32,
 }
 
@@ -133,6 +140,7 @@ fn rotate_player_weapon(
     }
 }
 
+/// flips weapon sprite if aim angle is not between -90 and 90 degrees
 fn flip_weapon_sprites(
     // all weapons with a sprite
     mut weapon_query: Query<(&WeaponHolder, &Transform, &mut TextureAtlasSprite)>,
@@ -142,11 +150,7 @@ fn flip_weapon_sprites(
             let (_aim_angle, radians) = weapon_transform.rotation.to_axis_angle();
             let degrees = radians.to_degrees();
 
-            if degrees > 90.0 || degrees < -90.0 {
-                sprite.flip_y = true;
-            } else {
-                sprite.flip_y = false;
-            }
+            sprite.flip_y = !(-90.0..=90.0).contains(&degrees);
         }
     }
 }
@@ -165,9 +169,7 @@ fn equipped_weapon_positioning(
 ) {
     for character in &characters {
         children.iter_descendants(character).for_each(|f| {
-            if let Ok((mut weapon_transform, mut weapon_velocity)) =
-                weapon_query.get_mut(f)
-            {
+            if let Ok((mut weapon_transform, mut weapon_velocity)) = weapon_query.get_mut(f) {
                 if weapon_velocity.linvel != Vec2::ZERO {
                     weapon_velocity.linvel = Vec2::ZERO;
                 }
@@ -199,7 +201,7 @@ fn weapon_visibility_system(
         {
             let parent = parent.get();
             if parent != weapon_holder {
-                warn!("weapon is parented incorrectly")
+                warn!("weapon is parented incorrectly");
             }
             let Ok(weapon_socket) = weapon_sockets.get(parent) else {
                 continue;
@@ -228,11 +230,12 @@ fn update_selected_weapon(
             let equipped_and_drawn_weapons = socket
                 .weapon_slots
                 .values()
-                .filter(|f| f.is_some())
-                .map(|f| f.unwrap())
-                .filter(|f| selected_weapon.get(*f).is_ok());
+                .flatten()
+                .filter(|f| selected_weapon.get(**f).is_ok());
+            // .filter(|f| f.is_some())
+            // .map(|f| f.unwrap())
             equipped_and_drawn_weapons.for_each(|f| {
-                cmds.entity(f).remove::<CurrentlyDrawnWeapon>();
+                cmds.entity(*f).remove::<CurrentlyDrawnWeapon>();
             });
         } else {
             let drawn_slot = socket.drawn_slot.unwrap();
@@ -240,21 +243,17 @@ fn update_selected_weapon(
                 // no weapons exist for this actor
                 continue;
             };
-            let equipped_weapons = socket
-                .weapon_slots
-                .values()
-                .filter(|f| f.is_some())
-                .map(|f| f.unwrap());
+
+            // get slots with values != None
+            let equipped_weapons = socket.weapon_slots.values().flatten();
 
             for weapon in equipped_weapons {
-                if &weapon != drawn_weapon {
-                    if selected_weapon.get(weapon).is_ok() {
-                        cmds.entity(weapon).remove::<CurrentlyDrawnWeapon>();
+                if weapon != drawn_weapon {
+                    if selected_weapon.get(*weapon).is_ok() {
+                        cmds.entity(*weapon).remove::<CurrentlyDrawnWeapon>();
                     }
-                } else {
-                    if selected_weapon.get(weapon).is_err() {
-                        cmds.entity(weapon).insert(CurrentlyDrawnWeapon);
-                    }
+                } else if selected_weapon.get(*weapon).is_err() {
+                    cmds.entity(*weapon).insert(CurrentlyDrawnWeapon);
                 }
             }
         }
@@ -348,7 +347,7 @@ pub fn receive_shoot_weapon(
     mut attack_event_reader: EventReader<ShootEvent>,
     weapon_query: Query<
         // this is equivalent to if player has a weapon equipped and out
-        (&mut WeaponHolder, &AttackDamage, &WeaponForm),
+        (&mut WeaponHolder, &AttackDamage, &WeaponDescriptor),
         (With<Parent>, With<CurrentlyDrawnWeapon>),
     >,
 ) {
@@ -402,6 +401,8 @@ fn apply_damage_system(
     }
 }
 
+/// gathers entitys that have damage and despawns them if have no remaining health
+#[allow(clippy::type_complexity)]
 fn handle_death_system(
     mut game_info: ResMut<CurrentRunInformation>,
     mut cmds: Commands,
@@ -417,20 +418,17 @@ fn handle_death_system(
 ) {
     for (ent, mut stats, mut transform, player_control) in &mut damaged_query {
         if stats.get_current_health() <= 0.0 {
-            match player_control {
-                Some(_) => {
-                    error!("player died, moving player");
-                    // player is entity that died
-                    stats.set_health(150.0);
-                    *transform = Transform::from_translation(Vec3::new(0.0, 0.0, ACTOR_Z_INDEX));
-                    game_info.player_deaths += 1;
-                }
-                None => {
-                    // entity that died is not player
-                    error!("despawning entity");
-                    game_info.enemies_deaths += 1;
-                    cmds.entity(ent).despawn_recursive();
-                }
+            if player_control.is_some() {
+                error!("player died, moving player");
+                // player is entity that died
+                stats.set_health(150.0);
+                *transform = Transform::from_translation(Vec3::new(0.0, 0.0, ACTOR_Z_INDEX));
+                game_info.player_deaths += 1;
+            } else {
+                // entity that died is not player
+                error!("despawning entity");
+                game_info.enemies_deaths += 1;
+                cmds.entity(ent).despawn_recursive();
             }
         }
     }

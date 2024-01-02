@@ -26,7 +26,7 @@ use crate::{
 pub struct LdtkCollisionBundle {
     /// name of collider
     pub name: Name,
-    /// physics object
+    /// entity has physics
     pub rigidbody: RigidBody,
     /// collision shape
     pub collision_shape: Collider,
@@ -157,13 +157,14 @@ fn boss_area_from_instance(instance: &EntityInstance) -> BossArea {
     }
 }
 
+/// gets list of `RegistryIdentifiers` from ldtk entity instance
 fn get_spawn_identifiers(instance: &EntityInstance) -> Vec<RegistryIdentifier> {
     let strings = instance
         .get_maybe_strings_field("SpawnIdentifiers")
         .expect("Boss Area should ALWAYS have a DungeonBosses field")
         .iter()
         .filter_map(std::clone::Clone::clone)
-        .map(|f| RegistryIdentifier::from(f))
+        .map(RegistryIdentifier::from)
         .collect::<Vec<RegistryIdentifier>>();
     strings
 }

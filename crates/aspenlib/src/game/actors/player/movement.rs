@@ -18,14 +18,12 @@ use crate::{
 /// adds velocity too player based off what movement keys are pressed
 pub fn update_player_velocity(
     // TODO: use global settings resource
-    mut player_query: Query<
-        (
-            &mut Velocity,
-            &ActorMoveState,
-            &CharacterStats,
-            &ActionState<action_maps::Gameplay>,
-        ),
-    >,
+    mut player_query: Query<(
+        &mut Velocity,
+        &ActorMoveState,
+        &CharacterStats,
+        &ActionState<action_maps::Gameplay>,
+    )>,
 ) {
     let (mut velocity, move_state, player_stats, action_state) = match player_query.get_single_mut()
     {
@@ -68,7 +66,13 @@ pub fn update_player_velocity(
 pub fn camera_movement_system(
     time: Res<Time>,
     mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
-    player_move_query: Query<(&Transform, &Velocity), (With<ActionState<action_maps::Gameplay>>, Without<MainCamera>)>,
+    player_move_query: Query<
+        (&Transform, &Velocity),
+        (
+            With<ActionState<action_maps::Gameplay>>,
+            Without<MainCamera>,
+        ),
+    >,
 ) {
     if player_move_query.is_empty() {
         debug!("No Players too focus camera on");

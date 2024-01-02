@@ -34,19 +34,27 @@ pub struct TeleportCharacterCommand {
 }
 
 //######## COMMAND ARGS ########//
+/// x,y location for comand
 #[derive(Debug, Clone, Copy)]
 pub struct CommandPosition(pub f32, pub f32);
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// who should this command target
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CommandTarget {
+    /// target player
     Player,
+    /// target nearest entity
     Nearest,
+    /// target all targetable entities
     Everyone,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// what should this command spawn
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CommandSpawnType {
+    /// spawn item
     Item,
+    /// spawn npc
     Npc,
 }
 
@@ -56,8 +64,8 @@ impl std::str::FromStr for CommandSpawnType {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_ascii_lowercase().as_str() {
-            "npc" | "creep" => Ok(CommandSpawnType::Npc),
-            "weapon" | "item" => Ok(CommandSpawnType::Item),
+            "npc" | "creep" => Ok(Self::Npc),
+            "weapon" | "item" => Ok(Self::Item),
             _ => Err(Error::new(clap::error::ErrorKind::ValueValidation)),
         }
     }
@@ -68,9 +76,9 @@ impl std::str::FromStr for CommandTarget {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_ascii_lowercase().as_str() {
-            "@p" => Ok(CommandTarget::Player),
-            "@n" => Ok(CommandTarget::Nearest),
-            "@e" => Ok(CommandTarget::Everyone),
+            "@p" => Ok(Self::Player),
+            "@n" => Ok(Self::Nearest),
+            "@e" => Ok(Self::Everyone),
             _ => Err(Error::new(clap::error::ErrorKind::ValueValidation)),
         }
     }
@@ -80,7 +88,7 @@ impl std::str::FromStr for CommandPosition {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        println!("PARSE_VEC: {}", s);
+        println!("PARSE_VEC: {s}");
         // Remove leading and trailing whitespaces
         let s = s.trim();
 
@@ -100,9 +108,9 @@ impl std::str::FromStr for CommandPosition {
                     return Err(Error::new(clap::error::ErrorKind::InvalidValue));
                 };
                 // Return the Vec2
-                Ok(CommandPosition(x, y))
+                Ok(Self(x, y))
             } else {
-                return Err(Error::new(clap::error::ErrorKind::TooManyValues));
+                Err(Error::new(clap::error::ErrorKind::TooManyValues))
             }
         } else {
             // Extract the content between '(' and ')' and split it into components
@@ -119,9 +127,9 @@ impl std::str::FromStr for CommandPosition {
                     return Err(Error::new(clap::error::ErrorKind::InvalidValue));
                 };
                 // Return the Vec2
-                Ok(CommandPosition(x, y))
+                Ok(Self(x, y))
             } else {
-                return Err(Error::new(clap::error::ErrorKind::InvalidSubcommand));
+                Err(Error::new(clap::error::ErrorKind::InvalidSubcommand))
             }
         }
     }
@@ -129,13 +137,13 @@ impl std::str::FromStr for CommandPosition {
 
 impl From<Vec2> for CommandPosition {
     fn from(value: Vec2) -> Self {
-        CommandPosition(value.x, value.y)
+        Self(value.x, value.y)
     }
 }
 
 impl From<CommandPosition> for Vec2 {
     fn from(value: CommandPosition) -> Self {
-        Vec2 {
+        Self {
             x: value.0,
             y: value.1,
         }

@@ -16,7 +16,7 @@ use big_brain::{
 use rand::{thread_rng, Rng};
 
 use crate::{
-    consts::{actor_collider, TILE_SIZE, default_actor_collider},
+    consts::{default_actor_collider, TILE_SIZE},
     game::{
         actors::ai::components::{
             AIChaseAction, AICombatConfig, AIWanderAction, AIWanderConfig, AttackScorer,
@@ -49,6 +49,7 @@ impl Plugin for StupidAiPlugin {
     }
 }
 
+/// converts tile amt too f32 value
 pub fn tiles_to_f32(distance: i32) -> f32 {
     distance as f32 * TILE_SIZE
 }
@@ -56,6 +57,8 @@ pub fn tiles_to_f32(distance: i32) -> f32 {
 use bevy::hierarchy::HierarchyQueryExt;
 
 //TODO: rework ai
+/// updates character attack/chase score
+#[allow(clippy::type_complexity)]
 fn stupid_ai_aggro_manager(
     names: Query<&Name>,
     rapier_context: Res<RapierContext>,
@@ -107,13 +110,7 @@ fn stupid_ai_aggro_manager(
         // it seems too always be true
         let can_reach_target: bool = match ray {
             None => false,
-            Some((entity, _distance)) => {
-                if entity == player_collider {
-                    true
-                } else {
-                    false
-                }
-            }
+            Some((entity, _distance)) => entity == player_collider,
         };
 
         if ray.is_some() {
@@ -156,9 +153,7 @@ fn chase_action(
     };
 
     for (Actor(actor), mut state) in &mut chasing_enemies {
-        if let Ok((enemy_transform, mut velocity, combat_cfg)) =
-            enemy_query.get_mut(*actor)
-        {
+        if let Ok((enemy_transform, mut velocity, combat_cfg)) = enemy_query.get_mut(*actor) {
             let player_pos = player_transform.translation.truncate();
             let enemy_pos = enemy_transform.translation.truncate();
             let direction = (player_pos - enemy_pos).normalize_or_zero();
@@ -178,11 +173,11 @@ fn chase_action(
                     trace!("chase executing");
                     if !actor_in_personal_space && actor_in_shoot_range {
                         trace!("actor is close enough too attack: chase sucsessful");
-                        *state = ActionState::Success
+                        *state = ActionState::Success;
                     }
                     if !actor_in_chase_range {
                         trace!("actor not in range, failed chase");
-                        *state = ActionState::Failure
+                        *state = ActionState::Failure;
                     }
 
                     if !actor_in_personal_space {
@@ -237,12 +232,11 @@ fn attack_action(
                     if shoot_cfg.should_shoot {
                         trace!("stop shoot");
                         shoot_cfg.should_shoot = false;
-                        *state = ActionState::Success
                     } else {
                         trace!("start shoot");
                         shoot_cfg.should_shoot = true;
-                        *state = ActionState::Success;
                     }
+                    *state = ActionState::Success;
                 }
                 ActionState::Success | ActionState::Failure => {
                     shoot_cfg.should_shoot = false;
@@ -351,15 +345,13 @@ fn wander_action(
     }
 }
 
+/// sets chase score for character
+#[allow(clippy::type_complexity)]
 fn set_chase_score(
-    scorers: &mut ParamSet<
-        '_,
-        '_,
-        (
-            Query<'_, '_, (&Actor, &mut Score), With<ChaseScorer>>,
-            Query<'_, '_, (&Actor, &mut Score), With<AttackScorer>>,
-        ),
-    >,
+    scorers: &mut ParamSet<(
+        Query<(&Actor, &mut Score), With<ChaseScorer>>,
+        Query<(&Actor, &mut Score), With<AttackScorer>>,
+    )>,
     enemy: Entity,
     new_score: f32,
 ) {
@@ -370,16 +362,13 @@ fn set_chase_score(
         .for_each(|(_, mut score)| score.set(new_score));
 }
 
-///set `AttackScore` value for actor
+/// set attack score for character
+#[allow(clippy::type_complexity)]
 fn set_attack_score(
-    scorers: &mut ParamSet<
-        '_,
-        '_,
-        (
-            Query<'_, '_, (&Actor, &mut Score), With<ChaseScorer>>,
-            Query<'_, '_, (&Actor, &mut Score), With<AttackScorer>>,
-        ),
-    >,
+    scorers: &mut ParamSet<(
+        Query<(&Actor, &mut Score), With<ChaseScorer>>,
+        Query<(&Actor, &mut Score), With<AttackScorer>>,
+    )>,
     actor: Entity,
     new_score: f32,
 ) {
@@ -389,103 +378,3 @@ fn set_attack_score(
         .filter(|f| f.0 .0 == actor)
         .for_each(|(_, mut score)| score.set(new_score));
 }
-
-// /// chase score system, if player is in range, aggro score is 1
-// fn chase_score_system(
-//     player_query: Query<&Transform, With<Player>>, // player
-//     enemy_query: Query<(&Transform, &AIChaseConfig), With<Enemy>>, // enemies that can aggro
-//     mut chase_scorer_query: Query<(&Actor, &mut Score), With<ChaseScore>>, // aggro scorer
-// ) {
-//     for (Actor(actor), mut chase_score) in &mut chase_scorer_query {
-//         let mut closest_player_as_distance = f32::INFINITY;
-//         let mut closest_player_transform: Option<&Transform> = None;
-
-//         // Iterate over available player queries and find the closest player to the enemy
-//         for player_transform in &player_query {
-//             let distance = player_transform.translation.truncate().distance(
-//                 enemy_query
-//                     .get_component::<Transform>(*actor)
-//                     // TODO! this is an error
-//                     .unwrap_or(&Transform::IDENTITY)
-//                     .translation
-//                     .truncate(),
-//             );
-//             if distance > closest_player_as_distance {
-//                 closest_player_as_distance = distance;
-//                 closest_player_transform = Some(player_transform);
-//             }
-//         }
-
-//         if let Some(_player_transform) = closest_player_transform {
-//             let (_enemy_transform, chase_able) = enemy_query.get(*actor).unwrap();
-//             if closest_player_as_distance < chase_able.aggro_distance.abs() {
-//                 chase_score.set(0.8);
-//             } else {
-//                 chase_score.set(0.0);
-//             }
-//         } else {
-//             chase_score.set(0.0);
-//         }
-//     }
-// }
-
-// /// if player is within attack range, shoot at player
-// #[allow(clippy::type_complexity)]
-// fn attack_score_system(
-//     player_query: Query<&Transform, With<Player>>, //player
-//     mut enemy_query: Query<(&Transform, &mut AIShootConfig), With<Enemy>>, //enemy's that can aggro
-//     mut attack_score_query: Query<
-//         (&Actor, &mut Score),
-//         (With<AttackScore>, Without<ChaseScore>, Without<WanderScore>),
-//     >,
-// ) {
-//     let Ok(player_transform) = player_query.get_single() else {
-//         return;
-//     };
-
-//     for (Actor(actor), mut attack_score) in &mut attack_score_query {
-//         if let Ok((transform, mut attack_config)) = enemy_query.get_mut(*actor) {
-//             let distance_too_player = player_transform
-//                 .translation
-//                 .truncate()
-//                 .distance(transform.translation.truncate())
-//                 .abs();
-
-//             if distance_too_player <= attack_config.find_target_range {
-//                 attack_score.set(1.0);
-//             } else {
-//                 attack_config.can_shoot = false;
-//                 attack_score.set(0.0);
-//             }
-//         }
-//     }
-// }
-
-// /// wander able enemy's scorer
-// /// if player is not within range, score is 1
-// fn wander_score_system(
-//     player_query: Query<&Transform, With<Player>>, //player
-//     enemy_query: Query<(&Transform, &AIChaseConfig), With<Enemy>>, //enemy's that can aggro
-//     mut wander_score_query: Query<
-//         (&Actor, &mut Score),
-//         (With<WanderScore>, Without<ChaseScore>, With<AttackScore>),
-//     >,
-// ) {
-//     let Ok(player_transform) = player_query.get_single() else {
-//         return;
-//     };
-//     for (Actor(actor), mut wander_score) in &mut wander_score_query {
-//         if let Ok((transform, chase_config)) = enemy_query.get(*actor) {
-//             let distance = player_transform
-//                 .translation
-//                 .truncate()
-//                 .distance(transform.translation.truncate());
-
-//             if distance > chase_config.aggro_distance {
-//                 wander_score.set(1.0);
-//             } else {
-//                 wander_score.set(0.0);
-//             }
-//         }
-//     }
-// }

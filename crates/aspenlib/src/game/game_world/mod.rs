@@ -1,5 +1,3 @@
-
-
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
     prelude::{EntityIid, LdtkEntityAppExt},
@@ -10,7 +8,6 @@ use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, V
 use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
-    prelude::{game::{ActorType, action_maps}, engine},
     consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
     game::{
         actors::components::{ActorMoveState, TeleportStatus},
@@ -18,10 +15,15 @@ use crate::{
             components::{ActorTeleportEvent, PlayerStartLocation, TpTriggerEffect},
             dungeonator_v2::DungeonGeneratorState,
             ldtk_bundles::{
-                LdtkCollisionBundle, LdtkRoomExitBundle, LdtkEnemySpawnerBundle, LdtkStartLocBundle,
-                LdtkTeleporterBundle, LdtkHeroPlaceBundle, LdtkWeaponSpawnerBundle,
+                LdtkCollisionBundle, LdtkEnemySpawnerBundle, LdtkHeroPlaceBundle,
+                LdtkRoomExitBundle, LdtkStartLocBundle, LdtkTeleporterBundle,
+                LdtkWeaponSpawnerBundle,
             },
         },
+    },
+    prelude::{
+        engine,
+        game::{action_maps, ActorType},
     },
 };
 
@@ -179,7 +181,10 @@ fn handle_teleport_events(
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
-    mut player_query: Query<(Entity, &mut ActorMoveState), With<engine::ActionState<action_maps::Gameplay>>>,
+    mut player_query: Query<
+        (Entity, &mut ActorMoveState),
+        With<engine::ActionState<action_maps::Gameplay>>,
+    >,
     start_location: Query<(&PlayerStartLocation, &GlobalTransform)>,
     mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
@@ -347,8 +352,7 @@ fn check_tag_colliders(
             // in the future this might be expanded on
         }
         unknown => {
-            let new_str = format!("ERROR: Unknown Tile Enum Tag on this entity: {}", unknown);
-            println!("{}", new_str);
+            println!("ERROR: Unknown Tile Enum Tag on this entity: {unknown}");
         }
     }
 }

@@ -153,6 +153,7 @@ macro_rules! on_enter {
 /// # Note
 /// this function works, but components must be added with the correct value for systems that use them
 /// - things like `GlobalTransform` wont be accurate till 1 run later
+#[allow(unused)]
 pub fn on_component_added<T: Component>(
 ) -> impl FnMut((Local<usize>, Local<bool>, Query<(), With<T>>)) -> bool + Clone {
     move |(mut local_count, mut loop_once, query)| {

@@ -2,7 +2,7 @@ use std::{
     collections::VecDeque,
     iter::Sum,
     ops::{Add, Mul},
-    time::Duration, slice::Iter,
+    time::Duration,
 };
 
 use bevy::{
@@ -65,16 +65,14 @@ pub fn sync_character_stats(
     }
 }
 
-fn update_equipment_stats(
-    equipment: Query<&EquipmentStats>,
-) {
-
-}
-
+/// stats related components for characters
 #[derive(Debug, Bundle, Clone, Reflect)]
 pub struct CharacterStatBundle {
+    /// attributes thi character has
     stats: CharacterStats,
+    /// list of all effects applied too character
     effects: EffectQueue,
+    /// list of all damage too be applied too character
     damage: DamageQueue,
 }
 
@@ -84,18 +82,25 @@ pub struct CharacterStatBundle {
 #[derive(Debug, Component, Clone, Reflect)]
 #[reflect(Component)]
 pub struct EffectQueue {
+    /// list of positive effects applied too character
     pub buffs: VecDeque<Effect>,
+    /// list of negative effects applied too character
     pub debuffs: VecDeque<Effect>,
     /// attributes applied from this effect queue
     pub current: Attributes,
+    /// total amount of effects this character has
     pub amount: u32,
+    /// maximum amount of effects this character can have
     pub max: u32,
 }
 
+/// damage list that can be applied too the character
 #[derive(Debug, Component, Clone, Reflect, Default)]
 #[reflect(Component)]
 pub struct DamageQueue {
+    /// instances of damage applied too character
     instances: VecDeque<Damage>,
+    /// does this damage queue accept damage
     immune: bool,
 }
 
@@ -133,11 +138,12 @@ pub struct EquipmentStats {
     upgrades: Attributes,
 }
 
-
 /// projectile data
 #[derive(Debug, Component, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize)]
 pub struct ProjectileStats {
+    /// did this projectile originate from a player
     pub is_player_projectile: bool,
+    /// damage from this projectile
     pub damage: Damage,
 }
 
@@ -150,6 +156,7 @@ pub struct Damage {
     pub elemental: ElementalEffect,
 }
 
+/// damage applied directly too characters health
 #[derive(Debug, Clone, Copy, PartialEq, Default, Reflect, serde::Deserialize, serde::Serialize)]
 pub struct PhysicalDamage(pub f32);
 
@@ -160,22 +167,34 @@ pub struct PhysicalDamage(pub f32);
 // fire: character should burn for a bit
 // water: idek
 // air: character should randomly get a burst of uncontrollable speed
+/// different elemental buffer damage amounts that attacks/actions can apply
 #[derive(Debug, Clone, Copy, PartialEq, Reflect, Default, serde::Deserialize, serde::Serialize)]
 pub enum ElementalEffect {
+    /// no elemental effect
     #[default]
     None,
+    /// attack effects earth buffer
     Earth(f32),
+    /// attack effects fire buffer
     Fire(f32),
+    /// attack effects water buffer
     Water(f32),
+    /// attack effects air buffer
     Air(f32),
 }
 
+/// resistances too different attack special effects
 #[derive(Debug, Clone, Copy, PartialEq, Reflect, serde::Deserialize, serde::Serialize)]
 pub struct ElementalBuffers {
+    /// max earth element before effect
     earth: f32,
+    /// max fire element before effect
     fire: f32,
+    /// max water element before effect
     water: f32,
+    /// max air element before effect
     air: f32,
+    /// how fast the buffer recharges
     repair_rate: f32,
 }
 
@@ -254,18 +273,20 @@ impl Default for EffectQueue {
 }
 
 impl DamageQueue {
+    /// default empty damage queue
     pub const DEFAULT: Self = Self {
         instances: VecDeque::new(),
         immune: false,
     };
 
+    /// returns an iterator over the damage in the queue
     pub fn iter_queue(&self) -> std::collections::vec_deque::Iter<'_, Damage> {
         self.instances.iter()
     }
 
     /// add damage too queue
     pub fn push_damage(&mut self, damage: Damage) {
-        self.instances.push_front(damage)
+        self.instances.push_front(damage);
     }
 
     /// sets empty damage queue
@@ -275,7 +296,7 @@ impl DamageQueue {
 
     /// sets immunity too damage
     pub fn set_immune(&mut self, immune: bool) {
-        self.immune = immune
+        self.immune = immune;
     }
 }
 
@@ -292,8 +313,9 @@ impl Default for ElementalBuffers {
 }
 
 impl CharacterStatBundle {
-    pub fn from_attrs(attrs: Attributes) -> CharacterStatBundle {
-        CharacterStatBundle {
+    /// creates character stat bundle from passed attributes
+    pub fn from_attrs(attrs: Attributes) -> Self {
+        Self {
             stats: CharacterStats::from_attrs(attrs, None),
             ..Default::default()
         }
@@ -318,7 +340,7 @@ impl EquipmentStats {
 
     /// set upgrade total
     pub fn set_upgrade_amount(&mut self, amt: u32) {
-        self.upgrade_amount = amt
+        self.upgrade_amount = amt;
     }
 
     /// returns ref too final stat values
@@ -349,25 +371,26 @@ impl EquipmentStats {
 }
 
 impl CharacterStats {
-    // get set health
+    /// get current health
     pub const fn get_current_health(&self) -> f32 {
         self.health
     }
 
+    /// gets current equipment total
     pub const fn get_equipment_amount(&self) -> u32 {
         self.equipment_amount
     }
 
     /// set health too amount
     pub fn set_health(&mut self, amt: f32) {
-        self.health = amt
+        self.health = amt;
     }
 
     /// remove damamge value from total health
     pub fn apply_damage(&mut self, amt: Damage) {
         self.health -= amt.physical.0;
         match amt.elemental {
-            ElementalEffect::None => {},
+            ElementalEffect::None => {}
             ElementalEffect::Earth(v) => self.element_buffer.earth -= v,
             ElementalEffect::Fire(v) => self.element_buffer.fire -= v,
             ElementalEffect::Water(v) => self.element_buffer.water -= v,
@@ -377,7 +400,7 @@ impl CharacterStats {
 
     /// set equpment amount
     pub fn set_equipment_amount(&mut self, amt: u32) {
-        self.equipment_amount = amt
+        self.equipment_amount = amt;
     }
 
     /// returns ref too final stat values
@@ -438,7 +461,10 @@ impl Attributes {
         strength: 1,
         agility: 1,
         intelligence: 1,
-        damage: Damage { physical: PhysicalDamage(1.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(1.0),
+            elemental: ElementalEffect::None,
+        },
         range: 1.0,
         arm_speed: 1.0,
         armor: 1,
@@ -454,7 +480,10 @@ impl Attributes {
         strength: 0,
         agility: 0,
         intelligence: 0,
-        damage: Damage { physical: PhysicalDamage(0.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(0.0),
+            elemental: ElementalEffect::None,
+        },
         range: 0.0,
         arm_speed: 0.0,
         armor: 0,
@@ -470,7 +499,10 @@ impl Attributes {
         strength: 2,
         agility: 2,
         intelligence: 6,
-        damage: Damage { physical: PhysicalDamage(40.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(40.0),
+            elemental: ElementalEffect::None,
+        },
         range: (TILE_SIZE * 1.5),
         arm_speed: 0.4,
         armor: 2,
@@ -486,7 +518,10 @@ impl Attributes {
         strength: 10,
         agility: 10,
         intelligence: 10,
-        damage: Damage { physical: PhysicalDamage(5.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(5.0),
+            elemental: ElementalEffect::None,
+        },
         range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10,
@@ -502,7 +537,10 @@ impl Attributes {
         strength: 10,
         agility: 10,
         intelligence: 10,
-        damage: Damage { physical: PhysicalDamage(5.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(5.0),
+            elemental: ElementalEffect::None,
+        },
         range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10,
@@ -518,7 +556,10 @@ impl Attributes {
         strength: 10,
         agility: 10,
         intelligence: 10,
-        damage: Damage { physical: PhysicalDamage(5.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(5.0),
+            elemental: ElementalEffect::None,
+        },
         range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10,
@@ -534,7 +575,10 @@ impl Attributes {
         strength: 10,
         agility: 10,
         intelligence: 10,
-        damage: Damage { physical: PhysicalDamage(5.0), elemental: ElementalEffect::None },
+        damage: Damage {
+            physical: PhysicalDamage(5.0),
+            elemental: ElementalEffect::None,
+        },
         range: (TILE_SIZE * 1.5),
         arm_speed: 1.0,
         armor: 10,
@@ -553,10 +597,13 @@ impl Attributes {
             strength: 10 * scale_integer,
             agility: 10 * scale_integer,
             intelligence: 10 * scale_integer,
-            damage: Damage { physical: PhysicalDamage(5.0 * scale_float), elemental: ElementalEffect::None },
+            damage: Damage {
+                physical: PhysicalDamage(5.0 * scale_float),
+                elemental: ElementalEffect::None,
+            },
             range: (TILE_SIZE * (1.5 * scale_float)),
             arm_speed: 1.0 * scale_float,
-            armor: 10 * scale_integer as i32,
+            armor: 10 * scale_integer,
         }
     }
 

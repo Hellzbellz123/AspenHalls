@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use big_brain::prelude::{ActionBuilder, ScorerBuilder};
-use clap::ValueEnum;
 
 /// enemies chase scorer
 #[derive(Component, Default, Clone, Debug, Reflect, ScorerBuilder)]
@@ -15,18 +14,18 @@ pub struct AttackScorer;
 pub struct WanderScore;
 
 /// actor combat ai cfg
-#[derive(Component, Default, Clone, Debug, Reflect, serde::Deserialize,)]
+#[derive(Component, Default, Clone, Debug, Reflect, serde::Deserialize)]
 pub struct AICombatConfig {
-        /// when ai will consider chasing
-        pub chase_start: i32,
-        /// max distance from spawn ai will chase
-        pub chase_end: i32,
-        /// shoot distance
-        pub shoot_range: i32,
-        /// if enemy is inside this characters personal_space, move backward
-        pub personal_space: i32,
-        /// scared health
-        pub runaway_hp: f32,
+    /// when ai will consider chasing
+    pub chase_start: i32,
+    /// max distance from spawn ai will chase
+    pub chase_end: i32,
+    /// shoot distance
+    pub shoot_range: i32,
+    /// if enemy is inside this characters personal_space, move backward
+    pub personal_space: i32,
+    /// scared health
+    pub runaway_hp: f32,
 }
 
 /// enemies with this will shoot
@@ -67,14 +66,15 @@ pub struct AIChaseAction;
 #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
 pub struct AIWanderAction;
 
-
 // TODO: change this too be enum of enums
 // yeet Hero, Weapon from ActorType
 // add Hero too NpcType
-// add ObjectType with Weapon/Armor/Trinket
-// rename Npc -> Character and NpcType -> CharacterType / item -> Object
+// add ItemType with Weapon/Armor/Trinket
+// rename Npc -> Character and NpcType -> CharacterType
 /// actors function in game
-#[derive(Debug, Component, Reflect, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+#[derive(
+    Debug, Component, Reflect, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize,
+)]
 pub enum ActorType {
     /// actor is an npc
     /// - NpcType decides freinds/enemies
@@ -86,32 +86,19 @@ pub enum ActorType {
     Weapon,
     /// is an item, can be equipped
     Item,
-    // TODO: add Object or some other name for chests/switches world interactables etc
 }
 
 impl ActorType {
     /// checks if actor is a creep, ignores ai level
-    pub fn is_creep(&self) -> bool {
-        match self {
-            ActorType::Npc(a) => match a {
-                NpcType::Creep => true,
-                NpcType::Boss => false,
-                NpcType::Minion => false,
-                NpcType::Critter => false,
-                NpcType::Friendly => false,
-            },
-            _ => false,
-        }
+    #[must_use]
+    pub fn is_creep(self) -> bool {
+        self == Self::Npc(NpcType::Creep)
     }
 
     /// checks if actor is a hero
-    pub fn is_hero(&self) -> bool {
-        match self {
-            ActorType::Hero => true,
-            ActorType::Item => false,
-            ActorType::Npc(_) => false,
-            ActorType::Weapon => false,
-        }
+    #[must_use]
+    pub fn is_hero(self) -> bool {
+        self == Self::Hero
     }
 }
 
@@ -133,11 +120,17 @@ pub enum NpcType {
     Minion,
 }
 
+/// type of ai this ai wanting character should get
 #[derive(Debug, Reflect, Copy, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 pub enum AiType {
+    /// not very smart ai
     Stupid,
+    /// boss ai
     Boss,
+    /// critter ai
     Critter,
+    /// player pet
     PlayerPet,
+    /// hero player can hire
     FollowerHero,
 }

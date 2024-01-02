@@ -11,7 +11,7 @@ use rand::{
 
 use self::components::{EnemyContainerTag, EnemySpawner, SpawnActorEvent, SpawnerTimer};
 use crate::{
-    bundles::{CharacterBundle, ObjectColliderBundle},
+    bundles::{CharacterBundle, ItemColliderBundle},
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
     game::actors::{
         ai::components::{ActorType, NpcType},
@@ -190,7 +190,7 @@ fn spawn_creeps_on_event(
                         let collider_name =
                             format!("{}Collider", bundle_copy.name.clone().as_str());
                         let spawned_enemy = child
-                            .spawn((ObjectColliderBundle {
+                            .spawn((ItemColliderBundle {
                                 tag: ActorColliderType::Character,
                                 name: Name::new(collider_name),
                                 transform_bundle: TransformBundle {
@@ -249,7 +249,7 @@ fn spawn_weapon_on_event(
             event.what_to_spawn, spawn_count, event.spawn_position
         );
 
-        let Some(weapon_bundle) = registry.objects.weapons.get(&event.what_to_spawn) else {
+        let Some(weapon_bundle) = registry.items.weapons.get(&event.what_to_spawn) else {
             panic!(
                 "requested weapon did not exist in weapon registry: {:?}",
                 event.what_to_spawn
@@ -272,8 +272,8 @@ fn spawn_weapon_bundle(
 ) {
     commands.spawn(bundle_copy.clone()).with_children(|child| {
         let collider_name = format!("{}Collider", bundle_copy.name.as_str());
-        child.spawn(ObjectColliderBundle {
-            tag: ActorColliderType::Object,
+        child.spawn(ItemColliderBundle {
+            tag: ActorColliderType::Item,
             name: Name::new(collider_name),
             collider: Collider::capsule(Vec2 { x: 0.0, y: -10.0 }, Vec2 { x: 0.0, y: 10.0 }, 2.0),
             collision_groups: CollisionGroups::new(

@@ -2,12 +2,12 @@ use bevy::{
     app::Update,
     asset::{Assets, Handle},
     ecs::{
-        query::{Changed, With},
+        query::Changed,
         system::{Query, Res},
     },
-    log::info,
+    log::{info, warn},
     math::Vec2,
-    prelude::{state_exists_and_equals, warn, IntoSystemConfigs},
+    prelude::{state_exists_and_equals, IntoSystemConfigs},
     sprite::{TextureAtlas, TextureAtlasSprite},
 };
 use bevy_rapier2d::dynamics::Velocity;
@@ -15,11 +15,11 @@ use bevy_rapier2d::dynamics::Velocity;
 use crate::{
     consts::{MIN_VELOCITY, WALK_MODIFIER},
     game::actors::{
-        attributes_stats::{CharacterStats, EquipmentStats},
+        attributes_stats::CharacterStats,
         components::{ActorMoveState, CurrentMovement},
     },
     loading::{
-        custom_assets::actor_definitions::{CharacterDefinition, ObjectDefinition},
+        custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition},
         registry::RegistryIdentifier,
     },
     prelude::engine::{App, Plugin},
@@ -61,7 +61,7 @@ impl Plugin for ActorPlugin {
             ))
             .add_systems(
                 Update,
-                (update_character_move_status, update_character_size)
+                (update_character_move_status, update_actor_size)
                     .run_if(state_exists_and_equals(AppState::PlayingGame)),
             );
     }
@@ -92,14 +92,15 @@ fn update_character_move_status(
     }
 }
 
-fn update_character_size(
+/// update actor size if its custom size is not already set
+fn update_actor_size(
     mut query: Query<(
         &mut TextureAtlasSprite,
         &Handle<TextureAtlas>,
         &RegistryIdentifier,
     )>,
     texture_atlass: Res<Assets<TextureAtlas>>,
-    obje_assets: Res<Assets<ObjectDefinition>>,
+    obje_assets: Res<Assets<ItemDefinition>>,
     char_assets: Res<Assets<CharacterDefinition>>,
 ) {
     for (mut sprite, texture_atlas, registry_identifier) in &mut query {
@@ -122,13 +123,13 @@ fn update_character_size(
             let maybe_characer = char_assets
                 .iter()
                 .find(|(_, asset)| asset.actor.identifier == *registry_identifier);
-            let maybe_object = obje_assets
+            let maybe_item = obje_assets
                 .iter()
                 .find(|(_, asset)| asset.actor.identifier == *registry_identifier);
 
             if let Some((_, def)) = maybe_characer {
                 def.actor.pixel_size
-            } else if let Some((_, def)) = maybe_object {
+            } else if let Some((_, def)) = maybe_item {
                 def.actor.pixel_size
             } else {
                 warn!("character has no asset");
@@ -142,24 +143,18 @@ fn update_character_size(
             "target size: {}, new_custom_size: {}",
             final_size, new_custom_size
         );
-        sprite.custom_size = Some(new_custom_size)
+        sprite.custom_size = Some(new_custom_size);
     }
 }
 
+/// scales a `Vec2` so its largest value is smaller than x/y of final size
 fn scale_to_fit(current: Vec2, final_size: Vec2) -> Vec2 {
     // Calculate scaling factors for both dimensions
-    let scale_x = final_size.x / current.x;
-    let scale_y = final_size.y / current.y;
-
-    // Use the minimum scaling factor to maintain aspect ratio
-    let min_scale = scale_x.min(scale_y);
+    let min_scale = (final_size.x / current.x).min(final_size.y / current.y);
 
     // Scale the Vec2
-    let scaled_vec = Vec2 {
+    Vec2 {
         x: current.x * min_scale,
         y: current.y * min_scale,
-    };
-
-    // Return the scaled Vec2
-    scaled_vec
+    }
 }
