@@ -5,9 +5,9 @@ use bevy::{
     log::{debug, error, info},
     math::Vec2,
     prelude::{
-        any_with_component, run_once, state_exists_and_equals, Commands, DespawnRecursiveExt,
-        Entity, GlobalTransform, IntoSystemConfigs, OnEnter, OrthographicProjection, Plugin, Query,
-        Transform, Update, With, Without,
+        any_with_component, on_event, run_once, state_exists_and_equals, Commands,
+        DespawnRecursiveExt, Entity, GlobalTransform, IntoSystemConfigs, OnEnter,
+        OrthographicProjection, Plugin, Query, Transform, Update, With, Without, OnExit,
     },
     time::common_conditions::on_timer,
 };
@@ -15,27 +15,27 @@ use bevy_mod_picking::{
     events::{Down, Pointer},
     prelude::{On, PickableBundle},
 };
-use leafwing_input_manager::prelude::ActionState;
+use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
     consts::{ACTOR_Z_INDEX, HIGHLIGHT_TINT},
     game::{
-        actors::{
-            combat::components::AttackDamage, components::ActorMoveState,
-            player::SelectThisHeroForPlayer,
+        characters::{
+            components::CharacterMoveState,
+            player::{PlayerSelectedHero, SelectThisHeroForPlayer},
         },
         game_world::{
             components::HeroSpot,
-            dungeonator_v2::DungeonGeneratorState,
+            dungeonator_v2::GeneratorState,
             hideout::systems::{
                 spawn_hideout,
                 // enter_the_dungeon,
                 teleporter_collisions,
             },
         },
+        items::weapons::components::AttackDamage,
     },
-    loading::registry::ActorRegistry,
-    prelude::game::{action_maps, MainCamera},
+    loading::{registry::ActorRegistry, splashscreen::MainCamera},
     AppState,
 };
 
@@ -65,16 +65,15 @@ impl Plugin for HideOutPlugin {
                 ),
             )
             .add_systems(
-                OnEnter(DungeonGeneratorState::PrepareDungeon),
+                OnExit(GeneratorState::SelectPresets),
                 cleanup_start_world,
             )
             .add_systems(
                 Update,
                 (
                     // TODO: fix scheduling
-                    teleporter_collisions,
-                )
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                    teleporter_collisions.run_if(on_event::<CollisionEvent>()),
+                ),
             );
     }
 }
@@ -130,13 +129,7 @@ fn select_hero_focus(
 /// despawn all entities that should be cleaned up on restart
 fn cleanup_start_world(
     mut commands: Commands,
-    characters_not_player: Query<
-        Entity,
-        (
-            With<ActorMoveState>,
-            Without<ActionState<action_maps::Gameplay>>,
-        ),
-    >,
+    characters_not_player: Query<Entity, (With<CharacterMoveState>, Without<PlayerSelectedHero>)>,
     home_world_container: Query<Entity, With<MapContainerTag>>,
     weapons: Query<Entity, With<AttackDamage>>,
 ) {

@@ -1,15 +1,16 @@
 use bevy::{
-    ecs::{bundle::Bundle, reflect::ReflectResource, system::Resource},
+    ecs::{bundle::Bundle, reflect::{ReflectResource, ReflectComponent}, system::Resource},
     log::warn,
-    math::Vec2,
-    prelude::{Component, Handle, Name, SpatialBundle},
+    math::{Vec2, IVec2},
+    prelude::{Component, Handle, Name, SpatialBundle, Entity},
     reflect::Reflect,
 };
 use bevy_ecs_ldtk::{
     prelude::{ldtk::FieldInstance, FieldValue, LdtkProject},
     LevelIid,
 };
-use rand::prelude::{IteratorRandom, ThreadRng};
+
+use crate::game::game_world::{components::RoomExit, dungeonator_v2::hallways::PlacedHallWay};
 
 /// bundle for easy spawning of dungeon
 /// always 1 per dungeon, all dungeon rooms are children
@@ -38,7 +39,6 @@ pub struct DungeonRoomBundle {
     pub id: LevelIid,
     /// spatial data
     pub spatial: SpatialBundle,
-    // pub preset: RoomPreset,
 }
 
 /// bundle for easy spawning of Dungeon Hallways
@@ -93,13 +93,15 @@ pub struct DungeonSettings {
     pub map_halfsize: f32,
     /// minimum space between dungeon rooms, in tiles
     pub tiles_between_rooms: i32,
-    /// new pos rooms
-    pub positioned_presets: Vec<RoomPreset>,
+    /// postion checked rooms
+    pub positioned_rooms: Vec<PlacedRoom>,
+    /// position checked hallways
+    pub positioned_hallways: Vec<PlacedHallWay>,
     /// amount of rooms inside dungeon
     pub room_amount: RoomAmounts,
-    // /// percentage of paths between
-    // /// rooms that are chosen to loop
-    // pub looped_hallway_percentage: f32,
+    /// percentage of paths between
+    /// rooms that are chosen to loop
+    pub loops_percentage: f32,
 }
 
 /// tag too identify dungeons
@@ -111,46 +113,69 @@ pub struct DungeonContainerTag;
 pub struct DungeonHallwayTag;
 
 /// tag too identify dungeon rooms
-#[derive(Component, Debug)]
+#[derive(Component, Debug, Clone)]
 pub struct DungeonRoomTag;
 
 /// room instances before being placed
-#[derive(Debug, Component, Clone, Reflect)]
+#[derive(Debug, Clone, Reflect)]
 pub struct RoomPreset {
+    /// information describing the room
+    pub descriptor: RoomDescriptor,
+    /// asset id for level data
+    pub room_asset_id: LevelIid,
     /// name of the room
     pub name: String,
-    /// asset id for level data
-    pub room_asset_id: String,
-    /// size of room
     /// - Rect.max is position + size
+    /// size of room
     pub size: Vec2,
-    /// position of room in dungeon
-    /// - Rect.min is position
-    pub position: Option<Vec2>,
+}
+
+impl PlacedRoom {
+    pub fn from_preset(preset: &RoomPreset, position: Vec2, id: u32) -> PlacedRoom {
+        PlacedRoom {
+            descriptor: preset.descriptor.clone(),
+            asset_id: preset.room_asset_id.clone(),
+            position: position.as_ivec2(),
+            name: preset.name.clone(),
+            size: preset.size,
+            id: RoomID(id),
+            exits: Vec::new(),
+        }
+    }
+}
+
+
+#[derive(Debug, Clone, Copy, Reflect, Component, Default, PartialEq, PartialOrd, Ord, Eq)]
+pub struct RoomID(u32);
+
+#[derive(Debug, Clone, Reflect, Component, Default, PartialEq)]
+#[reflect(Component)]
+pub struct PlacedRoom {
+    pub descriptor: RoomDescriptor,
+    pub asset_id: LevelIid,
+    pub position: IVec2,
+    pub exits: Vec<Entity>,
+    pub name: String,
+    pub size: Vec2,
+    pub id: RoomID,
+}
+
+#[derive(Debug, Clone, Reflect, Default, PartialEq, Eq)]
+pub struct HallwayNode {
+    pub parent: RoomID,
+    pub used: bool,
+    pub position: IVec2,
+}
+
+#[derive(Debug, Clone, Reflect, Default, Eq, PartialOrd, Ord, PartialEq)]
+pub struct RoomDescriptor {
     /// room shape as enum
     pub shape: RoomShape,
     /// rooms level
     pub level: RoomLevel,
     /// what function does this room serve for the dungeon
     pub rtype: RoomType,
-}
 
-/// gets ANY random preset from `presets`
-pub fn get_random_preset(presets: &[RoomPreset]) -> Option<RoomPreset> {
-    let mut rng = ThreadRng::default();
-
-    presets.iter().choose(&mut rng).cloned()
-}
-
-/// get random preset that matches `level` from `presets`
-pub fn get_leveled_preset(presets: &[RoomPreset], level: RoomLevel) -> Option<RoomPreset> {
-    let mut rng = ThreadRng::default();
-
-    presets
-        .iter()
-        .filter(|f| f.level == level)
-        .choose(&mut rng)
-        .cloned()
 }
 
 /// amounts of each room that should be spawned
@@ -177,11 +202,12 @@ pub struct RoomAmounts {
 }
 
 /// what level is this room
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
+#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd, Default, Ord)]
 pub enum RoomLevel {
     /// DEBUG LEVEL
     Level0,
     /// default level for rooms
+    #[default]
     Level1,
     /// first upgrade too rooms
     Level2,
@@ -190,27 +216,29 @@ pub enum RoomLevel {
 }
 
 /// what function does this room serve in the dungeon
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
+#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd, Default, Ord)]
 pub enum RoomType {
     /// room player is moved too when dungeon generation finishes
     DungeonStart,
     // TODO: when killed make portal/something too trigger next zone
     /// final room in dungeon. 1 HARD enemy.
-    Boss,
+    DungeonEnd,
     /// room has special functions in dungeon
     Special,
     /// normal dungeon rooms, not leveled
+    #[default]
     Normal,
     /// select hero and prepare for the coming dungeon run
     Hideout,
 }
 
 /// what size/shape is this room
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd)]
+#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd, Default, Ord)]
 pub enum RoomShape {
     /// shape doesnt fit below definitions.
     NonStandard,
     /// 32 tile x 32 tile
+    #[default]
     SmallShort,
     /// 32 tile x 64 tile
     SmallLong,
@@ -229,9 +257,9 @@ pub enum RoomShape {
 }
 ///  returns `Some(RoomShape)` if field exists in `field_instances` else `None`
 pub fn try_get_roomshape(field_instances: &[FieldInstance]) -> Option<RoomShape> {
-    let Some(room_ident) = field_instances.iter().find(|f| f.identifier == "IdentSize") else {
-        return None;
-    };
+    let room_ident = field_instances
+        .iter()
+        .find(|f| f.identifier == "IdentSize")?;
     let FieldValue::Enum(Some(enum_value)) = &room_ident.value else {
         return None;
     };
@@ -252,13 +280,9 @@ pub fn try_get_roomshape(field_instances: &[FieldInstance]) -> Option<RoomShape>
 
 ///  returns `Some(RoomLevel)` if field exists in `field_instances` else `None`
 pub fn try_get_roomlevel(field_instances: &[FieldInstance]) -> Option<RoomLevel> {
-    let Some(room_ident) = field_instances
+    let room_ident = field_instances
         .iter()
-        .find(|f| f.identifier == "IdentLevel")
-    else {
-        return None;
-    };
-
+        .find(|f| f.identifier == "IdentLevel")?;
     let FieldValue::Enum(Some(enum_value)) = &room_ident.value else {
         return None;
     };
@@ -274,17 +298,16 @@ pub fn try_get_roomlevel(field_instances: &[FieldInstance]) -> Option<RoomLevel>
 
 /// returns `Some(RoomType)` if field exists in in `field_instances` else `None`
 pub fn try_get_roomtype(field_instances: &[FieldInstance]) -> Option<RoomType> {
-    let Some(room_ident) = field_instances.iter().find(|f| f.identifier == "IdentType") else {
-        return None;
-    };
-
+    let room_ident = field_instances
+        .iter()
+        .find(|f| f.identifier == "IdentType")?;
     let FieldValue::Enum(Some(enum_value)) = &room_ident.value else {
         return None;
     };
 
     match enum_value.as_str() {
         "DungeonStart" => Some(RoomType::DungeonStart),
-        "Boss" => Some(RoomType::Boss),
+        "Boss" => Some(RoomType::DungeonEnd),
         "Special" => Some(RoomType::Special),
         "Normal" => Some(RoomType::Normal),
         "Hideout" => Some(RoomType::Hideout),

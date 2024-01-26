@@ -5,26 +5,32 @@ use bevy_ecs_ldtk::{
 };
 use bevy_ecs_tilemap::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
+use leafwing_input_manager::action_state::ActionState;
 use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
     consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
     game::{
-        actors::components::{ActorMoveState, TeleportStatus},
+        characters::{
+            components::{CharacterMoveState, CharacterType, TeleportStatus},
+            player::PlayerSelectedHero,
+        },
         game_world::{
             components::{ActorTeleportEvent, PlayerStartLocation, TpTriggerEffect},
-            dungeonator_v2::DungeonGeneratorState,
+            dungeonator_v2::{
+                components::{DungeonContainerTag, DungeonSettings},
+                GeneratorState,
+            },
             ldtk_bundles::{
                 LdtkCollisionBundle, LdtkEnemySpawnerBundle, LdtkHeroPlaceBundle,
                 LdtkRoomExitBundle, LdtkStartLocBundle, LdtkTeleporterBundle,
                 LdtkWeaponSpawnerBundle,
             },
         },
+        input::action_maps,
+        items::EventSpawnItem,
     },
-    prelude::{
-        engine,
-        game::{action_maps, ActorType},
-    },
+    loading::registry::RegistryIdentifier,
 };
 
 /// shared components for dungeon and home
@@ -80,14 +86,33 @@ impl Plugin for GameWorldPlugin {
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
+                    listen_rebuild_dungeon_request.run_if(state_exists_and_equals(GeneratorState::FinishedDungeonGen)),
                 ),
             )
             .add_systems(
-                OnEnter(DungeonGeneratorState::FinishedDungeonGen),
-                teleport_player_too_start_location.run_if(state_exists_and_equals(
-                    DungeonGeneratorState::FinishedDungeonGen,
-                )),
+                OnEnter(GeneratorState::PlaceHallwayRoots),
+                (
+                    teleport_player_too_start_location,
+                    populate_start_room,
+                ),
             );
+    }
+}
+
+/// listens for dungeon rebuild request if dungeon is finished spawning
+fn listen_rebuild_dungeon_request(
+    mut cmds: Commands,
+    mut dungeon_root: Query<(Entity, &mut DungeonSettings), With<DungeonContainerTag>>,
+    enemies: Query<Entity, (With<CharacterMoveState>, Without<PlayerSelectedHero>)>,
+    actions: Res<ActionState<action_maps::Gameplay>>,
+) {
+    if actions.just_pressed(&action_maps::Gameplay::DebugF2) {
+        cmds.entity(dungeon_root.single().0).despawn_descendants();
+        enemies.for_each(|f| {
+            cmds.entity(f).despawn_recursive();
+        });
+        dungeon_root.single_mut().1.positioned_rooms = Vec::new();
+        cmds.insert_resource(NextState(Some(GeneratorState::SelectPresets)));
     }
 }
 
@@ -100,7 +125,7 @@ pub struct GridContainerTag;
 fn handle_teleport_events(
     mut cmds: Commands,
     mut tp_events: EventReader<ActorTeleportEvent>,
-    mut actor_transforms: Query<(&mut Transform, &mut ActorMoveState), With<ActorType>>,
+    mut characters: Query<(&mut Transform, &mut CharacterMoveState), With<CharacterType>>,
     global_transforms: Query<&GlobalTransform>,
     parents: Query<&Parent>,
     children: Query<&Children>,
@@ -109,7 +134,7 @@ fn handle_teleport_events(
     for event in tp_events.read() {
         info!("recieved Tp Event: {:?}", event);
         let (mut target_transform, mut move_state) =
-            match actor_transforms.get_mut(event.target.expect("target should not be empty")) {
+            match characters.get_mut(event.target.expect("target should not be empty")) {
                 Ok((a, b)) => (a, b),
                 Err(e) => {
                     warn!("teleport event for entity without `Transform`: {e}");
@@ -162,9 +187,7 @@ fn handle_teleport_events(
             TpTriggerEffect::Event(event) => {
                 match event.as_str() {
                     "StartDungeonGen" => {
-                        cmds.insert_resource(NextState(Some(
-                            DungeonGeneratorState::PrepareDungeon,
-                        )));
+                        cmds.insert_resource(NextState(Some(GeneratorState::SelectPresets)));
                     }
                     event => {
                         warn!("unhandled Teleport Event Action: {}", event);
@@ -176,15 +199,33 @@ fn handle_teleport_events(
     }
 }
 
+/// spawns items in the dungeon start room for the player too use
+fn populate_start_room(
+    mut ew: EventWriter<EventSpawnItem>,
+    dungeon_root: Query<Entity, With<DungeonContainerTag>>,
+) {
+    let Ok(dungeon) = dungeon_root.get_single() else {
+        error!("no dungeon too spawn starting weaoins at");
+        return;
+    };
+
+    info!("sending item spawns for dungeon start");
+    ew.send(EventSpawnItem {
+        spawn_data: (RegistryIdentifier("smallsmg".to_string()), 1),
+        requester: dungeon,
+    });
+    ew.send(EventSpawnItem {
+        spawn_data: (RegistryIdentifier("smallpistol".to_string()), 1),
+        requester: dungeon,
+    });
+}
+
 /// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
 // TODO: find all uses of cmds.spawn(()) and add cleanup component
 // cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
-    mut player_query: Query<
-        (Entity, &mut ActorMoveState),
-        With<engine::ActionState<action_maps::Gameplay>>,
-    >,
+    mut player_query: Query<(Entity, &mut CharacterMoveState), With<PlayerSelectedHero>>,
     start_location: Query<(&PlayerStartLocation, &GlobalTransform)>,
     mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
@@ -242,7 +283,11 @@ fn process_tile_enum_tags(
         let tags = tile_enum_tag.tags.clone();
         if tags.is_empty() {
             // info!("Tile has no more tags");
-            commands.entity(entity).remove::<TileEnumTags>();
+            if let Some(mut cmds) = commands.get_entity(entity) {
+                cmds.remove::<TileEnumTags>();
+            } else {
+                warn!("tag entity was despawned")
+            }
         }
         for tag in tags {
             check_tag_colliders(

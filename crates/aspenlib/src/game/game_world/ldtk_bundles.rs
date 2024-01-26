@@ -1,7 +1,7 @@
 #![allow(clippy::unnecessary_struct_initialization)]
 
 use bevy::{
-    log::{error, info, warn},
+    log::{error, warn},
     math::Vec2,
     prelude::{Bundle, Name, Timer, TimerMode},
 };
@@ -12,11 +12,9 @@ use bevy_ecs_ldtk::{
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, RigidBody, Sensor};
 
 use crate::{
-    game::{
-        actors::spawners::components::{EnemySpawner, SpawnerTimer, WeaponSpawner},
-        game_world::components::{
-            BossArea, HeroSpot, PlayerStartLocation, RoomExit, Teleporter, TpTriggerEffect,
-        },
+    game::game_world::components::{
+        BossArea, CharacterSpawner, HeroSpot, PlayerStartLocation, RoomExit, SpawnerTimer,
+        Teleporter, TpTriggerEffect, WeaponSpawner,
     },
     loading::registry::RegistryIdentifier,
 };
@@ -71,7 +69,7 @@ pub struct LdtkEnemySpawnerBundle {
     name: Name,
     #[with(enemy_spawner_from_instance)]
     /// spawner data
-    state: EnemySpawner,
+    state: CharacterSpawner,
     #[with(spawn_timer_from_instance)]
     /// spawner timer
     timer: SpawnerTimer,
@@ -140,17 +138,16 @@ fn teleporter_from_instance(instance: &EntityInstance) -> Teleporter {
         TpTriggerEffect::Local(default)
     });
 
-    let teleporter = Teleporter {
+    Teleporter {
         active: true,
         effect: tp_type,
-    };
-    info!("{:?}", teleporter);
-    teleporter
+    }
 }
 
 /// creates a `BossManager` from boss manager `EntityInstance`
 fn boss_area_from_instance(instance: &EntityInstance) -> BossArea {
     let identifiers_too_spawn = get_spawn_identifiers(instance);
+
     BossArea {
         dungeon_boss: identifiers_too_spawn,
         boss_defeated: false,
@@ -175,18 +172,18 @@ fn name_from_instance(instance: &EntityInstance) -> Name {
 }
 
 /// creates Spawner from spawner `EntityInstance`
-fn enemy_spawner_from_instance(entity_instance: &EntityInstance) -> EnemySpawner {
+fn enemy_spawner_from_instance(entity_instance: &EntityInstance) -> CharacterSpawner {
     let identifiers_too_spawn = get_spawn_identifiers(entity_instance);
     let got_max_ents = entity_instance
         .get_maybe_int_field("MaxEnemies")
         .expect("Spawner should ALWAYS have MaxEnemies field")
         .unwrap_or(5);
 
-    EnemySpawner {
+    CharacterSpawner {
         enemies_too_spawn: identifiers_too_spawn,
         spawn_radius: entity_instance.width as f32,
         max_enemies: got_max_ents,
-        spawned_enemies: Vec::new(),
+        spawned_characters: Vec::new(),
     }
 }
 

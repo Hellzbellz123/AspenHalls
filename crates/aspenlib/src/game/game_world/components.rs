@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
-use crate::loading::registry::RegistryIdentifier;
+use crate::{loading::registry::RegistryIdentifier, game::game_world::dungeonator_v2::components::RoomID};
 
 /// location of hero that player can choose at start of game
 #[derive(Component, Default)]
@@ -19,22 +19,32 @@ pub struct BossArea {
     pub boss_defeated: bool,
 }
 
-/// Marks player start location
-#[derive(Component, Default)]
-pub struct PlayerStartLocation {
-    /// area of this start location
-    /// any point can be chosen
-    /// inset of 2 tiles is applied when spawning
-    pub size: Vec2,
+/// spawner for enemies
+#[derive(Component, Default, Debug, Clone, Reflect)]
+#[reflect(Component)]
+pub struct CharacterSpawner {
+    /// list of enemys too spawn
+    pub enemies_too_spawn: Vec<RegistryIdentifier>,
+    /// how far away can spawn
+    pub spawn_radius: f32,
+    /// max enemies in spawner radius
+    pub max_enemies: i32,
+    /// list of enemies spawned by spawner
+    pub spawned_characters: Vec<Entity>,
 }
 
-/// Marks Exits too dungeon rooms
-#[derive(Component, Default)]
-pub struct RoomExit {
-    // /// is this exit used
-    // map_used: bool,
-    // /// direction of neighbor
-    // neighbor_dir: Vec3,
+/// spawner for enemies
+#[derive(Component, Default, Debug, Clone, Reflect)]
+#[reflect(Component)]
+pub struct WeaponSpawner {
+    /// list of weapons too spawn
+    pub wanted_weapons: Vec<RegistryIdentifier>,
+    /// is this spawner interacted?
+    pub interacted_only: bool,
+    /// has this spawner been activated yet?
+    pub triggered: bool,
+    /// is this a debug spawner?
+    pub debug: bool,
 }
 
 /// just a marker for sensors, saying whether active
@@ -45,6 +55,31 @@ pub struct Teleporter {
     /// what does this teleporter do when it triggers
     pub effect: TpTriggerEffect,
 }
+
+/// Marks player start location
+#[derive(Component, Default)]
+pub struct PlayerStartLocation {
+    /// area of this start location. any point inside can be chosen.
+    /// - inset of 2 tiles is applied when spawning
+    pub size: Vec2,
+}
+
+/// Marks Exits too dungeon rooms
+#[derive(Component, Clone, Default, PartialEq, Reflect)]
+#[reflect(Component)]
+pub struct RoomExit {
+    /// room this exit is part of
+    pub parent: RoomID,
+    /// has a hallway been connected too this exit
+    pub hallway_connected: bool,
+    /// position relative too lower left most tile
+    pub position: IVec2,
+}
+
+/// timer for spawner
+#[derive(Debug, Component, DerefMut, Deref, Default, Reflect, Clone)]
+#[reflect(Component)]
+pub struct SpawnerTimer(pub Timer);
 
 /// event for player teleportation
 #[derive(Event, Debug)]
@@ -74,6 +109,7 @@ pub enum TpTriggerEffect {
     Global(Vec2),
 }
 
+// ########### impls ########### //
 impl Default for TpTriggerEffect {
     fn default() -> Self {
         Self::Global(Vec2::ZERO)
@@ -81,11 +117,11 @@ impl Default for TpTriggerEffect {
 }
 
 impl TpTriggerEffect {
-    /// checks if this `TpTriggerEffect` is of the event type
-    pub const fn is_event(&self) -> bool {
-        match self {
-            Self::Event(_) => true,
-            Self::Local(_) | Self::Global(_) => false,
-        }
-    }
+    // /// checks if this `TpTriggerEffect` is of the event type
+    // pub const fn is_event(&self) -> bool {
+    //     match self {
+    //         Self::Event(_) => true,
+    //         Self::Local(_) | Self::Global(_) => false,
+    //     }
+    // }
 }
