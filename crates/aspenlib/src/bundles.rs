@@ -1,22 +1,18 @@
-use bevy::prelude::Reflect;
+use bevy::prelude::*;
 use bevy_asepritesheet::animator::AnimatedSpriteBundle;
+use bevy_rapier2d::prelude::*;
 
 use crate::{
-    game::actors::{
-        ai::components::AICombatConfig,
+    game::{
         attributes_stats::{CharacterStatBundle, EquipmentStats, ProjectileStats},
-        combat::components::{AttackDamage, WeaponDescriptor, WeaponHolder},
-        components::{ActorColliderType, ActorMoveState},
-    },
-    loading::{custom_assets::actor_definitions::AiSetupConfig, registry::RegistryIdentifier},
-    prelude::{
-        engine::{
-            Bundle, Collider, ColliderMassProperties, CollisionGroups, Damping, Friction,
-            LockedAxes, Name, Restitution, RigidBody, SpriteBundle, ThinkerBuilder,
-            TransformBundle, Velocity,
+        characters::{
+            ai::components::AiType,
+            components::{CharacterMoveState, CharacterType},
         },
-        game::{AIShootConfig, AIWanderConfig, ActorType, TimeToLive},
+        components::{ActorColliderType, TimeToLive},
+        items::weapons::components::{AttackDamage, WeaponDescriptor, WeaponHolder},
     },
+    loading::registry::RegistryIdentifier,
 };
 
 /// bundle used too spawn "actors"
@@ -27,13 +23,13 @@ pub struct CharacterBundle {
     /// id too get actor definition
     pub identifier: RegistryIdentifier,
     /// actors current movement data
-    pub move_state: ActorMoveState,
+    pub move_state: CharacterMoveState,
     /// actor type
-    pub actor_type: ActorType,
+    pub actor_type: CharacterType,
     /// actor stats
     pub stats: CharacterStatBundle,
     /// is character ai controlled or player controlled
-    pub controller: AiSetupConfig,
+    pub controller: AiType,
     /// texture and animations
     #[reflect(ignore)]
     pub aseprite: AnimatedSpriteBundle,
@@ -49,11 +45,11 @@ pub struct WeaponBundle {
     pub name: Name,
     /// accesor for weapon definition
     pub identifier: RegistryIdentifier,
-    /// weapon stored slot
+    /// who is holding this weapon, and what slot it is in
     pub holder: WeaponHolder,
-    /// weapons function when used
+    /// weapons damage when used
     pub damage: AttackDamage,
-    /// how this weapon attacks, along with data for attack
+    /// how this weapon applies its damage, along with config
     pub weapon_type: WeaponDescriptor,
     /// stats applied too holder
     pub stats: EquipmentStats,
@@ -93,19 +89,6 @@ pub struct ItemColliderBundle {
     pub collision_groups: CollisionGroups,
     /// collider transform
     pub transform_bundle: TransformBundle,
-}
-
-/// All Components needed for `stupid_ai` functionality
-#[derive(Bundle)]
-pub struct StupidAiBundle {
-    /// ai chase/attack config
-    pub combat_config: AICombatConfig,
-    /// stupid wander action
-    pub wander_config: AIWanderConfig,
-    /// stupid shoot action
-    pub shoot_config: AIShootConfig,
-    /// chooses action
-    pub thinker: ThinkerBuilder,
 }
 
 /// bundle for collisions and movement

@@ -1,20 +1,10 @@
-use bevy::{
-    ecs::{component::Component, schedule::common_conditions::not, system::Res},
-    log::error,
-    math::Vec2,
-    prelude::{
-        any_with_component, BackgroundColor, GlobalTransform, ImageBundle, PositionType, Reflect,
-        Window,
-    },
-    ui::{Node, Style, Val, ZIndex},
-};
+use bevy::prelude::*;
+use leafwing_input_manager::prelude::ActionState;
 
-use crate::prelude::{
-    engine::{
-        bevy, default, leafwing_input_manager::action_state::ActionState, Commands,
-        IntoSystemConfigs, Name, OnEnter, Plugin, PreUpdate, Query, With,
-    },
-    game::{action_maps, AppState, AspenInitHandles},
+use crate::{
+    game::{characters::player::PlayerSelectedHero, input::action_maps},
+    loading::assets::AspenInitHandles,
+    AppState,
 };
 
 use super::AspenInputSystemSet;
@@ -86,12 +76,13 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<AspenInitHandles>) {
 
 /// updates software cursor position based on player `LookLocal` (`LookLocal` is just `winit::Window.cursor_position()`)
 fn update_software_cursor_position(
-    player_input: Query<(&ActionState<action_maps::Gameplay>, &GlobalTransform)>,
+    input: Res<ActionState<action_maps::Gameplay>>,
+    player: Query<&GlobalTransform, With<PlayerSelectedHero>>,
     mut software_cursor: Query<(&mut Style, &SoftWareCursor, &mut BackgroundColor), With<Node>>,
     window_query: Query<&Window>,
 ) {
     let (mut cursor_style, cursor_data, mut cursor_color) = software_cursor.single_mut();
-    let Ok((pinput, ptrans)) = player_input.get_single() else {
+    let Ok(ptrans) = player.get_single() else {
         let Ok(window) = window_query.get_single() else {
             error!("no window too update software cursor");
             return;
@@ -108,11 +99,11 @@ fn update_software_cursor_position(
     };
 
     let (look_local, look_world) = (
-        pinput
-            .action_data(action_maps::Gameplay::CursorScreen)
+        input
+            .action_data(&action_maps::Gameplay::CursorScreen).expect("always exists?")
             .axis_pair,
-        pinput
-            .action_data(action_maps::Gameplay::CursorWorld)
+        input
+            .action_data(&action_maps::Gameplay::CursorWorld).expect("always exists")
             .axis_pair,
     );
     let color = cursor_color.0;

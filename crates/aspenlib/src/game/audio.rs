@@ -1,18 +1,19 @@
-use bevy::{prelude::*, utils::HashMap};
-use bevy_kira_audio::{prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin, AudioSettings};
-use bevy_rapier2d::dynamics::Velocity;
 use rand::seq::SliceRandom;
 use std::time::Duration;
 
+use bevy::{prelude::*, utils::HashMap};
+use bevy_kira_audio::{
+    prelude::{AudioControl, AudioEmitter, SpacialAudio},
+    AudioApp, AudioChannel, AudioPlugin as InternalAudioPlugin, AudioSettings,
+};
+use bevy_rapier2d::dynamics::Velocity;
+
 use crate::{
     consts::MIN_VELOCITY,
-    game::{
-        actors::components::{ActorMoveState, CurrentMovement},
-        AppState,
-    },
+    game::characters::components::{CharacterMoveState, CurrentMovement},
     loading::assets::AspenAudioHandles,
     loading::config::SoundSettings,
-    utilities::state_exists_and_entered,
+    AppState,
 };
 
 /// OST music is played on this channel.
@@ -39,27 +40,26 @@ pub struct ActorSoundTimer {
 }
 
 /// audio plugin
-pub struct InternalAudioPlugin;
-use bevy_kira_audio::prelude::SpacialAudio;
+pub struct AudioPlugin;
 
 // This plugin is responsible to control the game audio
-impl Plugin for InternalAudioPlugin {
+impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(AudioSettings {
             command_capacity: 512,
             sound_capacity: 512,
         })
-        .add_plugins(AudioPlugin)
+        .add_plugins(InternalAudioPlugin)
         .add_audio_channel::<MusicSoundChannel>()
         .add_audio_channel::<AmbienceSoundChannel>()
         .add_audio_channel::<GameSoundChannel>()
         .insert_resource(SpacialAudio {
             max_distance: 150.0,
         })
+        .add_systems(OnEnter(AppState::Loading), setup_sound_volume)
         .add_systems(
             Update,
             (
-                setup_sound_volume.run_if(state_exists_and_entered(AppState::Loading)),
                 prepare_actor_spatial_sound,
                 actor_footstep_sound_system.run_if(state_exists_and_equals(AppState::PlayingGame)),
                 play_background_audio.run_if(run_once()),
@@ -91,13 +91,11 @@ fn play_background_audio(
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
-use crate::prelude::engine::AudioEmitter;
-
 /// applies sound data mapps and a spacial emitter for actors that dont already have emitters
 fn prepare_actor_spatial_sound(
     audio: Res<AspenAudioHandles>,
     mut cmds: Commands,
-    actors: Query<Entity, (With<ActorMoveState>, Without<AudioEmitter>)>,
+    actors: Query<Entity, (With<CharacterMoveState>, Without<AudioEmitter>)>,
 ) {
     let mut rng = rand::thread_rng();
 
@@ -116,7 +114,6 @@ fn prepare_actor_spatial_sound(
             timer: Timer::new(Duration::from_millis(1000), TimerMode::Once),
             is_first_time: true,
         };
-
         let key = "Footstep";
         sound_map.insert(key.to_string(), footstep_handle);
         sound_timers.insert(key.to_string(), footstep_timer);
@@ -145,7 +142,7 @@ fn actor_footstep_sound_system(
     // mut audio_instances: ResMut<Assets<AudioInstance>>,
     game_sound: Res<AudioChannel<GameSoundChannel>>,
     mut actor_query: Query<(
-        &ActorMoveState,
+        &CharacterMoveState,
         &mut AudioEmitter,
         &ActorSoundMap,
         &mut ActorSoundTimers,
@@ -174,7 +171,7 @@ fn actor_footstep_sound_system(
         footstep_timer.tick(time.delta());
 
         match &move_state.move_status {
-            CurrentMovement::Run => {
+            (CurrentMovement::Run, _) => {
                 if footstep_timer.duration() != run_dur {
                     footstep_timer.set_duration(run_dur);
                 }
@@ -185,7 +182,7 @@ fn actor_footstep_sound_system(
                     footstep_timer.reset();
                 }
             }
-            CurrentMovement::Walk => {
+            (CurrentMovement::Walk, _) => {
                 if footstep_timer.duration() != walk_dur {
                     footstep_timer.set_duration(walk_dur);
                 }
@@ -195,7 +192,7 @@ fn actor_footstep_sound_system(
                     footstep_timer.reset();
                 }
             }
-            CurrentMovement::None => {
+            (CurrentMovement::None, _) => {
                 footstep_timer.reset();
             }
         }

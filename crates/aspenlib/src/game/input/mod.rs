@@ -4,20 +4,15 @@ use bevy::{
     ecs::schedule::IntoSystemSetConfigs, prelude::*, utils::Instant, window::PrimaryWindow,
 };
 use leafwing_input_manager::{
-    action_state::{ActionData, ActionStateDriverTarget, Timing},
+    action_state::ActionData,
     axislike::DualAxisData,
     buttonlike::ButtonState,
-    prelude::{ActionState, ActionStateDriver},
+    plugin::{InputManagerPlugin, InputManagerSystem},
+    prelude::{ActionState, ActionStateDriver, InputMap},
+    timing::Timing,
 };
 
-use crate::{
-    game::action_maps::Gameplay,
-    prelude::{
-        engine::{App, InputManagerPlugin, InputManagerSystem, Plugin, PreUpdate, SystemSet},
-        game::MainCamera,
-    },
-    AppState,
-};
+use crate::{loading::splashscreen::MainCamera, AppState};
 
 /// holds action maps
 pub mod action_maps;
@@ -38,12 +33,17 @@ pub enum AspenInputSystemSet {
 }
 
 /// player input plugin
-pub struct ActionsPlugin;
+pub struct InputPlugin;
 
 // holds default bindings for game
-impl Plugin for ActionsPlugin {
+impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(InputManagerPlugin::<action_maps::Gameplay>::default());
+        app.register_type::<ActionState<action_maps::Gameplay>>()
+            .register_type::<InputMap<action_maps::Gameplay>>()
+            .add_plugins(InputManagerPlugin::<action_maps::Gameplay>::default())
+            .init_resource::<ActionState<action_maps::Gameplay>>()
+            .insert_resource(action_maps::Gameplay::default_input_map());
+
         // TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
         app.add_plugins(touch::TouchInputPlugin);
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
@@ -55,9 +55,10 @@ impl Plugin for ActionsPlugin {
                 fake_mouse_input_from_joystick
                     .after(AspenInputSystemSet::TouchInput)
                     .run_if(state_exists_and_equals(AppState::PlayingGame).and_then(
-                        |q: Query<&ActionState<Gameplay>>| {
-                            q.single()
-                                .action_data(Gameplay::JoystickDelta)
+                        |actions: Res<ActionState<action_maps::Gameplay>>| {
+                            actions
+                                .action_data(&action_maps::Gameplay::JoystickDelta)
+                                .unwrap()
                                 .axis_pair
                                 .is_some_and(|f| f.xy().max_element().abs() > 0.0)
                         },
@@ -67,9 +68,8 @@ impl Plugin for ActionsPlugin {
                 PreUpdate,
                 update_cursor_state_from_window
                     .run_if(
-                        any_with_component::<ActionState<action_maps::Gameplay>>().and_then(
-                            any_with_component::<ActionStateDriver<action_maps::Gameplay>>(),
-                        ),
+                        resource_exists::<ActionState<action_maps::Gameplay>>()
+                            .and_then(any_with_component::<Camera>()),
                     )
                     .in_set(AspenInputSystemSet::KBMInput),
             );
@@ -91,13 +91,11 @@ impl Plugin for ActionsPlugin {
 fn fake_mouse_input_from_joystick(
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut player_input: Query<&mut ActionState<Gameplay>>,
+    mut input: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
-    debug!("updating fake mouselook");
-
-    let mut player_input = player_input.single_mut();
-    let joy_axis = player_input
-        .action_data(Gameplay::JoystickDelta)
+    let joy_axis = input
+        .action_data(&action_maps::Gameplay::JoystickDelta)
+        .expect("always exists")
         .axis_pair
         .unwrap()
         .xy();
@@ -137,9 +135,8 @@ fn fake_mouse_input_from_joystick(
 
     trace!("fake_world_position: {:?}", fake_world_position);
     trace!("fake_local_position: {:?}", fake_cursor_position);
-
-    player_input.set_action_data(
-        Gameplay::CursorScreen,
+    input.set_action_data(
+        action_maps::Gameplay::CursorScreen,
         ActionData {
             axis_pair: Some(DualAxisData::from_xy(fake_cursor_position)),
             consumed: false,
@@ -153,8 +150,8 @@ fn fake_mouse_input_from_joystick(
         },
     );
 
-    player_input.set_action_data(
-        Gameplay::CursorWorld,
+    input.set_action_data(
+        action_maps::Gameplay::CursorWorld,
         ActionData {
             axis_pair: Some(DualAxisData::from_xy(fake_world_position)),
             consumed: false,
@@ -180,19 +177,19 @@ fn apply_look_driver(
         ),
     >,
 ) {
-    commands
-        .entity(window_query.single())
-        .insert(ActionStateDriver {
-            action: action_maps::Gameplay::CursorScreen,
-            targets: ActionStateDriverTarget::None,
-        });
+    // commands
+    //     .entity(window_query.single())
+    //     .insert(ActionStateDriver {
+    //         action: action_maps::Gameplay::CursorScreen,
+    //         targets: ,
+    //     });
 }
 
 /// updates cursor position in look action with winit window cursor position
 fn update_cursor_state_from_window(
     window_query: Query<&Window>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
-    mut action_state_query: Query<&mut ActionState<action_maps::Gameplay>>,
+    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     let window = window_query.single();
     let (camera, camera_global_transform) = camera_query.single();
@@ -217,12 +214,12 @@ fn update_cursor_state_from_window(
         new_cursor_world = cursor_world_pos;
     }
 
-    let mut action_state = action_state_query.single_mut();
-
-    action_state
-        .action_data_mut(action_maps::Gameplay::CursorScreen)
+    actions
+        .action_data_mut(&action_maps::Gameplay::CursorScreen)
+        .expect("always exists")
         .axis_pair = Some(DualAxisData::from_xy(new_cursor_local));
-    action_state
-        .action_data_mut(action_maps::Gameplay::CursorWorld)
+    actions
+        .action_data_mut(&action_maps::Gameplay::CursorWorld)
+        .expect("always exists")
         .axis_pair = Some(DualAxisData::from_xy(new_cursor_world));
 }

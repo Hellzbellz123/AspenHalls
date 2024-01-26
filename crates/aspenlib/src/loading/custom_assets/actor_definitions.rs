@@ -1,25 +1,16 @@
 use std::fmt::Debug;
 
-use bevy::{
-    app::Plugin,
-    asset::{Asset, ReflectAsset},
-    ecs::component::Component,
-    log::warn,
-    math::Vec2,
-    prelude::{AssetApp, Startup},
-    reflect::Reflect,
-};
-
-use bevy_common_assets::toml::TomlAssetPlugin;
+use bevy::{asset::ReflectAsset, prelude::*};
+use bevy_asepritesheet::core::AsepritesheetPlugin;
+use bevy_common_assets::{ron::RonAssetPlugin, toml::TomlAssetPlugin};
 
 use crate::{
-    game::actors::{
-        ai::components::AiType,
+    game::{
         attributes_stats::{Attributes, Damage, ElementalEffect, PhysicalDamage},
-        combat::components::{AttackDamage, WeaponDescriptor},
+        characters::{ai::components::AiType, components::CharacterType},
+        items::weapons::components::{AttackDamage, GunCfg, WeaponDescriptor},
     },
     loading::registry::RegistryIdentifier,
-    prelude::game::{ActorType, NpcType},
 };
 
 /// plugin for actor asset definitions
@@ -30,10 +21,16 @@ impl Plugin for ActorAssetPlugin {
         app.register_asset_reflect::<CharacterDefinition>()
             .register_asset_reflect::<ItemDefinition>()
             .add_systems(Startup, write_example_definitions)
-            .add_plugins(TomlAssetPlugin::<CharacterDefinition>::new(&[
-                "character.toml",
-            ]))
-            .add_plugins(TomlAssetPlugin::<ItemDefinition>::new(&["weapon.toml"]));
+            .add_plugins((
+                // plugin for character definition from files
+                TomlAssetPlugin::<CharacterDefinition>::new(&["character.toml"]),
+                RonAssetPlugin::<CharacterDefinition>::new(&["character.ron"]),
+                // plugin for item definition from files
+                TomlAssetPlugin::<ItemDefinition>::new(&["weapon.toml"]),
+                RonAssetPlugin::<ItemDefinition>::new(&["weapon.ron"]),
+                // actor sprite sheet data
+                AsepritesheetPlugin::new(&["sprite.json"]),
+            ));
     }
 }
 
@@ -48,9 +45,7 @@ fn write_example_definitions() {
 #[reflect(Asset)]
 pub struct CharacterDefinition {
     /// what type of character is this
-    pub character_type: CharacterType,
-    /// does ai or player control this character
-    pub controller: AiSetupConfig,
+    pub character_type: CharacterAssetType,
     /// shared data for all actors
     pub actor: ActorData,
 }
@@ -60,7 +55,7 @@ pub struct CharacterDefinition {
 #[reflect(Asset)]
 pub struct ItemDefinition {
     /// info that describes this item
-    pub item_type: ItemType,
+    pub item_type: ItemAssetType,
     /// shared data required for all actors
     pub actor: ActorData,
 }
@@ -80,27 +75,72 @@ pub struct ActorData {
     pub stats: Attributes,
 }
 
-/// TODO: how affect heroes being in player "party"
-#[derive(Debug, Clone, Component, Reflect, serde::Deserialize, serde::Serialize)]
-pub enum CharacterType {
-    /// npc gets no ai
-    Hero,
-    /// npc gets ai
-    Npc(NpcType),
+/// information used too decide assets function
+#[derive(Debug, Reflect, Copy, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+pub enum CharacterAssetType {
+    /// - final enemy of dungeon level
+    /// - hostile too all npcs
+    Boss {
+        /// requested ai
+        ai: AiType,
+    },
+    /// - generic enemy for dungeon levels
+    /// - passive too creep
+    Creep {
+        /// requested ai
+        ai: AiType,
+    },
+    /// - runs away from creeps
+    /// - passive too self and freindly
+    Critter {
+        /// requested ai
+        ai: AiType,
+    },
+    /// player pet
+    HeroPet {
+        /// requested ai
+        ai: AiType,
+    },
+    /// passive too player
+    Hero {
+        /// requested ai
+        ai: AiType,
+    },
+    /// sells stuff too player
+    Shopkeep {
+        /// requested ai
+        ai: AiType,
+    },
 }
 
-/// describes how characters should get AI when spawned into world
-#[derive(Debug, Clone, Component, Reflect, serde::Deserialize, serde::Serialize)]
-pub enum AiSetupConfig {
-    /// character is not ai controller
-    Player,
-    /// character should have ai added too it based on AIType enum
-    GameAI(AiType),
+impl CharacterAssetType {
+    /// gets requested ai type for this character asset
+    pub const fn get_ai(self) -> AiType {
+        match self {
+            Self::Boss { ai }
+            | Self::Creep { ai }
+            | Self::Critter { ai }
+            | Self::HeroPet { ai }
+            | Self::Hero { ai }
+            | Self::Shopkeep { ai } => ai,
+        }
+    }
+    /// gets assets corresponding `CharacterType`
+    pub const fn as_charactertype(self) -> CharacterType {
+        match self {
+            Self::Boss { .. } => CharacterType::Boss,
+            Self::Creep { .. } => CharacterType::Creep,
+            Self::Critter { .. } => CharacterType::Critter,
+            Self::HeroPet { .. } => CharacterType::HeroPet,
+            Self::Hero { .. } => CharacterType::Hero,
+            Self::Shopkeep { .. } => CharacterType::Shopkeep,
+        }
+    }
 }
 
 /// different classes of items that can exist in the game
 #[derive(Debug, Copy, Clone, Reflect, serde::Deserialize, serde::Serialize)]
-pub enum ItemType {
+pub enum ItemAssetType {
     /// items that the holder can attack with
     Weapon {
         /// weapon damage
@@ -108,41 +148,31 @@ pub enum ItemType {
         /// weapon form and function descriptor
         form: WeaponDescriptor,
     },
-    /// items that give the holder small bonus / unique effects
-    Trinket {},
     /// items that give the holder armor and attrs
     Armor {},
+    /// items that give the holder small bonus / unique effects
+    Trinket {},
     /// items that give the user status effects
     Food {},
-}
-
-impl CharacterType {
-    /// returns actor type for this character asset type
-    pub const fn into_actor_type(self) -> ActorType {
-        match self {
-            Self::Hero => ActorType::Hero,
-            Self::Npc(a) => ActorType::Npc(a),
-        }
-    }
 }
 
 /// creates new weapon definition folder
 #[allow(unused)]
 pub fn write_weapon_def(def: Option<ItemDefinition>) {
     let def = def.unwrap_or(ItemDefinition {
-        item_type: ItemType::Weapon {
+        item_type: ItemAssetType::Weapon {
             damage: AttackDamage(Damage {
                 physical: PhysicalDamage(30.0),
                 elemental: ElementalEffect::Fire(10.0),
             }),
-            form: WeaponDescriptor::Gun {
+            form: WeaponDescriptor::Gun(GunCfg {
                 projectile_speed: 50.0,
                 projectile_size: 15.0,
                 barrel_end: Vec2 { x: 20.0, y: 0.0 },
-                ammo_amount: 50,
+                max_ammo: 50,
                 reload_time: 1.5,
                 fire_rate: 0.25,
-            },
+            }),
         },
         actor: ActorData {
             name: "ExampleWeapon".to_owned(),
@@ -154,17 +184,16 @@ pub fn write_weapon_def(def: Option<ItemDefinition>) {
     });
 
     let folder_path = format!("assets/packs/asha/items/w{}", def.actor.identifier.0);
-    let file_path = format!("{}/{}.weapon.toml", folder_path, def.actor.identifier.0);
-
-    write_definition(def, folder_path, file_path);
+    let toml_path = format!("{}/{}.weapon.toml", folder_path, def.actor.identifier.0);
+    let ron_path = format!("{}/{}.weapon.ron", folder_path, def.actor.identifier.0);
+    write_definition(def, folder_path, ron_path, toml_path);
 }
 
 /// creates new character definition folder
 #[allow(unused)]
 pub fn write_character_def(def: Option<CharacterDefinition>) {
     let def = def.unwrap_or(CharacterDefinition {
-        character_type: CharacterType::Npc(NpcType::Creep),
-        controller: AiSetupConfig::GameAI(AiType::Stupid),
+        character_type: CharacterAssetType::Creep { ai: AiType::Stupid },
         actor: ActorData {
             name: "ExampleNpc".to_owned(),
             identifier: RegistryIdentifier("examplenpc".to_owned()),
@@ -174,21 +203,38 @@ pub fn write_character_def(def: Option<CharacterDefinition>) {
         },
     });
     let folder_path = format!("assets/packs/asha/characters/{}", def.actor.identifier.0);
-    let file_path = format!("{}/{}.npc.toml", folder_path, def.actor.identifier.0);
-
-    write_definition(def, folder_path, file_path);
+    let ron_path = format!("{}/{}.npc.ron", folder_path, def.actor.identifier.0);
+    let toml_path = format!("{}/{}.npc.toml", folder_path, def.actor.identifier.0);
+    write_definition(def, folder_path, ron_path, toml_path);
 }
 
 //TODO: move folder formatting too write fn, only pass string and def too write_definition
 /// writes asset definiiton too file
-fn write_definition<T: Sized + serde::Serialize>(def: T, folder_path: String, file_path: String) {
+fn write_definition<T: Sized + serde::Serialize>(
+    def: T,
+    folder_path: String,
+    ron_path: String,
+    toml_path: String,
+) {
     let Ok(toml) = toml::to_string(&def) else {
         warn!("could not deserialize the asset");
         return;
     };
+    let Ok(ron) = ron::to_string(&def) else {
+        warn!("");
+        return;
+    };
     match std::fs::create_dir(folder_path) {
         Ok(()) => {
-            match std::fs::write(file_path, toml) {
+            match std::fs::write(ron_path, ron) {
+                Ok(()) => {
+                    warn!("Wrote new definition");
+                }
+                Err(e) => {
+                    warn!("Couldnt write definiton: {}", e);
+                }
+            };
+            match std::fs::write(toml_path, toml) {
                 Ok(()) => {
                     warn!("Wrote new definition");
                 }

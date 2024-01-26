@@ -1,3 +1,8 @@
+use bevy::prelude::*;
+use bevy_asset_loader::prelude::*;
+
+use crate::{loading::assets::*, AppState};
+
 /// holds asset definitions
 pub mod assets;
 /// holds game configuration structs and functions too define/create/load/save them
@@ -9,20 +14,21 @@ pub mod registry;
 /// splashscreen functions
 pub mod splashscreen;
 
-use crate::prelude::{engine::*, game::*};
-
 /// This plugin loads all assets using [`AssetLoader`] from a third party bevy plugin
 /// Alternatively you can write the logic to load assets yourself
 /// If interested, take a look at <https://bevy-cheatbook.github.io/features/assets.html/>
-pub struct AppAssetLoadingPlugin;
+pub struct AppLoadingPlugin;
 
-impl Plugin for AppAssetLoadingPlugin {
+impl Plugin for AppLoadingPlugin {
     // TODO: convert the asset load plugin too handle the selected packs
     // this can probably reside in the config file, the native launcher should be used too select packs
     // mobile and web platforms will not make use of packs at this moment
     fn build(&self, app: &mut App) {
-        app.add_plugins(custom_assets::AspenCustomAssetsPlugin);
-        app.add_plugins(registry::RegistryPlugin);
+        app.add_plugins((
+            splashscreen::SplashPlugin,
+            custom_assets::AspenCustomAssetsPlugin,
+            registry::RegistryPlugin,
+        ));
 
         // TODO:
         // make the pack plugin, using bevy_asset_loader and bevy_common_assets

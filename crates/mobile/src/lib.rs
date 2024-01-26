@@ -3,34 +3,36 @@
     currently only targets android, should be expanded too ios mobile
 "]
 
-use aspenlib::prelude::engine::{self as engine, bevy};
-use aspenlib::prelude::game as asha;
+use aspenlib::{
+    ConfigFile, GameDifficulty, GeneralSettings, RenderSettings, SoundSettings, WindowSettings,
+};
+use bevy::{math::Vec2, prelude::bevy_main};
 
-#[bevy::prelude::bevy_main]
+#[bevy_main]
 fn main() {
-    let config = asha::ConfigFile {
+    let config = ConfigFile {
         log_filter: Some("Info,wgpu=error,naga=error".to_string()),
-        window_settings: asha::WindowSettings {
+        window_settings: WindowSettings {
             v_sync: true,
             frame_rate_target: 144.0,
             full_screen: true,
-            resolution: engine::Vec2 {
+            resolution: Vec2 {
                 x: 1920.0,
                 y: 1080.0,
             },
             window_scale_override: 1.75,
         },
-        sound_settings: asha::SoundSettings {
+        sound_settings: SoundSettings {
             master_volume: 1.0,
             ambience_volume: 0.5,
             music_volume: 0.5,
             sound_volume: 0.5,
         },
-        general_settings: asha::GeneralSettings {
+        general_settings: GeneralSettings {
             camera_zoom: 3.5,
-            game_difficulty: asha::GameDifficulty::Medium,
+            game_difficulty: GameDifficulty::Medium,
         },
-        render_settings: asha::RenderSettings { msaa: false },
+        render_settings: RenderSettings { msaa: false },
     };
 
     println!("Starting launcher: Mobile");

@@ -1,76 +1,107 @@
-use crate::prelude::engine::{
-    Actionlike, Bundle, DeadZoneShape, DualAxis, GamepadAxisType, GamepadButtonType,
-    InputManagerBundle, InputMap, KeyCode, QwertyScanCode, Reflect, VirtualDPad,
-};
+use bevy::prelude::*;
+use leafwing_input_manager::{axislike::AxisType, prelude::*, user_input::InputKind};
 
-/// added too `ActorBundle` too make it a controllable player
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    /// actual bindings
-    input: InputManagerBundle<Gameplay>,
-}
+impl Gameplay {
+    fn variants() -> &'static [Gameplay] {
+        use Gameplay::*;
+        &[
+            Attack,
+            CursorScreen,
+            CursorWorld,
+            CycleWeapon,
+            DebugF1,
+            DebugF2,
+            Heal,
+            Interact,
+            JoystickDelta,
+            Melee,
+            Move,
+            Pause,
+            Sprint,
+            UseAction1,
+            UseAction2,
+            UseAction3,
+            UseAction4,
+            UseAction5,
+            ZoomIn,
+            ZoomOut
+        ]
+    }
+    pub fn default_input_map() -> InputMap<Gameplay> {
+        let mut input_map: InputMap<Gameplay> = InputMap::default();
+        // Loop through each action in `PlayerAction` and get the default `UserInput`,
+        // then insert each default input into input_map
+        for action in Gameplay::variants() {
+            input_map.insert(*action, Gameplay::default_gamepad_mapping(action));
+            input_map.insert(*action, Gameplay::default_keyboard_mouse_mapping(action));
+        }
+        input_map
+    }
 
-impl Default for PlayerBundle {
-    fn default() -> Self {
-        let mut input_map = InputMap::default();
-        // ##### Keyboard Defaults
-        // move
-        input_map.insert(
-            VirtualDPad {
-                up: QwertyScanCode::W.into(),
-                down: QwertyScanCode::S.into(),
-                left: QwertyScanCode::A.into(),
-                right: QwertyScanCode::D.into(),
-            },
-            Gameplay::Move,
-        );
-        // cycle weapon
-        input_map.insert(KeyCode::AltLeft, Gameplay::CycleWeapon);
-        // use ability/action/magic
-        input_map.insert(KeyCode::Key1, Gameplay::UseAction1);
-        input_map.insert(KeyCode::Key2, Gameplay::UseAction2);
-        input_map.insert(KeyCode::Key3, Gameplay::UseAction3);
-        input_map.insert(KeyCode::Key4, Gameplay::UseAction4);
-        input_map.insert(KeyCode::Key4, Gameplay::UseAction5);
-        // shoot weapon
-        input_map.insert(KeyCode::Space, Gameplay::Shoot);
-        // move faster
-        input_map.insert(KeyCode::ShiftLeft, Gameplay::Sprint);
-        // pause game
-        input_map.insert(KeyCode::Escape, Gameplay::Pause);
-        input_map.insert(KeyCode::E, Gameplay::Interact);
-        //debug and misc
-        input_map.insert(KeyCode::F1, Gameplay::DebugF1);
-        input_map.insert(KeyCode::F2, Gameplay::DebugF2);
-        input_map.insert(KeyCode::NumpadAdd, Gameplay::ZoomIn);
-        input_map.insert(KeyCode::NumpadSubtract, Gameplay::ZoomOut);
-
-        // ##### Gamepad Defaults
-        // move
-        input_map.insert(
-            DualAxis::symmetric(
-                GamepadAxisType::LeftStickX,
-                GamepadAxisType::LeftStickY,
-                DeadZoneShape::Ellipse {
-                    radius_x: 0.001,
-                    radius_y: 0.001,
-                },
-            ),
-            Gameplay::Move,
-        );
-        // joystick too cursor value
-        input_map.insert(DualAxis::right_stick(), Gameplay::JoystickDelta);
-        // move faster
-        input_map.insert(GamepadButtonType::West, Gameplay::Sprint);
-        // pause game
-        input_map.insert(GamepadButtonType::Start, Gameplay::Pause);
-
-        // ##### return default
-        Self {
-            input: InputManagerBundle::<Gameplay> {
-                input_map,
-                ..Default::default()
-            },
+    fn default_keyboard_mouse_mapping(&self) -> UserInput {
+        match self {
+            Gameplay::CursorScreen => UserInput::Chord(Vec::new()),
+            Gameplay::CursorWorld => UserInput::Chord(Vec::new()),
+            Gameplay::JoystickDelta => UserInput::Chord(Vec::new()),
+            Gameplay::Move => UserInput::VirtualDPad(VirtualDPad::wasd()),
+            Gameplay::Sprint => UserInput::Single(InputKind::Keyboard(KeyCode::ShiftLeft)),
+            Gameplay::Attack => UserInput::Single(InputKind::Keyboard(KeyCode::Space)),
+            Gameplay::Interact => UserInput::Single(InputKind::Keyboard(KeyCode::E)),
+            Gameplay::CycleWeapon => UserInput::Single(InputKind::Keyboard(KeyCode::AltLeft)),
+            Gameplay::UseAction1 => UserInput::Single(InputKind::Keyboard(KeyCode::Key1)),
+            Gameplay::UseAction2 => UserInput::Single(InputKind::Keyboard(KeyCode::Key2)),
+            Gameplay::UseAction3 => UserInput::Single(InputKind::Keyboard(KeyCode::Key3)),
+            Gameplay::UseAction4 => UserInput::Single(InputKind::Keyboard(KeyCode::Key4)),
+            Gameplay::UseAction5 => UserInput::Single(InputKind::Keyboard(KeyCode::Key5)),
+            Gameplay::ZoomIn => UserInput::Single(InputKind::Keyboard(KeyCode::Minus)),
+            Gameplay::ZoomOut => UserInput::Single(InputKind::Keyboard(KeyCode::Plus)),
+            Gameplay::Pause => UserInput::Single(InputKind::Keyboard(KeyCode::Escape)),
+            Gameplay::DebugF1 => UserInput::Single(InputKind::Keyboard(KeyCode::F1)),
+            Gameplay::DebugF2 => UserInput::Single(InputKind::Keyboard(KeyCode::F2)),
+            Gameplay::Melee => UserInput::Single(InputKind::Keyboard(KeyCode::F)),
+            Gameplay::Heal => UserInput::Single(InputKind::Keyboard(KeyCode::C)),
+        }
+    }
+    fn default_gamepad_mapping(&self) -> UserInput {
+        match self {
+            Gameplay::CursorScreen => UserInput::Chord(Vec::new()),
+            Gameplay::CursorWorld => UserInput::Chord(Vec::new()),
+            Gameplay::JoystickDelta => UserInput::Chord(Vec::new()),
+            Gameplay::Move => UserInput::Single(InputKind::DualAxis(DualAxis::left_stick())),
+            Gameplay::Sprint => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::West))
+            }
+            Gameplay::Attack => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::South))
+            }
+            Gameplay::Interact => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::East))
+            }
+            Gameplay::CycleWeapon => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::North))
+            }
+            Gameplay::ZoomIn => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadUp))
+            }
+            Gameplay::ZoomOut => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadDown))
+            }
+            Gameplay::Pause => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::Start))
+            }
+            Gameplay::Melee => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadLeft))
+            }
+            Gameplay::Heal => {
+                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadRight))
+            }
+            Gameplay::UseAction1 => UserInput::Chord(Vec::new()),
+            Gameplay::UseAction2 => UserInput::Chord(Vec::new()),
+            Gameplay::UseAction3 => UserInput::Chord(Vec::new()),
+            Gameplay::UseAction4 => UserInput::Chord(Vec::new()),
+            Gameplay::UseAction5 => UserInput::Chord(Vec::new()),
+            Gameplay::DebugF1 => UserInput::Chord(Vec::new()),
+            Gameplay::DebugF2 => UserInput::Chord(Vec::new()),
         }
     }
 }
@@ -93,7 +124,7 @@ pub enum Gameplay {
     /// Shift for keyboard,
     Sprint,
     /// Space for keyboard
-    Shoot,
+    Attack,
     /// E for keyboard
     Interact,
     /// cycles equipped weapons
@@ -121,8 +152,8 @@ pub enum Gameplay {
     DebugF1,
     /// regenerate dungeon
     DebugF2,
-    // /// F for keyboard
-    // Melee,
-    // /// Q for keyboard
-    // Heal,
+    /// F for keyboard
+    Melee,
+    /// Q for keyboard
+    Heal,
 }

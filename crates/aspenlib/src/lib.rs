@@ -1,5 +1,4 @@
-// disable console on windows for release builds
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // disable console on windows for release builds
 #![feature(stmt_expr_attributes)]
 #![feature(type_ascription)]
 #![feature(lint_reasons)]
@@ -7,15 +6,11 @@
 #![feature(exact_size_is_empty)]
 #![feature(fs_try_exists)]
 #![feature(let_chains)]
+#![feature(unwrap_infallible)]
 #![doc = r"
-Vanilla Coffee, My video game.
-it kinda sucks but it'll be finished eventually
+AspenHalls, My video game.
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 "]
-
-#[cfg(feature = "develop")]
-/// Debug and Development related functions
-mod debug;
 
 /// general component store
 mod bundles;
@@ -24,6 +19,9 @@ mod console;
 /// general consts file, if it gets used more than
 /// twice it should be here
 mod consts;
+#[cfg(feature = "develop")]
+/// Debug and Development related functions
+mod debug;
 /// actual game plugin, ui and all "game" functionality
 mod game;
 /// Holds all Asset Collections and handles loading them
@@ -32,24 +30,10 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-/// A.H.P. Aspen Halls Prelude, in the future this can be the only import for mods, no need too manually specify bevy, or other dependency versions
-///
-/// - common imports for all modules, maybe make it specific, ie no wildcards.
-///  all modules that aren't plugin should probably be defined here
-pub mod prelude;
+use crate::loading::assets::AspenInitHandles;
+use bevy::prelude::*;
 
-use bevy_asepritesheet::core::AsepritesheetPlugin;
-use prelude::{
-    engine::{
-        bevy_rapier2d, default, resource_exists, run_once, App, Condition, IntoSystemConfigs,
-        Reflect, Resource, States, Update, Vec2,
-    },
-    game::{AspenInitHandles, ConfigFile},
-};
-
-use bevy::asset::AssetMetaCheck;
-#[cfg(feature = "develop")]
-use prelude::game::inspect::DebugPlugin;
+pub use loading::config::*;
 
 /// application stages
 pub enum ApplicationStage {
@@ -96,14 +80,13 @@ pub enum AppState {
 /// then loads settings from config.toml and adds
 /// general game plugins
 pub fn start_app(cfg_file: ConfigFile) -> App {
+    println!("Hello World!!");
     let mut vanillacoffee = loading::config::create_configured_app(cfg_file);
 
     // add third party plugins
     vanillacoffee
-        // Never attempts to look up meta files. The default meta configuration will be used for each asset.
-        .insert_resource(AssetMetaCheck::Never)
         .add_plugins((
-            AsepritesheetPlugin::new(&["sprite.json"]),
+            // MapNavPlugin::<Transform>::default(),
             bevy_mod_picking::DefaultPickingPlugins,
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,
@@ -118,14 +101,13 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         });
 
     vanillacoffee.add_plugins((
-        prelude::plugins::AppAssetLoadingPlugin,
-        prelude::plugins::SplashPlugin,
-        prelude::plugins::QuakeConPlugin,
-        prelude::plugins::AspenHallsPlugin,
+        loading::AppLoadingPlugin,
+        console::QuakeConPlugin,
+        game::AspenHallsPlugin,
     ));
 
     #[cfg(feature = "develop")]
-    vanillacoffee.add_plugins(DebugPlugin);
+    vanillacoffee.add_plugins(debug::debug_plugin::DebugPlugin);
 
     vanillacoffee.add_systems(
         Update,

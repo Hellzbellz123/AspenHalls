@@ -1,4 +1,13 @@
-use crate::prelude::{engine::*, game::*};
+use bevy::{
+    core_pipeline::{
+        clear_color::ClearColorConfig,
+        tonemapping::{DebandDither, Tonemapping},
+    },
+    prelude::*,
+    render::{camera::ScalingMode, primitives::Frustum},
+};
+
+use crate::{loading::assets::AspenInitHandles, utilities::despawn_with, AppState};
 
 /// Identifies the Main Camera
 #[derive(Component, Reflect, Default)]
@@ -33,9 +42,10 @@ pub struct SplashPlugin;
 
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
-        // TODO: do some special trickery to make this system work awesome
-        app.add_systems(Startup, spawn_main_camera);
-        app.add_systems(OnEnter(AppState::Loading), splash_setup);
+        app.add_systems(
+            OnEnter(AppState::Loading),
+            (spawn_main_camera, splash_setup).chain(),
+        );
         app.add_systems(OnExit(AppState::Loading), despawn_with::<OnlySplashScreen>);
     }
 }
@@ -97,30 +107,7 @@ fn spawn_main_camera(mut commands: Commands) {
 }
 
 /// spawns splash, inserts splash timer
-fn splash_setup(
-    // mut images: ResMut<Assets<Image>>,
-    // window: Query<&Window>,
-    mut commands: Commands,
-    init_assets: Res<AspenInitHandles>,
-) {
-    info!("loading splash");
-    // let window = window.single();
-    // let img_bytes = include_bytes!("../../assets-build/splashL.png");
-    // let splash_image = Image::from_buffer(
-    //     img_bytes,
-    //     ImageType::Extension("png"),
-    //     CompressedImageFormats::empty(),
-    //     true,
-    // )
-    // .unwrap();
-    // let img: Handle<Image> = images.add(Image::from_dynamic(
-    //     splash_image
-    //         .try_into_dynamic()
-    //         .unwrap_or_default()
-    //         .resize_exact(window.physical_width(), window.physical_height(), FilterType::Nearest),
-    //     true,
-    // ));
-    // Display the logo
+fn splash_setup(mut commands: Commands, init_assets: Res<AspenInitHandles>) {
     info!("spawning splash ImageBundle");
     commands.spawn((
         Name::new("SplashScreenImage"),

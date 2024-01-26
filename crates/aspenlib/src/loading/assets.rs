@@ -40,6 +40,7 @@ pub struct AspenInitHandles {
 }
 
 /// asset handles for touch controls UI
+#[allow(clippy::struct_field_names)]
 #[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
 pub struct AspenTouchHandles {
     /// knob with arrows

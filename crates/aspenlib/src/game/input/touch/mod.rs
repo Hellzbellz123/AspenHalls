@@ -3,15 +3,15 @@ use bevy_touch_stick::{
     TouchStick, TouchStickGamepadMapping, TouchStickPlugin, TouchStickType, TouchStickUiBundle,
     TouchStickUiKnob, TouchStickUiOutline,
 };
-use leafwing_input_manager::prelude::{ActionState, ActionStateDriver};
+use leafwing_input_manager::prelude::ActionState;
 use std::hash::Hash;
 
-use super::{
-    action_maps::{self, Gameplay},
-    AspenInputSystemSet,
-};
 use crate::{
-    game::{interface::InterfaceRoot, AppState},
+    game::{
+        input::{action_maps, AspenInputSystemSet},
+        interface::InterfaceRoot,
+        AppState,
+    },
     loading::assets::{AspenInitHandles, AspenTouchHandles},
 };
 
@@ -32,10 +32,7 @@ impl Plugin for TouchInputPlugin {
                     .run_if(state_exists_and_equals(AppState::PlayingGame)),
             )
                 .in_set(AspenInputSystemSet::TouchInput)
-                .run_if(
-                    any_with_component::<ActionState<action_maps::Gameplay>>()
-                        .and_then(any_with_component::<ActionStateDriver<action_maps::Gameplay>>()),
-                ),
+                .run_if(resource_exists::<ActionState<action_maps::Gameplay>>()),
         );
     }
 }
@@ -53,10 +50,6 @@ pub struct InteractionButtonTag;
 // action button, pick up nearest/open closest
 // swap weapon button
 // fire weapon button
-
-// type of joystick, cursor input or move input
-// #[derive(Default, Reflect, Hash, Clone, PartialEq, Eq)]
-// pub struct TouchStickMove;
 
 /// type of joystick, cursor input or move input
 #[derive(Default, Reflect, Hash, Clone, PartialEq, Eq)]
@@ -313,7 +306,7 @@ fn interaction_button_system(
             With<InteractionButtonTag>,
         ),
     >,
-    mut player_input: Query<&mut ActionState<Gameplay>>,
+    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     for (interaction, mut color, mut border_color, _children) in &mut interaction_query {
         match *interaction {
@@ -333,9 +326,8 @@ fn interaction_button_system(
         }
 
         if *interaction == Interaction::Pressed {
-            let mut input = player_input.single_mut();
             debug!("touch too press Interact");
-            input.press(action_maps::Gameplay::Interact);
+            actions.press(&action_maps::Gameplay::Interact);
         }
     }
 }
@@ -343,7 +335,7 @@ fn interaction_button_system(
 /// triggers player sprint action if touch joystick is dragged past threshold
 fn touch_trigger_sprint(
     sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
-    mut player_input: Query<&mut ActionState<Gameplay>>,
+    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     let stick = sticks
         .iter()
@@ -351,16 +343,15 @@ fn touch_trigger_sprint(
         .expect("always exists at this point");
 
     if stick.value.abs().max_element() >= 0.7 {
-        let mut player_input = player_input.single_mut();
         // debug!("touch too press Sprint");
-        player_input.press(action_maps::Gameplay::Sprint);
+        actions.press(&action_maps::Gameplay::Sprint);
     }
 }
 
 /// triggers player shoot action if touch joystick is dragged past threshold
 fn touch_trigger_shoot(
     sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
-    mut player_input: Query<&mut ActionState<Gameplay>>,
+    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     let stick = sticks
         .iter()
@@ -368,8 +359,7 @@ fn touch_trigger_shoot(
         .expect("always exists at this point");
 
     if stick.value.abs().max_element() >= 0.7 {
-        let mut player_input = player_input.single_mut();
         // debug!("touch too press Shoot");
-        player_input.press(action_maps::Gameplay::Shoot);
+        actions.press(&action_maps::Gameplay::Attack);
     }
 }

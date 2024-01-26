@@ -1,7 +1,5 @@
-use bevy::{math::vec4, pbr::StandardMaterial};
-use bevy_rapier2d::prelude::Collider;
-
-use crate::prelude::engine::{bevy, Group, Vec2, Vec3};
+use bevy::{math::vec4, pbr::StandardMaterial, prelude::Vec2};
+use bevy_rapier2d::{geometry::Group, prelude::Collider};
 
 /// width/height of standard tile in gameworld
 pub const TILE_SIZE: f32 = 32.0;
@@ -11,13 +9,6 @@ pub const ACTOR_PHYSICS_Z_INDEX: f32 = 10.0;
 
 /// Z axis for sprites/entities to be positioned on
 pub const ACTOR_Z_INDEX: f32 = 10.0;
-
-/// actor scale
-pub const ACTOR_SCALE: Vec3 = Vec3 {
-    x: 1.0,
-    y: 1.0,
-    z: 1.0,
-};
 
 /// actor size
 pub const ACTOR_SIZE: Vec2 = Vec2::new(TILE_SIZE, TILE_SIZE);
@@ -73,26 +64,17 @@ pub fn default_actor_collider() -> Collider {
     )
 }
 
-/// bullet speed
-pub const BULLET_SPEED_MODIFIER: f32 = 100.0;
-
 /// smallest velocity not considered moving
 ///
 /// less than this can be considered 0.
 /// will be clamped too 0 soon anways
 pub const MIN_VELOCITY: f32 = 0.005;
 
-/// fastest any entity can move
-pub const MAX_VELOCITY: f32 = 100_000.0f32;
-
 /// if walking, speed is multiplied by this
 pub const WALK_MODIFIER: f32 = 0.7;
 
 /// if running, speed is multiplied by this
 pub const SPRINT_MODIFIER: f32 = 1.3;
-
-/// character will move away from enemy if within this distance
-pub const BACKUP_TILE_DISTANCE: f32 = 3.0;
 
 #[non_exhaustive]
 /// Collision Groups wrapper

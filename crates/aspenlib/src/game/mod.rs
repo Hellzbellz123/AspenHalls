@@ -1,5 +1,8 @@
-/// characters, chests, anything
-pub mod actors;
+
+/// animation functionality
+pub mod animations;
+/// character/item stats functionality
+pub mod attributes_stats;
 /// audio data for game
 pub mod audio;
 /// sanctuary and dungeon generator

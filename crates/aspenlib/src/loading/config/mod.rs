@@ -1,11 +1,25 @@
+use bevy::{
+    asset::AssetMetaCheck,
+    log::LogPlugin,
+    prelude::*,
+    window::{PresentMode, WindowMode, WindowResized, WindowResolution},
+};
+use bevy_ecs_ldtk::assets::LdtkProject;
+use bevy_kira_audio::{AudioChannel, AudioControl};
+use bevy_mod_logfu::LogFuPlugin;
+use serde::{Deserialize, Serialize};
+
+use crate::{
+    game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel},
+    loading::splashscreen::MainCamera,
+    AppState,
+};
+
+#[cfg(feature="develop")]
+use bevy_inspector_egui::prelude::*;
+
 /// functions too create default file and save file
 pub mod save_load;
-
-use bevy::asset::AssetMetaCheck;
-
-/// functions for loading `ConfigFile` from filesystem, returns `DefaultSettings` from the `ConfigFile`
-// use crate::game::audio::{AmbienceSoundChannel, GameSoundChannel, MusicSoundChannel};
-use crate::prelude::{engine::*, game::*, plugins::*};
 
 /// Holds game settings deserialized from the config.toml
 #[derive(Reflect, Resource, Serialize, Deserialize, Clone, Debug)]
@@ -225,7 +239,6 @@ impl Default for SoundSettings {
 
 /// creates an `App` with logging and initialization assets
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
-    println!("Hello World!");
     let mut vanillacoffee = App::new();
     vanillacoffee.insert_resource(AssetMetaCheck::Never);
 
@@ -284,7 +297,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                     ..default()
                 })
                 .set(ImagePlugin::default_nearest())
-                .disable::<BevyLogPlugin>()
+                .disable::<LogPlugin>()
                 .disable::<AssetPlugin>()
         })
         .insert_resource(if cfg_file.render_settings.msaa {
@@ -306,11 +319,11 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     vanillacoffee.add_systems(
         Update,
         (
-            apply_window_settings,
-            apply_sound_settings,
-            apply_camera_zoom,
-            update_difficulty_settings,
-            on_resize_system,
+            apply_window_settings.run_if(resource_changed::<WindowSettings>()),
+            apply_sound_settings.run_if(resource_changed::<SoundSettings>()),
+            apply_camera_zoom.run_if(resource_changed::<GeneralSettings>()),
+            update_difficulty_settings.run_if(resource_changed::<GeneralSettings>()),
+            on_resize_system.run_if(on_event::<WindowResized>()),
         ),
     );
 
@@ -328,28 +341,26 @@ fn apply_window_settings(
     // mut frame_limiter_cfg: ResMut<FramepaceSettings>,
     mut mut_window_entity: Query<(Entity, &mut Window)>,
 ) {
-    if window_settings.is_changed() {
-        let (_w_ent, mut b_window) = mut_window_entity.single_mut();
-        // let w_window = winit.get_window(w_ent).unwrap();
+    let (_w_ent, mut b_window) = mut_window_entity.single_mut();
+    // let w_window = winit.get_window(w_ent).unwrap();
 
-        // let requested_limiter = Limiter::from_framerate(window_settings.frame_rate_target);
-        // if frame_limiter_cfg.limiter != requested_limiter {
-        //     frame_limiter_cfg.limiter = requested_limiter;
-        // }
+    // let requested_limiter = Limiter::from_framerate(window_settings.frame_rate_target);
+    // if frame_limiter_cfg.limiter != requested_limiter {
+    //     frame_limiter_cfg.limiter = requested_limiter;
+    // }
 
-        if window_settings.full_screen && b_window.mode != WindowMode::BorderlessFullscreen {
-            b_window.mode = WindowMode::BorderlessFullscreen;
-        }
-        if !window_settings.full_screen && b_window.mode == WindowMode::BorderlessFullscreen {
-            b_window.mode = WindowMode::Windowed;
-            b_window.resolution = window_settings.resolution.into();
-        }
-
-        info!(
-            "Requested Window Resolution {}, Actual Resolution {:?}",
-            window_settings.resolution, b_window.resolution
-        );
+    if window_settings.full_screen && b_window.mode != WindowMode::BorderlessFullscreen {
+        b_window.mode = WindowMode::BorderlessFullscreen;
     }
+    if !window_settings.full_screen && b_window.mode == WindowMode::BorderlessFullscreen {
+        b_window.mode = WindowMode::Windowed;
+        b_window.resolution = window_settings.resolution.into();
+    }
+
+    info!(
+        "Requested Window Resolution {}, Actual Resolution {:?}",
+        window_settings.resolution, b_window.resolution
+    );
 }
 
 /// modifies `AudioChannel` volume if `SoundSettings` changes
@@ -359,14 +370,12 @@ fn apply_sound_settings(
     ambience_channel: Res<AudioChannel<AmbienceSoundChannel>>,
     sound_channel: Res<AudioChannel<GameSoundChannel>>,
 ) {
-    if sound_settings.is_changed() {
-        //sound settings
-        info!("volumes changed, applying settings");
-        let mastervolume = sound_settings.master_volume;
-        music_channel.set_volume(sound_settings.music_volume * mastervolume);
-        ambience_channel.set_volume(sound_settings.ambience_volume * mastervolume);
-        sound_channel.set_volume(sound_settings.sound_volume * mastervolume);
-    }
+    //sound settings
+    info!("volumes changed, applying settings");
+    let mastervolume = sound_settings.master_volume;
+    music_channel.set_volume(sound_settings.music_volume * mastervolume);
+    ambience_channel.set_volume(sound_settings.ambience_volume * mastervolume);
+    sound_channel.set_volume(sound_settings.sound_volume * mastervolume);
 }
 
 /// applies camera zoom setting
@@ -378,17 +387,15 @@ fn apply_camera_zoom(
         return;
     }
 
-    if general_settings.is_changed() {
-        //camera zoom
-        match camera.get_single_mut() {
-            Ok(mut projection) => {
-                projection.scale = general_settings.camera_zoom;
-            }
-            Err(e) => {
-                warn!("issue getting camera: {e}");
-            }
-        };
-    }
+    //camera zoom
+    match camera.get_single_mut() {
+        Ok(mut projection) => {
+            projection.scale = general_settings.camera_zoom;
+        }
+        Err(e) => {
+            warn!("issue getting camera: {e}");
+        }
+    };
 }
 
 // TODO: fix logical pixels
@@ -413,15 +420,13 @@ fn update_difficulty_settings(
     general_settings: Res<GeneralSettings>,
     mut cmds: Commands,
 ) {
-    if general_settings.is_changed() {
-        let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
-        if let GameDifficulty::Custom(scales) = general_settings.game_difficulty {
-            cmds.insert_resource(scales);
-        } else {
-            let difficulty_settings: DifficultyScales =
-                create_difficulty_scales(*general_settings, Some(level_amount));
-            cmds.insert_resource(difficulty_settings);
-        }
+    let level_amount = i32::try_from(levels.iter().len()).unwrap_or(1);
+    if let GameDifficulty::Custom(scales) = general_settings.game_difficulty {
+        cmds.insert_resource(scales);
+    } else {
+        let difficulty_settings: DifficultyScales =
+            create_difficulty_scales(*general_settings, Some(level_amount));
+        cmds.insert_resource(difficulty_settings);
     }
 }
 

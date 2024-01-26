@@ -11,39 +11,34 @@ mod debug_dirs;
 /// holds type registration, diagnostics, and inspector stuff
 #[cfg(feature = "develop")]
 pub mod debug_plugin {
-    use bevy::input::{common_conditions::input_toggle_active, keyboard::KeyCode};
+    use bevy::{
+        diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+        input::common_conditions::input_toggle_active,
+        prelude::*,
+    };
+    use bevy_debug_text_overlay::OverlayPlugin;
+    use bevy_ecs_ldtk::{assets::LdtkProject, GridCoords, IntGridCell, LayerMetadata};
+    use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
+    use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
+    use bevy_prototype_lyon as svg;
+    use bevy_rapier2d::render::RapierDebugRenderPlugin;
+    use svg::prelude::FillOptions;
 
     #[cfg(feature = "develop")]
     #[cfg(not(any(target_os = "android", target_family = "wasm")))]
     use crate::debug::debug_dirs::debug_directory;
+    use crate::{
+        game::{
+            game_world::{components::CharacterSpawner, dungeonator_v2::GeneratorState},
+            items::weapons::components::{AttackDamage, CurrentlyDrawnWeapon},
+        },
+        register_types, AppState,
+    };
 
     use std::{
         fs,
         path::{Path, PathBuf},
         time::Duration,
-    };
-
-    use crate::{
-        game::actors::combat::components::AttackDamage,
-        prelude::{
-            engine::{
-                info, render_graph, render_graph_dot, schedule_graph, schedule_graph_dot,
-                state_exists_and_equals, svg_shapes, warn, App, Color, Commands, Entity, Fill,
-                FillOptions, First, GeometryBuilder, GridCoords, Handle, IntGridCell,
-                IntoSystemConfigs, Last, LayerMetadata, LdtkProject, Parent, Plugin, PostStartup,
-                PostUpdate, PreStartup, PreUpdate, Query, Startup, Timer, Transform, Update, Vec2,
-                With, Without,
-            },
-            game::{
-                ActorType, AppState, CurrentlyDrawnWeapon, DifficultyScales, EnemySpawner,
-                GeneralSettings, MainCamera, NpcType, SoundSettings, TimeInfo, TimeToLive,
-                WeaponHolder, WeaponSlots, WeaponSocket, WindowSettings,
-            },
-            plugins::{
-                FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin, OverlayPlugin,
-                RapierDebugRenderPlugin, StateInspectorPlugin, WorldInspectorPlugin,
-            },
-        },
     };
 
     /// debug plugin for Aspen Halls.
@@ -55,58 +50,48 @@ pub mod debug_plugin {
             #[cfg(not(any(target_os = "android", target_family = "wasm")))]
             debug_directory();
 
-            app.register_type::<Timer>()
-                //custom Reflects not from plugins
-                .register_type::<DifficultyScales>()
-                .register_type::<WindowSettings>()
-                .register_type::<GeneralSettings>()
-                .register_type::<SoundSettings>()
-                .register_type::<NpcType>()
-                .register_type::<TimeInfo>()
-                .register_type::<MainCamera>() // tells bevy-inspector-egui how to display the struct in the world inspector
-                .register_type::<EnemySpawner>()
-                .register_type::<TimeToLive>()
-                .register_type::<WeaponHolder>()
-                // weapon stuff
-                .register_type::<CurrentlyDrawnWeapon>()
-                // .register_type::<DamageType>()
-                // .register_type::<WeaponStats>()
-                .register_type::<WeaponSlots>()
-                .register_type::<WeaponSocket>()
-                // LDTK debug data
-                .register_type::<LdtkProject>()
-                .register_type::<Handle<LdtkProject>>()
-                .register_type::<LayerMetadata>()
-                .register_type::<IntGridCell>()
-                .register_type::<GridCoords>()
-                // bigbrain AI
-                .register_type::<ActorType>()
-                .add_plugins((
-                    WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
-                    StateInspectorPlugin::<AppState>::default()
-                        .run_if(input_toggle_active(true, KeyCode::F3)),
-                    RapierDebugRenderPlugin::default(),
-                    OverlayPlugin {
-                        font_size: 32.0,
-                        ..Default::default()
-                    },
-                    FrameTimeDiagnosticsPlugin,
-                    LogDiagnosticsPlugin {
-                        wait_duration: Duration::from_secs(20),
-                        ..Default::default()
-                    },
-                    // ResourceInspectorPlugin::<DungeonSettings>::default()
-                    //     .run_if(state_exists_and_equals(GeneratorStage::Finished)),
-                    // StateInspectorPlugin::<RequestedMenu>::default(),
-                    // StateInspectorPlugin::<GeneratorStage>::default(),
-                ))
-                // .insert_resource(DebugTimer(Timer::from_seconds(10.0, TimerMode::Repeating)))
-                // TODO: refactor these systems into nice sets and stages
-                .add_systems(
-                    Update,
-                    (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                        .run_if(state_exists_and_equals(AppState::PlayingGame)),
-                );
+            // LDTK unregistered types
+            register_types!(
+                app,
+                [
+                LdtkProject,
+                LayerMetadata,
+                IntGridCell,
+                GridCoords,
+                Handle<LdtkProject>
+                ]
+            );
+            // add inspector plugins
+            app.add_plugins((
+                StateInspectorPlugin::<AppState>::default()
+                    .run_if(input_toggle_active(true, KeyCode::F3)),
+                StateInspectorPlugin::<GeneratorState>::default()
+                .run_if(input_toggle_active(true, KeyCode::F3)),
+                WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
+                // ResourceInspectorPlugin::<>::default()
+                //      .run_if(input_toggle_active(true, KeyCode::F3)),
+                // StateInspectorPlugin::<RequestedMenu>::default(),
+                // StateInspectorPlugin::<GeneratorStage>::default(),
+            ))
+            // add other debug plugins
+            .add_plugins((
+                RapierDebugRenderPlugin::default(),
+                FrameTimeDiagnosticsPlugin,
+                LogDiagnosticsPlugin {
+                    wait_duration: Duration::from_secs(20),
+                    ..Default::default()
+                },
+                OverlayPlugin {
+                    font_size: 32.0,
+                    ..Default::default()
+                },
+            ))
+            // TODO: refactor these systems into nice sets and stages
+            .add_systems(
+                Update,
+                (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
+                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+            );
 
             debug_dump_graphs(app);
         }
@@ -115,35 +100,30 @@ pub mod debug_plugin {
     /// query's spawners and creates debug representations for spawner area
     fn debug_visualize_spawner(
         mut cmds: Commands,
-        spawner_query: Query<(Entity, &Transform, &EnemySpawner), Without<Fill>>,
+        spawner_query: Query<(Entity, &Transform, &CharacterSpawner), Without<svg::draw::Fill>>,
     ) {
         for (entity, _transform, spawner) in &spawner_query {
-            let spawner_box_visual = svg_shapes::Rectangle {
+            let Some(mut cmds) = cmds.get_entity(entity) else {warn!("spawner was despawned"); continue;};
+            let spawner_box_visual = svg::shapes::Rectangle {
                 extents: Vec2 { x: 40.0, y: 40.0 },
-                origin: svg_shapes::RectangleOrigin::Center,
+                origin: svg::shapes::RectangleOrigin::Center,
             };
 
-            let spawner_radius_visual = svg_shapes::Circle {
+            let spawner_radius_visual = svg::shapes::Circle {
                 radius: spawner.spawn_radius,
                 center: Vec2::ZERO,
             };
 
             info!("adding visual too spawner {:?}", entity);
-            let spawner_visual_bundle = GeometryBuilder::new()
+            let spawner_visual_bundle = svg::geometry::GeometryBuilder::new()
                 .add(&spawner_box_visual)
                 .add(&spawner_radius_visual)
                 .build();
 
-            cmds.entity(entity)
-                .insert(spawner_visual_bundle)
-                .insert(Fill {
-                    options: FillOptions::default(),
-                    color: Color::Hsla {
-                        hue: 334.0,
-                        saturation: 0.83,
-                        lightness: 0.3,
-                        alpha: 0.25,
-                    },
+            cmds.insert(spawner_visual_bundle)
+                .insert(svg::draw::Fill {
+                    options: svg::prelude::tess::FillOptions::DEFAULT,
+                    color: Color::GREEN.with_a(0.6),
                 });
         }
     }
@@ -159,12 +139,14 @@ pub mod debug_plugin {
         >,
     ) {
         for (ent, _w_stats, _trans) in &weapon_query {
-            let spawner_box_visual = svg_shapes::Rectangle {
+            let spawner_box_visual = svg::shapes::Rectangle {
                 extents: Vec2 { x: 2.0, y: 2.0 },
-                origin: svg_shapes::RectangleOrigin::Center,
+                origin: svg::shapes::RectangleOrigin::CustomCenter(Vec2 { x: 20.0, y: 15.0 }),
             };
 
-            let spawner_visual_bundle = GeometryBuilder::new().add(&spawner_box_visual).build();
+            let spawner_visual_bundle = svg::geometry::GeometryBuilder::new()
+                .add(&spawner_box_visual)
+                .build();
 
             cmds.entity(ent).insert(spawner_visual_bundle);
         }

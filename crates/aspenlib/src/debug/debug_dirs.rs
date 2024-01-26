@@ -1,9 +1,10 @@
-use crate::prelude::engine::warn;
 use std::{
     error::Error,
     fs, io,
     path::{Path, PathBuf},
 };
+
+use bevy::log::warn;
 
 /// prints current working directory too console
 pub fn debug_directory() {
@@ -15,7 +16,7 @@ pub fn debug_directory() {
         }
     };
 
-    println!("Current Working Director is: {dir:?}");
+    warn!("Current Working Director is: {dir:?}");
     match run(true, true, 2, &dir) {
         Ok(()) => {}
         Err(e) => warn!("{}", e),

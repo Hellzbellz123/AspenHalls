@@ -1,6 +1,8 @@
 # Aspen Halls (a video game)
 
-> This projects details can be found at my [page](https://hellzbellz123.github.io/AspenHalls/)
+> WARNING: git commits may be broken until v1.0
+>
+> further projects details can be found at my [page](https://hellzbellz123.github.io/AspenHalls/)
 
 Took me 3 years too get around to updating this, time to finally get started i guess.
 

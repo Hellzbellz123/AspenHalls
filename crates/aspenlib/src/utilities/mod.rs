@@ -1,23 +1,37 @@
-use crate::prelude::{
-    engine::{
-        bevy, info, warn, Assets, DespawnRecursiveExt, Entity, Image, NonSend, Query, Res, Window,
-        With,
-    },
-    game::AspenInitHandles,
-};
-
-use bevy::{
-    ecs::{
-        query::{ReadOnlyWorldQuery, WorldQuery},
-        schedule::State,
-        system::IntoSystem,
-    },
-    input::{keyboard::KeyCode, mouse::MouseButton, Input},
-    prelude::{Component, Condition, Local, States},
-};
+#![allow(unused)]
 
 use std::{cmp::Ordering, ops::Mul};
 use winit::window::Icon;
+
+use bevy::{
+    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
+    log::warn,
+    prelude::*,
+    window::CursorGrabMode,
+};
+use bevy_rapier2d::{pipeline::CollisionEvent, rapier::geometry::CollisionEventFlags};
+
+use crate::{consts::TILE_SIZE, loading::assets::AspenInitHandles, game::characters::components::MoveDirection};
+
+/// takes array of types and runs `app.register_type::<T>()` on each
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! register_types {
+    ($app:expr, [ $($t:ty),* ]) => {
+        $(
+            $app.register_type::<$t>();
+        )*
+    };
+}
+
+/// simple macro that generates an add system for OnEnter(state)
+#[allow(unused_macros)]
+macro_rules! on_enter {
+    ($system_name:ident, $state:expr) => {
+        app.add_systems(OnEnter($state), $system_name)
+            .run_if(state_exists_and_equals($state))
+    };
+}
 
 /// # Panics
 /// will panic if it cant find a window to attach icons, or the icon is not present
@@ -53,8 +67,6 @@ pub fn set_window_icon(
     }
 }
 
-use bevy::window::CursorGrabMode;
-
 /// handle cursor lock for game
 pub fn cursor_grab_system(
     mut windows: Query<&mut Window>,
@@ -76,6 +88,75 @@ pub fn cursor_grab_system(
     }
 }
 
+/// scales a `Vec2` so its largest value is smaller than x/y of final size
+pub fn scale_to_fit(current: Vec2, final_size: Vec2) -> Vec2 {
+    // Calculate scaling factors for both dimensions
+    let min_scale = (final_size.x / current.x).min(final_size.y / current.y);
+
+    // Scale the Vec2
+    Vec2 {
+        x: current.x * min_scale,
+        y: current.y * min_scale,
+    }
+}
+
+/// converts tile amount too f32 value
+pub fn tiles_to_f32(distance: i32) -> f32 {
+    distance as f32 * TILE_SIZE
+}
+
+
+pub fn vector_to_pi8(vec: Vec2) -> MoveDirection {
+    let angle = vec.y.atan2(vec.x).to_degrees() + 360.0;
+
+    let index = ((angle + 22.5) / 45.0) as usize % 8;
+
+    match index {
+        0 => MoveDirection::East,
+        1 => MoveDirection::NorthEast,
+        2 => MoveDirection::North,
+        3 => MoveDirection::NorthWest,
+        4 => MoveDirection::West,
+        5 => MoveDirection::SouthWest,
+        6 => MoveDirection::South,
+        _ => MoveDirection::SouthEast,
+    }
+}
+
+pub fn vector_to_pi4(vec: Vec2) -> MoveDirection {
+    let angle = vec.y.atan2(vec.x).to_degrees() + 360.0;
+    let index = (angle / 90.0) as usize % 4;
+
+    match index {
+        0 => MoveDirection::East,
+        1 => MoveDirection::North,
+        2 => MoveDirection::West,
+        3 => MoveDirection::South,
+        _ => MoveDirection::South,
+    }
+}
+
+/// turns a collision event into its parts
+pub const fn collision_to_data(
+    event: &CollisionEvent,
+) -> (Entity, Entity, &CollisionEventFlags, bool) {
+    match event {
+        CollisionEvent::Started(a, b, flags) => (*a, *b, flags, true),
+        CollisionEvent::Stopped(a, b, flags) => (*a, *b, flags, false),
+    }
+}
+
+/// despawn any entity with T: Component
+pub fn despawn_with<T: Component>(
+    to_despawn: Query<Entity, With<T>>,
+    mut commands: bevy::prelude::Commands,
+) {
+    for entity in &to_despawn {
+        info!("despawning entity recursively: {:#?}", entity);
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
 /// Performs a linear interpolation between `from` and `to` based on the value `s`.
 ///
 /// When `s` is `0.0`, the result will be equal to `self`.  When `s` is `1.0`, the result
@@ -91,17 +172,6 @@ where
         + std::marker::Copy,
 {
     from + ((to - from) * s)
-}
-
-/// takes array of types and runs `app.register_type::<T>()` on each
-#[allow(unused_macros)]
-#[macro_export]
-macro_rules! register_types {
-    ($app:expr, [ $($t:ty),* ]) => {
-        $(
-            $app.register_type::<$t>();
-        )*
-    };
 }
 
 /// `RunCondition` that checks if state was entered since last frame
@@ -136,15 +206,6 @@ pub fn state_exists_and_entered<S: States>(state: S) -> impl Condition<()> {
     )
 }
 
-/// simple macro that generates an add system for OnEnter(state)
-#[allow(unused_macros)]
-macro_rules! on_enter {
-    ($system_name:ident, $state:expr) => {
-        app.add_systems(OnEnter($state), $system_name)
-            .run_if(state_exists_and_equals($state))
-    };
-}
-
 /// Generates a [`Condition`](bevy::ecs::Condition)-satisfying closure that returns `true`
 /// if there are more `T` than the last run.
 ///
@@ -153,7 +214,6 @@ macro_rules! on_enter {
 /// # Note
 /// this function works, but components must be added with the correct value for systems that use them
 /// - things like `GlobalTransform` wont be accurate till 1 run later
-#[allow(unused)]
 pub fn on_component_added<T: Component>(
 ) -> impl FnMut((Local<usize>, Local<bool>, Query<(), With<T>>)) -> bool + Clone {
     move |(mut local_count, mut loop_once, query)| {
@@ -246,16 +306,5 @@ where
         };
 
         self.get(to_query).ok()
-    }
-}
-
-/// despawn any entity with T: Component
-pub fn despawn_with<T: Component>(
-    to_despawn: Query<Entity, With<T>>,
-    mut commands: bevy::prelude::Commands,
-) {
-    for entity in &to_despawn {
-        info!("despawning entity recursively: {:#?}", entity);
-        commands.entity(entity).despawn_recursive();
     }
 }

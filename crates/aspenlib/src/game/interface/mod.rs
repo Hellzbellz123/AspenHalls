@@ -223,7 +223,7 @@ fn spawn_menu_title(child_builder: &mut ChildBuilder<'_, '_, '_>, font: Handle<F
 
 /// generated random Rgba color with alpha between 0.8-1.0
 pub fn random_color(alpha: Option<f32>) -> Color {
-    let mut rng = crate::prelude::rand::thread_rng();
+    let mut rng = rand::thread_rng();
     Color::Rgba {
         red: rng.gen(),
         green: rng.gen(),

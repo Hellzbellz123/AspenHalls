@@ -1,25 +1,19 @@
-use bevy::{
-    ecs::{entity::Entity, system::Res},
-    log::error,
-};
+use bevy::prelude::*;
+use bevy_console::ConsoleCommand;
 
 use crate::{
     console::{
+        commands::{CommandSpawnType, CommandTarget},
         commands::{SpawnActorCommand, TeleportCharacterCommand},
-        CommandPosition, CommandSpawnType, CommandTarget,
     },
     game::{
-        actors::{ai::components::ActorType, components::ActorMoveState},
+        characters::{
+            components::CharacterMoveState, player::PlayerSelectedHero, EventSpawnCharacter,
+        },
         game_world::components::{ActorTeleportEvent, TpTriggerEffect},
+        items::EventSpawnItem,
     },
     loading::registry::ActorRegistry,
-    prelude::{
-        engine::{
-            bevy_console::ConsoleCommand, ActionState, EventWriter, Query, Transform, Vec2, With,
-            Without,
-        },
-        game::{action_maps, SpawnActorEvent},
-    },
 };
 
 /// interprets `SpawnCommand` from console and sends `SpawnActorEvent`
@@ -27,16 +21,17 @@ use crate::{
 /// # Panics
 /// will panic of there is NO player OR more than ONE
 pub fn spawn_command(
-    player_query: Query<&Transform, With<ActionState<action_maps::Gameplay>>>,
+    player_query: Query<Entity, With<PlayerSelectedHero>>,
     mut spawn: ConsoleCommand<SpawnActorCommand>,
-    mut ew: EventWriter<SpawnActorEvent>,
+    mut ew_character: EventWriter<EventSpawnCharacter>,
+    mut ew_item: EventWriter<EventSpawnItem>,
     registry: Res<ActorRegistry>,
 ) {
     let spawn_clone = spawn.take();
     let Some(Ok(SpawnActorCommand {
-        actor_type,
+        actor_type: spawn_type,
         identifier,
-        position,
+        position: _,
         amount,
         where_spawn,
     })) = spawn_clone
@@ -46,22 +41,18 @@ pub fn spawn_command(
     };
 
     let spawn_count = amount.unwrap_or(1);
+    let target_entity = match where_spawn.unwrap_or(CommandTarget::Player) {
+        CommandTarget::Player => player_query.single(),
+        CommandTarget::Nearest => {
+            todo!("sort by closest too player, send closest")
+        }
+        CommandTarget::Everyone => {
+            spawn.reply_failed("Targeting Everyone for spawn is unsupported");
+            return;
+        }
+    };
 
-    let spawn_position: Vec2 =
-        if where_spawn.is_some_and(|f| f == CommandTarget::Player) || position.is_none() {
-            let player_pos: Vec2 = player_query.get_single().map_or_else(
-                |f| {
-                    error!("could not et player pos: {f}");
-                    Vec2::ZERO
-                },
-                |f| f.translation.truncate(),
-            );
-            player_pos
-        } else {
-            position.unwrap_or(CommandPosition(0.0, 0.0)).into()
-        };
-
-    match actor_type {
+    match spawn_type {
         CommandSpawnType::Item => {
             let item_reg = &registry.items;
             if item_reg.weapons.contains_key(&identifier) {
@@ -72,34 +63,30 @@ pub fn spawn_command(
             }
 
             spawn.reply_ok("Spawning item");
-            ew.send(SpawnActorEvent {
-                what_to_spawn: identifier,
-                who_spawned: None,
-                spawn_position,
-                actor_type: ActorType::Weapon,
-                spawn_count,
+            ew_item.send(EventSpawnItem {
+                spawn_data: (identifier, spawn_count),
+                // TODO: this is a shortcut, fix
+                requester: target_entity,
             });
         }
         CommandSpawnType::Npc => {
             let char_reg = &registry.characters;
-            let bundle = if char_reg.creeps.contains_key(&identifier) {
-                registry.characters.creeps.get(&identifier).unwrap()
+            if char_reg.creeps.contains_key(&identifier) {
+                spawn.reply("got creep");
             } else if char_reg.bosses.contains_key(&identifier) {
-                registry.characters.bosses.get(&identifier).unwrap()
+                spawn.reply("got boss");
             } else if char_reg.heroes.contains_key(&identifier) {
-                registry.characters.heroes.get(&identifier).unwrap()
+                spawn.reply("got hero");
             } else {
-                spawn.reply_failed("Npc did not exist in registry");
+                spawn.reply_failed("character did not exist in registry");
                 return;
             };
 
-            spawn.reply_ok("Spawning Npc");
-            ew.send(SpawnActorEvent {
-                what_to_spawn: identifier,
-                who_spawned: None,
-                spawn_position,
-                actor_type: bundle.actor_type,
-                spawn_count,
+            spawn.reply_ok("Spawning character");
+            ew_character.send(EventSpawnCharacter {
+                spawn_data: (identifier, 1),
+                // TODO: this is a shortcut, fix
+                requester: player_query.single(),
             });
         }
     };
@@ -108,23 +95,20 @@ pub fn spawn_command(
 /// receives tp command and teleports actor too location
 #[allow(clippy::type_complexity)]
 pub fn teleport_command(
-    player_query: Query<(Entity, &Transform), With<ActionState<action_maps::Gameplay>>>,
-    other_actors: Query<
+    player_query: Query<(Entity, &Transform), (With<CharacterMoveState>, With<PlayerSelectedHero>)>,
+    characters: Query<
         (Entity, &Transform),
-        (
-            With<ActorMoveState>,
-            Without<ActionState<action_maps::Gameplay>>,
-        ),
+        (With<CharacterMoveState>, Without<PlayerSelectedHero>),
     >,
     mut spawn: ConsoleCommand<TeleportCharacterCommand>,
     mut ew: EventWriter<ActorTeleportEvent>,
 ) {
     if let Some(Ok(TeleportCharacterCommand { who, pos })) = spawn.take() {
-        let who = who.unwrap_or(super::CommandTarget::Player);
+        let who = who.unwrap_or(CommandTarget::Player);
         let player = player_query.get_single();
 
         match who {
-            super::CommandTarget::Player => {
+            CommandTarget::Player => {
                 let Ok((player, _)) = player else {
                     spawn.reply_failed("No Player too teleport");
                     return;
@@ -137,12 +121,12 @@ pub fn teleport_command(
                     sender: Some(player),
                 });
             }
-            super::CommandTarget::Nearest => {
+            CommandTarget::Nearest => {
                 let Ok((player, player_pos)) = player else {
                     spawn.reply_failed("No Player too teleport");
                     return;
                 };
-                let Some(closest) = other_actors.iter().min_by(|lhs, rhs| {
+                let Some(closest) = characters.iter().min_by(|lhs, rhs| {
                     let distance_a = lhs.1.translation.distance_squared(player_pos.translation);
                     let distance_b = rhs.1.translation.distance_squared(player_pos.translation);
                     distance_a
@@ -160,14 +144,14 @@ pub fn teleport_command(
                     sender: Some(player),
                 });
             }
-            super::CommandTarget::Everyone => {
+            CommandTarget::Everyone => {
                 let mut too_teleport: Vec<Entity> = Vec::new();
                 let Ok((player, _)) = player else {
                     error!("no player too teleport");
                     return;
                 };
                 too_teleport.push(player);
-                other_actors.iter().for_each(|f| {
+                characters.iter().for_each(|f| {
                     too_teleport.push(f.0);
                 });
 
