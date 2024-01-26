@@ -22,9 +22,12 @@ dynamic = ["aspenlib/dynamic"]
 trace = ["aspenlib/trace"]
 
 [dependencies]
+bevy ={ version = "*"}
 bevy_egui = { version = "*", default-features = false, features = [
   "default_fonts",
   "manage_clipboard",
 ] }
 aspenlib = { path = "../aspenlib" }
 toml = { version = "0.8" }
+human-panic ="1.2.2"
+

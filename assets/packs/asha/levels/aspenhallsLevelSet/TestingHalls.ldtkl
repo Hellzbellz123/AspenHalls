@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "TestingHalls",
@@ -72,14 +72,14 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
-					"__worldX": 1152,
-					"__worldY": -2464,
 					"iid": "b412dda0-8990-11ee-a550-53ae901e97e5",
 					"width": 64,
 					"height": 160,
 					"defUid": 7,
 					"px": [1152,640],
-					"fieldInstances": []
+					"fieldInstances": [],
+					"__worldX": 1152,
+					"__worldY": -2464
 				},
 				{
 					"__identifier": "Teleporter",
@@ -88,8 +88,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 64,
-					"__worldY": -2816,
 					"iid": "bf076e60-8990-11ee-a550-494a368be1c0",
 					"width": 64,
 					"height": 64,
@@ -108,7 +106,9 @@
 							"params": ["da814670-8990-11ee-a550-05ab5fb6e492"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 64,
+					"__worldY": -2816
 				},
 				{
 					"__identifier": "Teleporter",
@@ -117,8 +117,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 160,
-					"__worldY": -2624,
 					"iid": "c13bda90-8990-11ee-a550-833c36bf6e10",
 					"width": 64,
 					"height": 64,
@@ -137,7 +135,9 @@
 							"params": ["c33894f0-8990-11ee-a550-a10cf1c1ff29"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 160,
+					"__worldY": -2624
 				},
 				{
 					"__identifier": "Teleporter",
@@ -146,8 +146,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 672,
-					"__worldY": -2688,
 					"iid": "c33894f0-8990-11ee-a550-a10cf1c1ff29",
 					"width": 64,
 					"height": 64,
@@ -166,7 +164,9 @@
 							"params": ["c13bda90-8990-11ee-a550-833c36bf6e10"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 672,
+					"__worldY": -2688
 				},
 				{
 					"__identifier": "Teleporter",
@@ -175,8 +175,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 256,
-					"__worldY": -2624,
 					"iid": "c745dfd0-8990-11ee-a550-8dbe0d13c9ea",
 					"width": 64,
 					"height": 64,
@@ -195,7 +193,9 @@
 							"params": ["cd885a30-8990-11ee-a550-a9433d22fbaa"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 256,
+					"__worldY": -2624
 				},
 				{
 					"__identifier": "Teleporter",
@@ -204,8 +204,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 1344,
-					"__worldY": -2624,
 					"iid": "cd885a30-8990-11ee-a550-a9433d22fbaa",
 					"width": 64,
 					"height": 64,
@@ -224,7 +222,9 @@
 							"params": ["c745dfd0-8990-11ee-a550-8dbe0d13c9ea"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 1344,
+					"__worldY": -2624
 				},
 				{
 					"__identifier": "Teleporter",
@@ -233,8 +233,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 352,
-					"__worldY": -2624,
 					"iid": "d0e89c30-8990-11ee-a550-c160ebbee36d",
 					"width": 64,
 					"height": 64,
@@ -253,7 +251,9 @@
 							"params": ["d2b286c0-8990-11ee-a550-7341fe762736"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 352,
+					"__worldY": -2624
 				},
 				{
 					"__identifier": "Teleporter",
@@ -262,8 +262,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 1376,
-					"__worldY": -2432,
 					"iid": "d2b286c0-8990-11ee-a550-7341fe762736",
 					"width": 64,
 					"height": 128,
@@ -282,7 +280,9 @@
 							"params": ["d0e89c30-8990-11ee-a550-c160ebbee36d"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 1376,
+					"__worldY": -2432
 				},
 				{
 					"__identifier": "Teleporter",
@@ -291,8 +291,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 64,
-					"__worldY": -2624,
 					"iid": "da814670-8990-11ee-a550-05ab5fb6e492",
 					"width": 64,
 					"height": 64,
@@ -311,7 +309,9 @@
 							"params": ["bf076e60-8990-11ee-a550-494a368be1c0"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 64,
+					"__worldY": -2624
 				},
 				{
 					"__identifier": "Teleporter",
@@ -320,8 +320,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 1056,
-					"__worldY": -2464,
 					"iid": "225b7b40-8990-11ee-a550-8765e8bf8880",
 					"width": 32,
 					"height": 32,
@@ -340,7 +338,9 @@
 							"params": ["23c1e910-8990-11ee-a550-8b5ff9c236c3"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 1056,
+					"__worldY": -2464
 				},
 				{
 					"__identifier": "Teleporter",
@@ -349,8 +349,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 192,
-					"__worldY": -2496,
 					"iid": "23c1e910-8990-11ee-a550-8b5ff9c236c3",
 					"width": 32,
 					"height": 32,
@@ -369,7 +367,9 @@
 							"params": ["225b7b40-8990-11ee-a550-8765e8bf8880"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 192,
+					"__worldY": -2496
 				},
 				{
 					"__identifier": "Teleporter",
@@ -378,8 +378,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 32,
-					"__worldY": -2432,
 					"iid": "26e80840-8990-11ee-a550-857b9a05539d",
 					"width": 64,
 					"height": 96,
@@ -396,7 +394,9 @@
 						}] },
 						{ "__identifier": "TeleportLocalRef", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 32,
+					"__worldY": -2432
 				},
 				{
 					"__identifier": "Teleporter",
@@ -405,8 +405,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 1184,
-					"__worldY": -2560,
 					"iid": "8c44fd00-8990-11ee-96cd-6d899beade7a",
 					"width": 32,
 					"height": 32,
@@ -425,7 +423,9 @@
 							"params": ["8d94ae80-8990-11ee-96cd-1fa8d3a45fcc"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 1184,
+					"__worldY": -2560
 				},
 				{
 					"__identifier": "Teleporter",
@@ -434,8 +434,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 1248,
-					"__worldY": -2560,
 					"iid": "8d94ae80-8990-11ee-96cd-1fa8d3a45fcc",
 					"width": 32,
 					"height": 32,
@@ -454,7 +452,9 @@
 							"params": ["8c44fd00-8990-11ee-96cd-6d899beade7a"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 1248,
+					"__worldY": -2560
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -463,8 +463,6 @@
 					"__tags": ["Actor"],
 					"__tile": null,
 					"__smartColor": "#9E0000",
-					"__worldX": 528,
-					"__worldY": -2416,
 					"iid": "7087fbb0-8990-11ee-9cc7-cfd7cde253eb",
 					"width": 32,
 					"height": 32,
@@ -473,7 +471,9 @@
 					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": "rexxen", "__tile": null, "defUid": 68, "realEditorValues": [{
 						"id": "V_String",
 						"params": ["rexxen"]
-					}] }]
+					}] }],
+					"__worldX": 528,
+					"__worldY": -2416
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -482,8 +482,6 @@
 					"__tags": ["Actor"],
 					"__tile": null,
 					"__smartColor": "#9E0000",
-					"__worldX": 608,
-					"__worldY": -2336,
 					"iid": "71c86af0-8990-11ee-9cc7-4b83e2022f35",
 					"width": 32,
 					"height": 32,
@@ -492,7 +490,9 @@
 					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": "bennen", "__tile": null, "defUid": 68, "realEditorValues": [{
 						"id": "V_String",
 						"params": ["bennen"]
-					}] }]
+					}] }],
+					"__worldX": 608,
+					"__worldY": -2336
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -501,8 +501,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 1944,
-					"__worldY": -2376,
 					"iid": "e5cbc430-8990-11ee-99d8-3d7d893fba9f",
 					"width": 192,
 					"height": 192,
@@ -543,7 +541,9 @@
 							"params": ["9d73bdc0-8990-11ee-99d8-61d9c9d7e7a1"]
 						} ] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [{ "id": "V_Int", "params": [3] }] }
-					]
+					],
+					"__worldX": 1944,
+					"__worldY": -2376
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -552,8 +552,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 1656,
-					"__worldY": -2376,
 					"iid": "edb1b560-8990-11ee-99d8-61b702adf164",
 					"width": 208,
 					"height": 208,
@@ -594,7 +592,9 @@
 							"params": ["9d73bdc0-8990-11ee-99d8-61d9c9d7e7a1"]
 						} ] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [{ "id": "V_Int", "params": [3] }] }
-					]
+					],
+					"__worldX": 1656,
+					"__worldY": -2376
 				},
 				{
 					"__identifier": "WeaponSpawner",
@@ -603,8 +603,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#94A6D9",
-					"__worldX": 920,
-					"__worldY": -2856,
 					"iid": "48bc49c0-8990-11ee-99d8-2b0e5da4b51c",
 					"width": 32,
 					"height": 32,
@@ -617,7 +615,9 @@
 							"id": "V_Bool",
 							"params": [ true ]
 						}] }
-					]
+					],
+					"__worldX": 920,
+					"__worldY": -2856
 				},
 				{
 					"__identifier": "EnemyWave",
@@ -626,8 +626,6 @@
 					"__tags": ["DataEntity"],
 					"__tile": null,
 					"__smartColor": "#BB00C4",
-					"__worldX": 1792,
-					"__worldY": -2496,
 					"iid": "9ac120e0-8990-11ee-99d8-e31eb85cff89",
 					"width": 16,
 					"height": 16,
@@ -657,7 +655,9 @@
 							}
 						] },
 						{ "__identifier": "WaveID", "__type": "Int", "__value": 0, "__tile": null, "defUid": 85, "realEditorValues": [{ "id": "V_Int", "params": [0] }] }
-					]
+					],
+					"__worldX": 1792,
+					"__worldY": -2496
 				},
 				{
 					"__identifier": "EnemyWave",
@@ -666,8 +666,6 @@
 					"__tags": ["DataEntity"],
 					"__tile": null,
 					"__smartColor": "#BB00C4",
-					"__worldX": 1792,
-					"__worldY": -2480,
 					"iid": "9c8c43f0-8990-11ee-99d8-03b84bfc07a6",
 					"width": 16,
 					"height": 16,
@@ -682,7 +680,9 @@
 							"params": ["slime"]
 						} ] },
 						{ "__identifier": "WaveID", "__type": "Int", "__value": 1, "__tile": null, "defUid": 85, "realEditorValues": [{ "id": "V_Int", "params": [1] }] }
-					]
+					],
+					"__worldX": 1792,
+					"__worldY": -2480
 				},
 				{
 					"__identifier": "EnemyWave",
@@ -691,8 +691,6 @@
 					"__tags": ["DataEntity"],
 					"__tile": null,
 					"__smartColor": "#BB00C4",
-					"__worldX": 1792,
-					"__worldY": -2464,
 					"iid": "9d73bdc0-8990-11ee-99d8-61d9c9d7e7a1",
 					"width": 16,
 					"height": 16,
@@ -733,7 +731,9 @@
 							}
 						] },
 						{ "__identifier": "WaveID", "__type": "Int", "__value": 2, "__tile": null, "defUid": 85, "realEditorValues": [{ "id": "V_Int", "params": [2] }] }
-					]
+					],
+					"__worldX": 1792,
+					"__worldY": -2464
 				}
 			]
 		},

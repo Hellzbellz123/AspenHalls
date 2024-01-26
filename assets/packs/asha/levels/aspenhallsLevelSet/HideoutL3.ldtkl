@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "HideoutL3",
@@ -72,14 +72,14 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
-					"__worldX": 2848,
-					"__worldY": -2016,
 					"iid": "1f824062-8990-11ee-a550-3b0dec257196",
 					"width": 160,
 					"height": 112,
 					"defUid": 7,
 					"px": [736,800],
-					"fieldInstances": []
+					"fieldInstances": [],
+					"__worldX": 2848,
+					"__worldY": -2016
 				},
 				{
 					"__identifier": "Teleporter",
@@ -88,8 +88,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 2976,
-					"__worldY": -2336,
 					"iid": "1f824063-8990-11ee-a550-ed026a9bf464",
 					"width": 64,
 					"height": 64,
@@ -106,7 +104,9 @@
 						}] },
 						{ "__identifier": "TeleportLocalRef", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 2976,
+					"__worldY": -2336
 				},
 				{
 					"__identifier": "Teleporter",
@@ -115,8 +115,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 2720,
-					"__worldY": -2496,
 					"iid": "c138e9d0-8990-11ee-a550-65e1ebdc4939",
 					"width": 64,
 					"height": 64,
@@ -135,7 +133,9 @@
 							"params": ["c2dc87b0-8990-11ee-a550-b7b66278004f"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 2720,
+					"__worldY": -2496
 				},
 				{
 					"__identifier": "Teleporter",
@@ -144,8 +144,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 2560,
-					"__worldY": -2720,
 					"iid": "c2dc87b0-8990-11ee-a550-b7b66278004f",
 					"width": 64,
 					"height": 64,
@@ -164,7 +162,9 @@
 							"params": ["c138e9d0-8990-11ee-a550-65e1ebdc4939"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 2560,
+					"__worldY": -2720
 				}
 			]
 		},

@@ -1,5 +1,4 @@
-character_type = { Npc = "Boss" }
-controller = { GameAI = "Boss" }
+character_type = { Boss = { ai = "Boss" } }
 
 [actor]
 name = "Old Hag"

@@ -1,5 +1,4 @@
-character_type = "Hero"
-controller = "Player"
+character_type = { Hero = { ai = "FollowerHero" } }
 
 [actor]
 name = "Rexxen"

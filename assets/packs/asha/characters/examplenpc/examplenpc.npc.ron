@@ -1,0 +1,1 @@
+(character_type:Creep(ai:Stupid),actor:(name:"ExampleNpc",identifier:("examplenpc"),aseprite_path:"sprite_sheet.png",pixel_size:(32.0,32.0),stats:(max_hp:75,max_mana:50,strength:10,agility:10,intelligence:10,armor:10,hp_regen:2.5,mana_regen:4.0,move_speed:90.0,range:48.0,arm_speed:1.0,damage:(physical:(5.0),elemental:None))))

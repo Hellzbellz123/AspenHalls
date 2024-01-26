@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "WierdTeleportyThing",
@@ -61,67 +61,35 @@
 			"entityInstances": [
 				{
 					"__identifier": "RoomExit",
-					"__grid": [32,62],
-					"__pivot": [0,0],
+					"__grid": [32,63],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 2560,
-					"__worldY": 3040,
 					"iid": "6e145582-8990-11ee-a13c-ad0e1301055e",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [512,992],
-					"fieldInstances": []
+					"px": [512,1008],
+					"fieldInstances": [],
+					"__worldX": 2560,
+					"__worldY": 3056
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [30,62],
-					"__pivot": [0,0],
+					"__grid": [1,32],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 2528,
-					"__worldY": 3040,
-					"iid": "6e145583-8990-11ee-a13c-c7f690673521",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [480,992],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [0,30],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 2048,
-					"__worldY": 2528,
-					"iid": "6e14a3a1-8990-11ee-a13c-6597d72f6ed2",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [0,480],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [0,32],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 2048,
-					"__worldY": 2560,
 					"iid": "6e14a3a2-8990-11ee-a13c-3b5b8bbbe347",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [0,512],
-					"fieldInstances": []
+					"px": [16,512],
+					"fieldInstances": [],
+					"__worldX": 2064,
+					"__worldY": 2560
 				},
 				{
 					"__identifier": "Teleporter",
@@ -130,8 +98,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 3168,
-					"__worldY": 2336,
 					"iid": "cb792120-8990-11ee-abce-4780e72d7cc8",
 					"width": 64,
 					"height": 64,
@@ -150,7 +116,9 @@
 							"params": ["d8ce1010-8990-11ee-abce-89857bdb1903"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 3168,
+					"__worldY": 2336
 				},
 				{
 					"__identifier": "Teleporter",
@@ -159,8 +127,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 3584,
-					"__worldY": 2848,
 					"iid": "d8ce1010-8990-11ee-abce-89857bdb1903",
 					"width": 64,
 					"height": 64,
@@ -179,7 +145,9 @@
 							"params": ["cb792120-8990-11ee-abce-4780e72d7cc8"]
 						}] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 3584,
+					"__worldY": 2848
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -188,8 +156,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 3000,
-					"__worldY": 2552,
 					"iid": "7bca5240-8990-11ee-9241-0df0b9221c91",
 					"width": 400,
 					"height": 400,
@@ -202,7 +168,9 @@
 						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
 						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
-					]
+					],
+					"__worldX": 3000,
+					"__worldY": 2552
 				}
 			]
 		},
@@ -3260,5 +3228,5 @@
 			"entityInstances": []
 		}
 	],
-	"__neighbours": [ { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "n" } ]
+	"__neighbours": [ { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "n" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "nw" } ]
 }

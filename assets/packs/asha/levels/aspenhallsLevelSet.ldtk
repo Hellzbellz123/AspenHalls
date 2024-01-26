@@ -5,12 +5,12 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"iid": "244ce3b0-c640-11ed-aa57-bfc2da97beed",
-	"jsonVersion": "1.4.1",
-	"appBuildId": 471015,
+	"jsonVersion": "1.5.3",
+	"appBuildId": 473703,
 	"nextUid": 89,
 	"identifierStyle": "Capitalize",
 	"toc": [],
@@ -39,7 +39,7 @@
 	"levelNamePattern": "GIVEMEAUNIQUENAMEPLZ%idx",
 	"tutorialDesc": null,
 	"customCommands": [],
-	"flags": [],
+	"flags": ["ExportOldTableOfContentData"],
 	"defs": { "layers": [
 		{
 			"__type": "Entities",
@@ -64,13 +64,17 @@
 			"parallaxScaling": true,
 			"requiredTags": [],
 			"excludedTags": [],
+			"autoTilesKilledByOtherLayerUid": null,
+			"uiFilterTags": [],
+			"useAsyncRender": false,
 			"intGridValues": [],
 			"intGridValuesGroups": [],
 			"autoRuleGroups": [],
 			"autoSourceLayerDefUid": null,
 			"tilesetDefUid": null,
 			"tilePivotX": 0,
-			"tilePivotY": 0
+			"tilePivotY": 0,
+			"biomeFieldUid": null
 		},
 		{
 			"__type": "Tiles",
@@ -95,13 +99,17 @@
 			"parallaxScaling": true,
 			"requiredTags": [],
 			"excludedTags": [],
+			"autoTilesKilledByOtherLayerUid": null,
+			"uiFilterTags": [],
+			"useAsyncRender": false,
 			"intGridValues": [],
 			"intGridValuesGroups": [],
 			"autoRuleGroups": [],
 			"autoSourceLayerDefUid": null,
 			"tilesetDefUid": 2,
 			"tilePivotX": 0,
-			"tilePivotY": 0
+			"tilePivotY": 0,
+			"biomeFieldUid": null
 		},
 		{
 			"__type": "Tiles",
@@ -126,13 +134,17 @@
 			"parallaxScaling": true,
 			"requiredTags": [],
 			"excludedTags": [],
+			"autoTilesKilledByOtherLayerUid": null,
+			"uiFilterTags": [],
+			"useAsyncRender": false,
 			"intGridValues": [],
 			"intGridValuesGroups": [],
 			"autoRuleGroups": [],
 			"autoSourceLayerDefUid": null,
 			"tilesetDefUid": 2,
 			"tilePivotX": 0,
-			"tilePivotY": 0
+			"tilePivotY": 0,
+			"biomeFieldUid": null
 		},
 		{
 			"__type": "Tiles",
@@ -157,13 +169,17 @@
 			"parallaxScaling": true,
 			"requiredTags": [],
 			"excludedTags": [],
+			"autoTilesKilledByOtherLayerUid": null,
+			"uiFilterTags": [],
+			"useAsyncRender": false,
 			"intGridValues": [],
 			"intGridValuesGroups": [],
 			"autoRuleGroups": [],
 			"autoSourceLayerDefUid": null,
 			"tilesetDefUid": 2,
 			"tilePivotX": 0,
-			"tilePivotY": 0
+			"tilePivotY": 0,
+			"biomeFieldUid": null
 		}
 	], "entities": [
 		{
@@ -171,6 +187,7 @@
 			"uid": 7,
 			"tags": ["world"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "Location the player will be placed at if this room is chosen as the spawn location, if multiple exist in a room, locations will be averaged",
 			"width": 32,
 			"height": 32,
@@ -205,14 +222,15 @@
 			"uid": 10,
 			"tags": ["world"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "Used too calculate room exits for connecting paths",
 			"width": 32,
 			"height": 32,
-			"resizableX": false,
-			"resizableY": false,
-			"minWidth": null,
+			"resizableX": true,
+			"resizableY": true,
+			"minWidth": 32,
 			"maxWidth": null,
-			"minHeight": null,
+			"minHeight": 32,
 			"maxHeight": null,
 			"keepAspectRatio": false,
 			"tileOpacity": 1,
@@ -227,11 +245,11 @@
 			"tileRect": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 			"uiTileRect": null,
 			"nineSliceBorders": [],
-			"maxCount": 0,
+			"maxCount": 4,
 			"limitScope": "PerLevel",
-			"limitBehavior": "MoveLastOne",
-			"pivotX": 0,
-			"pivotY": 0,
+			"limitBehavior": "PreventAdding",
+			"pivotX": 0.5,
+			"pivotY": 0.5,
 			"fieldDefs": []
 		},
 		{
@@ -239,6 +257,7 @@
 			"uid": 66,
 			"tags": ["world"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "Spawns Enemies inside its editor visual",
 			"width": 32,
 			"height": 32,
@@ -288,6 +307,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -323,6 +344,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -358,6 +381,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -393,6 +418,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -428,6 +455,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -463,6 +492,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -484,6 +515,7 @@
 			"uid": 71,
 			"tags": ["world"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "Spawns Enemies inside its editor visual",
 			"width": 32,
 			"height": 32,
@@ -533,6 +565,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -568,6 +602,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -603,6 +639,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -624,6 +662,7 @@
 			"uid": 67,
 			"tags": ["world"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": null,
 			"width": 32,
 			"height": 32,
@@ -673,6 +712,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -711,6 +752,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -746,6 +789,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -781,6 +826,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -802,6 +849,7 @@
 			"uid": 73,
 			"tags": ["Actor"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "location for hero that player can select at the start of the game",
 			"width": 32,
 			"height": 32,
@@ -851,6 +899,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -872,6 +922,7 @@
 			"uid": 69,
 			"tags": ["Actor"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "Location inside Boss Room that boss spawns at",
 			"width": 32,
 			"height": 32,
@@ -921,6 +972,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -942,6 +995,7 @@
 			"uid": 83,
 			"tags": ["DataEntity"],
 			"exportToToc": false,
+			"allowOutOfBounds": false,
 			"doc": "information for enemy wave",
 			"width": 16,
 			"height": 16,
@@ -991,6 +1045,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -1026,6 +1082,8 @@
 					"editorTextSuffix": null,
 					"editorTextPrefix": null,
 					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
 					"min": null,
 					"max": null,
 					"regex": null,
@@ -1154,6 +1212,8 @@
 			"editorTextSuffix": null,
 			"editorTextPrefix": null,
 			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
 			"min": null,
 			"max": null,
 			"regex": null,
@@ -1189,6 +1249,8 @@
 			"editorTextSuffix": null,
 			"editorTextPrefix": null,
 			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
 			"min": null,
 			"max": null,
 			"regex": null,
@@ -1227,6 +1289,8 @@
 			"editorTextSuffix": null,
 			"editorTextPrefix": null,
 			"useForSmartColor": false,
+			"exportToToc": false,
+			"searchable": false,
 			"min": null,
 			"max": null,
 			"regex": null,
@@ -1277,7 +1341,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [null] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "s" }, { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "se" }, { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "s" }, { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "n" } ]
 		},
 		{
 			"identifier": "RewardTest",
@@ -1340,7 +1404,13 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" }, { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" } ]
+			"__neighbours": [
+				{ "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "nw" },
+				{ "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" },
+				{ "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" },
+				{ "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" },
+				{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "se" }
+			]
 		},
 		{
 			"identifier": "TinySquare",
@@ -1433,7 +1503,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "w" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
+			"__neighbours": [ { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "w" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" }, { "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "se" } ]
 		},
 		{
 			"identifier": "ShutesNLadders",
@@ -1463,7 +1533,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "w" }, { "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "e" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
+			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "w" }, { "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "sw" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
 		},
 		{
 			"identifier": "SailrmenSea_Men",
@@ -1493,7 +1563,14 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "n" }, { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "n" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "e" }, { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "s" } ]
+			"__neighbours": [
+				{ "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "n" },
+				{ "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "n" },
+				{ "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "ne" },
+				{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "e" },
+				{ "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "s" },
+				{ "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "se" }
+			]
 		},
 		{
 			"identifier": "InchWormBB",
@@ -1524,10 +1601,13 @@
 			],
 			"layerInstances": null,
 			"__neighbours": [
+				{ "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "nw" },
 				{ "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "n" },
 				{ "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "n" },
 				{ "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "w" },
 				{ "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "e" },
+				{ "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "sw" },
+				{ "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "se" },
 				{ "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "s" }
 			]
 		},
@@ -1559,7 +1639,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "s" } ]
+			"__neighbours": [ { "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "nw" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "s" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "sw" } ]
 		},
 		{
 			"identifier": "PlainOlSquare",
@@ -1589,7 +1669,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "n" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "e" } ]
+			"__neighbours": [ { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "n" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "ne" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "e" } ]
 		},
 		{
 			"identifier": "BiGOpEnSpAcE",
@@ -1619,7 +1699,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "n" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "n" }, { "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "e" } ]
+			"__neighbours": [ { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "n" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "ne" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "n" }, { "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "e" } ]
 		},
 		{
 			"identifier": "RightHandBracket",
@@ -1649,7 +1729,13 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "n" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "w" }, { "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "s" } ]
+			"__neighbours": [
+				{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "nw" },
+				{ "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "n" },
+				{ "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "sw" },
+				{ "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "w" },
+				{ "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "s" }
+			]
 		},
 		{
 			"identifier": "SpokeyEyeBall",
@@ -1679,7 +1765,15 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "n" }, { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "w" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "e" } ]
+			"__neighbours": [
+				{ "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "nw" },
+				{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "n" },
+				{ "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "ne" },
+				{ "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "w" },
+				{ "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" },
+				{ "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "e" },
+				{ "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "se" }
+			]
 		},
 		{
 			"identifier": "WierdTeleportyThing",
@@ -1709,7 +1803,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "w" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "n" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "nw" } ]
 		},
 		{
 			"identifier": "HideoutL1",

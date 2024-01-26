@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "BossRoomL1",
@@ -64,35 +64,19 @@
 			"entityInstances": [
 				{
 					"__identifier": "RoomExit",
-					"__grid": [0,14],
-					"__pivot": [0,0],
+					"__grid": [1,16],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 0,
-					"__worldY": -800,
 					"iid": "2c2983d0-8990-11ee-94a7-597bc4108778",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [0,224],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [0,16],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 0,
-					"__worldY": -768,
-					"iid": "2f1a3b20-8990-11ee-94a7-bdbc7bec48c8",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [0,256],
-					"fieldInstances": []
+					"px": [16,256],
+					"fieldInstances": [],
+					"__worldX": 16,
+					"__worldY": -768
 				},
 				{
 					"__identifier": "BossArea",
@@ -101,14 +85,14 @@
 					"__tags": ["Actor"],
 					"__tile": null,
 					"__smartColor": "#9E0000",
-					"__worldX": 272,
-					"__worldY": -752,
 					"iid": "e6d00ca0-8990-11ee-ab6b-476c7c19c8b7",
 					"width": 32,
 					"height": 32,
 					"defUid": 69,
 					"px": [272,272],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 70, "realEditorValues": [] }]
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 70, "realEditorValues": [] }],
+					"__worldX": 272,
+					"__worldY": -752
 				}
 			]
 		},

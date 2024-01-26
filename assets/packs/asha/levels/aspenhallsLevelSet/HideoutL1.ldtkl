@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "HideoutL1",
@@ -72,14 +72,14 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
-					"__worldX": 192,
-					"__worldY": -1760,
 					"iid": "62424b00-8990-11ee-a550-01f46b57955c",
 					"width": 256,
 					"height": 96,
 					"defUid": 7,
 					"px": [192,416],
-					"fieldInstances": []
+					"fieldInstances": [],
+					"__worldX": 192,
+					"__worldY": -1760
 				},
 				{
 					"__identifier": "Teleporter",
@@ -88,8 +88,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 288,
-					"__worldY": -2048,
 					"iid": "6f12c7b0-8990-11ee-a550-011dfc6ca7d0",
 					"width": 64,
 					"height": 64,
@@ -106,7 +104,9 @@
 						}] },
 						{ "__identifier": "TeleportLocalRef", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 288,
+					"__worldY": -2048
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -115,14 +115,14 @@
 					"__tags": ["Actor"],
 					"__tile": null,
 					"__smartColor": "#9E0000",
-					"__worldX": 208,
-					"__worldY": -1840,
 					"iid": "a1659c20-8990-11ee-ab6b-9bab382f9391",
 					"width": 32,
 					"height": 32,
 					"defUid": 73,
 					"px": [208,336],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 208,
+					"__worldY": -1840
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -131,14 +131,14 @@
 					"__tags": ["Actor"],
 					"__tile": null,
 					"__smartColor": "#9E0000",
-					"__worldX": 464,
-					"__worldY": -1840,
 					"iid": "a2a10250-8990-11ee-ab6b-1562c02690b2",
 					"width": 32,
 					"height": 32,
 					"defUid": 73,
 					"px": [464,336],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }]
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 464,
+					"__worldY": -1840
 				}
 			]
 		},

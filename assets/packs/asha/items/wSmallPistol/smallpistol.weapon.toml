@@ -3,12 +3,12 @@ physical = 70.0
 elemental = "None"
 
 [item_type.Weapon.form.Gun]
-projectile_speed = 5.0
+projectile_speed = 500.0
 projectile_size = 5.0
 barrel_end = [20.0, 0.0]
-ammo_amount = 12
-reload_time = 2.5
-fire_rate = 0.77
+max_ammo = 7
+reload_time = 2.0
+fire_rate = 0.60
 
 [actor]
 name = "Small Pistol"

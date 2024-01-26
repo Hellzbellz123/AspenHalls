@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "PlainOlSquare",
@@ -61,99 +61,51 @@
 			"entityInstances": [
 				{
 					"__identifier": "RoomExit",
-					"__grid": [0,30],
-					"__pivot": [0,0],
+					"__grid": [1,32],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 0,
-					"__worldY": 1504,
-					"iid": "9edcf740-ed50-11ed-b7b4-0d67b8c27c2b",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [0,480],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [0,32],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 0,
-					"__worldY": 1536,
 					"iid": "9f0825f0-ed50-11ed-b7b4-393ee18651fb",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [0,512],
-					"fieldInstances": []
+					"px": [16,512],
+					"fieldInstances": [],
+					"__worldX": 16,
+					"__worldY": 1536
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [30,62],
-					"__pivot": [0,0],
+					"__grid": [32,63],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 480,
-					"__worldY": 2016,
-					"iid": "9f994260-ed50-11ed-b7b4-dd085a0ba1f1",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [480,992],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [32,62],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 512,
-					"__worldY": 2016,
 					"iid": "9fbf6800-ed50-11ed-b7b4-634d62683427",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [512,992],
-					"fieldInstances": []
+					"px": [512,1008],
+					"fieldInstances": [],
+					"__worldX": 512,
+					"__worldY": 2032
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [62,32],
-					"__pivot": [0,0],
+					"__grid": [63,32],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 992,
-					"__worldY": 1536,
 					"iid": "a0b86e00-ed50-11ed-b7b4-533fe2317587",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [992,512],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [62,30],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 992,
-					"__worldY": 1504,
-					"iid": "a0e634c0-ed50-11ed-b7b4-356ab0638151",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [992,480],
-					"fieldInstances": []
+					"px": [1008,512],
+					"fieldInstances": [],
+					"__worldX": 1008,
+					"__worldY": 1536
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -162,11 +114,9 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 360,
-					"__worldY": 1368,
 					"iid": "227c2600-1460-11ee-88e8-790c8490e320",
-					"width": 32,
-					"height": 32,
+					"width": 464,
+					"height": 464,
 					"defUid": 66,
 					"px": [360,344],
 					"fieldInstances": [
@@ -176,7 +126,9 @@
 						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
 						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
-					]
+					],
+					"__worldX": 360,
+					"__worldY": 1368
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -185,11 +137,9 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 712,
-					"__worldY": 1736,
 					"iid": "22d2d180-1460-11ee-88e8-59fd04057eae",
-					"width": 32,
-					"height": 32,
+					"width": 448,
+					"height": 448,
 					"defUid": 66,
 					"px": [712,712],
 					"fieldInstances": [
@@ -199,39 +149,25 @@
 						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
 						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
-					]
+					],
+					"__worldX": 712,
+					"__worldY": 1736
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [30,0],
-					"__pivot": [0,0],
+					"__grid": [32,1],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 480,
-					"__worldY": 1024,
-					"iid": "95a0a980-1460-11ee-8a78-11e7c60b2180",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [480,0],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [32,0],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 512,
-					"__worldY": 1024,
 					"iid": "95cbd830-1460-11ee-8a78-21bb11b12ffa",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [512,0],
-					"fieldInstances": []
+					"px": [512,16],
+					"fieldInstances": [],
+					"__worldX": 512,
+					"__worldY": 1040
 				}
 			]
 		},
@@ -2361,5 +2297,5 @@
 			"entityInstances": []
 		}
 	],
-	"__neighbours": [ { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "n" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "e" } ]
+	"__neighbours": [ { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "n" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "ne" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "634e3f30-c640-11ed-8990-3f0928c55308", "dir": "e" } ]
 }

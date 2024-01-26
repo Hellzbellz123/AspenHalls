@@ -20,6 +20,7 @@ crate-type = ["staticlib", "cdylib"]
 develop = ["aspenlib/develop"]
 
 [dependencies]
+bevy ={ version = "*"}
 ndk-context = "0.1.1"
 aspenlib = { path = "../aspenlib" }
 jni = { version = "0.21.1", features = ["invocation"] }

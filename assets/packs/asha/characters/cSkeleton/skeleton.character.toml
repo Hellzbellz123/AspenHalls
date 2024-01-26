@@ -1,5 +1,4 @@
-character_type = { Npc = "Creep" }
-controller = { GameAI = "Stupid" }
+character_type = { Creep = { ai = "Stupid" } }
 
 [actor]
 name = "Skeleton"

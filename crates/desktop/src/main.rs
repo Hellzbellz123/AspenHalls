@@ -3,18 +3,26 @@
     After valid configuration is found/created, starts bevy app
 "]
 
-use aspenlib::prelude::{engine as bevy, game as asha};
-
-// use aspenlib::ahp::engine as bevy;
-// use aspenlib::ahp::game as asha;
+use aspenlib::{
+    save_load::save_settings, ConfigFile, GeneralSettings, RenderSettings, SoundSettings,
+    WindowSettings,
+};
+use bevy::{log::info, math::Vec2};
 use std::path::Path;
 
 /// this translates too same folder as executable
 pub const APP_SETTINGS_PATH: &str = "./config.toml";
 
 fn main() {
-    bevy::info!("Starting launcher: Native");
-    let cfg_file: asha::ConfigFile = load_settings();
+    human_panic::setup_panic!(Metadata {
+        name: "AspenHalls".into(),
+        version: env!("CARGO_PKG_VERSION").into(),
+        authors: "Hellzbellz <hellzbellz123 on github.com>".into(),
+        homepage: "https://hellzbellz123.github.io/AspenHalls".into(),
+    });
+
+    info!("Starting launcher: Native");
+    let cfg_file: ConfigFile = load_settings();
     aspenlib::start_app(cfg_file).run();
 }
 
@@ -22,9 +30,9 @@ fn main() {
 ///
 /// # Panics
 /// This will panic if the config file
-pub fn load_settings() -> asha::ConfigFile {
+pub fn load_settings() -> ConfigFile {
     let settings_path = Path::new(APP_SETTINGS_PATH);
-    bevy::info!("loading config file from filesystem @ {:?}", settings_path);
+    info!("loading config file from filesystem @ {:?}", settings_path);
     let target_settings = match std::fs::read_to_string(settings_path) {
         // if settings file cant be read cause it doesn't exist, no permissions, or other
         Err(error) => {
@@ -33,15 +41,15 @@ pub fn load_settings() -> asha::ConfigFile {
                 error,
                 settings_path.display()
             );
-            let new_cfg = asha::ConfigFile::default();
-            asha::save_settings(&new_cfg, settings_path);
+            let new_cfg = ConfigFile::default();
+            save_settings(&new_cfg, settings_path);
             toml::to_string_pretty(&new_cfg).unwrap()
         }
         // if settings file can be read
         Ok(target_settings) => target_settings,
     };
 
-    match toml::from_str::<asha::ConfigFile>(target_settings.as_str()) {
+    match toml::from_str::<ConfigFile>(target_settings.as_str()) {
         // if malformed settings file, create default
         Err(error) => {
             eprintln!(
@@ -49,14 +57,14 @@ pub fn load_settings() -> asha::ConfigFile {
                 error,
                 settings_path.display()
             );
-            asha::ConfigFile::default()
+            ConfigFile::default()
         }
         // setting file is not malformed, can be loaded
         Ok(cfg) => {
             println!("Game Settings loaded from file successfully");
-            asha::ConfigFile {
-                window_settings: asha::WindowSettings {
-                    resolution: bevy::Vec2 {
+            ConfigFile {
+                window_settings: WindowSettings {
+                    resolution: Vec2 {
                         x: cfg.window_settings.resolution.x,
                         y: cfg.window_settings.resolution.y,
                     },
@@ -66,18 +74,18 @@ pub fn load_settings() -> asha::ConfigFile {
                     window_scale_override: cfg.window_settings.window_scale_override,
                 },
 
-                sound_settings: asha::SoundSettings {
+                sound_settings: SoundSettings {
                     master_volume: cfg.sound_settings.master_volume,
                     ambience_volume: cfg.sound_settings.ambience_volume,
                     music_volume: cfg.sound_settings.music_volume,
                     sound_volume: cfg.sound_settings.sound_volume,
                 },
 
-                general_settings: asha::GeneralSettings {
+                general_settings: GeneralSettings {
                     camera_zoom: cfg.general_settings.camera_zoom,
                     game_difficulty: cfg.general_settings.game_difficulty,
                 },
-                render_settings: asha::RenderSettings {
+                render_settings: RenderSettings {
                     msaa: cfg.render_settings.msaa,
                 },
                 log_filter: cfg.log_filter,

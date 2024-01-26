@@ -58,7 +58,7 @@ command = "cargo"
 args = ["fmt"]
 
 [tasks.run-mobile]
-dependencies = ["connect-android"]
+# dependencies = ["connect-android"]
 cwd = "crates/mobile"
 workspace = false
 condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]

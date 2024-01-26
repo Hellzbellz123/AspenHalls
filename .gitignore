@@ -8,3 +8,6 @@ crates/wasm/dist
 crates/*/assets/
 assets/packs/asha/levels/aspenhallsLevelSet/backups
 Cargo.lock
+crates/*/config.toml
+crates/*/tiles.png
+crates/*/cyclic.dot

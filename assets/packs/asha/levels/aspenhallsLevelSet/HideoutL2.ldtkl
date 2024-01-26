@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "HideoutL2",
@@ -72,14 +72,14 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
-					"__worldX": 1184,
-					"__worldY": -1696,
 					"iid": "dd78f4e2-8990-11ee-a550-ddd5ca34f722",
 					"width": 160,
 					"height": 64,
 					"defUid": 7,
 					"px": [544,480],
-					"fieldInstances": []
+					"fieldInstances": [],
+					"__worldX": 1184,
+					"__worldY": -1696
 				},
 				{
 					"__identifier": "Teleporter",
@@ -88,8 +88,6 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
-					"__worldX": 1312,
-					"__worldY": -2016,
 					"iid": "dd78f4e3-8990-11ee-a550-a5ea24db9b6f",
 					"width": 64,
 					"height": 64,
@@ -106,7 +104,9 @@
 						}] },
 						{ "__identifier": "TeleportLocalRef", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
-					]
+					],
+					"__worldX": 1312,
+					"__worldY": -2016
 				}
 			]
 		},

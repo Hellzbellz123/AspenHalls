@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "SpokeyEyeBall",
@@ -61,131 +61,67 @@
 			"entityInstances": [
 				{
 					"__identifier": "RoomExit",
-					"__grid": [32,62],
-					"__pivot": [0,0],
+					"__grid": [32,63],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 1536,
-					"__worldY": 2016,
 					"iid": "98f8f090-ed50-11ed-b7b4-9f5ee7b13bf0",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [512,992],
-					"fieldInstances": []
+					"px": [512,1008],
+					"fieldInstances": [],
+					"__worldX": 1536,
+					"__worldY": 2032
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [30,62],
-					"__pivot": [0,0],
+					"__grid": [63,32],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 1504,
-					"__worldY": 2016,
-					"iid": "992e5870-ed50-11ed-b7b4-a7e33df001c5",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [480,992],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [62,30],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 2016,
-					"__worldY": 1504,
-					"iid": "9a0e3120-ed50-11ed-b7b4-3bfe64ab3b0c",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [992,480],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [62,32],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 2016,
-					"__worldY": 1536,
 					"iid": "9a5f8570-ed50-11ed-b7b4-c5772036786e",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [992,512],
-					"fieldInstances": []
+					"px": [1008,512],
+					"fieldInstances": [],
+					"__worldX": 2032,
+					"__worldY": 1536
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [0,30],
-					"__pivot": [0,0],
+					"__grid": [1,32],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 1024,
-					"__worldY": 1504,
-					"iid": "9b3524f0-ed50-11ed-b7b4-2b27a36ed425",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [0,480],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [0,32],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 1024,
-					"__worldY": 1536,
 					"iid": "9b5b71a0-ed50-11ed-b7b4-bd0994062a4c",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [0,512],
-					"fieldInstances": []
+					"px": [16,512],
+					"fieldInstances": [],
+					"__worldX": 1040,
+					"__worldY": 1536
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [30,0],
-					"__pivot": [0,0],
+					"__grid": [32,1],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 1504,
-					"__worldY": 1024,
-					"iid": "9c2418d0-ed50-11ed-b7b4-8d469c5c2678",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [480,0],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [32,0],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 1536,
-					"__worldY": 1024,
 					"iid": "9c51df90-ed50-11ed-b7b4-992695290085",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [512,0],
-					"fieldInstances": []
+					"px": [512,16],
+					"fieldInstances": [],
+					"__worldX": 1536,
+					"__worldY": 1040
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -194,11 +130,9 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 1528,
-					"__worldY": 1528,
 					"iid": "259fd430-1460-11ee-88e8-d194472bb2ab",
-					"width": 32,
-					"height": 32,
+					"width": 320,
+					"height": 320,
 					"defUid": 66,
 					"px": [504,504],
 					"fieldInstances": [
@@ -208,7 +142,9 @@
 						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
 						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
-					]
+					],
+					"__worldX": 1528,
+					"__worldY": 1528
 				}
 			]
 		},
@@ -1702,5 +1638,13 @@
 			"entityInstances": []
 		}
 	],
-	"__neighbours": [ { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "n" }, { "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "w" }, { "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" }, { "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "e" } ]
+	"__neighbours": [
+		{ "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "nw" },
+		{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "n" },
+		{ "levelIid": "b5c0a960-c640-11ed-8990-3b6e14a80e56", "dir": "ne" },
+		{ "levelIid": "7d76f110-c640-11ed-8990-37d3767ef8ed", "dir": "w" },
+		{ "levelIid": "6fb48610-8990-11ee-a13c-05b036331883", "dir": "s" },
+		{ "levelIid": "58803c60-8990-11ee-a13c-2d27b2a54703", "dir": "e" },
+		{ "levelIid": "6e145580-8990-11ee-a13c-c1fe2124735e", "dir": "se" }
+	]
 }

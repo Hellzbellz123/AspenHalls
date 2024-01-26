@@ -5,7 +5,7 @@
 		"doc": "https://ldtk.io/json",
 		"schema": "https://ldtk.io/files/JSON_SCHEMA.json",
 		"appAuthor": "Sebastien 'deepnight' Benard",
-		"appVersion": "1.4.1",
+		"appVersion": "1.5.3",
 		"url": "https://ldtk.io"
 	},
 	"identifier": "SmallShortDonutRoom",
@@ -61,131 +61,67 @@
 			"entityInstances": [
 				{
 					"__identifier": "RoomExit",
-					"__grid": [14,30],
-					"__pivot": [0,0],
+					"__grid": [16,31],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 736,
-					"__worldY": 480,
-					"iid": "6f572220-ed50-11ed-b7b4-230997ced2df",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [224,480],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [16,30],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 768,
-					"__worldY": 480,
 					"iid": "6fb547b0-ed50-11ed-b7b4-0b5256d6a12d",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [256,480],
-					"fieldInstances": []
+					"px": [256,496],
+					"fieldInstances": [],
+					"__worldX": 768,
+					"__worldY": 496
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [0,14],
-					"__pivot": [0,0],
+					"__grid": [1,16],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 512,
-					"__worldY": 224,
-					"iid": "703e74e0-ed50-11ed-b7b4-51cf3af8cead",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [0,224],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [0,16],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 512,
-					"__worldY": 256,
 					"iid": "706c62b0-ed50-11ed-b7b4-894b8ea589f5",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [0,256],
-					"fieldInstances": []
+					"px": [16,256],
+					"fieldInstances": [],
+					"__worldX": 528,
+					"__worldY": 256
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [30,14],
-					"__pivot": [0,0],
+					"__grid": [31,16],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 992,
-					"__worldY": 224,
-					"iid": "70e8e5b0-ed50-11ed-b7b4-49babd88728a",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [480,224],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [30,16],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 992,
-					"__worldY": 256,
 					"iid": "7116ac70-ed50-11ed-b7b4-9f222cc5ab1b",
 					"width": 32,
-					"height": 32,
+					"height": 64,
 					"defUid": 10,
-					"px": [480,256],
-					"fieldInstances": []
+					"px": [496,256],
+					"fieldInstances": [],
+					"__worldX": 1008,
+					"__worldY": 256
 				},
 				{
 					"__identifier": "RoomExit",
-					"__grid": [16,0],
-					"__pivot": [0,0],
+					"__grid": [16,1],
+					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
 					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
 					"__smartColor": "#D77643",
-					"__worldX": 768,
-					"__worldY": 0,
 					"iid": "7195ee90-ed50-11ed-b7b4-617e2789fcd1",
-					"width": 32,
+					"width": 64,
 					"height": 32,
 					"defUid": 10,
-					"px": [256,0],
-					"fieldInstances": []
-				},
-				{
-					"__identifier": "RoomExit",
-					"__grid": [14,0],
-					"__pivot": [0,0],
-					"__tags": ["world"],
-					"__tile": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-					"__smartColor": "#D77643",
-					"__worldX": 736,
-					"__worldY": 0,
-					"iid": "7242d060-ed50-11ed-b7b4-53470541789c",
-					"width": 32,
-					"height": 32,
-					"defUid": 10,
-					"px": [224,0],
-					"fieldInstances": []
+					"px": [256,16],
+					"fieldInstances": [],
+					"__worldX": 768,
+					"__worldY": 16
 				},
 				{
 					"__identifier": "EnemySpawner",
@@ -194,11 +130,9 @@
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#8DCCA9",
-					"__worldX": 776,
-					"__worldY": 280,
 					"iid": "2cf28610-1460-11ee-88e8-9106d28e2111",
-					"width": 32,
-					"height": 32,
+					"width": 176,
+					"height": 176,
 					"defUid": 66,
 					"px": [264,280],
 					"fieldInstances": [
@@ -208,7 +142,9 @@
 						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
 						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
 						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
-					]
+					],
+					"__worldX": 776,
+					"__worldY": 280
 				}
 			]
 		},
@@ -824,5 +760,11 @@
 			"entityInstances": []
 		}
 	],
-	"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" }, { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" } ]
+	"__neighbours": [
+		{ "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "nw" },
+		{ "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" },
+		{ "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" },
+		{ "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" },
+		{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "se" }
+	]
 }
