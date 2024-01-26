@@ -86,15 +86,13 @@ impl Plugin for GameWorldPlugin {
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
-                    listen_rebuild_dungeon_request.run_if(state_exists_and_equals(GeneratorState::FinishedDungeonGen)),
+                    listen_rebuild_dungeon_request
+                        .run_if(state_exists_and_equals(GeneratorState::FinishedDungeonGen)),
                 ),
             )
             .add_systems(
                 OnEnter(GeneratorState::PlaceHallwayRoots),
-                (
-                    teleport_player_too_start_location,
-                    populate_start_room,
-                ),
+                (teleport_player_too_start_location, populate_start_room),
             );
     }
 }

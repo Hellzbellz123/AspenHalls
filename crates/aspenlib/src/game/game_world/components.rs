@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::ldtk::ReferenceToAnEntityInstance;
 
-use crate::{loading::registry::RegistryIdentifier, game::game_world::dungeonator_v2::components::RoomID};
+use crate::{
+    game::game_world::dungeonator_v2::components::RoomID, loading::registry::RegistryIdentifier,
+};
 
 /// location of hero that player can choose at start of game
 #[derive(Component, Default)]

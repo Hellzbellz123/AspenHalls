@@ -6,7 +6,7 @@ use bevy_prototype_lyon::{
     entity::ShapeBundle,
     path::PathBuilder,
 };
-use rand::prelude::{IteratorRandom, Rng, ThreadRng};
+use rand::prelude::{IteratorRandom, ThreadRng};
 use seldom_map_nav::prelude::Navmeshes;
 
 use crate::game::game_world::{
@@ -115,7 +115,7 @@ pub fn plan_hallways_one(
             a.parent == exit1.parent || b.parent == exit1.parent //|| a.parent == exit2.parent || b.parent == exit2.parent
         }) {
             continue;
-        } 
+        }
 
         if !paired_set.contains(&idx1) && !paired_set.contains(&idx2) {
             exit_pairs.push((unused_exits[idx1].clone(), unused_exits[idx2].clone()));
@@ -131,7 +131,10 @@ pub fn plan_hallways_one(
             distance: wanted_start.position.distance_squared(wanted_end.position) as f32,
             connected_rooms: (wanted_start.parent, wanted_end.parent),
         });
-        if let Some((_, mut start)) = exit_query.iter_mut().find(|(_, exit)| **exit == wanted_start) {
+        if let Some((_, mut start)) = exit_query
+            .iter_mut()
+            .find(|(_, exit)| **exit == wanted_start)
+        {
             start.hallway_connected = true
         }
         if let Some((_, mut end)) = exit_query.iter_mut().find(|(_, exit)| **exit == wanted_end) {

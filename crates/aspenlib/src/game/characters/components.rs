@@ -1,6 +1,8 @@
 use bevy::{
     ecs::{component::Component, reflect::ReflectComponent},
-    reflect::{Reflect, std_traits::ReflectDefault}, prelude::Entity, utils::HashMap,
+    prelude::Entity,
+    reflect::{std_traits::ReflectDefault, Reflect},
+    utils::HashMap,
 };
 
 use crate::loading::registry::RegistryIdentifier;
@@ -50,7 +52,6 @@ pub struct CharacterMoveState {
     pub teleport_status: TeleportStatus,
 }
 
-
 #[derive(Debug, Component, Reflect, Clone, Default)]
 pub struct CharacterInventory {
     pub items: HashMap<Entity, (RegistryIdentifier, ItemSlot)>,
@@ -71,7 +72,7 @@ pub enum ActionSlot {
     Slot3,
     Slot4,
     Slot5,
-    Slot6
+    Slot6,
 }
 
 /// weapon slots for character
@@ -88,7 +89,6 @@ pub enum WeaponSlot {
     Slot4,
 }
 
-
 /// actor move permission
 /// allowed too move?
 #[allow(clippy::enum_variant_names)]
@@ -104,7 +104,7 @@ pub enum AllowedMovement {
 }
 
 /// actors move state
-#[derive(Debug, Reflect, Clone, Default,PartialEq, Eq)]
+#[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
 pub enum CurrentMovement {
     /// actor is running
     Run,
@@ -128,7 +128,6 @@ pub enum MoveDirection {
     NorthWest,
     SouthWest,
 }
-
 
 /// entity teleport status
 #[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]

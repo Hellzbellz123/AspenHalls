@@ -5,7 +5,7 @@ use bevy::{
     ecs::schedule::States,
     log::info,
     prelude::{
-        default, resource_changed, resource_exists, run_once, state_exists_and_equals, Commands,
+        default, resource_changed, resource_exists, state_exists_and_equals, Commands,
         Condition, IntoSystemConfigs, OnEnter, OnExit, Plugin, Res, SpatialBundle, Transform,
         Update,
     },
@@ -13,16 +13,18 @@ use bevy::{
     time::common_conditions::on_timer,
 };
 use bevy_ecs_ldtk::{assets::LdtkExternalLevel, prelude::LdtkProject};
-use seldom_map_nav::prelude::Pathfind;
 
 use crate::{
-    game::game_world::{dungeonator_v2::{
-        components::{
-            DungeonContainerBundle, DungeonContainerTag, DungeonRoomDatabase, DungeonSettings,
-            PlacedRoom, RoomAmounts, RoomPreset,
+    game::game_world::{
+        components::RoomExit,
+        dungeonator_v2::{
+            components::{
+                DungeonContainerBundle, DungeonContainerTag, DungeonRoomDatabase, DungeonSettings,
+                PlacedRoom, RoomAmounts, RoomPreset,
+            },
+            hallways::PlacedHallWay,
         },
-        hallways::PlacedHallWay,
-    }, components::RoomExit},
+    },
     loading::assets::AspenMapHandles,
     register_types, AppState,
 };

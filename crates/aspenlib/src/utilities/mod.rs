@@ -11,7 +11,10 @@ use bevy::{
 };
 use bevy_rapier2d::{pipeline::CollisionEvent, rapier::geometry::CollisionEventFlags};
 
-use crate::{consts::TILE_SIZE, loading::assets::AspenInitHandles, game::characters::components::MoveDirection};
+use crate::{
+    consts::TILE_SIZE, game::characters::components::MoveDirection,
+    loading::assets::AspenInitHandles,
+};
 
 /// takes array of types and runs `app.register_type::<T>()` on each
 #[allow(unused_macros)]
@@ -104,7 +107,6 @@ pub fn scale_to_fit(current: Vec2, final_size: Vec2) -> Vec2 {
 pub fn tiles_to_f32(distance: i32) -> f32 {
     distance as f32 * TILE_SIZE
 }
-
 
 pub fn vector_to_pi8(vec: Vec2) -> MoveDirection {
     let angle = vec.y.atan2(vec.x).to_degrees() + 360.0;

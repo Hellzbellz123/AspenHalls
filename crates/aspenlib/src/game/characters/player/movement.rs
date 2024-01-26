@@ -33,7 +33,9 @@ pub fn update_player_velocity(
         }
     };
 
-    let move_data = actions.action_data(&action_maps::Gameplay::Move).expect("msg");
+    let move_data = actions
+        .action_data(&action_maps::Gameplay::Move)
+        .expect("msg");
 
     let Some(move_axis) = move_data.axis_pair else {
         // no move button data

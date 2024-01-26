@@ -15,7 +15,7 @@ use crate::{
     AppState,
 };
 
-#[cfg(feature="develop")]
+#[cfg(feature = "develop")]
 use bevy_inspector_egui::prelude::*;
 
 /// functions too create default file and save file

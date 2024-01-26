@@ -9,9 +9,8 @@ use crate::{
     bundles::ItemColliderBundle,
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
-        components::ActorColliderType,
-        interface::StartMenu,
-        items::weapons::components::{WeaponCarrier}, characters::components::WeaponSlot,
+        characters::components::WeaponSlot, components::ActorColliderType, interface::StartMenu,
+        items::weapons::components::WeaponCarrier,
     },
     loading::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
@@ -65,11 +64,11 @@ pub struct PlayerSelectedHero;
 
 /// event sent when player selects available hero too play
 #[derive(Event)]
-pub struct SelectThisHeroForPlayer(Entity, f32);
+pub struct SelectThisHeroForPlayer(Entity, ());
 
 impl From<ListenerInput<Pointer<Down>>> for SelectThisHeroForPlayer {
     fn from(event: ListenerInput<Pointer<Down>>) -> Self {
-        Self(event.target, event.hit.depth)
+        Self(event.target, ())//event.hit.depth)
     }
 }
 

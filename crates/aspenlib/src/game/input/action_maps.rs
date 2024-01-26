@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use leafwing_input_manager::{axislike::AxisType, prelude::*, user_input::InputKind};
+use leafwing_input_manager::{prelude::*, user_input::InputKind};
 
 impl Gameplay {
     fn variants() -> &'static [Gameplay] {
@@ -24,7 +24,7 @@ impl Gameplay {
             UseAction4,
             UseAction5,
             ZoomIn,
-            ZoomOut
+            ZoomOut,
         ]
     }
     pub fn default_input_map() -> InputMap<Gameplay> {

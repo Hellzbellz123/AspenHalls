@@ -4,13 +4,11 @@ use bevy::{
     core::Name,
     ecs::system::Res,
     log::info,
-    prelude::{default, AssetServer, Assets, Commands, Handle},
+    prelude::{default, AssetServer, Assets, Commands},
 };
 use bevy_asepritesheet::{
     animator::AnimatedSpriteBundle,
-    core::load_spritesheet,
     prelude::{load_spritesheet_then, AnimHandle, SpriteAnimator},
-    sprite::Spritesheet,
 };
 use bevy_rapier2d::{
     dynamics::{Damping, LockedAxes, RigidBody, Velocity},
@@ -53,7 +51,7 @@ pub fn build_character_bundles(
             &asset_server,
             sprite_json_path,
             bevy::sprite::Anchor::TopCenter,
-            |sheet| format_character_animations(sheet)
+            |sheet| format_character_animations(sheet),
         );
 
         let actor_bundle = CharacterBundle {

@@ -1,10 +1,19 @@
 use bevy::{
+    ecs::{system::Res, world::Mut},
     log::{info, warn},
-    math::{Rect, Vec2}, ecs::{system::Res, world::Mut},
+    math::{Rect, Vec2},
 };
-use rand::{prelude::{Rng, ThreadRng}, seq::IteratorRandom};
+use rand::{
+    prelude::{Rng, ThreadRng},
+    seq::IteratorRandom,
+};
 
-use crate::{consts::TILE_SIZE, game::game_world::dungeonator_v2::components::{DungeonSettings, RoomPreset, RoomLevel, DungeonRoomDatabase}};
+use crate::{
+    consts::TILE_SIZE,
+    game::game_world::dungeonator_v2::components::{
+        DungeonRoomDatabase, DungeonSettings, RoomLevel, RoomPreset,
+    },
+};
 
 /// gets ANY random preset from `presets`
 pub fn get_random_preset(presets: &[RoomPreset]) -> Option<RoomPreset> {

@@ -129,7 +129,8 @@ fn update_actor_size(
 
         trace!(
             "image size: {}, aspect ratio: {}",
-            original_size, aspect_ratio
+            original_size,
+            aspect_ratio
         );
 
         let final_size: Vec2 = {

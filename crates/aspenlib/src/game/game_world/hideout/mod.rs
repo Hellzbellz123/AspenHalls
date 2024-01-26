@@ -6,8 +6,8 @@ use bevy::{
     math::Vec2,
     prelude::{
         any_with_component, on_event, run_once, state_exists_and_equals, Commands,
-        DespawnRecursiveExt, Entity, GlobalTransform, IntoSystemConfigs, OnEnter,
-        OrthographicProjection, Plugin, Query, Transform, Update, With, Without, OnExit,
+        DespawnRecursiveExt, Entity, GlobalTransform, IntoSystemConfigs, OnEnter, OnExit,
+        OrthographicProjection, Plugin, Query, Transform, Update, With, Without,
     },
     time::common_conditions::on_timer,
 };
@@ -64,10 +64,7 @@ impl Plugin for HideOutPlugin {
                         .and_then(run_once()),
                 ),
             )
-            .add_systems(
-                OnExit(GeneratorState::SelectPresets),
-                cleanup_start_world,
-            )
+            .add_systems(OnExit(GeneratorState::SelectPresets), cleanup_start_world)
             .add_systems(
                 Update,
                 (

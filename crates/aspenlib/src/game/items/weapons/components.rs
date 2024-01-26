@@ -84,8 +84,7 @@ pub enum WeaponDescriptor {
     Gun(GunCfg),
 }
 
-#[derive(Debug, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct BladeCfg {
     /// how long is sword
     length: f32,
@@ -95,8 +94,7 @@ pub struct BladeCfg {
     swing_speed: f32,
 }
 
-#[derive(Debug, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct GunCfg {
     /// projectile velocity
     pub projectile_speed: f32,

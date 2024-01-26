@@ -22,7 +22,6 @@ pub mod debug_plugin {
     use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
     use bevy_prototype_lyon as svg;
     use bevy_rapier2d::render::RapierDebugRenderPlugin;
-    use svg::prelude::FillOptions;
 
     #[cfg(feature = "develop")]
     #[cfg(not(any(target_os = "android", target_family = "wasm")))]
@@ -66,7 +65,7 @@ pub mod debug_plugin {
                 StateInspectorPlugin::<AppState>::default()
                     .run_if(input_toggle_active(true, KeyCode::F3)),
                 StateInspectorPlugin::<GeneratorState>::default()
-                .run_if(input_toggle_active(true, KeyCode::F3)),
+                    .run_if(input_toggle_active(true, KeyCode::F3)),
                 WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
                 // ResourceInspectorPlugin::<>::default()
                 //      .run_if(input_toggle_active(true, KeyCode::F3)),
@@ -103,7 +102,10 @@ pub mod debug_plugin {
         spawner_query: Query<(Entity, &Transform, &CharacterSpawner), Without<svg::draw::Fill>>,
     ) {
         for (entity, _transform, spawner) in &spawner_query {
-            let Some(mut cmds) = cmds.get_entity(entity) else {warn!("spawner was despawned"); continue;};
+            let Some(mut cmds) = cmds.get_entity(entity) else {
+                warn!("spawner was despawned");
+                continue;
+            };
             let spawner_box_visual = svg::shapes::Rectangle {
                 extents: Vec2 { x: 40.0, y: 40.0 },
                 origin: svg::shapes::RectangleOrigin::Center,
@@ -120,11 +122,10 @@ pub mod debug_plugin {
                 .add(&spawner_radius_visual)
                 .build();
 
-            cmds.insert(spawner_visual_bundle)
-                .insert(svg::draw::Fill {
-                    options: svg::prelude::tess::FillOptions::DEFAULT,
-                    color: Color::GREEN.with_a(0.6),
-                });
+            cmds.insert(spawner_visual_bundle).insert(svg::draw::Fill {
+                options: svg::prelude::tess::FillOptions::DEFAULT,
+                color: Color::GREEN.with_a(0.6),
+            });
         }
     }
 

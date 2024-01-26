@@ -100,10 +100,12 @@ fn update_software_cursor_position(
 
     let (look_local, look_world) = (
         input
-            .action_data(&action_maps::Gameplay::CursorScreen).expect("always exists?")
+            .action_data(&action_maps::Gameplay::CursorScreen)
+            .expect("always exists?")
             .axis_pair,
         input
-            .action_data(&action_maps::Gameplay::CursorWorld).expect("always exists")
+            .action_data(&action_maps::Gameplay::CursorWorld)
+            .expect("always exists")
             .axis_pair,
     );
     let color = cursor_color.0;

@@ -1,4 +1,4 @@
-use bevy_asepritesheet::prelude::{Spritesheet, AnimEndAction};
+use bevy_asepritesheet::prelude::{AnimEndAction, Spritesheet};
 
 pub fn format_character_animations(sheet: &mut Spritesheet) {
     let handle_idle = sheet.get_anim_handle("idle");

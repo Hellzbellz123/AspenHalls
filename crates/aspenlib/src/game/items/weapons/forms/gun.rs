@@ -9,8 +9,7 @@ use crate::{
         attributes_stats::{Damage, ProjectileStats},
         components::{ActorColliderType, TimeToLive},
         items::weapons::components::{
-            AttackDamage, CurrentAmmo, CurrentlyDrawnWeapon, WeaponDescriptor, WeaponHolder,
-            WeaponTimers, GunCfg,
+            AttackDamage, CurrentAmmo, CurrentlyDrawnWeapon, GunCfg, WeaponHolder, WeaponTimers,
         },
     },
     loading::assets::AspenInitHandles,
@@ -90,14 +89,8 @@ pub fn receive_gun_shots(
     >,
 ) {
     for event in &mut gun_shoot_events.read() {
-        let Ok((
-            weapon,
-            global_transform,
-            mut current_ammo,
-            mut timers,
-            holder,
-            attack,
-        )) = weapon_query.get_mut(event.gun)
+        let Ok((weapon, global_transform, mut current_ammo, mut timers, holder, attack)) =
+            weapon_query.get_mut(event.gun)
         else {
             error!("invalid gun");
             continue;

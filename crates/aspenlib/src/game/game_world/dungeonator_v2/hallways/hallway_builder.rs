@@ -2,12 +2,11 @@ use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::*;
 use seldom_map_nav::prelude::Pathfind;
 
-use crate::{
-    consts::TILE_SIZE,
+use crate::
     game::game_world::dungeonator_v2::{
         hallways::PlacedHallWay, path_map::PathMap, GeneratorState,
-    },
-};
+    }
+;
 
 // TODO: create a grid of occupied/unoccupied tiles encompassing the whole dungueon
 // use pathfinding algorithm/crates too get 2 paths, path should return as Vec<tile positon>

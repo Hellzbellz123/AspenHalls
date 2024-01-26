@@ -1,8 +1,12 @@
 use bevy::{
-    ecs::{bundle::Bundle, reflect::{ReflectResource, ReflectComponent}, system::Resource},
+    ecs::{
+        bundle::Bundle,
+        reflect::{ReflectComponent, ReflectResource},
+        system::Resource,
+    },
     log::warn,
-    math::{Vec2, IVec2},
-    prelude::{Component, Handle, Name, SpatialBundle, Entity},
+    math::{IVec2, Vec2},
+    prelude::{Component, Entity, Handle, Name, SpatialBundle},
     reflect::Reflect,
 };
 use bevy_ecs_ldtk::{
@@ -10,7 +14,7 @@ use bevy_ecs_ldtk::{
     LevelIid,
 };
 
-use crate::game::game_world::{components::RoomExit, dungeonator_v2::hallways::PlacedHallWay};
+use crate::game::game_world::dungeonator_v2::hallways::PlacedHallWay;
 
 /// bundle for easy spawning of dungeon
 /// always 1 per dungeon, all dungeon rooms are children
@@ -144,7 +148,6 @@ impl PlacedRoom {
     }
 }
 
-
 #[derive(Debug, Clone, Copy, Reflect, Component, Default, PartialEq, PartialOrd, Ord, Eq)]
 pub struct RoomID(u32);
 
@@ -175,7 +178,6 @@ pub struct RoomDescriptor {
     pub level: RoomLevel,
     /// what function does this room serve for the dungeon
     pub rtype: RoomType,
-
 }
 
 /// amounts of each room that should be spawned

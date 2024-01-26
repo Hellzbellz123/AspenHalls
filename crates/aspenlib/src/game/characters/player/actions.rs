@@ -6,13 +6,11 @@ use crate::{
     bundles::ItemColliderBundle,
     consts::TILE_SIZE,
     game::{
-        characters::{player::PlayerSelectedHero, EventSpawnCharacter, components::WeaponSlot},
+        characters::{components::WeaponSlot, player::PlayerSelectedHero, EventSpawnCharacter},
         combat::EventRequestAttack,
         components::ActorColliderType,
         input::action_maps,
-        items::weapons::components::{
-            CurrentlyDrawnWeapon, WeaponCarrier, WeaponHolder,
-        },
+        items::weapons::components::{CurrentlyDrawnWeapon, WeaponCarrier, WeaponHolder},
     },
     loading::{config::GeneralSettings, registry::RegistryIdentifier},
 };
@@ -92,7 +90,8 @@ pub fn aim_weapon(
     for (weapon_holder, weapon_global_transform, mut weapon_transform) in &mut weapon_query {
         if weapon_holder.is_some_and(|f| f.1 == player) {
             let global_mouse_pos = actions
-                .action_data(&action_maps::Gameplay::CursorWorld).expect("always exists")
+                .action_data(&action_maps::Gameplay::CursorWorld)
+                .expect("always exists")
                 .axis_pair
                 .unwrap()
                 .xy();
