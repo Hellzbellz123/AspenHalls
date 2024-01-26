@@ -6,9 +6,10 @@ use leafwing_input_manager::prelude::ActionState;
 use crate::{
     consts::{MIN_VELOCITY, SPRINT_MODIFIER, WALK_MODIFIER},
     game::{
-        actors::{
-            attributes_stats::CharacterStats,
-            components::{ActorMoveState, AllowedMovement},
+        attributes_stats::CharacterStats,
+        characters::{
+            components::{AllowedMovement, CharacterMoveState},
+            player::PlayerSelectedHero,
         },
         input::action_maps,
     },
@@ -17,16 +18,14 @@ use crate::{
 
 /// adds velocity too player based off what movement keys are pressed
 pub fn update_player_velocity(
+    actions: Res<ActionState<action_maps::Gameplay>>,
     // TODO: use global settings resource
-    mut player_query: Query<(
-        &mut Velocity,
-        &ActorMoveState,
-        &CharacterStats,
-        &ActionState<action_maps::Gameplay>,
-    )>,
+    mut player_query: Query<
+        (&mut Velocity, &CharacterMoveState, &CharacterStats),
+        With<PlayerSelectedHero>,
+    >,
 ) {
-    let (mut velocity, move_state, player_stats, action_state) = match player_query.get_single_mut()
-    {
+    let (mut velocity, move_state, player_stats) = match player_query.get_single_mut() {
         Ok(query) => query,
         Err(e) => {
             warn!("unable too update player velocity: {}", e);
@@ -34,7 +33,7 @@ pub fn update_player_velocity(
         }
     };
 
-    let move_data = action_state.action_data(action_maps::Gameplay::Move);
+    let move_data = actions.action_data(&action_maps::Gameplay::Move).expect("msg");
 
     let Some(move_axis) = move_data.axis_pair else {
         // no move button data
@@ -48,7 +47,7 @@ pub fn update_player_velocity(
 
     let delta = move_axis.xy();
 
-    let speed = if action_state.pressed(action_maps::Gameplay::Sprint)
+    let speed = if actions.pressed(&action_maps::Gameplay::Sprint)
         && move_state.move_perms == AllowedMovement::Run
     {
         player_stats.attrs().move_speed * SPRINT_MODIFIER
@@ -68,10 +67,7 @@ pub fn camera_movement_system(
     mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
     player_move_query: Query<
         (&Transform, &Velocity),
-        (
-            With<ActionState<action_maps::Gameplay>>,
-            Without<MainCamera>,
-        ),
+        (With<PlayerSelectedHero>, Without<MainCamera>),
     >,
 ) {
     if player_move_query.is_empty() {

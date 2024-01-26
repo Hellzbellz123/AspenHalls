@@ -9,13 +9,9 @@ use crate::{
     bundles::ItemColliderBundle,
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
-        actors::{
-            combat::components::WeaponSlots,
-            components::ActorColliderType,
-            player::movement::{camera_movement_system, update_player_velocity},
-        },
-        input::action_maps::PlayerBundle,
+        components::ActorColliderType,
         interface::StartMenu,
+        items::weapons::components::{WeaponCarrier}, characters::components::WeaponSlot,
     },
     loading::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
@@ -24,17 +20,6 @@ use crate::{
 };
 
 use bevy_rapier2d::prelude::CollisionGroups;
-
-use self::{
-    actions::{equip_closest_weapon, spawn_custom_on_button},
-    actions::{player_attack_sender, ShootEvent},
-};
-
-use super::combat::components::WeaponSocket;
-
-/// new type for animations
-#[derive(Component, Deref, DerefMut)]
-pub struct AnimationTimer(Timer);
 
 /// player actions
 pub mod actions;
@@ -48,18 +33,20 @@ pub struct PlayerPlugin;
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<ShootEvent>()
-            .add_event::<SelectThisHeroForPlayer>()
+        app.add_event::<SelectThisHeroForPlayer>()
             .add_systems(
                 Update,
-                (
-                    update_player_velocity,
-                    camera_movement_system,
-                    spawn_custom_on_button,
-                    player_attack_sender,
-                    equip_closest_weapon,
+                ((
+                    movement::update_player_velocity,
+                    movement::camera_movement_system,
+                    actions::spawn_custom,
+                    actions::player_attack,
+                    actions::equip_closest_weapon,
+                    actions::zoom_control,
+                    actions::change_weapon,
+                    actions::aim_weapon,
                 )
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                    .run_if(state_exists_and_equals(AppState::PlayingGame)),),
             )
             .add_systems(
                 OnEnter(AppState::PlayingGame),
@@ -67,17 +54,14 @@ impl Plugin for PlayerPlugin {
             )
             .add_systems(
                 Update,
-                select_wanted_hero.run_if(
-                    state_exists_and_equals(AppState::StartMenu)
-                        .and_then(not(any_with_component::<SelectedHero>())),
-                ),
+                select_wanted_hero.run_if(on_event::<SelectThisHeroForPlayer>()),
             );
     }
 }
 
-/// hero player has selected for dungeon run
+/// hero player has selected for play
 #[derive(Debug, Component)]
-pub struct SelectedHero;
+pub struct PlayerSelectedHero;
 
 /// event sent when player selects available hero too play
 #[derive(Event)]
@@ -103,7 +87,7 @@ fn select_wanted_hero(
 
     for event in select_events.read() {
         debug!("selecting hero");
-        cmds.entity(event.0).insert(SelectedHero).remove::<(
+        cmds.entity(event.0).insert(PlayerSelectedHero).remove::<(
             PickableBundle,
             Highlight<StandardMaterial>,
             On<Pointer<Down>>,
@@ -115,7 +99,7 @@ fn select_wanted_hero(
 /// spawns player with no weapons
 pub fn build_player_from_selected_hero(
     mut commands: Commands,
-    player_selected_hero: Query<(Entity, &RegistryIdentifier), With<SelectedHero>>,
+    player_selected_hero: Query<(Entity, &RegistryIdentifier), With<PlayerSelectedHero>>,
     char_assets: Res<Assets<CharacterDefinition>>,
 ) {
     let (selected_hero, player_registry_identifier) = player_selected_hero.single();
@@ -127,18 +111,15 @@ pub fn build_player_from_selected_hero(
 
     commands
         .entity(selected_hero)
-        .remove::<(SelectedHero, PickingInteraction)>();
+        .remove::<PickingInteraction>();
 
     info!("Finalizing player before game start");
     commands
         .entity(selected_hero)
-        .insert((
-            PlayerBundle::default(),
-            WeaponSocket {
-                drawn_slot: Some(WeaponSlots::Slot1),
-                weapon_slots: hero_weapon_slots(),
-            },
-        ))
+        .insert((WeaponCarrier {
+            drawn_slot: Some(WeaponSlot::Slot1),
+            weapon_slots: hero_weapon_slots(),
+        },))
         .with_children(|child| {
             child.spawn((ItemColliderBundle {
                 tag: ActorColliderType::Character,
@@ -165,21 +146,21 @@ pub fn build_player_from_selected_hero(
 }
 
 /// creates empty weapon slots
-pub fn hero_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
+pub fn hero_weapon_slots() -> HashMap<WeaponSlot, Option<Entity>> {
     let mut weapon_slots = HashMap::new();
-    weapon_slots.insert(WeaponSlots::Slot1, None::<Entity>);
-    weapon_slots.insert(WeaponSlots::Slot2, None::<Entity>);
-    weapon_slots.insert(WeaponSlots::Slot3, None::<Entity>);
-    weapon_slots.insert(WeaponSlots::Slot4, None::<Entity>);
+    weapon_slots.insert(WeaponSlot::Slot1, None::<Entity>);
+    weapon_slots.insert(WeaponSlot::Slot2, None::<Entity>);
+    weapon_slots.insert(WeaponSlot::Slot3, None::<Entity>);
+    weapon_slots.insert(WeaponSlot::Slot4, None::<Entity>);
 
     weapon_slots
 }
 
-/// creates empty weapon slots
-pub fn enemy_weapon_slots() -> HashMap<WeaponSlots, Option<Entity>> {
-    let mut weapon_slots = HashMap::new();
-    weapon_slots.insert(WeaponSlots::Slot1, None::<Entity>);
-    weapon_slots.insert(WeaponSlots::Slot2, None::<Entity>);
+// /// creates empty weapon slots
+// pub fn enemy_weapon_slots() -> HashMap<WeaponSlot, Option<Entity>> {
+//     let mut weapon_slots = HashMap::new();
+//     weapon_slots.insert(WeaponSlot::Slot1, None::<Entity>);
+//     weapon_slots.insert(WeaponSlot::Slot2, None::<Entity>);
 
-    weapon_slots
-}
+//     weapon_slots
+// }

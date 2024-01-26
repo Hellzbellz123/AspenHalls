@@ -1,3 +1,14 @@
+use bevy::prelude::*;
+
+use crate::{
+    game::components::TimeToLive,
+    loading::{
+        custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition},
+        registry::RegistryIdentifier,
+    },
+    utilities::scale_to_fit,
+    AppState,
+};
 
 /// animation functionality
 pub mod animations;
@@ -5,39 +16,20 @@ pub mod animations;
 pub mod attributes_stats;
 /// audio data for game
 pub mod audio;
+/// game characters spawning and functionality
+pub mod characters;
+/// combat functionality plugin
+pub mod combat;
+/// shared components for game
+pub mod components;
 /// sanctuary and dungeon generator
 pub mod game_world;
 /// input from player
 pub mod input;
 /// Game `UserInterface` Module, contains interface plugin
 pub mod interface;
-
-use crate::{
-    game::{
-        actors::ActorPlugin,
-        audio::InternalAudioPlugin,
-        // interface::InterfacePlugin,
-        // audio::InternalAudioPlugin,
-        game_world::GameWorldPlugin,
-        input::ActionsPlugin,
-        interface::InterfacePlugin,
-    },
-    prelude::{
-        engine::{leafwing_input_manager::prelude::ActionState, *},
-        game::{GeneralSettings, TimeToLive, *},
-    },
-};
-
-/// time info for game,
-#[derive(Debug, Clone, Component, Default, Resource, Reflect)]
-pub struct TimeInfo {
-    /// set rapier timestep
-    pub time_step: f32,
-    /// pause check
-    pub game_paused: bool,
-    /// in pause menu
-    pub pause_menu: bool,
-}
+/// game item spawning and functionality
+pub mod items;
 
 /// are we in dungeon yet?
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Resource, Default, Reflect)]
@@ -80,65 +72,23 @@ pub struct AspenHallsPlugin;
 
 impl Plugin for AspenHallsPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(TimeInfo {
-            time_step: 1.0,
-            game_paused: false,
-            pause_menu: false,
-        })
-        //game stuff after initial Game State setup
-        .add_plugins((
-            InterfacePlugin,
-            ActionsPlugin,
-            InternalAudioPlugin,
-            GameWorldPlugin,
-            ActorPlugin,
-        ))
-        .add_systems(
-            Update,
-            (
-                setup_time_state
-                    .run_if(state_exists_and_equals(AppState::PlayingGame).and_then(run_once())),
-                (time_to_live, zoom_control).run_if(in_state(AppState::PlayingGame)),
-            ),
-        );
-    }
-}
-
-/// setup initial time state
-pub fn setup_time_state(mut time_info: ResMut<TimeInfo>) {
-    *time_info = TimeInfo {
-        time_step: 1.0,
-        game_paused: false,
-        pause_menu: false,
-    }
-}
-
-/// zoom control
-pub fn zoom_control(
-    mut settings: ResMut<GeneralSettings>,
-    query_action_state: Query<
-        &ActionState<action_maps::Gameplay>,
-        Changed<ActionState<action_maps::Gameplay>>,
-    >,
-) {
-    let actions = match query_action_state.get_single() {
-        Ok(action_state) => action_state,
-        Err(error) => {
-            warn!("issue getting player `ActionState<Gameplay>`: {error}");
-            return;
-        }
-    };
-
-    let multiplier = if actions.pressed(action_maps::Gameplay::Sprint) {
-        10.0
-    } else {
-        1.0
-    };
-
-    if actions.pressed(action_maps::Gameplay::ZoomIn) {
-        settings.camera_zoom += 0.05 * multiplier;
-    } else if actions.pressed(action_maps::Gameplay::ZoomOut) {
-        settings.camera_zoom -= 0.05 * multiplier;
+        app
+            // actual game plugin
+            .add_plugins((
+                combat::CombatPlugin,
+                characters::CharactersPlugin,
+                items::ItemsPlugin,
+                input::InputPlugin,
+                game_world::GameWorldPlugin,
+                interface::InterfacePlugin,
+                audio::AudioPlugin,
+                animations::AnimationsPlugin,
+            ))
+            .add_systems(
+                Update,
+                ((update_actor_size, time_to_live)
+                    .run_if(state_exists_and_equals(AppState::PlayingGame)),),
+            );
     }
 }
 
@@ -152,5 +102,60 @@ fn time_to_live(
         if timer.tick(time.delta()).finished() {
             commands.entity(entity).despawn_recursive();
         }
+    }
+}
+
+/// update actor size if its custom size is not already set
+fn update_actor_size(
+    mut query: Query<(
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+        &RegistryIdentifier,
+    )>,
+    texture_atlass: Res<Assets<TextureAtlas>>,
+    obje_assets: Res<Assets<ItemDefinition>>,
+    char_assets: Res<Assets<CharacterDefinition>>,
+) {
+    for (mut sprite, texture_atlas, registry_identifier) in &mut query {
+        if sprite.custom_size.is_some() {
+            continue;
+        }
+
+        let atlas = texture_atlass
+            .get(texture_atlas)
+            .expect("texture for this spritesheet is missing");
+        let original_size = atlas.textures.first().expect("no textures in atlas").size();
+        let aspect_ratio = original_size.x / original_size.y;
+
+        trace!(
+            "image size: {}, aspect ratio: {}",
+            original_size, aspect_ratio
+        );
+
+        let final_size: Vec2 = {
+            let maybe_characer = char_assets
+                .iter()
+                .find(|(_, asset)| asset.actor.identifier == *registry_identifier);
+            let maybe_item = obje_assets
+                .iter()
+                .find(|(_, asset)| asset.actor.identifier == *registry_identifier);
+
+            if let Some((_, def)) = maybe_characer {
+                def.actor.pixel_size
+            } else if let Some((_, def)) = maybe_item {
+                def.actor.pixel_size
+            } else {
+                warn!("character has no asset");
+                return;
+            }
+        };
+
+        let new_custom_size = scale_to_fit(original_size, final_size);
+
+        // info!(
+        //     "target size: {}, new_custom_size: {}",
+        //     final_size, new_custom_size
+        // );
+        sprite.custom_size = Some(new_custom_size);
     }
 }

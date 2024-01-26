@@ -3,6 +3,7 @@ all credit for this goes to Shane Satterfield @ https://github.com/shanesatterfi
 for being the only real useful example of big-brain as far as im concerned
 */
 
+use bevy::hierarchy::HierarchyQueryExt;
 use bevy::prelude::*;
 use bevy_rapier2d::{
     math::Rot,
@@ -10,21 +11,25 @@ use bevy_rapier2d::{
 };
 use big_brain::{
     prelude::{ActionState, Actor, Score},
+    thinker::ThinkerBuilder,
     // BigBrainStage,
     BigBrainSet,
 };
 use rand::{thread_rng, Rng};
 
 use crate::{
-    consts::{default_actor_collider, TILE_SIZE},
+    consts::default_actor_collider,
     game::{
-        actors::ai::components::{
-            AIChaseAction, AICombatConfig, AIWanderAction, AIWanderConfig, AttackScorer,
-            ChaseScorer,
+        characters::{
+            ai::components::{
+                AIChaseAction, AICombatConfig, AIWanderAction, AIWanderConfig, AttackScorer,
+                ChaseScorer,
+            },
+            player::PlayerSelectedHero,
         },
         AppState,
     },
-    prelude::{engine, game::action_maps},
+    utilities::tiles_to_f32,
 };
 
 use super::components::{AIShootAction, AIShootConfig};
@@ -49,12 +54,18 @@ impl Plugin for StupidAiPlugin {
     }
 }
 
-/// converts tile amt too f32 value
-pub fn tiles_to_f32(distance: i32) -> f32 {
-    distance as f32 * TILE_SIZE
+/// All Components needed for `stupid_ai` functionality
+#[derive(Bundle)]
+pub struct StupidAiBundle {
+    /// ai chase/attack config
+    pub combat_config: AICombatConfig,
+    /// stupid wander action
+    pub wander_config: AIWanderConfig,
+    /// stupid shoot action
+    pub shoot_config: AIShootConfig,
+    /// chooses action
+    pub thinker: ThinkerBuilder,
 }
-
-use bevy::hierarchy::HierarchyQueryExt;
 
 //TODO: rework ai
 /// updates character attack/chase score
@@ -63,7 +74,7 @@ fn stupid_ai_aggro_manager(
     names: Query<&Name>,
     rapier_context: Res<RapierContext>,
     // player
-    player_query: Query<(Entity, &Transform), With<engine::ActionState<action_maps::Gameplay>>>,
+    player_query: Query<(Entity, &Transform), With<PlayerSelectedHero>>,
     // enemies that can aggro
     can_attack_query: Query<(Entity, &Transform, &AICombatConfig)>,
     // scorers
@@ -106,8 +117,6 @@ fn stupid_ai_aggro_manager(
         let target_in_chase_range = distance_to_target <= tiles_to_f32(combat_cfg.chase_start);
         let target_in_personalspace = distance_to_target <= tiles_to_f32(combat_cfg.personal_space);
 
-        // TODO: this raycast is not working properly
-        // it seems too always be true
         let can_reach_target: bool = match ray {
             None => false,
             Some((entity, _distance)) => entity == player_collider,
@@ -143,7 +152,7 @@ fn stupid_ai_aggro_manager(
 
 /// handles enemy's that can chase
 fn chase_action(
-    player_query: Query<&Transform, With<engine::ActionState<action_maps::Gameplay>>>,
+    player_query: Query<&Transform, With<PlayerSelectedHero>>,
     mut enemy_query: Query<(&Transform, &mut Velocity, &AICombatConfig)>,
     mut chasing_enemies: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
 ) {
@@ -207,7 +216,7 @@ fn chase_action(
 fn attack_action(
     // rapier_context: Res<RapierContext>,
     // player_collider_query: Query<Entity, With<PlayerColliderTag>>,
-    player_query: Query<(Entity, &Transform), With<engine::ActionState<action_maps::Gameplay>>>,
+    player_query: Query<(Entity, &Transform), With<PlayerSelectedHero>>,
     mut enemy_query: Query<(&Transform, &mut AIShootConfig)>,
     mut shooting_enemies: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
 ) {

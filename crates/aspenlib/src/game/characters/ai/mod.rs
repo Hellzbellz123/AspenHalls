@@ -1,11 +1,16 @@
+use bevy::prelude::*;
+use big_brain::{prelude::*, BigBrainPlugin};
 use std::time::Duration;
 
-use bevy::prelude::*;
-use big_brain::{
-    actions::ActionState,
-    prelude::{Action, Score, Thinker},
-    thinker::Actor,
-    BigBrainPlugin,
+use crate::{
+    game::characters::{
+        ai::components::{
+            AIChaseAction, AICombatConfig, AIShootAction, AIShootConfig, AIWanderAction,
+            AIWanderConfig, AiType, AttackScorer, ChaseScorer,
+        },
+        player::PlayerSelectedHero,
+    },
+    register_types,
 };
 
 use self::stupid_ai::StupidAiPlugin;
@@ -14,21 +19,9 @@ use self::stupid_ai::StupidAiPlugin;
 pub mod components;
 /// stupid ai stuff
 pub mod stupid_ai;
-/// util functions
-pub mod utility;
 
 /// handles different AI classes
 pub struct AIPlugin;
-
-use crate::{
-    bundles::StupidAiBundle,
-    game::actors::ai::components::{
-        AIChaseAction, AICombatConfig, AIShootAction, AIShootConfig, AIWanderAction, AIWanderConfig,
-    },
-    loading::custom_assets::actor_definitions::AiSetupConfig,
-    prelude::game::{AttackScorer, ChaseScorer},
-    register_types,
-};
 
 impl Plugin for AIPlugin {
     fn build(&self, app: &mut App) {
@@ -56,23 +49,22 @@ impl Plugin for AIPlugin {
     }
 }
 
-/// entity tag for all `big_brain` entity's too be parented too
-/// clean hierarchy plz
-#[derive(Debug, Component)]
-struct BigBrainContainerTag;
-
 /// finds all characters wanting ai and adds required ai components
+#[allow(clippy::type_complexity)]
 fn initialize_ai(
     mut commands: Commands,
-    ai_controlled: Query<(Entity, &AiSetupConfig, &GlobalTransform)>,
+    ai_controlled: Query<
+        (Entity, &AiType, &GlobalTransform),
+        (Added<AiType>, Without<PlayerSelectedHero>),
+    >,
 ) {
-    for (character, who_should_control, pos) in &ai_controlled {
-        match who_should_control {
-            AiSetupConfig::Player => {}
-            AiSetupConfig::GameAI(ai_type) => match ai_type {
-                components::AiType::Stupid => {
-                    //TODO: get definition and use values from definition
-                    commands.entity(character).insert(StupidAiBundle {
+    for (character, wanted_ai, pos) in &ai_controlled {
+        match wanted_ai {
+            AiType::Stupid => {
+                //TODO: get definition and use values from definition
+                commands
+                    .entity(character)
+                    .insert(stupid_ai::StupidAiBundle {
                         combat_config: AICombatConfig {
                             chase_start: 10,
                             chase_end: 16,
@@ -97,12 +89,13 @@ fn initialize_ai(
                             .when(AttackScorer, AIShootAction)
                             .otherwise(AIWanderAction),
                     });
-                }
-                a => {
-                    warn!("AI type unimplemented! {:?}", a);
-                }
-            },
+            }
+            AiType::Boss => error!("ai type not implemented"),
+            AiType::Critter => error!("ai type not implemented"),
+            AiType::PlayerPet => error!("ai type not implemented"),
+            AiType::FollowerHero => error!("ai type not implemented"),
         }
-        commands.entity(character).remove::<AiSetupConfig>();
+
+        commands.entity(character).remove::<AiType>();
     }
 }
