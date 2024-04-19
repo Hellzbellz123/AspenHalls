@@ -11,6 +11,7 @@ pub struct ActorTargetingPlugin;
 
 impl Plugin for ActorTargetingPlugin {
     fn build(&self, app: &mut App) {
+        // TODO: brainstorm actor targeting system
     }
 }
 

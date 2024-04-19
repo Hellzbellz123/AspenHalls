@@ -1,10 +1,7 @@
 use bevy::prelude::*;
-use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    game::{
-        characters::player::PlayerSelectedHero, input::AspenCursorPosition
-    },
+    game::{characters::player::PlayerSelectedHero, input::AspenCursorPosition},
     loading::assets::AspenInitHandles,
     AppState,
 };
@@ -25,7 +22,10 @@ impl Plugin for SoftwareCursorPlugin {
         app.add_systems(
             PreUpdate,
             update_software_cursor_position
-                .run_if(resource_exists::<AspenCursorPosition>().and_then(any_with_component::<SoftWareCursor>()))
+                .run_if(
+                    resource_exists::<AspenCursorPosition>()
+                        .and_then(any_with_component::<SoftWareCursor>()),
+                )
                 .in_set(AspenInputSystemSet::SoftwareCursor),
         );
     }
@@ -40,10 +40,10 @@ pub struct SoftWareCursor {
     /// distance before hiding
     hide_distance: f32,
     /// alpha too hide
-    /// 0.0-1.0 else panic
+    /// clamped to 0.0-1.0
     hide_alpha: f32,
     /// alpha when should be visible
-    /// 0.0-1.0 else panic
+    /// clamped to 0.0-1.0
     show_alpha: f32,
 }
 
@@ -108,9 +108,9 @@ fn update_software_cursor_position(
         .distance(look_world.extend(0.0))
         .le(&cursor_data.hide_distance)
     {
-        *cursor_color = BackgroundColor(color.with_a(cursor_data.hide_alpha));
+        *cursor_color = BackgroundColor(color.with_a(cursor_data.hide_alpha.clamp(0.0, 1.0)));
     } else {
-        *cursor_color = BackgroundColor(color.with_a(cursor_data.show_alpha));
+        *cursor_color = BackgroundColor(color.with_a(cursor_data.show_alpha.clamp(0.0, 1.0)));
     };
 
     cursor_style.left = Val::Px(look_local.x - cursor_data.offset.x);

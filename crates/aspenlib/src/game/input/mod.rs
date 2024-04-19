@@ -1,6 +1,9 @@
 use std::hash::Hash;
 
-use bevy::{core_pipeline::core_3d::graph::input, ecs::schedule::IntoSystemSetConfigs, prelude::*, window::PrimaryWindow};
+use bevy::{
+    ecs::schedule::IntoSystemSetConfigs, prelude::*,
+    window::PrimaryWindow,
+};
 use leafwing_input_manager::{
     plugin::{InputManagerPlugin, InputManagerSystem},
     prelude::{ActionState, InputMap},
@@ -8,8 +11,9 @@ use leafwing_input_manager::{
 
 use crate::{loading::splashscreen::MainCamera, register_types};
 
-/// entity selection in playing stage handled with this plugin
-pub mod actor_targeting;
+// / entity selection in playing stage handled with this plugin
+// / TODO: implement targeting system for interactions/combat
+// pub mod actor_targeting;
 
 /// holds action maps
 pub mod action_maps;
@@ -47,7 +51,7 @@ impl Plugin for InputPlugin {
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
         app.add_plugins(software_cursor::SoftwareCursorPlugin);
         // implement targeting system reticle that snaps too nearest interactable actor too cursor. interaction and pickup uses this system?
-        app.add_plugins(actor_targeting::ActorTargetingPlugin);
+        // app.add_plugins(actor_targeting::ActorTargetingPlugin);
 
         app.insert_resource(AspenCursorPosition {
             world: Vec2::default(),
@@ -74,6 +78,8 @@ impl Plugin for InputPlugin {
 
 #[derive(Debug, Resource, Reflect, Default)]
 #[reflect(Resource)]
+/// global cursor position resource,
+/// faked for platforms with no cursor or touch only by joystick
 pub struct AspenCursorPosition {
     /// cursor position in world space
     pub world: Vec2,
@@ -81,6 +87,7 @@ pub struct AspenCursorPosition {
     pub screen: Vec2,
 }
 
+/// updates cursor position resource with joystick priority
 fn update_cursor_position_resource(
     window_query: Query<&Window, With<PrimaryWindow>>,
     camera_query: Query<(&Camera, &GlobalTransform), With<MainCamera>>,
@@ -95,13 +102,15 @@ fn update_cursor_position_resource(
     let cursor_screen_pos: Vec2 = if joy_axis.is_some_and(|f| f.xy().abs() != Vec2::ZERO) {
         let joy_axis = joy_axis.unwrap().xy();
         Vec2::new(
-            (joy_axis.x * window_half_size.x) + window_half_size.x,
-            (-joy_axis.y * window_half_size.y) + window_half_size.y,
+            joy_axis.x.mul_add(window_half_size.x, window_half_size.x),
+            (-joy_axis.y).mul_add(window_half_size.y, window_half_size.y)
         )
     } else {
-        window_query.single().cursor_position().unwrap_or_else(|| window_half_size)
+        window_query
+            .single()
+            .cursor_position()
+            .unwrap_or(window_half_size)
     };
-
 
     let Ok((camera, camera_pos)) = camera_query.get_single() else {
         return;

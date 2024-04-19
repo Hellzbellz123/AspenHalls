@@ -1,102 +1,57 @@
 use bevy::prelude::*;
-use leafwing_input_manager::{axislike::VirtualAxis, prelude::*, user_input::InputKind};
+use leafwing_input_manager::{prelude::*, user_input::InputKind};
+
+/// default keyboard/mouse input map
+pub fn build_kbm_map(input_map: &mut InputMap<Gameplay>) {
+    #[rustfmt::skip]
+    input_map.insert_multiple(
+        [
+            (Gameplay::Move, UserInput::VirtualDPad(VirtualDPad::wasd())),
+            (Gameplay::Sprint, UserInput::Single(InputKind::Keyboard(KeyCode::ShiftLeft))),
+            (Gameplay::Attack, UserInput::Single(InputKind::Keyboard(KeyCode::Space))),
+            (Gameplay::Interact, UserInput::Single(InputKind::Keyboard(KeyCode::E))),
+            (Gameplay::CycleWeapon, UserInput::Single(InputKind::Keyboard(KeyCode::AltLeft))),
+            (Gameplay::UseAction1, UserInput::Single(InputKind::Keyboard(KeyCode::Key1))),
+            (Gameplay::UseAction2, UserInput::Single(InputKind::Keyboard(KeyCode::Key2))),
+            (Gameplay::UseAction3, UserInput::Single(InputKind::Keyboard(KeyCode::Key3))),
+            (Gameplay::UseAction4, UserInput::Single(InputKind::Keyboard(KeyCode::Key4))),
+            (Gameplay::UseAction5, UserInput::Single(InputKind::Keyboard(KeyCode::Key5))),
+            (Gameplay::ZoomIn, UserInput::Single(InputKind::Keyboard(KeyCode::NumpadAdd))),
+            (Gameplay::ZoomOut,UserInput::Single(InputKind::Keyboard(KeyCode::NumpadSubtract))),
+            (Gameplay::Pause, UserInput::Single(InputKind::Keyboard(KeyCode::Escape))),
+            (Gameplay::DebugF1, UserInput::Single(InputKind::Keyboard(KeyCode::F1))),
+            (Gameplay::DebugF2, UserInput::Single(InputKind::Keyboard(KeyCode::F2))),
+            (Gameplay::Melee, UserInput::Single(InputKind::Keyboard(KeyCode::F))),
+            (Gameplay::Heal, UserInput::Single(InputKind::Keyboard(KeyCode::C))),
+            ],
+    );
+}
+
+/// default gamepad input map
+pub fn build_gamepad_map(input_map: &mut InputMap<Gameplay>) {
+    #[rustfmt::skip]
+    input_map.insert_multiple([
+        (Gameplay::Move, UserInput::Single(InputKind::DualAxis(DualAxis::left_stick()))),
+        (Gameplay::Look, UserInput::Single(InputKind::DualAxis(DualAxis::right_stick()))),
+        (Gameplay::Sprint, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::West))),
+        (Gameplay::Attack, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::South))),
+        (Gameplay::Interact, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::East))),
+        (Gameplay::CycleWeapon, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::North))),
+        (Gameplay::ZoomIn, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadUp))),
+        (Gameplay::ZoomOut, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadDown))),
+        (Gameplay::Pause, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::Start))),
+        (Gameplay::Melee, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadLeft))),
+        (Gameplay::Heal, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadRight))),
+    ]);
+}
 
 impl Gameplay {
-    fn variants() -> &'static [Gameplay] {
-        use Gameplay::*;
-        &[
-            Attack,
-            CycleWeapon,
-            DebugF1,
-            DebugF2,
-            Heal,
-            Interact,
-            Look,
-            Melee,
-            Move,
-            Pause,
-            Sprint,
-            UseAction1,
-            UseAction2,
-            UseAction3,
-            UseAction4,
-            UseAction5,
-            ZoomIn,
-            ZoomOut,
-        ]
-    }
-    pub fn default_input_map() -> InputMap<Gameplay> {
-        let mut input_map: InputMap<Gameplay> = InputMap::default();
-        // Loop through each action in `PlayerAction` and get the default `UserInput`,
-        // then insert each default input into input_map
-        for action in Gameplay::variants() {
-            input_map.insert(*action, Gameplay::default_keyboard_mouse_mapping(action));
-            input_map.insert(*action, Gameplay::default_gamepad_mapping(action));
-        }
+    /// default game input mappings
+    pub fn default_input_map() -> InputMap<Self> {
+        let mut input_map: InputMap<Self> = InputMap::default();
+        build_kbm_map(&mut input_map);
+        build_gamepad_map(&mut input_map);
         input_map
-    }
-
-    fn default_keyboard_mouse_mapping(&self) -> UserInput {
-        match self {
-            Gameplay::Look => UserInput::Chord(Vec::new()),
-            Gameplay::Move => UserInput::VirtualDPad(VirtualDPad::wasd()),
-            Gameplay::Sprint => UserInput::Single(InputKind::Keyboard(KeyCode::ShiftLeft)),
-            Gameplay::Attack => UserInput::Single(InputKind::Keyboard(KeyCode::Space)),
-            Gameplay::Interact => UserInput::Single(InputKind::Keyboard(KeyCode::E)),
-            Gameplay::CycleWeapon => UserInput::Single(InputKind::Keyboard(KeyCode::AltLeft)),
-            Gameplay::UseAction1 => UserInput::Single(InputKind::Keyboard(KeyCode::Key1)),
-            Gameplay::UseAction2 => UserInput::Single(InputKind::Keyboard(KeyCode::Key2)),
-            Gameplay::UseAction3 => UserInput::Single(InputKind::Keyboard(KeyCode::Key3)),
-            Gameplay::UseAction4 => UserInput::Single(InputKind::Keyboard(KeyCode::Key4)),
-            Gameplay::UseAction5 => UserInput::Single(InputKind::Keyboard(KeyCode::Key5)),
-            Gameplay::ZoomIn => UserInput::Single(InputKind::Keyboard(KeyCode::NumpadAdd)),
-            Gameplay::ZoomOut => UserInput::Single(InputKind::Keyboard(KeyCode::NumpadSubtract)),
-            Gameplay::Pause => UserInput::Single(InputKind::Keyboard(KeyCode::Escape)),
-            Gameplay::DebugF1 => UserInput::Single(InputKind::Keyboard(KeyCode::F1)),
-            Gameplay::DebugF2 => UserInput::Single(InputKind::Keyboard(KeyCode::F2)),
-            Gameplay::Melee => UserInput::Single(InputKind::Keyboard(KeyCode::F)),
-            Gameplay::Heal => UserInput::Single(InputKind::Keyboard(KeyCode::C)),
-        }
-    }
-    fn default_gamepad_mapping(&self) -> UserInput {
-        match self {
-            Gameplay::Move => UserInput::Single(InputKind::DualAxis(DualAxis::left_stick())),
-            Gameplay::Look => UserInput::Single(InputKind::DualAxis(DualAxis::right_stick())),
-            Gameplay::Sprint => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::West))
-            }
-            Gameplay::Attack => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::South))
-            }
-            Gameplay::Interact => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::East))
-            }
-            Gameplay::CycleWeapon => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::North))
-            }
-            Gameplay::ZoomIn => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadUp))
-            }
-            Gameplay::ZoomOut => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadDown))
-            }
-            Gameplay::Pause => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::Start))
-            }
-            Gameplay::Melee => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadLeft))
-            }
-            Gameplay::Heal => {
-                UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadRight))
-            }
-            Gameplay::UseAction1 => UserInput::Chord(Vec::new()),
-            Gameplay::UseAction2 => UserInput::Chord(Vec::new()),
-            Gameplay::UseAction3 => UserInput::Chord(Vec::new()),
-            Gameplay::UseAction4 => UserInput::Chord(Vec::new()),
-            Gameplay::UseAction5 => UserInput::Chord(Vec::new()),
-            Gameplay::DebugF1 => UserInput::Chord(Vec::new()),
-            Gameplay::DebugF2 => UserInput::Chord(Vec::new()),
-        }
     }
 }
 
