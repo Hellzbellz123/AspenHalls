@@ -56,9 +56,7 @@ lto = "fat"
 
 # broken dependencies
 [patch.crates-io]
-typid = { git = "https://github.com/hellzbellz123/typid" }
-# bevy addon local replacements ###
-# Patching local bevy crates does not usually make them work
+# Patching local bevy plugin crates does not usually make them work
 # Cargo will use both versions of bevy so the patches usually
 # just break compiling if dependencies use different
 # bevy versions
@@ -106,7 +104,7 @@ bevy_winit = { path = "deps/bevy/crates/bevy_winit" }
 bevy_animation = { path = "deps/bevy/crates/bevy_animation" }
 bevy_audio = { path = "deps/bevy/crates/bevy_audio" }
 bevy_gltf = { path = "deps/bevy/crates/bevy_gltf" }
-bevy_dynamic_plugin = { path = "deps/bevy/crates/bevy_dynamic_plugin" }
+# bevy_dynamic_plugin = { path = "deps/bevy/crates/bevy_dynamic_plugin" }
 
 
 # TODO: move the virtual touchpad into a reuseable bevy plugin

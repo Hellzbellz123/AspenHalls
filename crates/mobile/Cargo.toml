@@ -14,34 +14,36 @@ categories = ["games"]
 
 [lib]
 name = "game"
-crate-type = ["staticlib", "cdylib"]
+crate-type = ["cdylib"]
 
 [features]
 develop = ["aspenlib/develop"]
 
 [dependencies]
-bevy ={ version = "*"}
-ndk-context = "0.1.1"
 aspenlib = { path = "../aspenlib" }
-jni = { version = "0.21.1", features = ["invocation"] }
-
-#  dont bother with oboe unless were using ndk too build
-[target.'cfg(target_os = "android")'.dependencies]
 bevy = { version = "*", features = [
   "android_shared_stdcxx", # this is for cpal/oboe
 ] }
-oboe = { version = "0.5", features = ["shared-stdcxx"] }
 
+# this target cfg hides the rust-analyzer error.
+# cargo apk wraps the build inside NDK's toolchain which accepts the required gcc flags
+[target.'cfg(target_os = "android")'.dependencies]
+oboe = { version = "0.6.1", features = [
+  "shared-stdcxx"
+] }
+# ndk-context = "0.1.1"
+# jni = { version = "0.21.1", features = ["invocation"] }
 
 # android manifest definition in toml
 [package.metadata.android]
+runtime_libs = "../../target/debug/apk/lib"
 package = "com.hellzbellz123.aspen_halls"
-build_targets = ["aarch64-linux-android", "armv7-linux-androideabi"]
+build_targets = ["aarch64-linux-android"]
 resources = "../../assets-build/android"
 assets = "../../assets"
 apk_name = "AspenHalls"
 strip = "strip"
-sdk = { target_sdk_version = 34, max_sdk_version = 34, min_sdk_version = 31 }
+sdk = { target_sdk_version = 34, min_sdk_version = 31 }
 # See https://developer.android.com/guide/topics/manifest/uses-feature-element
 uses_feature = [
   { name = "android.hardware.vulkan.level", required = true, version = 1 },
@@ -82,6 +84,7 @@ exported = true
 resizeable_activity = true
 # See https://developer.android.com/guide/topics/manifest/activity-element#always
 always_retain_task_state = true
+immersive = true
 
 # See https://developer.android.com/guide/topics/manifest/meta-data-element
 #

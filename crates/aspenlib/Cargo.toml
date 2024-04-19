@@ -45,11 +45,13 @@ cast_possible_wrap = { level = "allow" }
 
 
 [features]
+develop = []
 dynamic = ["bevy/dynamic_linking"]
-develop = ["dep:bevy-inspector-egui", "dep:bevy_egui"]
 trace = ["bevy_mod_logfu/trace_tracy", "bevy_mod_logfu/trace_tracy_memory"]
 
 [dependencies]
+# rayon = "1.10.0"
+# crossbeam = { version = "0.8.4", features = ["nightly", "crossbeam-channel"] }
 lazy_static = { version = "1.4.0" }
 rand = { version = "0.8" }
 log = "0.4.20"
@@ -58,8 +60,8 @@ strum = { version = "0.25.0", features = ["derive", "std", "strum_macros"] }
 toml = { version = "0.8" }
 ron = { version = "0.8" }
 winit = { version = "0.28", default-features = false, features = [
-  # "x11",
-  "wayland",
+  "x11",
+  # "wayland",
 ] }
 clap = { version = "4.2" }
 image = { version = "0.24", default_features = false, features = ["png"] }
@@ -67,12 +69,12 @@ voronator = { version = "0.2" }
 petgraph = { version = "0.6" }
 num-integer = { version = "0.1" }
 bevy = { path = "../../deps/bevy", default-features = false, features = [
-  "bevy_pbr",         # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-  "bevy_ui",          # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-  "bevy_winit",       # Support for creating windows
-  "multi-threaded",   # enable multithreading in bevy_ecs / bevy_tasks
-  # "x11",              # Support xOrg Windows
-  "wayland",          # Support Wayland windows
+  "bevy_pbr",       # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+  "bevy_ui",        # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+  "bevy_winit",     # Support for creating windows
+  "multi-threaded", # enable multithreading in bevy_ecs / bevy_tasks
+  "x11",            # Support xOrg Windows
+  # "wayland",          # Support Wayland windows
   "png",              # png is my preffered image format
   "serialize",        # Support for `serde` Serialize/Deserialize
   "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
@@ -83,15 +85,17 @@ bevy = { path = "../../deps/bevy", default-features = false, features = [
   # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet?
   # "bevy_scene",             # scenes are unused atm
 ] }
+
 # personal bevy plugins
 bevy_mod_logfu = { path = "../../deps/bevy_mod_logfu" }
+
 # Bevy Dependencies are located in deps folder
 big-brain = { path = "../../deps/big_brain" }
 leafwing-input-manager = { path = "../../deps/leafwing_input_manager" }
 seldom_map_nav = { path = "../../deps/seldom_map_nav", features = ["bevy"] }
 bevy_touch_stick = { path = "../../deps/bevy_touch_stick" }
 bevy_console = { path = "../../deps/bevy_console" }
-bevy-inspector-egui = { path = "../../deps/bevy_inspector_egui/crates/bevy-inspector-egui", optional = true, default-features = false }
+bevy-inspector-egui = { path = "../../deps/bevy_inspector_egui/crates/bevy-inspector-egui", default-features = false }
 bevy_common_assets = { path = "../../deps/bevy_common_assets", features = [
   "ron",
   "toml",
@@ -106,7 +110,7 @@ bevy_ecs_tilemap = { path = "../../deps/bevy_ecs_tilemap", features = [
 bevy_framepace = { path = "../../deps/bevy_framepace" }
 bevy_prototype_lyon = { path = "../../deps/bevy_prototype_lyon" }
 bevy_rapier2d = { path = "../../deps/bevy_rapier/bevy_rapier2d" }
-bevy_egui = { path = "../../deps/bevy_egui", optional = true, default-features = false, features = [
+bevy_egui = { path = "../../deps/bevy_egui", default-features = false, features = [
   "default_fonts",
   "serde",
 ] }
@@ -131,58 +135,3 @@ bevy_mod_picking = { path = "../../deps/bevy_mod_picking/", default-features = f
   "highlight",
 ] }
 bevy_asepritesheet = { path = "../../deps/bevy_asepritesheet" }
-
-# broken dependencies
-[patch.crates-io]
-typid = { git = "https://github.com/hellzbellz123/typid" }
-# bevy addon local replacements ###
-# Patching local bevy crates does not usually make them work
-# Cargo will use both versions of bevy so the patches usually
-# just break compiling if dependencies use different
-# bevy versions
-bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap" }
-bevy_egui = { path = "deps/bevy_egui" }
-bevy_common_assets = { path = "deps/bevy_common_assets" }
-bevy_ecs_ldtk_macros = { path = "deps/bevy_ecs_ldtk/macros" }
-bevy_dylib = { path = "deps/bevy/crates/bevy_dylib" }
-
-# Replace bevy core crates with local copy for ALL crates that use them ###
-bevy = { workspace = true, path = "deps/bevy" }
-bevy_a11y = { path = "deps/bevy/crates/bevy_a11y" }
-bevy_app = { path = "deps/bevy/crates/bevy_app" }
-bevy_asset = { path = "deps/bevy/crates/bevy_asset" }
-bevy_core = { path = "deps/bevy/crates/bevy_core" }
-bevy_core_pipeline = { path = "deps/bevy/crates/bevy_core_pipeline" }
-bevy_derive = { path = "deps/bevy/crates/bevy_derive" }
-bevy_diagnostic = { path = "deps/bevy/crates/bevy_diagnostic" }
-bevy_ecs = { path = "deps/bevy/crates/bevy_ecs" }
-bevy_encase_derive = { path = "deps/bevy/crates/bevy_encase_derive" }
-bevy_reflect = { path = "deps/bevy/crates/bevy_reflect" }
-bevy_reflect_derive = { path = "deps/bevy/crates/bevy_reflect/bevy_reflect_derive" }
-bevy_gilrs = { path = "deps/bevy/crates/bevy_gilrs" }
-bevy_gizmos = { path = "deps/bevy/crates/bevy_gizmos" }
-bevy_hierarchy = { path = "deps/bevy/crates/bevy_hierarchy" }
-bevy_input = { path = "deps/bevy/crates/bevy_input" }
-bevy_internal = { path = "deps/bevy/crates/bevy_internal" }
-bevy_log = { path = "deps/bevy/crates/bevy_log" }
-bevy_macro_utils = { path = "deps/bevy/crates/bevy_macro_utils" }
-bevy_math = { path = "deps/bevy/crates/bevy_math" }
-bevy_mikktspace = { path = "deps/bevy/crates/bevy_mikktspace" }
-bevy_pbr = { path = "deps/bevy/crates/bevy_pbr" }
-bevy_ptr = { path = "deps/bevy/crates/bevy_ptr" }
-bevy_render = { path = "deps/bevy/crates/bevy_render" }
-bevy_scene = { path = "deps/bevy/crates/bevy_scene" }
-bevy_sprite = { path = "deps/bevy/crates/bevy_sprite" }
-bevy_tasks = { path = "deps/bevy/crates/bevy_tasks" }
-bevy_text = { path = "deps/bevy/crates/bevy_text" }
-bevy_time = { path = "deps/bevy/crates/bevy_time" }
-bevy_transform = { path = "deps/bevy/crates/bevy_transform" }
-bevy_ui = { path = "deps/bevy/crates/bevy_ui" }
-bevy_utils = { path = "deps/bevy/crates/bevy_utils" }
-bevy_window = { path = "deps/bevy/crates/bevy_window" }
-bevy_winit = { path = "deps/bevy/crates/bevy_winit" }
-bevy_animation = { path = "deps/bevy/crates/bevy_animation" }
-bevy_audio = { path = "deps/bevy/crates/bevy_audio" }
-bevy_gltf = { path = "deps/bevy/crates/bevy_gltf" }
-bevy_dynamic_plugin = { path = "deps/bevy/crates/bevy_dynamic_plugin" }
-

@@ -152,22 +152,24 @@
   },
   "memory-view.showMemoryPanel": true,
   "rust-analyzer.cargo.features": ["develop", "dynamic"],
-  // "rust-analyzer.server.path": "/usr/bin/rust-analyzer",
-  "rust-analyzer.rust.analyzerTargetDir": ".vscode/ra-cache",
-  "rust-analyzer.showUnlinkedFileNotification": false,
-  "rust-analyzer.debug.engine": "ms-vscode.cpptools",
-  "rust-analyzer.debug.engineSettings": {
-    "cppdbg": {
-      "miDebuggerPath": "${env:HOME}/.cargo/bin/rust-gdb",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": false
-        }
-      ]
-    }
-  },
+  "rust-analyzer.server.path": "/usr/bin/rust-analyzer",
+  "rust-analyzer.cargo.targetDir": true,
+  // "rust-analyzer.trace.server": "verbose",
+  // "rust-analyzer.trace.extension": true,
+  // "rust-analyzer.showUnlinkedFileNotification": false,
+  // "rust-analyzer.debug.engine": "ms-vscode.cpptools",
+  // "rust-analyzer.debug.engineSettings": {
+  //   "cppdbg": {
+  //     "miDebuggerPath": "${env:HOME}/.cargo/bin/rust-gdb",
+  //     "setupCommands": [
+  //       {
+  //         "description": "Enable pretty-printing for gdb",
+  //         "text": "-enable-pretty-printing",
+  //         "ignoreFailures": false
+  //       }
+  //     ]
+  //   }
+  // },
   "todo-tree.tree.showBadges": true,
   "todo-tree.tree.disableCompactFolders": false,
   "todo-tree.tree.showCountsInTree": true

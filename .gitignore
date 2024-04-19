@@ -11,3 +11,8 @@ Cargo.lock
 crates/*/config.toml
 crates/*/tiles.png
 crates/*/cyclic.dot
+config.toml
+debug.log
+dungeon.dot
+pathmap.dot
+pathmap.png
