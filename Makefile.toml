@@ -73,6 +73,14 @@ description = ""
 command = "cargo"
 args = ["run", "--features=develop,dynamic"]
 
+[tasks.run-release]
+dependencies = ["native-assets"]
+cwd = "crates/desktop/"
+workspace = false
+description = ""
+command = "cargo"
+args = ["run", "--features=develop", "--release"]
+
 [tasks.run-web]
 cwd = "crates/wasm/"
 workspace = false
