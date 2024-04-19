@@ -1,7 +1,6 @@
 .vscode/ra-cache
 target/
 
-crates/.unused_utils
 crates/aspenlib/src/utilities/.unused_utils
 crates/desktop/debug.log
 crates/desktop/config.toml
