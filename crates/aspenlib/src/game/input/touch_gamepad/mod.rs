@@ -1,3 +1,5 @@
+pub mod shunts;
+
 use bevy::prelude::*;
 use bevy_touch_stick::{
     TouchStick, TouchStickGamepadMapping, TouchStickPlugin, TouchStickType, TouchStickUiBundle,
@@ -23,12 +25,17 @@ pub struct TouchInputPlugin;
 impl Plugin for TouchInputPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(TouchStickPlugin::<TouchStickBinding>::default());
-        app.add_systems(OnEnter(AppState::PlayingGame), spawn_touch_controls);
+        // TODO: handle menus properly. despawn touch controls when exiting PlayingGame
+        app.add_systems(OnEnter(AppState::PlayingGame), spawn_touch_gamepad);
         app.add_systems(
             PreUpdate,
             (
-                interaction_button_system,
-                (touch_trigger_sprint, touch_trigger_shoot)
+                update_button_colors,
+                (
+                    shunts::touch_trigger_sprint,
+                    shunts::touch_trigger_shoot,
+                    shunts::touch_interaction_button,
+                )
                     .run_if(state_exists_and_equals(AppState::PlayingGame)),
             )
                 .in_set(AspenInputSystemSet::TouchInput)
@@ -62,7 +69,7 @@ pub enum TouchStickBinding {
 }
 
 /// spa
-fn spawn_touch_controls(
+fn spawn_touch_gamepad(
     mut cmds: Commands,
     touch_root_query: Query<Entity, With<InterfaceRoot>>,
     init_handles: Res<AspenInitHandles>,
@@ -108,12 +115,13 @@ fn spawn_touch_controls(
                     info!("Spawning Touch Axis Controls");
                     spawn_touchstick(
                         touch_controls_root_children,
-                        &touch_assets,
+                        &touch_assets.move_knob,
+                        &touch_assets.move_outline,
                         "MoveTouchStick".to_string(),
                         UiRect {
-                            right: Val::Percent(10.0),
+                            left: Val::Percent(10.0),
                             bottom: (Val::Percent(5.0)),
-                            left: Val::Auto,
+                            right: Val::Auto,
                             top: Val::Auto,
                         },
                         (Val::Px(100.0), Val::Px(100.0)),
@@ -123,12 +131,13 @@ fn spawn_touch_controls(
 
                     spawn_touchstick(
                         touch_controls_root_children,
-                        &touch_assets,
+                        &touch_assets.look_knob,
+                        &touch_assets.look_outline,
                         "LookTouchStick".to_string(),
                         UiRect {
-                            left: Val::Percent(10.0),
+                            right: Val::Percent(10.0),
                             bottom: (Val::Percent(5.0)),
-                            right: Val::Auto,
+                            left: Val::Auto,
                             top: Val::Auto,
                         },
                         (Val::Px(100.0), Val::Px(100.0)),
@@ -211,7 +220,8 @@ fn spawn_touchstick<
     S: Hash + Sync + Send + Clone + Default + Reflect + FromReflect + TypePath + 'static,
 >(
     touch_controls_builder: &mut ChildBuilder<'_, '_, '_>,
-    touch_assets: &Res<'_, AspenTouchHandles>,
+    knob: &Handle<Image>,
+    outline: &Handle<Image>,
     name: String,
     position: UiRect,
     size: (Val, Val),
@@ -252,7 +262,7 @@ fn spawn_touchstick<
                 Name::new("TouchStickKnob"),
                 TouchStickUiKnob,
                 ImageBundle {
-                    image: touch_assets.knob_no_arrows.clone().into(),
+                    image: knob.clone().into(),
                     style: Style {
                         // (Val::Px(100.0), Val::Px(100.0)),
                         width: size.0 / 2.0,
@@ -268,7 +278,7 @@ fn spawn_touchstick<
                 Name::new("TouchStickOutline"),
                 TouchStickUiOutline,
                 ImageBundle {
-                    image: touch_assets.outline_arrows.clone().into(),
+                    image: outline.clone().into(),
                     style: Style {
                         position_type: PositionType::Absolute,
                         width: Val::Px(150.),
@@ -292,7 +302,7 @@ const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 /// links UI interact button too `Gameplay::Interact` action
 #[allow(clippy::type_complexity)]
-fn interaction_button_system(
+fn update_button_colors(
     mut interaction_query: Query<
         (
             &Interaction,
@@ -300,15 +310,10 @@ fn interaction_button_system(
             &mut BorderColor,
             &Children,
         ),
-        (
-            Changed<Interaction>,
-            With<Button>,
-            With<InteractionButtonTag>,
-        ),
+        (Changed<Interaction>, With<Button>),
     >,
-    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
-    for (interaction, mut color, mut border_color, _children) in &mut interaction_query {
+    for (interaction, mut color, mut border_color, _) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 info!("interaction button pressed, send thing");
@@ -324,42 +329,5 @@ fn interaction_button_system(
                 border_color.0 = Color::BLACK;
             }
         }
-
-        if *interaction == Interaction::Pressed {
-            debug!("touch too press Interact");
-            actions.press(&action_maps::Gameplay::Interact);
-        }
-    }
-}
-
-/// triggers player sprint action if touch joystick is dragged past threshold
-fn touch_trigger_sprint(
-    sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
-    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
-) {
-    let stick = sticks
-        .iter()
-        .find(|f| f.id == TouchStickBinding::MoveTouchInput)
-        .expect("always exists at this point");
-
-    if stick.value.abs().max_element() >= 0.7 {
-        // debug!("touch too press Sprint");
-        actions.press(&action_maps::Gameplay::Sprint);
-    }
-}
-
-/// triggers player shoot action if touch joystick is dragged past threshold
-fn touch_trigger_shoot(
-    sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
-    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
-) {
-    let stick = sticks
-        .iter()
-        .find(|f| f.id == TouchStickBinding::LookTouchInput)
-        .expect("always exists at this point");
-
-    if stick.value.abs().max_element() >= 0.7 {
-        // debug!("touch too press Shoot");
-        actions.press(&action_maps::Gameplay::Attack);
     }
 }

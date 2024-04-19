@@ -44,17 +44,17 @@ pub struct AspenInitHandles {
 #[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
 pub struct AspenTouchHandles {
     /// knob with arrows
-    #[asset(key = "knob_arrows")]
-    pub knob_arrows: Handle<Image>,
+    #[asset(key = "move_knob")]
+    pub move_knob: Handle<Image>,
     /// knob with no arrows
-    #[asset(key = "knob_no_arrows")]
-    pub knob_no_arrows: Handle<Image>,
+    #[asset(key = "look_knob")]
+    pub look_knob: Handle<Image>,
     /// knob container with arrows
-    #[asset(key = "outline_arrows")]
-    pub outline_arrows: Handle<Image>,
+    #[asset(key = "move_outline")]
+    pub move_outline: Handle<Image>,
     /// knob container without arrows
-    #[asset(key = "outline_no_arrows")]
-    pub outline_no_arrows: Handle<Image>,
+    #[asset(key = "look_outline")]
+    pub look_outline: Handle<Image>,
 }
 
 /// audio resource available

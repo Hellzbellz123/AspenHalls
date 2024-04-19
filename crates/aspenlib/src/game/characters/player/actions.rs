@@ -9,7 +9,7 @@ use crate::{
         characters::{components::WeaponSlot, player::PlayerSelectedHero, EventSpawnCharacter},
         combat::EventRequestAttack,
         components::ActorColliderType,
-        input::action_maps,
+        input::{action_maps, AspenCursorPosition},
         items::weapons::components::{CurrentlyDrawnWeapon, WeaponCarrier, WeaponHolder},
     },
     loading::{config::GeneralSettings, registry::RegistryIdentifier},
@@ -64,6 +64,7 @@ pub fn player_attack(
     let weapon_entity = weapon_query.iter().next();
     let player = player_query.single();
 
+    // TODO: iter player children for weapon or get weapon from player data
     if actions.pressed(&action_maps::Gameplay::Attack) {
         shoot_event_writer.send(EventRequestAttack {
             requester: player,
@@ -81,7 +82,7 @@ pub fn aim_weapon(
         (&WeaponHolder, &GlobalTransform, &mut Transform),
         (With<Parent>, With<CurrentlyDrawnWeapon>),
     >,
-    actions: Res<ActionState<action_maps::Gameplay>>,
+    cursor_positon: Res<AspenCursorPosition>,
 ) {
     let Ok(player) = player_query.get_single() else {
         return;
@@ -89,15 +90,10 @@ pub fn aim_weapon(
 
     for (weapon_holder, weapon_global_transform, mut weapon_transform) in &mut weapon_query {
         if weapon_holder.is_some_and(|f| f.1 == player) {
-            let global_mouse_pos = actions
-                .action_data(&action_maps::Gameplay::CursorWorld)
-                .expect("always exists")
-                .axis_pair
-                .unwrap()
-                .xy();
-            let global_weapon_pos: Vec2 = weapon_global_transform.translation().truncate();
-            let look_direction: Vec2 = (global_weapon_pos - global_mouse_pos).normalize_or_zero();
-            let aim_angle = (-look_direction.y).atan2(-look_direction.x);
+            let look_direction = (cursor_positon.world
+                - weapon_global_transform.translation().truncate())
+            .normalize_or_zero();
+            let aim_angle = (look_direction.y).atan2(look_direction.x);
 
             weapon_transform.rotation = Quat::from_euler(EulerRot::ZYX, aim_angle, 0.0, 0.0);
         }

@@ -36,16 +36,16 @@
     "button_pressed": File (
         path: "init/textures_menu/buttonSquare_blue_pressed.png",
     ),
-    "knob_arrows": File (
-        path: "init/textures_touch/knob_arrows.png"
+    "move_knob": File (
+        path: "init/textures_touch/move_knob.png"
     ),
-    "knob_no_arrows": File (
-        path: "init/textures_touch/knob_noarrows.png"
+    "look_knob": File (
+        path: "init/textures_touch/look_knob.png"
     ),
-    "outline_arrows": File (
-        path: "init/textures_touch/outline_arrows.png"
+    "move_outline": File (
+        path: "init/textures_touch/move_outline.png"
     ),
-    "outline_no_arrows": File (
-        path: "init/textures_touch/outline_noarrows.png"
+    "look_outline": File (
+        path: "init/textures_touch/look_outline.png"
     ),
 })

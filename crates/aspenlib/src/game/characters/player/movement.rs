@@ -33,21 +33,7 @@ pub fn update_player_velocity(
         }
     };
 
-    let move_data = actions
-        .action_data(&action_maps::Gameplay::Move)
-        .expect("msg");
-
-    let Some(move_axis) = move_data.axis_pair else {
-        // no move button data
-        if velocity.linvel.length() <= MIN_VELOCITY {
-            velocity.linvel = Vec2::ZERO;
-        } else {
-            velocity.linvel = velocity.linvel.lerp(Vec2::ZERO, 0.2);
-        };
-        return;
-    };
-
-    let delta = move_axis.xy();
+    let Some(delta) = actions.clamped_axis_pair(&action_maps::Gameplay::Move) else {return;};
 
     let speed = if actions.pressed(&action_maps::Gameplay::Sprint)
         && move_state.move_perms == AllowedMovement::Run
@@ -57,7 +43,7 @@ pub fn update_player_velocity(
         player_stats.attrs().move_speed * WALK_MODIFIER
     };
 
-    let new_velocity = Velocity::linear(delta * speed);
+    let new_velocity = Velocity::linear(delta.xy().clamp_length_max(1.0) * speed);
 
     *velocity = new_velocity;
 }

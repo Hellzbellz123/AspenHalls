@@ -37,16 +37,16 @@ cast_possible_wrap = { level = "allow" }
 
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 [profile.dev.package."*"]
-codegen-units = 1
+codegen-units = 32
 incremental = false
-opt-level = 2
+opt-level = 1
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
 codegen-units = 256
 opt-level = 1
 incremental = true
-lto = "thin"
+lto = "off"
 
 [profile.release]
 debug = true

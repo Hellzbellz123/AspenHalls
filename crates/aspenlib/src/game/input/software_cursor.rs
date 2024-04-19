@@ -2,7 +2,9 @@ use bevy::prelude::*;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    game::{characters::player::PlayerSelectedHero, input::action_maps},
+    game::{
+        characters::player::PlayerSelectedHero, input::AspenCursorPosition
+    },
     loading::assets::AspenInitHandles,
     AppState,
 };
@@ -23,7 +25,7 @@ impl Plugin for SoftwareCursorPlugin {
         app.add_systems(
             PreUpdate,
             update_software_cursor_position
-                .run_if(any_with_component::<SoftWareCursor>())
+                .run_if(resource_exists::<AspenCursorPosition>().and_then(any_with_component::<SoftWareCursor>()))
                 .in_set(AspenInputSystemSet::SoftwareCursor),
         );
     }
@@ -76,7 +78,7 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<AspenInitHandles>) {
 
 /// updates software cursor position based on player `LookLocal` (`LookLocal` is just `winit::Window.cursor_position()`)
 fn update_software_cursor_position(
-    input: Res<ActionState<action_maps::Gameplay>>,
+    os_cursor_pos: Res<AspenCursorPosition>,
     player: Query<&GlobalTransform, With<PlayerSelectedHero>>,
     mut software_cursor: Query<(&mut Style, &SoftWareCursor, &mut BackgroundColor), With<Node>>,
     window_query: Query<&Window>,
@@ -98,29 +100,12 @@ fn update_software_cursor_position(
         return;
     };
 
-    let (look_local, look_world) = (
-        input
-            .action_data(&action_maps::Gameplay::CursorScreen)
-            .expect("always exists?")
-            .axis_pair,
-        input
-            .action_data(&action_maps::Gameplay::CursorWorld)
-            .expect("always exists")
-            .axis_pair,
-    );
+    let (look_local, look_world) = (os_cursor_pos.screen, os_cursor_pos.world);
     let color = cursor_color.0;
-
-    if look_local.is_none() || look_world.is_none() {
-        *cursor_color = BackgroundColor(color.with_a(0.0));
-        return;
-    }
-
-    let axis_screen = look_local.unwrap().xy();
-    let axis_world = look_world.unwrap().xy();
 
     if ptrans
         .translation()
-        .distance(axis_world.extend(0.0))
+        .distance(look_world.extend(0.0))
         .le(&cursor_data.hide_distance)
     {
         *cursor_color = BackgroundColor(color.with_a(cursor_data.hide_alpha));
@@ -128,8 +113,8 @@ fn update_software_cursor_position(
         *cursor_color = BackgroundColor(color.with_a(cursor_data.show_alpha));
     };
 
-    cursor_style.left = Val::Px(axis_screen.x - cursor_data.offset.x);
-    cursor_style.top = Val::Px(axis_screen.y - cursor_data.offset.y);
+    cursor_style.left = Val::Px(look_local.x - cursor_data.offset.x);
+    cursor_style.top = Val::Px(look_local.y - cursor_data.offset.y);
 }
 
 // TODO: software cursor image should change based on button interaction

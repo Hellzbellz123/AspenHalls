@@ -1,19 +1,17 @@
 use bevy::prelude::*;
-use leafwing_input_manager::{prelude::*, user_input::InputKind};
+use leafwing_input_manager::{axislike::VirtualAxis, prelude::*, user_input::InputKind};
 
 impl Gameplay {
     fn variants() -> &'static [Gameplay] {
         use Gameplay::*;
         &[
             Attack,
-            CursorScreen,
-            CursorWorld,
             CycleWeapon,
             DebugF1,
             DebugF2,
             Heal,
             Interact,
-            JoystickDelta,
+            Look,
             Melee,
             Move,
             Pause,
@@ -32,17 +30,15 @@ impl Gameplay {
         // Loop through each action in `PlayerAction` and get the default `UserInput`,
         // then insert each default input into input_map
         for action in Gameplay::variants() {
-            input_map.insert(*action, Gameplay::default_gamepad_mapping(action));
             input_map.insert(*action, Gameplay::default_keyboard_mouse_mapping(action));
+            input_map.insert(*action, Gameplay::default_gamepad_mapping(action));
         }
         input_map
     }
 
     fn default_keyboard_mouse_mapping(&self) -> UserInput {
         match self {
-            Gameplay::CursorScreen => UserInput::Chord(Vec::new()),
-            Gameplay::CursorWorld => UserInput::Chord(Vec::new()),
-            Gameplay::JoystickDelta => UserInput::Chord(Vec::new()),
+            Gameplay::Look => UserInput::Chord(Vec::new()),
             Gameplay::Move => UserInput::VirtualDPad(VirtualDPad::wasd()),
             Gameplay::Sprint => UserInput::Single(InputKind::Keyboard(KeyCode::ShiftLeft)),
             Gameplay::Attack => UserInput::Single(InputKind::Keyboard(KeyCode::Space)),
@@ -53,8 +49,8 @@ impl Gameplay {
             Gameplay::UseAction3 => UserInput::Single(InputKind::Keyboard(KeyCode::Key3)),
             Gameplay::UseAction4 => UserInput::Single(InputKind::Keyboard(KeyCode::Key4)),
             Gameplay::UseAction5 => UserInput::Single(InputKind::Keyboard(KeyCode::Key5)),
-            Gameplay::ZoomIn => UserInput::Single(InputKind::Keyboard(KeyCode::Minus)),
-            Gameplay::ZoomOut => UserInput::Single(InputKind::Keyboard(KeyCode::Plus)),
+            Gameplay::ZoomIn => UserInput::Single(InputKind::Keyboard(KeyCode::NumpadAdd)),
+            Gameplay::ZoomOut => UserInput::Single(InputKind::Keyboard(KeyCode::NumpadSubtract)),
             Gameplay::Pause => UserInput::Single(InputKind::Keyboard(KeyCode::Escape)),
             Gameplay::DebugF1 => UserInput::Single(InputKind::Keyboard(KeyCode::F1)),
             Gameplay::DebugF2 => UserInput::Single(InputKind::Keyboard(KeyCode::F2)),
@@ -64,10 +60,8 @@ impl Gameplay {
     }
     fn default_gamepad_mapping(&self) -> UserInput {
         match self {
-            Gameplay::CursorScreen => UserInput::Chord(Vec::new()),
-            Gameplay::CursorWorld => UserInput::Chord(Vec::new()),
-            Gameplay::JoystickDelta => UserInput::Chord(Vec::new()),
             Gameplay::Move => UserInput::Single(InputKind::DualAxis(DualAxis::left_stick())),
+            Gameplay::Look => UserInput::Single(InputKind::DualAxis(DualAxis::right_stick())),
             Gameplay::Sprint => {
                 UserInput::Single(InputKind::GamepadButton(GamepadButtonType::West))
             }
@@ -109,15 +103,15 @@ impl Gameplay {
 /// non menu actions
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum Gameplay {
-    /// look target in window coordinates.
-    /// updated with `LookDelta``
-    CursorScreen,
-    /// look target in world space.
-    /// updated with `LookDelta`
-    CursorWorld,
+    // /// look target in window coordinates.
+    // /// updated with `LookDelta``
+    // CursorScreen,
+    // /// look target in world space.
+    // /// updated with `LookDelta`
+    // CursorWorld,
     /// look target delta
     /// gathered from gamepad sticks and translated into a cursor position
-    JoystickDelta,
+    Look,
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
     /// W/A/S/D for keyboard, LeftJoystick For mouse
     Move,
