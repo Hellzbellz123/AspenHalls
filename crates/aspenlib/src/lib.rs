@@ -7,6 +7,7 @@
 #![feature(fs_try_exists)]
 #![feature(let_chains)]
 #![feature(unwrap_infallible)]
+#![feature(float_minimum_maximum)]
 #![doc = r"
 AspenHalls, My video game.
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
@@ -30,7 +31,7 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-use crate::loading::assets::AspenInitHandles;
+use crate::{game::DungeonFloor, loading::assets::AspenInitHandles};
 use bevy::prelude::*;
 
 pub use loading::config::*;
@@ -46,6 +47,18 @@ pub enum ApplicationStage {
     GameRunning, // --> add gamestate here
     /// Failed too load required assets
     ClientFailed, // --> FailedLoadInit / FailedLoadMenu
+}
+
+/// what part of the game we are at
+#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
+pub enum GameStage {
+    /// no actor related logic, just the main menu
+    #[default]
+    NotStarted,
+    /// select character, buy weapons
+    Prepare,
+    /// crawling has 1 value. the dungeon Level
+    Crawling(DungeonFloor),
 }
 
 /// main game state loop
@@ -71,7 +84,9 @@ pub enum AppState {
     FailedLoadMenu,
 }
 
-// TODO: Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
+// TODO:
+// NOTE FIRST PART DONE
+//Convert items and weapon definitions too ron assets in packs/$PACK/definitions and gamedata/custom (for custom user content) from the game folder.
 // add a system that takes these definitions and then adds them too the game, items that should ONLY be spawned OR placed in game
 // world WILL NOT have a [LOOT] component/tag listed in the definitions, Items that should be obtainable in a play through should
 // have the [Loot] component/tag and should be added too a "leveled list" (skyrim) like system
@@ -86,7 +101,6 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
     // add third party plugins
     vanillacoffee
         .add_plugins((
-            // MapNavPlugin::<Transform>::default(),
             bevy_mod_picking::DefaultPickingPlugins,
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,

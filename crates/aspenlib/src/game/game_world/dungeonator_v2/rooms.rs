@@ -1,7 +1,7 @@
 use bevy::{
     asset::Assets,
     core::Name,
-    ecs::{entity::Entity, query::With},
+    ecs::entity::Entity,
     log::{info, warn},
     math::{Rect, Vec2},
     prelude::{BuildChildren, Commands, Handle, NextState, Query, Res, SpatialBundle, Transform},
@@ -11,11 +11,11 @@ use bevy_ecs_ldtk::{assets::LdtkExternalLevel, prelude::LdtkProject};
 use crate::{
     game::game_world::dungeonator_v2::{
         components::{
-            try_get_roomlevel, try_get_roomshape, try_get_roomtype, DungeonContainerTag,
-            DungeonRoomBundle, DungeonRoomDatabase, DungeonRoomTag, DungeonSettings, PlacedRoom,
-            RoomDescriptor, RoomLevel, RoomPreset, RoomShape, RoomType,
+            try_get_roomlevel, try_get_roomshape, try_get_roomtype,
+            DungeonRoomBundle, DungeonRoomDatabase, RoomBlueprint,
+            RoomDescriptor, RoomLevel, RoomPreset, RoomShape, RoomType, Dungeon,
         },
-        utils::{choose_center_presets, get_leveled_preset, random_room_positon},
+        utils::{choose_filler_presets, get_leveled_preset, random_room_positon},
         GeneratorState,
     },
     loading::assets::AspenMapHandles,
@@ -95,12 +95,12 @@ pub fn generate_room_database(
 pub fn select_presets(
     mut cmds: Commands,
     room_database: Res<DungeonRoomDatabase>,
-    mut dungeon_root: Query<&mut DungeonSettings, With<DungeonContainerTag>>,
+    mut dungeon_root: Query<&mut Dungeon>,
 ) {
-    let mut settings = dungeon_root.single_mut();
+    let mut dungeon = dungeon_root.single_mut();
 
     let progress_level = RoomLevel::Level1;
-    let mut presets = choose_center_presets(&settings, &room_database);
+    let mut presets = choose_filler_presets(&dungeon.settings, &room_database);
     let mut room_positions: Vec<Rect> = Vec::new();
 
     // add start and end room
@@ -113,18 +113,18 @@ pub fn select_presets(
     room_positions.push(start_rect);
 
     // create PlacedRoom's from room presets
-    let mut placed_rooms: Vec<PlacedRoom> = Vec::new();
+    let mut placed_rooms: Vec<RoomBlueprint> = Vec::new();
     for (i, f) in presets.iter().enumerate() {
-        let pos = random_room_positon(&room_positions, f.size, &settings);
+        let pos = random_room_positon(&room_positions, f.size, &dungeon.settings);
         room_positions.push(pos);
-        placed_rooms.push(PlacedRoom::from_preset(f, pos.min, i as u32 + 1));
+        placed_rooms.push(RoomBlueprint::from_preset(f, pos.min, i as u32 + 1));
     }
-    placed_rooms.push(PlacedRoom::from_preset(&start, start_rect.min, 0));
+    placed_rooms.push(RoomBlueprint::from_preset(&start, start_rect.min, 0));
 
-    warn!("rooms passed too room-placer: {:?}", placed_rooms);
-    settings.positioned_rooms = placed_rooms;
+    // warn!("rooms passed too room-placer: {:?}", placed_rooms);
+    dungeon.rooms = placed_rooms;
 
-    info!("finished spawning dungeons");
+    info!("finished picking and positioning room presets");
     cmds.insert_resource(NextState(Some(GeneratorState::FinalizeRooms)));
 }
 
@@ -132,31 +132,29 @@ pub fn select_presets(
 pub fn spawn_presets(
     mut cmds: Commands,
     dungeon_root: Query<
-        (Entity, &DungeonSettings, &Handle<LdtkProject>),
-        With<DungeonContainerTag>,
+        (Entity, &Dungeon, &Handle<LdtkProject>),
     >,
 ) {
     let (dungeon_root, dungeon_settings, _proj_handle) = dungeon_root.single();
-    if dungeon_settings.positioned_rooms.is_empty() {
+    if dungeon_settings.rooms.is_empty() {
         warn!("no dungeon presets were prepared");
         return;
     }
 
     cmds.entity(dungeon_root).with_children(|rooms| {
-        for room in &dungeon_settings.positioned_rooms {
+        for room in &dungeon_settings.rooms {
             let name = format!("DungeonRoom-{}", room.name);
             rooms.spawn((
                 DungeonRoomBundle {
-                    tag: DungeonRoomTag,
+                    room: room.clone(),
                     name: Name::new(name),
-                    id: room.asset_id.clone().into(),
+                    id: room.asset_id.clone(),
                     spatial: SpatialBundle::from_transform(Transform::from_xyz(
                         room.position.x as f32,
                         room.position.y as f32,
                         0.0,
                     )),
                 },
-                room.clone(),
             ));
         }
     });

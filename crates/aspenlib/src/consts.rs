@@ -30,10 +30,10 @@ pub const ACTOR_COLLIDER_DIMENSIONS: (bevy::prelude::Vec2, bevy::prelude::Vec2, 
 #[must_use]
 pub fn actor_collider(size: Vec2) -> Collider {
     Collider::capsule(
-        Vec2 { x: 0.0, y: 6.0 },
+        Vec2 { x: 0.0, y: (size.x / 2.0) - 2.0 },
         Vec2 {
             x: 0.0,
-            y: size.y - 10.0,
+            y: size.y / 1.5,
         },
         size.x / 2.0,
     )

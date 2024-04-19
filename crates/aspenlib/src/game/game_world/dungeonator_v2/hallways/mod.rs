@@ -1,40 +1,57 @@
+use std::fs;
+
+use bevy::{prelude::*, utils::HashSet};
+
+use bevy_prototype_lyon::{
+    draw::Stroke,
+    prelude::{Fill, PathBuilder, ShapeBundle},
+};
+use petgraph::{
+    algo::min_spanning_tree,
+    data::FromElements,
+    prelude::{Graph, NodeIndex, StableUnGraph},
+    stable_graph::StableGraph,
+    Undirected,
+};
+use rand::prelude::IteratorRandom;
+
+use crate::game::{
+    game_world::{
+        components::RoomExit,
+        dungeonator_v2::{
+            components::{Dungeon, RoomBlueprint, RoomID},
+            GeneratorState,
+        },
+    },
+    interface::random_color,
+};
+
+/// hallway creation functions
 pub mod hallway_builder;
 
-use bevy::prelude::*;
-use bevy_prototype_lyon::{
-    draw::{Fill, Stroke},
-    entity::ShapeBundle,
-    path::PathBuilder,
-};
-use rand::prelude::{IteratorRandom, ThreadRng};
-use seldom_map_nav::prelude::Navmeshes;
-
-use crate::game::game_world::{
-    components::RoomExit,
-    dungeonator_v2::{
-        components::{DungeonContainerTag, DungeonRoomTag, DungeonSettings, PlacedRoom, RoomID},
-        path_map::PathMap,
-        GeneratorState,
-    },
-};
-
+/// modifys placed room blueprints with correct positions
 pub fn update_room_instances(
     children: Query<&Children>,
     mut cmds: Commands,
     mut exit_query: Query<(&mut RoomExit, &GlobalTransform)>,
-    mut room_query: Query<(Entity, &mut PlacedRoom), With<DungeonRoomTag>>,
+    mut room_query: Query<(Entity, &mut RoomBlueprint)>,
+    // TODO: have this run for each room when the room is `Transformed`
+    // mut level_events: EventReader<LevelEvent>,
 ) {
     for (room, mut room_instance) in &mut room_query {
         info!("updating room with new pos and room exit list");
 
         // fill room exits vec
-        let mut exits: Vec<Entity> = Vec::new();
+        let mut exits: Vec<RoomExit> = Vec::new();
+
         for child in children.iter_descendants(room) {
-            if let Ok((mut room_exit, position)) = exit_query.get_mut(child) {
+            if let Ok((mut room_exit, transform)) = exit_query.get_mut(child) {
                 room_exit.parent = room_instance.id;
-                room_exit.position = position.translation().truncate().as_ivec2();
-                exits.push(child);
+                let position = transform.translation().truncate();
+                room_exit.position = position.as_ivec2();
+                // let position
                 info!("position of exit: {}", room_exit.position);
+                exits.push(room_exit.clone());
             }
         }
 
@@ -51,264 +68,442 @@ pub fn update_room_instances(
 
     // create mst next
     info!("finished updating room positions");
-    cmds.insert_resource(NextState(Some(GeneratorState::CreateHallwayTree)));
-}
-
-// TODO: rethink this code too only spawn 1 hallway per room
-pub fn plan_hallways_one(
-    mut cmds: Commands,
-    mut dungeon_root: Query<&mut DungeonSettings, With<DungeonContainerTag>>,
-    room_query: Query<(&GlobalTransform, &mut PlacedRoom), With<DungeonRoomTag>>,
-    mut exit_query: Query<(&GlobalTransform, &mut RoomExit)>,
-) {
-    let mut settings = dungeon_root.single_mut();
-    let mut hallways: Vec<PlacedHallWay> = Vec::new();
-
-    let unused_exits = exit_query
-        .iter()
-        .map(|f| f.1)
-        .map(|f| f.clone())
-        .collect::<Vec<RoomExit>>();
-
-    let mut exit_pairs = Vec::new();
-    let mut distances = Vec::new();
-
-    // Calculate distances between all exits
-    for i in 0..unused_exits.len() {
-        for j in 0..unused_exits.len() {
-            let exit1 = &unused_exits[i];
-            let exit2 = &unused_exits[j];
-            let room1 = room_query
-                .iter()
-                .find(|f| f.1.id == exit1.parent)
-                .expect("msg");
-            let room2 = room_query
-                .iter()
-                .find(|f| f.1.id == exit2.parent)
-                .expect("msg");
-
-            if room2.1.exits.len().le(&2) && room1.1.exits.len().le(&2) {
-                continue;
-            }
-
-            if exit1.parent.eq(&exit2.parent) {
-                info!("functionally same exits, skipping");
-                continue;
-            }
-
-            let distance: i32 = exit1.position.distance_squared(exit2.position);
-            distances.push((i, j, distance));
-        }
-    }
-
-    // Sort distances
-    distances.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
-
-    // Pair by distance
-    let mut paired_set = Vec::new();
-    for pair in distances {
-        let (idx1, idx2, _) = pair;
-        let exit1 = unused_exits[idx1].clone();
-        let exit2 = unused_exits[idx2].clone();
-
-        if exit_pairs.iter().any(|(a, b): &(RoomExit, RoomExit)| {
-            a.parent == exit1.parent || b.parent == exit1.parent //|| a.parent == exit2.parent || b.parent == exit2.parent
-        }) {
-            continue;
-        }
-
-        if !paired_set.contains(&idx1) && !paired_set.contains(&idx2) {
-            exit_pairs.push((unused_exits[idx1].clone(), unused_exits[idx2].clone()));
-            paired_set.push(idx1);
-            paired_set.push(idx2);
-        }
-    }
-
-    for (wanted_start, wanted_end) in exit_pairs {
-        hallways.push(PlacedHallWay {
-            start_pos: wanted_start.position,
-            end_pos: wanted_end.position,
-            distance: wanted_start.position.distance_squared(wanted_end.position) as f32,
-            connected_rooms: (wanted_start.parent, wanted_end.parent),
-        });
-        if let Some((_, mut start)) = exit_query
-            .iter_mut()
-            .find(|(_, exit)| **exit == wanted_start)
-        {
-            start.hallway_connected = true
-        }
-        if let Some((_, mut end)) = exit_query.iter_mut().find(|(_, exit)| **exit == wanted_end) {
-            end.hallway_connected = true
-        }
-    }
-
-    settings.positioned_hallways = hallways;
-    cmds.insert_resource(NextState(Some(GeneratorState::PlaceHallwayRoots)));
+    cmds.insert_resource(NextState(Some(GeneratorState::PlanHallways)));
 }
 
 // TODO: rethink this code too only spawn 1 hallway per room
 // maybe try this apporach again now that the room ids are
-pub fn plan_hallways_two(
+/// create hallway blueprints from spawned rooms
+pub fn plan_hallways(
     mut cmds: Commands,
-    mut dungeon_root: Query<&mut DungeonSettings, With<DungeonContainerTag>>,
-    room_query: Query<(&GlobalTransform, &mut PlacedRoom), With<DungeonRoomTag>>,
-    mut exit_query: Query<(&GlobalTransform, &mut RoomExit)>,
+    mut dungeon_root: Query<&mut Dungeon>,
+    room_query: Query<(&GlobalTransform, &mut RoomBlueprint)>,
+    exit_query: Query<(&GlobalTransform, &mut RoomExit)>,
 ) {
+    // undirected graph because hallways are both ways
+    // use petgraph, nodes in graph have 2 states, room/exit, hallway is edge.
+    // add all rooms with exits and edges from room -> exit.
+    // impl custom function that takes graph and adds all possible exit/exit edges.
+    // compute MST from outputted graph
+    // for edge in MST add hallway too hallways vec
+
+    let room_graph = build_room_graph(&room_query, exit_query);
+    let mut room_graph: Graph<DungeonGraphNode, DungeonGraphEdge, Undirected> =
+        Graph::from_elements(min_spanning_tree(&room_graph));
+
+    output_graph_dot(&room_graph);
+    fix_graph(&mut room_graph);
+
     let mut settings = dungeon_root.single_mut();
-    let mut hallways: Vec<PlacedHallWay> = Vec::new();
-    let mut rng = ThreadRng::default();
+    let hallways = create_hallway_plans(room_graph);
 
-    for (_, working_room) in &room_query {
-        info!("working on room {}", working_room.name);
-        let Some(wanted_start) = working_room
-            .exits
-            .iter()
-            .filter(|f| {
-                !exit_query
-                    .get(**f)
-                    .expect("room exit missing component")
-                    .1
-                    .hallway_connected
-            })
-            .map(|f| (*f, exit_query.get(*f).expect("exit missing components")))
-            .choose(&mut rng)
-        else {
-            warn!("all room exits were full");
-            continue;
-        };
+    info!(
+        "room amount: {}, hallway amount: {}",
+        &room_query.iter().len(),
+        hallways.len()
+    );
 
-        let Some(end_room) = &room_query
-            .iter()
-            .filter(|f| {
-                // end room should not be start room
-                f.1.id != working_room.id &&
-                // end room should not be room already having a hallway
-                hallways.iter().all(|h| f.1.id != h.connected_rooms.0 || f.1.id != h.connected_rooms.1) &&
-                // end room should have more than 1 exit
-                f.1.exits.len() > 1 &&
-                // end exit should not one that already has a hallway attached
-                f.1.exits
-                        .iter()
-                        .any(|f| {exit_query.get(*f).expect("msg").1.hallway_connected == false})
-            })
-            .min_by(|a, b| {
-                let distance1 = a.1
-                    .position
-                    .distance_squared(wanted_start.1 .0.translation().truncate().as_ivec2());
-                let distance2 = b.1
-                    .position
-                    .distance_squared(wanted_start.1 .0.translation().truncate().as_ivec2());
-                distance1.cmp(&distance2)
-            }) else {continue};
+    settings.hallways = hallways;
+    cmds.insert_resource(NextState(Some(GeneratorState::PlaceHallwayRoots)));
+}
 
-        let Some(wanted_end) = end_room
-            .1
-            .exits
-            .iter()
-            .filter(|f| {
-                exit_query
-                    .get(**f)
-                    .expect("room exit missing component")
-                    .1
-                    .hallway_connected
-                    == false
-            })
-            .map(|f| (*f, exit_query.get(*f).expect("msg")))
-            .min_by(|a, b| {
-                let distance1 =
-                    a.1 .0
-                        .translation()
-                        .distance_squared(wanted_start.1 .0.translation());
-                let distance2 =
-                    b.1 .0
-                        .translation()
-                        .distance_squared(wanted_start.1 .0.translation());
-                distance1.total_cmp(&distance2)
-            })
-        else {
-            continue;
-        };
+/// outputs room graph into graphviz file
+fn output_graph_dot(graph: &Graph<DungeonGraphNode, DungeonGraphEdge, Undirected>) {
+    let graph = petgraph::dot::Dot::with_config(graph, &[petgraph::dot::Config::EdgeNoLabel]);
 
-        let lenght = wanted_start
-            .1
-             .0
-            .translation()
-            .distance_squared(wanted_end.1 .0.translation()) as f32;
+    if let Err(e) = fs::write("dungeon.dot", format!("{graph:?}")) {
+        warn!("error saving dot file: {}", e);
+    }
+}
 
-        hallways.push(PlacedHallWay {
-            start_pos: wanted_start.1 .0.translation().truncate().as_ivec2(),
-            end_pos: wanted_end.1 .0.translation().truncate().as_ivec2(),
-            distance: lenght,
-            connected_rooms: (wanted_start.1 .1.parent, wanted_end.1 .1.parent),
-        });
+/// finds unconnected groups of rooms in room graph and connects them with a hallway edge
+fn fix_graph(room_graph: &mut Graph<DungeonGraphNode, DungeonGraphEdge, Undirected>) {
+    loop {
+        let mut connected_components: Vec<Vec<NodeIndex>> =
+            petgraph::algo::kosaraju_scc(&*room_graph);
 
-        if let Ok(changed_exits) = exit_query.get_many_mut([wanted_start.0, wanted_end.0]) {
-            for mut exit in changed_exits {
-                exit.1.hallway_connected = true
+        if connected_components.len() > 1 {
+            warn!("graph is bad, fixing graph");
+            warn!("connected nodes: {:?}", connected_components);
+            connected_components.sort_by_key(Vec::len);
+
+            let Some((smallest_group, other_groups)) = connected_components.split_first() else {
+                return;
+            };
+
+            // TODO: collect node index into 2 lists of (exit, position),
+            // get closest pair of exits in lists
+
+            let Some(exit1_id) = other_groups
+                .last()
+                .expect("should not be empty")
+                .iter()
+                .find(|f| {
+                    room_graph.node_weight(**f).expect("msg").is_exit()
+                        && room_graph.edges(**f).count() == 1
+                })
+            else {
+                continue;
+            };
+
+            let DungeonGraphNode::Exit {
+                exit: exit1_data,
+                brothers: _exit1_brothers,
+            } = room_graph
+                .node_weight(*exit1_id)
+                .expect("filtering based on if exit")
+            else {
+                return;
+            };
+
+            let Some(exit2_id) = smallest_group
+                .iter()
+                .filter(|f| {
+                    room_graph
+                        .node_weight(**f)
+                        .expect("node should exist")
+                        .is_exit()
+                        && room_graph.edges(**f).count() == 1
+                })
+                .min_by(|a, b| {
+                    let a_pos = room_graph
+                        .node_weight(**a)
+                        .expect("node should exist")
+                        .get_position();
+                    let b_pos = room_graph
+                        .node_weight(**b)
+                        .expect("node should exist")
+                        .get_position();
+                    let a_distance = a_pos.distance_squared(exit1_data.position);
+                    let b_distance = b_pos.distance_squared(exit1_data.position);
+                    a_distance.cmp(&b_distance)
+                })
+            else {
+                continue;
+            };
+
+            let DungeonGraphNode::Exit {
+                exit: exit2_data,
+                brothers: _exit2_brothers,
+            } = room_graph
+                .node_weight(*exit2_id)
+                .expect("filtering based on if exit")
+            else {
+                return;
+            };
+
+            let distance = exit1_data.position.distance_squared(exit2_data.position) as f32;
+            room_graph.add_edge(
+                *exit1_id,
+                *exit2_id,
+                DungeonGraphEdge::Hallway {
+                    start: (exit1_data.clone()),
+                    end: (exit2_data.clone()),
+                    length: distance,
+                },
+            );
+        } else {
+            break;
+        }
+    }
+}
+
+/// turns room graph edges into hallway blueprints
+fn create_hallway_plans(
+    room_graph: Graph<DungeonGraphNode, DungeonGraphEdge, Undirected>,
+) -> Vec<HallWayBlueprint> {
+    let mut hallways: Vec<HallWayBlueprint> = Vec::new();
+    for edge_idx in room_graph.edge_indices() {
+        let edge_data = room_graph
+            .edge_weight(edge_idx)
+            .expect("just grabbed from room graph");
+
+        match edge_data {
+            DungeonGraphEdge::Hallway { length, start, end } => hallways.push(HallWayBlueprint {
+                start_pos: start.position,
+                end_pos: end.position,
+                distance: *length,
+                connected_rooms: (start.parent, end.parent),
+                built: false,
+            }),
+            DungeonGraphEdge::ExitLink { .. } => {
+                continue;
             }
         }
     }
 
-    settings.positioned_hallways = hallways;
-    cmds.insert_resource(NextState(Some(GeneratorState::PlaceHallwayRoots)));
+    assert!(
+        !hallways.is_empty(),
+        "hallways where not properly filled from room graph"
+    );
+    hallways
 }
 
+/// turns room and exit query into a `stable_graph`
+fn build_room_graph(
+    room_query: &Query<(&GlobalTransform, &mut RoomBlueprint)>,
+    exit_query: Query<(&GlobalTransform, &mut RoomExit)>,
+) -> StableGraph<DungeonGraphNode, DungeonGraphEdge, Undirected> {
+    let room_amt = room_query.iter().len();
+    let mut room_graph: StableUnGraph<DungeonGraphNode, DungeonGraphEdge> =
+        petgraph::stable_graph::StableUnGraph::with_capacity(room_amt * 4, room_amt * room_amt);
+
+    if exit_query.is_empty() {
+        warn!("no exits exist");
+    }
+
+    if exit_query
+        .iter()
+        .all(|f| f.0.translation().truncate() == Vec2::ZERO)
+    {
+        warn!("some exit has translation set too 0,0");
+    }
+
+    for (_, dungeon_room) in room_query {
+        if dungeon_room.exits.is_empty() {
+            error!("no exits added too room blueprints");
+        }
+        let exit_amount = ExitAmount(dungeon_room.exits.len() as u32);
+        let room = room_graph.add_node(DungeonGraphNode::Room {
+            position: dungeon_room.position,
+            id: dungeon_room.id,
+        });
+
+        for exit_id in &dungeon_room.exits {
+            let exit = room_graph.add_node(DungeonGraphNode::Exit {
+                exit: exit_id.clone(),
+                brothers: exit_amount.clone(),
+            });
+            room_graph.add_edge(room, exit, DungeonGraphEdge::ExitLink { length: 0.0 });
+        }
+    }
+
+    // Create a vector to store exit node indices
+    let exit_nodes_list: Vec<NodeIndex> = room_graph
+        .node_indices()
+        .filter(|&node| matches!(room_graph[node], DungeonGraphNode::Exit { .. }))
+        .collect();
+
+    let mut rng = rand::thread_rng();
+    let graph_copy = room_graph.clone();
+
+    let exit_nodes: Vec<(&NodeIndex, &DungeonGraphNode)> = exit_nodes_list
+        .iter()
+        .map(|f| (f, graph_copy.node_weight(*f).expect("msg")))
+        .collect();
+
+    let mut exits_connected: HashSet<NodeIndex> = HashSet::new();
+
+    loop {
+        let Some(first_exit) = exit_nodes
+            .iter()
+            .filter(|f| match f.1 {
+                DungeonGraphNode::Room { .. } => true,
+                DungeonGraphNode::Exit { brothers, .. } => brothers > &ExitAmount(1),
+            } && !exits_connected.contains(f.0))
+            .choose(&mut rng)
+        else {
+            break;
+        };
+        let Some(second_exit) = exit_nodes
+            .iter()
+            .filter(|(id, node)| {
+                node.is_exit()
+                    && node.get_parent_id() != first_exit.1.get_parent_id()
+                    && !exits_connected.contains(*id)
+            })
+            // choose by distance
+            .min_by(|a, b| {
+                let a_position = a.1.get_position();
+                let b_position = b.1.get_position();
+                let a_distance = a_position.distance_squared(first_exit.1.get_position());
+                let b_distance = b_position.distance_squared(first_exit.1.get_position());
+                a_distance.cmp(&b_distance)
+            })
+        // choose randomly
+        //  .choose(&mut rng)
+        else {
+            break;
+        };
+
+        let DungeonGraphNode::Exit {
+            exit: exit1_data,
+            brothers: _exit1_brothers,
+        } = first_exit.1
+        else {
+            break;
+        };
+        let DungeonGraphNode::Exit {
+            exit: exit2_data,
+            brothers: _exit2_brothers,
+        } = second_exit.1
+        else {
+            break;
+        };
+        let distance = exit1_data.position.distance_squared(exit2_data.position) as f32;
+
+        if !exits_connected.contains(first_exit.0) && !exits_connected.contains(second_exit.0) {
+            info!("adding edge too graph");
+            exits_connected.insert(*first_exit.0);
+            exits_connected.insert(*second_exit.0);
+            room_graph.add_edge(
+                *first_exit.0,
+                *second_exit.0,
+                DungeonGraphEdge::Hallway {
+                    start: exit1_data.clone(),
+                    end: exit2_data.clone(),
+                    length: distance,
+                },
+            );
+        }
+    }
+
+    room_graph
+}
+
+/// node for dungeon graph structure
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum DungeonGraphNode {
+    /// node is a dungeon room
+    Room {
+        /// room center position
+        position: IVec2,
+        /// room id
+        id: RoomID,
+    },
+    /// node is a dungeon room exit
+    Exit {
+        /// 2 tiles that makeup exit
+        exit: RoomExit,
+        /// how many other exits are related too this exit
+        brothers: ExitAmount,
+    },
+}
+
+impl DungeonGraphNode {
+    // pub fn is_room(self: &Self) -> bool {
+    //     match self {
+    //         DungeonGraphNode::Room { .. } => true,
+    //         DungeonGraphNode::Exit { .. } => false,
+    //     }
+    // }
+
+    /// is graph node an exit
+    pub const fn is_exit(&self) -> bool {
+        match self {
+            Self::Room { .. } => false,
+            Self::Exit { .. } => true,
+        }
+    }
+
+    /// get graph node room id, parent id if exit
+    pub const fn get_parent_id(&self) -> &RoomID {
+        match self {
+            Self::Room { id, .. } => id,
+            Self::Exit { exit, .. } => &exit.parent,
+        }
+    }
+
+    /// get graph node position
+    pub const fn get_position(&self) -> IVec2 {
+        match self {
+            Self::Room { position, .. } => *position,
+            Self::Exit { exit, .. } => exit.position,
+        }
+    }
+}
+
+/// aka hallway
+#[derive(Debug, PartialEq, Clone)]
+pub enum DungeonGraphEdge {
+    /// this edge links 2 exits from seperate rooms
+    Hallway {
+        /// exit tiles on start room
+        start: RoomExit,
+        /// exit tiles on end room
+        end: RoomExit,
+        /// euclid distance between start and end
+        length: f32,
+    },
+    /// this edge links an exit too its parent room
+    ExitLink {
+        /// always 0.0
+        length: f32,
+    },
+}
+
+impl PartialOrd for DungeonGraphEdge {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match (self, other) {
+            // Compare Hallway edges based on their lengths
+            (
+                Self::Hallway {
+                    length: length1, ..
+                },
+                Self::Hallway {
+                    length: length2, ..
+                },
+            ) => length1.partial_cmp(length2),
+            // Internal edges are considered less than Hallway edges
+            (Self::ExitLink { .. }, Self::Hallway { .. }) => Some(std::cmp::Ordering::Less),
+            // Hallway edges are considered greater than Internal edges
+            (Self::Hallway { .. }, Self::ExitLink { .. }) => Some(std::cmp::Ordering::Greater),
+            // Internal edges are equal to other Internal edges
+            (Self::ExitLink { .. }, Self::ExitLink { .. }) => Some(std::cmp::Ordering::Equal), // // Hallway edges are considered greater than Internal edges
+                                                                                               // (DungeonGraphEdge::Hallway { .. }, DungeonGraphEdge::Hallway { .. }) => None, // You might want to handle this case depending on your logic
+        }
+    }
+}
+
+/// amount of exits this exit shares parents with
+#[derive(Debug, PartialEq, Eq, PartialOrd, Clone)]
+pub struct ExitAmount(u32);
+
 /// spawns generated hallways from DungeonGeneratorSettings.hallways
-pub fn spawn_hallway_roots(
-    mut cmds: Commands,
-    pathmap: Query<(Entity, &Navmeshes), With<PathMap>>,
-    dungeon_container: Query<(Entity, &DungeonSettings), With<DungeonContainerTag>>,
-) {
-    let (dungeon_root, settings) = dungeon_container.single();
-    let (pathmap, navmeshes) = pathmap.single();
-    if settings.positioned_hallways.is_empty() {
+pub fn spawn_hallway_roots(mut cmds: Commands, dungeon_container: Query<(Entity, &Dungeon)>) {
+    let (dungeon_root, settings) = dungeon_container
+        .get_single()
+        .expect("should only ever be one at a time");
+
+    if settings.hallways.is_empty() {
         warn!("No HallWays too process");
         return;
     }
 
-    let mut i = 0;
     cmds.entity(dungeon_root)
         .with_children(|container_child_builder| {
-            for hallway in &settings.positioned_hallways {
+            for (i, hallway) in settings.hallways.iter().enumerate() {
+                #[cfg(debug_assertions)]
+                {
+                    let vname = Name::new(format!("HallwayVisual-{i}"));
+                    let color = random_color(None);
+                    let mut path = PathBuilder::new();
+                    path.move_to(hallway.start_pos.as_vec2());
+                    path.line_to(hallway.end_pos.as_vec2());
+                    path.close();
+                    let path = path.build();
+
+                    container_child_builder.spawn((
+                        vname,
+                        Fill::color(color),
+                        Stroke::new(Color::BLACK, 5.0),
+                        ShapeBundle { path, ..default() },
+                    ));
+                }
+
                 let start = hallway.start_pos.extend(0).as_vec3();
-                let end = hallway.end_pos.extend(0).as_vec3();
-                let name = format!("Hallway-{}", i);
+                let name = Name::new(format!("Hallway-{i}"));
                 container_child_builder.spawn((
-                    Name::new(name),
+                    name,
                     hallway.clone(),
                     SpatialBundle {
                         transform: Transform::from_translation(start),
                         ..default()
                     },
                 ));
-                //
-                let path = create_hallway_path(hallway);
-                let hallway_name = format!("HallwayVisual-{}", i);
-                container_child_builder.spawn((
-                    Name::new(hallway_name.clone()),
-                    HallWayVisualTag,
-                    ShapeBundle {
-                        path,
-                        spatial: SpatialBundle::from_transform(Transform::from_xyz(0., 0., 10.0)),
-                        ..default()
-                    },
-                    Stroke::new(Color::LIME_GREEN, 10.0),
-                    Fill::color(Color::RED),
-                ));
-                i += 1;
             }
         });
-    cmds.insert_resource(NextState(Some(GeneratorState::FinalizeHallways)))
-}
-
-/// creates path from hallway start and end position
-fn create_hallway_path(hallway: &PlacedHallWay) -> bevy_prototype_lyon::prelude::Path {
-    let mut path_builder = PathBuilder::new();
-    path_builder.move_to(hallway.start_pos.as_vec2());
-    path_builder.line_to(hallway.end_pos.as_vec2());
-    path_builder.close();
-    let path = path_builder.build();
-    path
+    cmds.insert_resource(NextState(Some(GeneratorState::FinalizeHallways)));
 }
 
 /// tag for edge representation
@@ -317,7 +512,7 @@ pub struct HallWayVisualTag;
 
 /// hallway representation
 #[derive(Debug, Reflect, Clone, Component)]
-pub struct PlacedHallWay {
+pub struct HallWayBlueprint {
     /// hallway start pos
     start_pos: IVec2,
     /// hallway end pos
@@ -326,175 +521,6 @@ pub struct PlacedHallWay {
     distance: f32,
     /// rooms connected too hallway
     connected_rooms: (RoomID, RoomID),
+    /// hallway finished building
+    built: bool,
 }
-
-// collect all exits
-// pair exits by distance
-// place 0..room_query.len() -1? hallways and flip hallway nodes coo
-
-// for i in 0..clipped_exits.len() {
-//     if !rng.gen_bool(settings.loops_percentage.into()) {
-//         continue;
-//     }
-
-//     if clipped_exits.is_empty() {
-//         break;
-//     }
-
-//     let start = clipped_exits.swap_remove(0);
-//     let Some(end) = clipped_exits
-//         .iter()
-//         .filter(|f| f.used == false && f.parent != start.parent)
-//         .max_by(|a, b| {
-//             let distance1 = a.position.distance_squared(start.position);
-//             let distance2 = b.position.distance_squared(start.position);
-//             distance1.cmp(&distance2)
-//         })
-//     else {
-//         warn!("no more connectable hallways");
-//         break;
-//     };
-
-//     let end_idx = clipped_exits
-//         .iter()
-//         .position(|f| f == end)
-//         .expect("idx did not exist in positions?");
-//     let end = clipped_exits.remove(end_idx);
-
-//     let lenght = start.position.distance_squared(end.position) as f32;
-//     hallways.push(PlacedHallWay {
-//         start_pos: start.position,
-//         end_pos: end.position,
-//         distance: lenght,
-//         connected_rooms: Some((start.parent, end.parent)),
-//     })
-// }
-
-//
-// let mut hallways: Vec<PlacedHallWay> = Vec::new();
-
-// // TODO: rethink this code too only spawn 1 hallway per room
-// pub fn plan_hallways_old(
-//     mut cmds: Commands,
-//     mut dungeon_root: Query<&mut DungeonSettings, With<DungeonContainerTag>>,
-//     room_query: Query<(&GlobalTransform, &PlacedRoom), With<DungeonRoomTag>>,
-//     mut room_exits: Query<&mut RoomExit>,
-// ) {
-//     let mut settings = dungeon_root.single_mut();
-
-//     info!("collecting room exits");
-//     let exits = room_query
-//         .iter()
-//         .map(|f| &f.1.exits)
-//         .flatten()
-//         .cloned()
-//         .map(|f| (f, room_exits.get(f).expect("should always exist")))
-//         .collect::<Vec<(Entity, &RoomExit)>>();
-
-//     let mut rng = ThreadRng::default();
-//     let mut hallways: Vec<PlacedHallWay> = Vec::new();
-//     let mut clipped_exits = exits.clone();
-
-//     for (_, room) in &room_query {
-//         info!("working on room {}", room.name);
-//         let local_copy = clipped_exits.clone();
-//         let wanted_start = local_copy
-//             .iter()
-//             .filter(|f| !f.1.hallway_connected && f.1.parent == room.id)
-//             .min_by(|a, b| {
-//                 let distance1 = a.1.position.distance_squared(room.position);
-//                 let distance2 = b.1.position.distance_squared(room.position);
-//                 distance1.cmp(&distance2)
-//             })
-//             .unwrap_or_else(|| {
-//                 local_copy
-//                     .iter()
-//                     .filter(|f| !f.1.hallway_connected)
-//                     .choose(&mut rng)
-//                     .expect("msg")
-//             });
-
-//         let wanted_end = local_copy
-//             .iter()
-//             .filter(|f| !f.1.hallway_connected && f.1.parent != wanted_start.1.parent)
-//             .min_by(|a, b| {
-//                 let distance1 = a.1.position.distance_squared(wanted_start.1.position);
-//                 let distance2 = b.1.position.distance_squared(wanted_start.1.position);
-//                 distance1.cmp(&distance2)
-//             })
-//             .unwrap_or_else(|| {
-//                 local_copy
-//                     .iter()
-//                     .filter(|f| !f.1.hallway_connected)
-//                     .choose(&mut rng)
-//                     .expect("msg")
-//             });
-
-//         let start_idx = clipped_exits
-//             .iter()
-//             .position(|f| f == wanted_start)
-//             .expect("msg");
-//         let start = clipped_exits.remove(start_idx);
-//         let end_idx = clipped_exits
-//             .iter()
-//             .position(|f| f == wanted_end)
-//             .expect("idx did not exist in positions?");
-//         let end = clipped_exits.remove(end_idx);
-
-//         let lenght = start.1.position.distance_squared(end.1.position) as f32;
-//         hallways.push(PlacedHallWay {
-//             start_pos: start.1.position,
-//             end_pos: end.1.position,
-//             distance: lenght,
-//             connected_rooms: (start.1.parent, end.1.parent),
-//         });
-//     }
-
-//     for i in 0..clipped_exits.len() {
-//         if !rng.gen_bool(settings.loops_percentage.into()) {
-//             continue;
-//         }
-
-//         if clipped_exits.is_empty() {
-//             break;
-//         }
-
-//         let start = clipped_exits.swap_remove(0);
-//         let Some(end) = clipped_exits
-//             .iter()
-//             .filter(|f| !f.1.hallway_connected && f.1.parent != start.1.parent)
-//             .max_by(|a, b| {
-//                 let distance1 = a.1.position.distance_squared(start.1.position);
-//                 let distance2 = b.1.position.distance_squared(start.1.position);
-//                 distance1.cmp(&distance2)
-//             })
-//         else {
-//             warn!("no more connectable hallways");
-//             break;
-//         };
-
-//         let end_idx = clipped_exits
-//             .iter()
-//             .position(|f| f == end)
-//             .expect("idx did not exist in positions?");
-//         let end = clipped_exits.remove(end_idx);
-
-//         let lenght = start.1.position.distance_squared(end.1.position) as f32;
-//         hallways.push(PlacedHallWay {
-//             start_pos: start.1.position,
-//             end_pos: end.1.position,
-//             distance: lenght,
-//             connected_rooms: (start.1.parent.clone(), end.1.parent.clone()),
-//         })
-//     }
-
-//     // TODO:
-//     // for each room, get 1 endpoint on the room and 1 random endpoint from hallway positions
-//     // remove both positions from hallwaypositions
-
-//     // loop 0..hallway_posiitons.len()
-//     // if change bool == true add hall way between rooms
-//     // get and remove 2 idx from hallway positions
-//     settings.positioned_hallways = hallways;
-//     cmds.insert_resource(NextState(Some(GeneratorState::PlaceHallwayRoots)));
-// }

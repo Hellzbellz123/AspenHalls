@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
-    prelude::SpawnExclusions, IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground,
-    LevelSelection, LevelSpawnBehavior, SetClearColor,
+    prelude::{LevelSet, SpawnExclusions},
+    IntGridRendering, LdtkSettings, LdtkWorldBundle, LevelBackground, LevelSelection,
+    LevelSpawnBehavior, SetClearColor,
 };
 use bevy_rapier2d::{
     geometry::Collider,
@@ -22,34 +23,11 @@ use crate::{
 /// tag for map entity
 #[derive(Debug, Component, Clone, Copy, Reflect, Default)]
 #[reflect(Component)]
-pub struct MapContainerTag;
+pub struct HideoutTag;
 
 /// spawns hideout and related resources
-pub fn spawn_hideout(mut commands: Commands, maps: Res<AspenMapHandles>) {
+pub fn spawn_world_container(mut commands: Commands, maps: Res<AspenMapHandles>) {
     info!("spawning LdtkWorldBundle");
-
-    commands.spawn((
-        LdtkWorldBundle {
-            ldtk_handle: maps.default_levels.clone(),
-            transform: Transform {
-                translation: Vec3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.0,
-                },
-                scale: Vec3 {
-                    x: 1.0,
-                    y: 1.0,
-                    z: 1.0,
-                },
-                ..default()
-            },
-            ..default()
-        },
-        Name::new("MapContainer"),
-        MapContainerTag,
-    ));
-
     #[cfg(not(feature = "develop"))]
     //TODO: use level progress for this?
     // probably not needed as this is first actual spawn of hideout.
@@ -68,6 +46,29 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<AspenMapHandles>) {
         int_grid_rendering: IntGridRendering::Invisible,
         level_background: LevelBackground::Nonexistent,
     });
+
+    commands.spawn((
+        LdtkWorldBundle {
+            ldtk_handle: maps.default_levels.clone(),
+            level_set: LevelSet::default(),
+            transform: Transform {
+                translation: Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
+                scale: Vec3 {
+                    x: 1.0,
+                    y: 1.0,
+                    z: 1.0,
+                },
+                ..default()
+            },
+            ..default()
+        },
+        Name::new("HideOut"),
+        HideoutTag,
+    ));
 }
 
 /// system too check for actors on teleport pad

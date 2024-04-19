@@ -9,8 +9,8 @@ use crate::{
     bundles::ItemColliderBundle,
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
-        characters::components::WeaponSlot, components::ActorColliderType, interface::StartMenu,
-        items::weapons::components::WeaponCarrier,
+        characters::components::WeaponSlot, components::ActorColliderType,
+        interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier,
     },
     loading::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
@@ -47,13 +47,13 @@ impl Plugin for PlayerPlugin {
                 )
                     .run_if(state_exists_and_equals(AppState::PlayingGame)),),
             )
-            .add_systems(
-                OnEnter(AppState::PlayingGame),
-                build_player_from_selected_hero,
-            )
+            .add_systems(OnExit(AppState::StartMenu), build_player_from_selected_hero)
             .add_systems(
                 Update,
-                select_wanted_hero.run_if(on_event::<SelectThisHeroForPlayer>()),
+                select_wanted_hero.run_if(
+                    state_exists_and_equals(AppState::StartMenu)
+                        .and_then(on_event::<SelectThisHeroForPlayer>()),
+                ),
             );
     }
 }
@@ -68,16 +68,15 @@ pub struct SelectThisHeroForPlayer(Entity, ());
 
 impl From<ListenerInput<Pointer<Down>>> for SelectThisHeroForPlayer {
     fn from(event: ListenerInput<Pointer<Down>>) -> Self {
-        Self(event.target, ())//event.hit.depth)
+        Self(event.target, ()) //event.hit.depth)
     }
 }
 
 /// Unlike callback systems, this is a normal system that can be run in parallel with other systems.
 fn select_wanted_hero(
-    start_menu_query: Query<&Style, (With<Node>, With<StartMenu>)>,
+    start_menu_query: Query<&Style, (With<Node>, With<StartMenuTag>)>,
     mut cmds: Commands,
     mut select_events: EventReader<SelectThisHeroForPlayer>,
-    // mut pickable_query: Query<Entity, With<On<Pointer<Down>>>>
 ) {
     let start_menu_style = start_menu_query.single();
     if start_menu_style.display != Display::None {
@@ -116,7 +115,7 @@ pub fn build_player_from_selected_hero(
     commands
         .entity(selected_hero)
         .insert((WeaponCarrier {
-            drawn_slot: Some(WeaponSlot::Slot1),
+            drawn_slot: None,
             weapon_slots: hero_weapon_slots(),
         },))
         .with_children(|child| {

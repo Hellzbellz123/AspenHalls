@@ -12,7 +12,7 @@
 	"iid": "1f824060-8990-11ee-a550-159737c4cb9e",
 	"uid": 61,
 	"worldX": 2112,
-	"worldY": -2816,
+	"worldY": -2336,
 	"worldDepth": 0,
 	"pxWid": 1792,
 	"pxHei": 1280,
@@ -79,7 +79,7 @@
 					"px": [736,800],
 					"fieldInstances": [],
 					"__worldX": 2848,
-					"__worldY": -2016
+					"__worldY": -1536
 				},
 				{
 					"__identifier": "Teleporter",
@@ -106,7 +106,7 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 2976,
-					"__worldY": -2336
+					"__worldY": -1856
 				},
 				{
 					"__identifier": "Teleporter",
@@ -135,7 +135,7 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 2720,
-					"__worldY": -2496
+					"__worldY": -2016
 				},
 				{
 					"__identifier": "Teleporter",
@@ -164,7 +164,7 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 2560,
-					"__worldY": -2720
+					"__worldY": -2240
 				}
 			]
 		},

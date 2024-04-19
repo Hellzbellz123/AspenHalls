@@ -11,8 +11,8 @@
 	"identifier": "HideoutL1",
 	"iid": "7ab56830-8990-11ee-a550-1380b8d0b8e4",
 	"uid": 59,
-	"worldX": 0,
-	"worldY": -2176,
+	"worldX": -640,
+	"worldY": -2336,
 	"worldDepth": 0,
 	"pxWid": 640,
 	"pxHei": 640,
@@ -78,8 +78,8 @@
 					"defUid": 7,
 					"px": [192,416],
 					"fieldInstances": [],
-					"__worldX": 192,
-					"__worldY": -1760
+					"__worldX": -448,
+					"__worldY": -1920
 				},
 				{
 					"__identifier": "Teleporter",
@@ -105,8 +105,8 @@
 						{ "__identifier": "TeleportLocalRef", "__type": "EntityRef", "__value": null, "__tile": null, "defUid": 38, "realEditorValues": [] },
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
-					"__worldX": 288,
-					"__worldY": -2048
+					"__worldX": -352,
+					"__worldY": -2208
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -121,8 +121,8 @@
 					"defUid": 73,
 					"px": [208,336],
 					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
-					"__worldX": 208,
-					"__worldY": -1840
+					"__worldX": -432,
+					"__worldY": -2000
 				},
 				{
 					"__identifier": "HeroLocation",
@@ -137,8 +137,8 @@
 					"defUid": 73,
 					"px": [464,336],
 					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
-					"__worldX": 464,
-					"__worldY": -1840
+					"__worldX": -176,
+					"__worldY": -2000
 				}
 			]
 		},
@@ -836,5 +836,5 @@
 			"entityInstances": []
 		}
 	],
-	"__neighbours": [ { "levelIid": "c24a48e0-8990-11ee-94a7-3d3f425ee144", "dir": "s" }, { "levelIid": "dd78f4e0-8990-11ee-a550-8328dbe0c3aa", "dir": "e" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
+	"__neighbours": [{ "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "e" }]
 }

@@ -43,6 +43,41 @@ pub struct AspenInitHandles {
 #[allow(clippy::struct_field_names)]
 #[derive(AssetCollection, Resource, Clone, Debug, Reflect)]
 pub struct AspenTouchHandles {
+    // button handles
+    /// zoom in button image
+    #[asset(key = "zoom_in_button")]
+    pub zoom_in_button: Handle<Image>,
+    /// zoom out button image
+    #[asset(key = "zoom_out_button")]
+    pub zoom_out_button: Handle<Image>,
+    /// menu button image
+    #[asset(key = "menu_button")]
+    pub menu_button: Handle<Image>,
+    /// swap weapon button image
+    #[asset(key = "swap_button")]
+    pub swap_button: Handle<Image>,
+    /// heal button image
+    #[asset(key = "heal_button")]
+    pub heal_button: Handle<Image>,
+
+    // action buttons
+    /// player abilties first slot
+    #[asset(key = "action_one")]
+    pub action_one: Handle<Image>,
+    /// player abilties first slot
+    #[asset(key = "action_two")]
+    pub action_two: Handle<Image>,
+    /// player abilties first slot
+    #[asset(key = "action_three")]
+    pub action_three: Handle<Image>,
+    /// player abilties first slot
+    #[asset(key = "action_four")]
+    pub action_four: Handle<Image>,
+    /// player abilties first slot
+    #[asset(key = "action_five")]
+    pub action_five: Handle<Image>,
+
+    // Joy Stick handles
     /// knob with arrows
     #[asset(key = "move_knob")]
     pub move_knob: Handle<Image>,

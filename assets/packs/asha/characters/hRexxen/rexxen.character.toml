@@ -4,7 +4,7 @@ character_type = { Hero = { ai = "FollowerHero" } }
 name = "Rexxen"
 identifier = "rexxen"
 aseprite_path = "rexxen.sprite.json"
-pixel_size =  [18.0, 32.0]
+pixel_size =  [18.0, 30.0]
 
 [actor.stats]
 max_hp = 150

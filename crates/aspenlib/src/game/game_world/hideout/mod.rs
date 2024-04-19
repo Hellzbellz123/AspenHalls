@@ -1,16 +1,14 @@
-use std::time::Duration;
-
 use bevy::{
     ecs::{schedule::Condition, system::Res},
-    log::{debug, error, info},
+    log::{error, info},
     math::Vec2,
     prelude::{
-        any_with_component, on_event, run_once, state_exists_and_equals, Commands,
-        DespawnRecursiveExt, Entity, GlobalTransform, IntoSystemConfigs, OnEnter, OnExit,
-        OrthographicProjection, Plugin, Query, Transform, Update, With, Without,
+        on_event, state_exists_and_equals, Commands, DespawnRecursiveExt, Entity, EventReader,
+        GlobalTransform, IntoSystemConfigs, OnExit, OrthographicProjection, Plugin, Query,
+        Transform, Update, With, Without,
     },
-    time::common_conditions::on_timer,
 };
+use bevy_ecs_ldtk::prelude::{LevelEvent, LevelSet};
 use bevy_mod_picking::{
     events::{Down, Pointer},
     prelude::{On, PickableBundle},
@@ -27,11 +25,7 @@ use crate::{
         game_world::{
             components::HeroSpot,
             dungeonator_v2::GeneratorState,
-            hideout::systems::{
-                spawn_hideout,
-                // enter_the_dungeon,
-                teleporter_collisions,
-            },
+            hideout::systems::{spawn_world_container, teleporter_collisions},
         },
         items::weapons::components::AttackDamage,
     },
@@ -39,7 +33,7 @@ use crate::{
     AppState,
 };
 
-use self::systems::MapContainerTag;
+use self::systems::HideoutTag;
 
 /// hideout systems
 pub mod systems;
@@ -53,39 +47,75 @@ pub struct HideOutPlugin;
 impl Plugin for HideOutPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         info!("registering ldtk map cells and adding teleport event");
-        // app.add_plugins(bevy_tiling_background::TilingBackgroundPlugin::<ScaledBackgroundMaterial>::default());
-        app.add_systems(OnEnter(AppState::StartMenu), spawn_hideout)
-            .add_systems(
-                Update,
-                (select_hero_focus, populate_selectable_heroes).run_if(
+        app.add_systems(OnExit(AppState::Loading), spawn_world_container);
+        app.add_systems(OnExit(GeneratorState::NoDungeon), despawn_hideout);
+        app.add_systems(
+            Update,
+            (
+                // TODO: fix scheduling
+                teleporter_collisions.run_if(on_event::<CollisionEvent>()),
+                create_playable_heroes.run_if(
                     state_exists_and_equals(AppState::StartMenu)
-                        .and_then(on_timer(Duration::from_secs_f32(0.2)))
-                        .and_then(any_with_component::<HeroSpot>())
-                        .and_then(run_once()),
+                        .and_then(on_event::<LevelEvent>()),
                 ),
-            )
-            .add_systems(OnExit(GeneratorState::SelectPresets), cleanup_start_world)
-            .add_systems(
-                Update,
-                (
-                    // TODO: fix scheduling
-                    teleporter_collisions.run_if(on_event::<CollisionEvent>()),
-                ),
-            );
+            ),
+        );
     }
 }
 
 /// spawns selectable heroes at each available `HeroSpot`
-fn populate_selectable_heroes(
+fn create_playable_heroes(
+    mut level_spawn_events: EventReader<LevelEvent>,
     mut commands: Commands,
     registry: Res<ActorRegistry>,
     hero_spots: Query<&GlobalTransform, With<HeroSpot>>,
+    mut camera_query: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
+) {
+    for event in level_spawn_events.read() {
+        if let LevelEvent::Transformed(_iid) = event {
+            let hero_spots: Vec<&GlobalTransform> = hero_spots.iter().collect();
+            if registry.characters.heroes.is_empty() {
+                error!("no heroes too pick from");
+            }
+
+            info!("preparing heroes and focusing camera");
+            populate_hero_spots(&registry, &hero_spots, &mut commands);
+            adjust_camera_focus(hero_spots, &mut camera_query);
+        }
+    }
+}
+
+// TODO: re apply camera scale AFTER player is selected
+/// modifies main camera too focus all the available hero spots
+fn adjust_camera_focus(
+    hero_spots: Vec<&GlobalTransform>,
+    camera_query: &mut Query<
+        '_,
+        '_,
+        (&mut Transform, &mut OrthographicProjection),
+        With<MainCamera>,
+    >,
+) {
+    let hero_spots_amnt = hero_spots.len() as f32;
+    let sum_hero_spots: Vec2 = hero_spots.iter().map(|f| f.translation().truncate()).sum();
+    let avg = sum_hero_spots / hero_spots_amnt;
+
+    info!("focusing camera on all heroes");
+    let (mut camera_pos, mut camera_proj) = camera_query.single_mut();
+    camera_proj.scale = 6.0;
+    camera_pos.translation = avg.extend(camera_pos.translation.z);
+}
+
+/// fills hero slots with selectable heroes
+fn populate_hero_spots(
+    registry: &Res<ActorRegistry>,
+    hero_spots: &[&GlobalTransform],
+    commands: &mut Commands,
 ) {
     let mut hero_spots = hero_spots.iter();
-    if registry.characters.heroes.is_empty() {
-        error!("no heroes too pick from");
-    }
-    for thing in registry.characters.heroes.values() {
+
+    info!("placing heroes");
+    registry.characters.heroes.values().for_each(|thing| {
         let Some(spot) = hero_spots.next() else {
             error!("no more hero spots");
             return;
@@ -93,50 +123,28 @@ fn populate_selectable_heroes(
         let mut bundle = thing.clone();
         bundle.aseprite.sprite_bundle.transform.translation =
             spot.translation().truncate().extend(ACTOR_Z_INDEX);
-        error!("placing at hero spot");
         commands.spawn((
             bundle,
             PickableBundle::default(),
             On::<Pointer<Down>>::send_event::<SelectThisHeroForPlayer>(),
             HIGHLIGHT_TINT,
         ));
-    }
+    });
 }
 
-// TODO: re apply camera scale AFTER player is selected
-/// modifies main camera too focus all the available hero spots
-fn select_hero_focus(
-    mut camera_query: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
-    hero_spots: Query<&GlobalTransform, With<HeroSpot>>,
-) {
-    let hero_spots_amnt = hero_spots.iter().len() as f32;
-    let sum_hero_spots: Vec2 = hero_spots.iter().map(|f| f.translation().truncate()).sum();
-    let avg = sum_hero_spots / hero_spots_amnt;
-
-    info!("hero spots amount: {}", hero_spots_amnt);
-    info!("hero spots sum: {}", sum_hero_spots);
-    info!("calculated avg: {}", avg);
-
-    let (mut camera_pos, mut camera_proj) = camera_query.single_mut();
-    camera_proj.scale = 6.0;
-    camera_pos.translation = avg.extend(camera_pos.translation.z);
-}
-
-// TODO: remove this infavor of DespawnWhenStateIs(Option<S: States/State>)
+// TODO: find all uses of cmds.spawn(()) and add cleanup component
+// cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
+// DespawnWhenStateIs(Option<S: States/State>)
 /// despawn all entities that should be cleaned up on restart
-fn cleanup_start_world(
+fn despawn_hideout(
     mut commands: Commands,
     characters_not_player: Query<Entity, (With<CharacterMoveState>, Without<PlayerSelectedHero>)>,
-    home_world_container: Query<Entity, With<MapContainerTag>>,
     weapons: Query<Entity, With<AttackDamage>>,
+    hideout: Query<(Entity, &LevelSet), With<HideoutTag>>,
 ) {
-    if home_world_container.is_empty() {
-        debug!("no home world?");
-        return;
-    }
-    commands
-        .entity(home_world_container.single())
-        .despawn_recursive();
+    let (hideout, _levelset) = hideout.single();
+    commands.entity(hideout).despawn_recursive();
+
     for ent in &weapons {
         commands.entity(ent).despawn_recursive();
     }

@@ -1,5 +1,3 @@
-pub mod unarmed;
-
 use bevy::prelude::*;
 
 use crate::{
@@ -7,6 +5,7 @@ use crate::{
     game::{
         attributes_stats::{CharacterStats, DamageQueue},
         characters::player::PlayerSelectedHero,
+        combat::unarmed::EventAttackUnarmed,
         items::weapons::{
             components::{WeaponDescriptor, WeaponHolder},
             EventAttackWeapon,
@@ -15,11 +14,16 @@ use crate::{
     AppState,
 };
 
+/// handles attacks from characters without weapons
+pub mod unarmed;
+
 /// game combat functionality
 pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
+        app.add_plugins(unarmed::UnArmedPlugin);
+
         app.add_event::<EventRequestAttack>()
             .insert_resource(CurrentRunInformation::default())
             .insert_resource(PlayerSaveInformation::default());
@@ -103,24 +107,28 @@ fn handle_death_system(
 fn delegate_attack_events(
     mut attack_events: EventReader<EventRequestAttack>,
     mut weapon_attack_events: EventWriter<EventAttackWeapon>,
+    mut unarmed_attack_events: EventWriter<EventAttackUnarmed>,
     weapon_query: Query<(&WeaponDescriptor, &WeaponHolder), With<Parent>>,
 ) {
     for attack_request in attack_events.read() {
-        if attack_request.weapon.is_some() {
-            let Ok((_weapon_info, _weapon_holder)) =
-                weapon_query.get(attack_request.weapon.expect("check ok"))
-            else {
-                warn!("attack event received but weapon is missing important components");
-                continue;
-            };
-            weapon_attack_events.send(EventAttackWeapon {
-                requester: attack_request.requester,
-                weapon: attack_request.weapon.unwrap(),
-            });
-        } else {
-            // TODO: implement fist attack
-            warn!("no weapon, assuming melee attack");
-        }
+        match attack_request.direction {
+            AttackDirection::FromWeapon(weapon_id) => {
+                let Ok((_weapon_info, _weapon_holder)) = weapon_query.get(weapon_id) else {
+                    warn!("attack event received but weapon is missing important components");
+                    continue;
+                };
+                weapon_attack_events.send(EventAttackWeapon {
+                    requester: attack_request.requester,
+                    weapon: weapon_id,
+                });
+            }
+            AttackDirection::FromVector(attack_direction) => {
+                unarmed_attack_events.send(EventAttackUnarmed {
+                    requester: attack_request.requester,
+                    direction: attack_direction,
+                });
+            }
+        };
     }
 }
 
@@ -130,7 +138,16 @@ pub struct EventRequestAttack {
     /// who is using the weapon
     pub requester: Entity,
     /// what weapon is this attacker using
-    pub weapon: Option<Entity>,
+    pub direction: AttackDirection,
+}
+
+/// how too get direction this attack request is towards
+#[derive(Debug)]
+pub enum AttackDirection {
+    /// weapon attack direction is collected from weapons rotation
+    FromWeapon(Entity),
+    /// weapon attack direction is calculated from a target position
+    FromVector(Vec2),
 }
 
 /// information tracked for current run

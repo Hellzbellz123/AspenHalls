@@ -4,7 +4,7 @@ character_type = { Creep = { ai = "Stupid" } }
 name = "Slime"
 identifier = "slime"
 aseprite_path = "slime.sprite.json"
-pixel_size =  [16.0, 16.0]
+pixel_size =  [14.0, 14.0]
 
 [actor.stats]
 max_hp = 150

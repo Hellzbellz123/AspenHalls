@@ -82,12 +82,18 @@ pub fn cursor_grab_system(
         // if you want to use the cursor, but not let it leave the window,
         // use `Confined` mode:
         window.cursor.grab_mode = CursorGrabMode::Confined;
-        window.cursor.visible = false;
+
+        if !cfg!(debug_assertions) {
+            window.cursor.visible = false;
+        }
     }
 
     if key.just_pressed(KeyCode::Escape) {
         window.cursor.grab_mode = CursorGrabMode::None;
-        window.cursor.visible = true;
+
+        if !cfg!(debug_assertions) {
+            window.cursor.visible = true;
+        }
     }
 }
 
@@ -108,6 +114,7 @@ pub fn tiles_to_f32(distance: i32) -> f32 {
     distance as f32 * TILE_SIZE
 }
 
+/// converts velocity too move direction in 8 cardinals
 pub fn vector_to_pi8(vec: Vec2) -> MoveDirection {
     let angle = vec.y.atan2(vec.x).to_degrees() + 360.0;
 
@@ -125,15 +132,15 @@ pub fn vector_to_pi8(vec: Vec2) -> MoveDirection {
     }
 }
 
-pub fn vector_to_pi4(vec: Vec2) -> MoveDirection {
-    let angle = vec.y.atan2(vec.x).to_degrees() + 360.0;
+/// converts velocity too move direction in 4 cardinals
+pub fn vector_to_pi4(linear_velocity: Vec2) -> MoveDirection {
+    let angle = linear_velocity.y.atan2(linear_velocity.x).to_degrees() + 360.0;
     let index = (angle / 90.0) as usize % 4;
 
     match index {
         0 => MoveDirection::East,
         1 => MoveDirection::North,
         2 => MoveDirection::West,
-        3 => MoveDirection::South,
         _ => MoveDirection::South,
     }
 }
@@ -185,12 +192,12 @@ pub fn state_exists_and_entered<S: States>(state: S) -> impl Condition<()> {
         move |mut entered: Local<bool>, mut exists: Local<bool>, state_q: Option<Res<State<S>>>| {
             if state_q.is_some() {
                 let current_state = state_q.unwrap();
-                if (!*exists && !*entered) && *current_state == state {
+                if (!*exists || !*entered) && *current_state.get() == state {
                     // debug!("state exists and wanted state value entered");
                     *entered = true;
                     *exists = true;
                     true
-                } else if (*exists && *entered) && *current_state != state {
+                } else if (*exists || *entered) && *current_state.get() != state {
                     // debug!("state was entered, but its not enterered anymore. resetting state machine");
                     *entered = false;
                     *exists = false;

@@ -41,18 +41,6 @@ pub enum GameProgress {
     Dungeon,
 }
 
-/// what part of the game we are at
-#[derive(Debug, Default, Clone, Eq, PartialEq, Hash, States, Resource, Reflect)]
-pub enum GameProgressStatus {
-    /// no actor related logic, just the main menu
-    #[default]
-    NotStarted,
-    /// select character, buy weapons
-    Prepare,
-    /// crawling has 1 value. the dungeon Level
-    Crawling(DungeonFloor),
-}
-
 /// each dungeon run has 4 stages that get progressivly larger/harder
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Reflect)]
 pub enum DungeonFloor {

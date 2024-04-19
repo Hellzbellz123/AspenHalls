@@ -14,14 +14,9 @@ use crate::game::{attributes_stats::Damage, characters::components::WeaponSlot};
 pub struct CurrentAmmo {
     /// how much ammo this weapon currently has
     #[deref]
-    pub count: u32,
+    pub current: u32,
+    /// maximum amount of ammo weapon can have
     pub max: u32,
-}
-
-impl CurrentAmmo {
-    pub fn is_full(&self) -> bool {
-        self.count == self.max
-    }
 }
 
 /// entity that holds this weapon, and the slot that it is in
@@ -84,6 +79,7 @@ pub enum WeaponDescriptor {
     Gun(GunCfg),
 }
 
+/// encapsulated data for swing style weapons
 #[derive(Debug, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct BladeCfg {
     /// how long is sword
@@ -94,6 +90,12 @@ pub struct BladeCfg {
     swing_speed: f32,
 }
 
+// new type for blade weapon attack type
+// single swing (swing_arc, swing_speed)
+// list of swings (Vec<(f32, f32)>)
+// others?
+
+/// encapsulated gun data for for enum variants
 #[derive(Debug, Clone, Copy, Reflect, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct GunCfg {
     /// projectile velocity

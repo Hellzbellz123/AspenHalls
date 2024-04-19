@@ -7,7 +7,7 @@ use crate::{
     consts::TILE_SIZE,
     game::{
         characters::{components::WeaponSlot, player::PlayerSelectedHero, EventSpawnCharacter},
-        combat::EventRequestAttack,
+        combat::{AttackDirection, EventRequestAttack},
         components::ActorColliderType,
         input::{action_maps, AspenCursorPosition},
         items::weapons::components::{CurrentlyDrawnWeapon, WeaponCarrier, WeaponHolder},
@@ -27,9 +27,9 @@ pub fn zoom_control(
     };
 
     if actions.pressed(&action_maps::Gameplay::ZoomIn) {
-        settings.camera_zoom += 0.05 * multiplier;
-    } else if actions.pressed(&action_maps::Gameplay::ZoomOut) {
         settings.camera_zoom -= 0.05 * multiplier;
+    } else if actions.pressed(&action_maps::Gameplay::ZoomOut) {
+        settings.camera_zoom += 0.05 * multiplier;
     }
 }
 
@@ -53,23 +53,33 @@ pub fn spawn_custom(
     };
 }
 
-/// send shoot request to gun control system.
+/// send attack request too combat systems.
 #[allow(clippy::type_complexity)]
 pub fn player_attack(
     weapon_query: Query<Entity, (With<Parent>, With<CurrentlyDrawnWeapon>)>,
     player_query: Query<Entity, With<PlayerSelectedHero>>,
     actions: Res<ActionState<action_maps::Gameplay>>,
-    mut shoot_event_writer: EventWriter<EventRequestAttack>,
+    mut attack_event_writer: EventWriter<EventRequestAttack>,
 ) {
     let weapon_entity = weapon_query.iter().next();
     let player = player_query.single();
 
-    // TODO: iter player children for weapon or get weapon from player data
     if actions.pressed(&action_maps::Gameplay::Attack) {
-        shoot_event_writer.send(EventRequestAttack {
-            requester: player,
-            weapon: weapon_entity,
-        });
+        match weapon_entity {
+            Some(weapon) => {
+                attack_event_writer.send(EventRequestAttack {
+                    requester: player,
+                    direction: AttackDirection::FromWeapon(weapon),
+                });
+            }
+            None => {
+                // TODO: calculate direction from virtual cursor position
+                attack_event_writer.send(EventRequestAttack {
+                    requester: player,
+                    direction: AttackDirection::FromVector(Vec2 { x: 0.0, y: 1.0 }),
+                });
+            }
+        }
     }
 }
 
@@ -105,78 +115,69 @@ pub fn aim_weapon(
 #[allow(clippy::type_complexity)]
 pub fn change_weapon(
     actions: Res<ActionState<action_maps::Gameplay>>,
-    mut player_query: Query<&mut WeaponCarrier>,
+    mut player_query: Query<&mut WeaponCarrier, With<PlayerSelectedHero>>,
 ) {
     let mut player_weapon_socket = player_query.single_mut();
 
-    if actions.pressed(&action_maps::Gameplay::CycleWeapon)
-        && actions
-            .current_duration(&action_maps::Gameplay::CycleWeapon)
-            .as_secs()
-            == 1
-    {
-        info!("hiding weapons");
-        player_weapon_socket.drawn_slot = None;
-    }
+    let duration = actions
+        .previous_duration(&action_maps::Gameplay::CycleWeapon)
+        .as_secs_f32();
 
-    let player_slots = &player_weapon_socket.weapon_slots;
-    let drawn_slot = player_weapon_socket.drawn_slot.unwrap_or(WeaponSlot::Slot4);
+    if actions.just_released(&action_maps::Gameplay::CycleWeapon) {
+        info!(
+            "current duration: {}",
+            actions
+                .current_duration(&action_maps::Gameplay::CycleWeapon)
+                .as_secs_f32()
+        );
+        info!(
+            "previous duration: {}",
+            actions
+                .previous_duration(&action_maps::Gameplay::CycleWeapon)
+                .as_secs_f32()
+        );
 
-    if actions.just_pressed(&action_maps::Gameplay::CycleWeapon) {
-        info!("selecting next weapon slot");
-        match drawn_slot {
-            WeaponSlot::Slot1 => {
-                player_weapon_socket.drawn_slot =
-                    if player_slots.get(&WeaponSlot::Slot2).unwrap().is_some() {
-                        Some(WeaponSlot::Slot2)
-                    } else if player_slots.get(&WeaponSlot::Slot3).unwrap().is_some() {
-                        Some(WeaponSlot::Slot3)
-                    } else if player_slots.get(&WeaponSlot::Slot4).unwrap().is_some() {
-                        Some(WeaponSlot::Slot4)
-                    } else {
-                        Some(WeaponSlot::Slot1)
-                    }
-            }
-            WeaponSlot::Slot2 => {
-                player_weapon_socket.drawn_slot = {
-                    if player_slots.get(&WeaponSlot::Slot3).unwrap().is_some() {
-                        Some(WeaponSlot::Slot3)
-                    } else if player_slots.get(&WeaponSlot::Slot4).unwrap().is_some() {
-                        Some(WeaponSlot::Slot4)
-                    } else if player_slots.get(&WeaponSlot::Slot1).unwrap().is_some() {
-                        Some(WeaponSlot::Slot1)
-                    } else {
-                        Some(WeaponSlot::Slot2)
-                    }
-                }
-            }
-            WeaponSlot::Slot3 => {
-                player_weapon_socket.drawn_slot = {
-                    if player_slots.get(&WeaponSlot::Slot4).unwrap().is_some() {
-                        Some(WeaponSlot::Slot4)
-                    } else if player_slots.get(&WeaponSlot::Slot1).unwrap().is_some() {
-                        Some(WeaponSlot::Slot1)
-                    } else if player_slots.get(&WeaponSlot::Slot2).unwrap().is_some() {
-                        Some(WeaponSlot::Slot2)
-                    } else {
-                        Some(WeaponSlot::Slot3)
-                    }
-                }
-            }
-            WeaponSlot::Slot4 => {
-                player_weapon_socket.drawn_slot = {
-                    if player_slots.get(&WeaponSlot::Slot1).unwrap().is_some() {
-                        Some(WeaponSlot::Slot1)
-                    } else if player_slots.get(&WeaponSlot::Slot2).unwrap().is_some() {
-                        Some(WeaponSlot::Slot2)
-                    } else if player_slots.get(&WeaponSlot::Slot3).unwrap().is_some() {
-                        Some(WeaponSlot::Slot3)
-                    } else {
-                        Some(WeaponSlot::Slot4)
-                    }
-                }
-            }
+        if duration >= 1.0 {
+            info!("hiding weapons");
+            player_weapon_socket.drawn_slot = None;
+            return;
         }
+
+        info!("Selecting next weapon slot");
+
+        let player_slots = &player_weapon_socket.weapon_slots;
+        let drawn_slot = player_weapon_socket.drawn_slot.unwrap_or(WeaponSlot::Slot4);
+
+        let next_slot = match drawn_slot {
+            WeaponSlot::Slot1 => vec![
+                WeaponSlot::Slot2,
+                WeaponSlot::Slot3,
+                WeaponSlot::Slot4,
+                WeaponSlot::Slot1,
+            ],
+            WeaponSlot::Slot2 => vec![
+                WeaponSlot::Slot3,
+                WeaponSlot::Slot4,
+                WeaponSlot::Slot1,
+                WeaponSlot::Slot2,
+            ],
+            WeaponSlot::Slot3 => vec![
+                WeaponSlot::Slot4,
+                WeaponSlot::Slot1,
+                WeaponSlot::Slot2,
+                WeaponSlot::Slot3,
+            ],
+            WeaponSlot::Slot4 => vec![
+                WeaponSlot::Slot1,
+                WeaponSlot::Slot2,
+                WeaponSlot::Slot3,
+                WeaponSlot::Slot4,
+            ],
+        };
+
+        player_weapon_socket.drawn_slot = next_slot
+            .into_iter()
+            .find(|slot| player_slots.get(slot).unwrap().is_some());
     }
 }
 

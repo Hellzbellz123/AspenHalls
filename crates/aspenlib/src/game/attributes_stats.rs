@@ -110,7 +110,9 @@ pub struct DamageQueue {
 #[derive(Debug, Component, Reflect, Clone, Copy)]
 pub struct CharacterStats {
     /// current actor health
-    health: f32,
+    pub health: f32,
+    /// current actor mana
+    pub mana: f32,
     /// elemental buffer values
     element_buffer: ElementalBuffers,
     /// number of equipments on actor
@@ -236,9 +238,9 @@ enum EffectDuration {
 #[derive(Debug, Reflect, Component, Clone, Copy, serde::Deserialize, serde::Serialize)]
 pub struct Attributes {
     /// how much damage can this actor take
-    pub max_hp: u32,
+    pub max_hp: f32,
     /// also called energy. used for special attacks
-    pub max_mana: u32,
+    pub max_mana: f32,
     /// calculates damage
     pub strength: i32,
     /// calculates speed
@@ -423,7 +425,8 @@ impl CharacterStats {
     pub fn from_attrs(base: Attributes, extra: Option<Attributes>) -> Self {
         let new = base.add(extra.unwrap_or(Attributes::ZERO));
         Self {
-            health: new.max_hp as f32,
+            health: new.max_hp,
+            mana: new.max_mana,
             equipment_amount: 0,
             base: new,
             current: new,
@@ -440,7 +443,8 @@ impl Default for CharacterStats {
         let attrs = Attributes::CREEP_DEFAULT;
 
         Self {
-            health: attrs.max_hp as f32,
+            health: attrs.max_hp,
+            mana: attrs.max_mana,
             current: attrs,
             base: attrs,
             added: Attributes::ZERO,
@@ -454,9 +458,9 @@ impl Default for CharacterStats {
 impl Attributes {
     /// attributes all set too `1`
     pub const ONE: Self = Self {
-        max_hp: 1,
+        max_hp: 1.0,
         hp_regen: 1.0,
-        max_mana: 1,
+        max_mana: 1.0,
         mana_regen: 1.0,
         move_speed: 1.0,
         strength: 1,
@@ -473,9 +477,9 @@ impl Attributes {
 
     /// attributes all set too `0`.
     pub const ZERO: Self = Self {
-        max_hp: 0,
+        max_hp: 0.0,
         hp_regen: 0.0,
-        max_mana: 0,
+        max_mana: 0.0,
         mana_regen: 0.0,
         move_speed: 0.0,
         strength: 0,
@@ -492,9 +496,9 @@ impl Attributes {
 
     /// default attributes for hero actors
     pub const WEAPON_DEFAULT: Self = Self {
-        max_hp: 10,
+        max_hp: 10.0,
         hp_regen: 0.5,
-        max_mana: 20,
+        max_mana: 20.0,
         mana_regen: 0.5,
         move_speed: 10.0,
         strength: 2,
@@ -511,9 +515,9 @@ impl Attributes {
 
     /// default attributes for hero actors
     pub const HERO_DEFAULT: Self = Self {
-        max_hp: 200,
+        max_hp: 200.0,
         hp_regen: 10.0,
-        max_mana: 200,
+        max_mana: 200.0,
         mana_regen: 10.0,
         move_speed: 120.0,
         strength: 10,
@@ -530,9 +534,9 @@ impl Attributes {
 
     /// default attributes for trash mob actors
     pub const CREEP_DEFAULT: Self = Self {
-        max_hp: 75,
+        max_hp: 75.0,
         hp_regen: 2.5,
-        max_mana: 50,
+        max_mana: 50.0,
         mana_regen: 4.0,
         move_speed: 90.0,
         strength: 10,
@@ -549,9 +553,9 @@ impl Attributes {
 
     /// default attributes for "elite" mob actors
     pub const ELITE_DEFAULT: Self = Self {
-        max_hp: 150,
+        max_hp: 150.0,
         hp_regen: 6.0,
-        max_mana: 120,
+        max_mana: 120.0,
         mana_regen: 6.0,
         move_speed: 110.0,
         strength: 10,
@@ -568,9 +572,9 @@ impl Attributes {
 
     /// default attributes for boss mob actors
     pub const BOSS_DEFAULT: Self = Self {
-        max_hp: 600,
+        max_hp: 600.0,
         hp_regen: 5.5,
-        max_mana: 500,
+        max_mana: 500.0,
         mana_regen: 20.0,
         move_speed: 140.0,
         strength: 10,
@@ -590,9 +594,9 @@ impl Attributes {
         let scale_integer = scale;
         let scale_float = scale as f32;
         Self {
-            max_hp: 100 * scale_integer as u32,
+            max_hp: (100 * scale_integer) as f32,
             hp_regen: 5.0 * scale_float,
-            max_mana: 200 * scale_integer as u32,
+            max_mana: (200 * scale_integer) as f32,
             mana_regen: 10.0 * scale_float,
             move_speed: 100.0 * scale_float,
             strength: 10 * scale_integer,
@@ -610,9 +614,9 @@ impl Attributes {
 
     /// checks if all values in `self` are == 07
     fn is_all_zero(&self) -> bool {
-        self.max_hp == 0
+        self.max_hp == 0.0
             && self.hp_regen == 0.0
-            && self.max_mana == 0
+            && self.max_mana == 0.0
             && self.mana_regen == 0.0
             && self.move_speed == 0.0
             && self.strength == 0

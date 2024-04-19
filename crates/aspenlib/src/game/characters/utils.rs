@@ -1,5 +1,6 @@
 use bevy_asepritesheet::prelude::{AnimEndAction, Spritesheet};
 
+/// finalizes spritesheet for characters
 pub fn format_character_animations(sheet: &mut Spritesheet) {
     let handle_idle = sheet.get_anim_handle("idle");
     let handle_north = sheet.get_anim_handle("walk_south");

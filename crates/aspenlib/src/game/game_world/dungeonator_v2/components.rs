@@ -6,7 +6,7 @@ use bevy::{
     },
     log::warn,
     math::{IVec2, Vec2},
-    prelude::{Component, Entity, Handle, Name, SpatialBundle},
+    prelude::{Component, Handle, Name, SpatialBundle},
     reflect::Reflect,
 };
 use bevy_ecs_ldtk::{
@@ -14,18 +14,19 @@ use bevy_ecs_ldtk::{
     LevelIid,
 };
 
-use crate::game::game_world::dungeonator_v2::hallways::PlacedHallWay;
+use crate::game::game_world::{
+    components::RoomExit,
+    dungeonator_v2::{hallways::HallWayBlueprint, tile_graph::TileGraph},
+};
 
 /// bundle for easy spawning of dungeon
 /// always 1 per dungeon, all dungeon rooms are children
 #[derive(Bundle)]
 pub struct DungeonContainerBundle {
-    /// identifies dungeon root entity
-    pub tag: DungeonContainerTag,
     /// identified dungeon root in hierarchy
     pub name: Name,
     /// configures spawning of child rooms and hallways
-    pub settings: DungeonSettings,
+    pub dungeon: Dungeon,
     /// data used too spawn with
     pub ldtk_project: Handle<LdtkProject>,
     /// gives dungeons a position
@@ -35,12 +36,12 @@ pub struct DungeonContainerBundle {
 /// placeable room preset
 #[derive(Bundle, Debug)]
 pub struct DungeonRoomBundle {
-    /// identifies dungeon rooms
-    pub tag: DungeonRoomTag,
     /// basically just `LevelIid`
     pub name: Name,
     /// id from `LdtkProject`
     pub id: LevelIid,
+    /// identifies dungeon rooms
+    pub room: RoomBlueprint,
     /// spatial data
     pub spatial: SpatialBundle,
 }
@@ -48,10 +49,10 @@ pub struct DungeonRoomBundle {
 /// bundle for easy spawning of Dungeon Hallways
 #[derive(Bundle)]
 pub struct DungeonHallWayBundle {
-    /// identifies dungeon hallways
-    pub tag: DungeonHallwayTag,
     /// Hallway# from-to
     pub name: Name,
+    /// identifies dungeon hallways
+    pub hallway: HallWayBlueprint,
     /// spatial data
     pub spatial: SpatialBundle,
 }
@@ -91,34 +92,31 @@ pub struct DungeonRoomDatabase {
 // TODO: add dungeon level too settings
 /// settings to configure the dungeon generator,
 /// `useable_rooms` and hallways are filled by other systems
-#[derive(Debug, Clone, Component, Default, Reflect)]
+#[derive(Debug, Clone, Default, Reflect)]
 pub struct DungeonSettings {
     /// dungeon max size / 2.0
     pub map_halfsize: f32,
     /// minimum space between dungeon rooms, in tiles
     pub tiles_between_rooms: i32,
-    /// postion checked rooms
-    pub positioned_rooms: Vec<PlacedRoom>,
-    /// position checked hallways
-    pub positioned_hallways: Vec<PlacedHallWay>,
     /// amount of rooms inside dungeon
-    pub room_amount: RoomAmounts,
+    pub distribution: RoomDistribution,
     /// percentage of paths between
     /// rooms that are chosen to loop
-    pub loops_percentage: f32,
+    pub hallway_loop_chance: f32,
 }
 
-/// tag too identify dungeons
-#[derive(Component)]
-pub struct DungeonContainerTag;
-
-/// tag too identify dungeon hallways
-#[derive(Component)]
-pub struct DungeonHallwayTag;
-
-/// tag too identify dungeon rooms
-#[derive(Component, Debug, Clone)]
-pub struct DungeonRoomTag;
+/// self contained dungeon data component
+#[derive(Debug, Clone, Component, Default, Reflect)]
+pub struct Dungeon {
+    /// postion checked rooms
+    pub rooms: Vec<RoomBlueprint>,
+    /// position checked hallways
+    pub hallways: Vec<HallWayBlueprint>,
+    /// settings too configure this dungeon
+    pub settings: DungeonSettings,
+    /// graph of all tiles building tiles in dungeon
+    pub tile_graph: TileGraph,
+}
 
 /// room instances before being placed
 #[derive(Debug, Clone, Reflect)]
@@ -134,9 +132,10 @@ pub struct RoomPreset {
     pub size: Vec2,
 }
 
-impl PlacedRoom {
-    pub fn from_preset(preset: &RoomPreset, position: Vec2, id: u32) -> PlacedRoom {
-        PlacedRoom {
+impl RoomBlueprint {
+    /// creates `RoomBlueprint` from a room preset
+    pub fn from_preset(preset: &RoomPreset, position: Vec2, id: u32) -> Self {
+        Self {
             descriptor: preset.descriptor.clone(),
             asset_id: preset.room_asset_id.clone(),
             position: position.as_ivec2(),
@@ -148,28 +147,31 @@ impl PlacedRoom {
     }
 }
 
-#[derive(Debug, Clone, Copy, Reflect, Component, Default, PartialEq, PartialOrd, Ord, Eq)]
-pub struct RoomID(u32);
+/// unique id of room per dungeon spawn
+#[derive(Debug, Clone, Copy, Reflect, Component, Default, PartialEq, PartialOrd, Ord, Eq, Hash)]
+pub struct RoomID(pub u32);
 
+/// room placed by room placer
 #[derive(Debug, Clone, Reflect, Component, Default, PartialEq)]
 #[reflect(Component)]
-pub struct PlacedRoom {
+pub struct RoomBlueprint {
+    /// information used too describe room
     pub descriptor: RoomDescriptor,
+    /// what room asset should this blueprint pull from
     pub asset_id: LevelIid,
+    /// where is this room located in worldspace
     pub position: IVec2,
-    pub exits: Vec<Entity>,
+    /// what exits does this room possess
+    pub exits: Vec<RoomExit>,
+    /// what is this room names
     pub name: String,
+    /// how large is this room
     pub size: Vec2,
+    /// rooms unique number
     pub id: RoomID,
 }
 
-#[derive(Debug, Clone, Reflect, Default, PartialEq, Eq)]
-pub struct HallwayNode {
-    pub parent: RoomID,
-    pub used: bool,
-    pub position: IVec2,
-}
-
+/// room stats, describes room for placing algorithm
 #[derive(Debug, Clone, Reflect, Default, Eq, PartialOrd, Ord, PartialEq)]
 pub struct RoomDescriptor {
     /// room shape as enum
@@ -182,7 +184,7 @@ pub struct RoomDescriptor {
 
 /// amounts of each room that should be spawned
 #[derive(Debug, Clone, Default, Reflect)]
-pub struct RoomAmounts {
+pub struct RoomDistribution {
     /// max amount of this room too spawn
     pub small_short: i32,
     /// max amount of this room too spawn

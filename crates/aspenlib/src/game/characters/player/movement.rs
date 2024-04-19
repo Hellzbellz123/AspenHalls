@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::Velocity;
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    consts::{MIN_VELOCITY, SPRINT_MODIFIER, WALK_MODIFIER},
+    consts::{SPRINT_MODIFIER, WALK_MODIFIER},
     game::{
         attributes_stats::CharacterStats,
         characters::{
@@ -33,7 +33,9 @@ pub fn update_player_velocity(
         }
     };
 
-    let Some(delta) = actions.clamped_axis_pair(&action_maps::Gameplay::Move) else {return;};
+    let Some(delta) = actions.clamped_axis_pair(&action_maps::Gameplay::Move) else {
+        return;
+    };
 
     let speed = if actions.pressed(&action_maps::Gameplay::Sprint)
         && move_state.move_perms == AllowedMovement::Run

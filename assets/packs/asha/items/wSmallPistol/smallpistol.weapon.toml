@@ -1,5 +1,5 @@
 [item_type.Weapon.damage]
-physical = 70.0
+physical = 150.0
 elemental = "None"
 
 [item_type.Weapon.form.Gun]

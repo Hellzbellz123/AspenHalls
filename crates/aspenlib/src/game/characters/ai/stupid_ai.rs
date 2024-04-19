@@ -27,6 +27,7 @@ use crate::{
             },
             player::PlayerSelectedHero,
         },
+        combat::{AttackDirection, EventRequestAttack},
         AppState,
     },
     utilities::tiles_to_f32,
@@ -216,21 +217,23 @@ fn chase_action(
 fn attack_action(
     // rapier_context: Res<RapierContext>,
     // player_collider_query: Query<Entity, With<PlayerColliderTag>>,
+    time: Res<Time>,
     player_query: Query<(Entity, &Transform), With<PlayerSelectedHero>>,
     mut enemy_query: Query<(&Transform, &mut AIShootConfig)>,
-    mut shooting_enemies: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
+    mut ai_with_attacks: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
+    mut attack_requests: EventWriter<EventRequestAttack>,
 ) {
-    let Ok((_, _player_transform)) = player_query.get_single() else {
+    let Ok((_, player_transform)) = player_query.get_single() else {
         return;
     };
 
-    for (Actor(actor), mut state) in &mut shooting_enemies {
-        if let Ok((_enemy_transform, mut shoot_cfg)) = enemy_query.get_mut(*actor) {
-            // let player_pos = player_transform.translation.truncate();
-            // let enemy_pos = enemy_transform.translation.truncate();
+    for (Actor(actor), mut state) in &mut ai_with_attacks {
+        if let Ok((enemy_transform, mut shoot_cfg)) = enemy_query.get_mut(*actor) {
+            let player_pos = player_transform.translation.truncate();
+            let enemy_pos = enemy_transform.translation.truncate();
 
-            // let direction_too_player = (enemy_pos - player_pos).normalize_or_zero();
-            // let distance_too_player = enemy_pos.distance(player_pos).abs();
+            let direction_too_player = (player_pos - enemy_pos).normalize_or_zero();
+            let distance_too_player = enemy_pos.distance(player_pos).abs();
 
             match *state {
                 ActionState::Init => {}
@@ -238,14 +241,21 @@ fn attack_action(
                     *state = ActionState::Executing;
                 }
                 ActionState::Executing => {
-                    if shoot_cfg.should_shoot {
-                        trace!("stop shoot");
-                        shoot_cfg.should_shoot = false;
-                    } else {
-                        trace!("start shoot");
-                        shoot_cfg.should_shoot = true;
+                    if distance_too_player > shoot_cfg.find_target_range as f32 {
+                        *state = ActionState::Failure;
                     }
-                    *state = ActionState::Success;
+                    if shoot_cfg.timer.tick(time.delta()).finished() {
+                        // TODO: get weapons on entity, if melee weapon attack with that, else use ranged
+                        attack_requests.send(EventRequestAttack {
+                            requester: *actor,
+                            direction: AttackDirection::FromVector(direction_too_player),
+                        });
+                        shoot_cfg.should_shoot = true;
+                        shoot_cfg.timer.reset();
+                    } else {
+                        shoot_cfg.should_shoot = false;
+                        shoot_cfg.timer.tick(time.delta());
+                    }
                 }
                 ActionState::Success | ActionState::Failure => {
                     shoot_cfg.should_shoot = false;

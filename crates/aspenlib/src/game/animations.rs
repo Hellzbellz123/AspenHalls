@@ -16,20 +16,29 @@ use crate::{
 /// plays animations for all actors with ([`AnimState`], [`AnimationSheet`], [`TextureAtlasSprite`])
 pub struct AnimationsPlugin;
 
+/// different gun animations
 pub struct GunAnimations;
+
+/// different character animations
 pub struct CharacterAnimations;
 
 impl GunAnimations {
-    pub const IDLE: usize = 0;
-    pub const WIGGLE: usize = 1;
+    // pub const IDLE: usize = 0;
+    // pub const WIGGLE: usize = 1;
+    /// gun fire animation index
     pub const FIRE: usize = 2;
+    /// gun reload animation index
     pub const RELOAD: usize = 3;
 }
 
 impl CharacterAnimations {
+    /// character idle animation index
     pub const IDLE: usize = 0;
+    /// character walk down animation index
     pub const WALK_DOWN: usize = 1;
+    /// character walk up animation index
     pub const WALK_UP: usize = 2;
+    /// character walk horizontal animation index
     pub const WALK_RIGHT: usize = 3;
 }
 
@@ -43,6 +52,7 @@ impl Plugin for AnimationsPlugin {
     }
 }
 
+/// updates character animation when move status changes
 fn change_character_animations(
     mut change_events: EventWriter<EventAnimationChange>,
     mut characters: Query<(Entity, &CharacterMoveState, &Velocity), Changed<CharacterMoveState>>,
@@ -71,7 +81,7 @@ fn change_character_animations(
                     change_events.send(EventAnimationChange {
                         anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
                         actor: character,
-                    })
+                    });
                 }
                 MoveDirection::West => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
@@ -80,14 +90,50 @@ fn change_character_animations(
                     change_events.send(EventAnimationChange {
                         anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
                         actor: character,
-                    })
+                    });
                 }
-                _ => {}
+                MoveDirection::NorthEast => {
+                    let mut sprite = sprite_query.get_mut(character).expect("msg");
+                    sprite.flip_x = false;
+
+                    change_events.send(EventAnimationChange {
+                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
+                        actor: character,
+                    });
+                },
+                MoveDirection::SouthEast => {
+                    let mut sprite = sprite_query.get_mut(character).expect("msg");
+                    sprite.flip_x = false;
+
+                    change_events.send(EventAnimationChange {
+                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
+                        actor: character,
+                    });
+                },
+                MoveDirection::NorthWest => {
+                    let mut sprite = sprite_query.get_mut(character).expect("msg");
+                    sprite.flip_x = false;
+
+                    change_events.send(EventAnimationChange {
+                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_UP),
+                        actor: character,
+                    });
+                },
+                MoveDirection::SouthWest => {
+                    let mut sprite = sprite_query.get_mut(character).expect("msg");
+                    sprite.flip_x = false;
+
+                    change_events.send(EventAnimationChange {
+                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_DOWN),
+                        actor: character,
+                    });
+                },
             },
         }
     }
 }
 
+/// updates actors animations
 fn handle_animation_changes(
     mut change_events: EventReader<EventAnimationChange>,
     mut animateable: Query<(&mut SpriteAnimator, &Handle<Spritesheet>)>,
@@ -98,7 +144,10 @@ fn handle_animation_changes(
             return;
         };
 
-        let sprite_sheet = sprite_sheets.get(sheet_handle).expect("msg");
+        let sprite_sheet = sprite_sheets
+            .get(sheet_handle)
+            .expect("sprite sheet should exist for this actor");
+
         let anim_time = sprite_sheet
             .get_anim(&event.anim_handle)
             .expect("anim id does not exist")
@@ -108,12 +157,15 @@ fn handle_animation_changes(
         {
             continue;
         }
-        animator.set_anim(event.anim_handle)
+        animator.set_anim(event.anim_handle);
     }
 }
 
+/// update actors animation
 #[derive(Debug, Event)]
 pub struct EventAnimationChange {
+    /// animation too set
     pub anim_handle: AnimHandle,
+    /// what actor too change animation on
     pub actor: Entity,
 }

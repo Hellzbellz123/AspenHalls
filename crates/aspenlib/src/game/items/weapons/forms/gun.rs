@@ -35,6 +35,7 @@ impl Plugin for GunWeaponsPlugin {
 pub struct GunShootEvent {
     /// what gun should shoot
     pub gun: Entity,
+    /// data used too create bullet
     pub settings: GunCfg,
 }
 
@@ -49,19 +50,19 @@ fn update_gun_timers(
     >,
 ) {
     for (weapon, mut current_ammo, mut firing_timers) in &mut weapon_query {
-        if current_ammo.count == 0 {
+        if current_ammo.current == 0 {
             if firing_timers.refill.remaining_secs() < 0.7 {
                 anim_events.send(EventAnimationChange {
                     anim_handle: AnimHandle::from_index(GunAnimations::RELOAD),
                     actor: weapon,
-                })
+                });
             }
             firing_timers.refill.tick(time.delta());
 
             if firing_timers.refill.finished() {
                 warn!("finished reloading");
                 firing_timers.refill.reset();
-                current_ammo.count = current_ammo.max;
+                current_ammo.current = current_ammo.max;
             }
         } else {
             firing_timers.attack.tick(time.delta());
@@ -97,16 +98,16 @@ pub fn receive_gun_shots(
         };
         let cfg = event.settings;
 
-        if current_ammo.count == 0 {
+        if current_ammo.current == 0 {
             if timers.refill.remaining_secs() < 0.5 {
                 anim_events.send(EventAnimationChange {
                     anim_handle: AnimHandle::from_index(GunAnimations::RELOAD),
                     actor: weapon,
-                })
+                });
             }
             warn!("reloading");
             continue;
-        } else if timers.attack.finished() || current_ammo.count == cfg.max_ammo {
+        } else if timers.attack.finished() || current_ammo.current == cfg.max_ammo {
             info!("bang!");
             anim_events.send(EventAnimationChange {
                 anim_handle: AnimHandle::from_index(GunAnimations::FIRE),
@@ -120,7 +121,7 @@ pub fn receive_gun_shots(
                 Transform::from_translation(translation + offset).with_rotation(rotation);
 
             timers.attack.reset();
-            current_ammo.count -= 1;
+            current_ammo.current -= 1;
             create_bullet(
                 requester,
                 &mut cmds,

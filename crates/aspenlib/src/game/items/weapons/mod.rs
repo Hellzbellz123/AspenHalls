@@ -80,7 +80,7 @@ fn prepare_weapons(
                         duration: Timer::from_seconds(cfg.fire_rate, TimerMode::Once),
                     },
                     CurrentAmmo {
-                        count: cfg.max_ammo,
+                        current: cfg.max_ammo,
                         max: cfg.max_ammo,
                     },
                 ));

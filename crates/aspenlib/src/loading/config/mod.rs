@@ -2,7 +2,7 @@ use bevy::{
     asset::AssetMetaCheck,
     log::LogPlugin,
     prelude::*,
-    window::{PresentMode, WindowMode, WindowResized, WindowResolution},
+    window::{Cursor, PresentMode, WindowMode, WindowResized, WindowResolution},
 };
 use bevy_ecs_ldtk::assets::LdtkProject;
 use bevy_kira_audio::{AudioChannel, AudioControl};
@@ -292,6 +292,11 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                         },
                         window_level: bevy::window::WindowLevel::Normal,
                         fit_canvas_to_parent: true,
+                        cursor: Cursor {
+                            icon: CursorIcon::Crosshair,
+                            visible: true,
+                            ..default()
+                        },
                         ..default()
                     }),
                     ..default()

@@ -35,6 +35,10 @@ pub struct CharacterSpawner {
     pub spawned_characters: Vec<Entity>,
 }
 
+/// tile is a room exit
+#[derive(Component, Default, Debug, Clone)]
+pub struct RoomExitTile;
+
 /// spawner for enemies
 #[derive(Component, Default, Debug, Clone, Reflect)]
 #[reflect(Component)]
@@ -67,7 +71,7 @@ pub struct PlayerStartLocation {
 }
 
 /// Marks Exits too dungeon rooms
-#[derive(Component, Clone, Default, PartialEq, Reflect)]
+#[derive(Debug, Component, Clone, Default, PartialEq, Eq, Reflect)]
 #[reflect(Component)]
 pub struct RoomExit {
     /// room this exit is part of

@@ -1,5 +1,5 @@
 [item_type.Weapon.damage]
-physical = 1.0
+physical = 80.0
 elemental = "None"
 
 [item_type.Weapon.form.Gun]
@@ -8,7 +8,7 @@ projectile_size = 5.0
 barrel_end = [20.0, 0.0]
 max_ammo = 15
 reload_time = 2.5
-fire_rate = 0.37
+fire_rate = 0.45
 
 [actor]
 name = "Auto Pistol"

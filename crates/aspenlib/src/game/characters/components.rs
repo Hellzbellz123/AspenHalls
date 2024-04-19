@@ -52,26 +52,36 @@ pub struct CharacterMoveState {
     pub teleport_status: TeleportStatus,
 }
 
+/// character items and value
 #[derive(Debug, Component, Reflect, Clone, Default)]
 pub struct CharacterInventory {
+    /// what items this character is carrying
     pub items: HashMap<Entity, (RegistryIdentifier, ItemSlot)>,
-    // if hero and player, is total coin count
-    // if enemy, how many coins enemy is worth
+    /// if hero and player, is total coin count
+    /// if enemy, how many coins enemy is worth
     pub coins: u64,
 }
 
+/// character available item slot
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Reflect, Default)]
 pub struct ItemSlot(u32);
 
+/// character available action slots
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Reflect, Default)]
 #[reflect(Default)]
 pub enum ActionSlot {
+    /// useable action slot 1
     #[default]
     Slot1,
+    /// useable action slot 2
     Slot2,
+    /// useable action slot 3
     Slot3,
+    /// useable action slot 4
     Slot4,
+    /// useable action slot 5
     Slot5,
+    /// useable action slot 6
     Slot6,
 }
 
@@ -119,13 +129,21 @@ pub enum CurrentMovement {
 #[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
 pub enum MoveDirection {
     #[default]
+    /// velocity -Y
     South,
+    /// velocity +Y
     North,
+    /// velocity +X
     East,
+    /// velocity -X
     West,
+    /// velocity +Y +Y
     NorthEast,
+    /// velocity -Y +X
     SouthEast,
+    /// velocity +Y -X
     NorthWest,
+    /// velocity -Y -X
     SouthWest,
 }
 

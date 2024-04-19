@@ -51,7 +51,7 @@ pub fn build_character_bundles(
             &asset_server,
             sprite_json_path,
             bevy::sprite::Anchor::TopCenter,
-            |sheet| format_character_animations(sheet),
+            format_character_animations,
         );
 
         let actor_bundle = CharacterBundle {
@@ -105,7 +105,7 @@ pub fn build_character_bundles(
 
 /// adds items too `ItemRegistry` with item definitions loaded from disk
 pub fn build_item_bundles(
-    mut cmds: &mut Commands,
+    cmds: &mut Commands,
     item_defs: Res<'_, Assets<ItemDefinition>>,
     asset_server: &Res<'_, AssetServer>,
     item_registry: &mut ItemRegistry,
@@ -118,15 +118,17 @@ pub fn build_item_bundles(
         match definition.item_type {
             ItemAssetType::Weapon { damage, form } => {
                 insert_weapon_into_registry(
-                    &mut cmds,
-                    &asset_server,
-                    sprite_json_path,
+                    cmds,
                     item_registry,
-                    definition.actor.name.clone(),
-                    definition.actor.identifier.clone(),
-                    damage,
-                    form,
-                    definition.actor.stats,
+                    asset_server,
+                    sprite_json_path,
+                    (
+                        definition.actor.name.clone().into(),
+                        definition.actor.identifier.clone(),
+                        damage,
+                        form,
+                        definition.actor.stats,
+                    ),
                 );
             }
             ItemAssetType::Trinket {} => todo!("trinket items not implmented"),
@@ -139,33 +141,35 @@ pub fn build_item_bundles(
 /// creates weapon bundle from an item definition and then adds it too item registry
 fn insert_weapon_into_registry(
     cmds: &mut Commands,
+    item_registry: &mut ItemRegistry,
     asset_server: &Res<'_, AssetServer>,
     sprite_json_path: PathBuf,
-    item_registry: &mut ItemRegistry,
-    name: String,
-    identifier: RegistryIdentifier,
-    damage: AttackDamage,
-    weapon_type: WeaponDescriptor,
-    stats: Attributes,
+    weapon: (
+        Name,
+        RegistryIdentifier,
+        AttackDamage,
+        WeaponDescriptor,
+        Attributes,
+    ),
 ) {
-    let sheet_handle = match weapon_type {
+    let sheet_handle = match weapon.3 {
         WeaponDescriptor::Gun { .. } => load_spritesheet_then(
             cmds,
             asset_server,
             sprite_json_path,
             bevy::sprite::Anchor::Center,
-            |sheet| format_gun_animations(sheet),
+            format_gun_animations,
         ),
     };
 
     item_registry.weapons.insert(
-        identifier.clone(),
+        weapon.1.clone(),
         WeaponBundle {
-            name: Name::new(name),
-            identifier,
+            name: weapon.0,
+            identifier: weapon.1,
             holder: WeaponHolder::default(),
-            damage,
-            weapon_type,
+            damage: weapon.2,
+            weapon_type: weapon.3,
             sprite: AnimatedSpriteBundle {
                 spritesheet: sheet_handle,
                 animator: SpriteAnimator::from_anim(AnimHandle::from_index(1)),
@@ -180,7 +184,7 @@ fn insert_weapon_into_registry(
                 rotation_locks: LockedAxes::default(),
                 damping_prop: Damping::default(),
             },
-            stats: EquipmentStats::from_attrs(stats, None),
+            stats: EquipmentStats::from_attrs(weapon.4, None),
         },
     );
 }

@@ -4,7 +4,7 @@ character_type = { Boss = { ai = "Boss" } }
 name = "Old Hag"
 identifier = "oldhag"
 aseprite_path = "oldhag.sprite.json"
-pixel_size = [32.0, 32.0]
+pixel_size = [18.0, 30.0]
 
 [actor.stats]
 max_hp = 1000

@@ -1,5 +1,5 @@
 use bevy::{
-    ecs::{system::Res, world::Mut},
+    ecs::system::Res,
     log::{info, warn},
     math::{Rect, Vec2},
 };
@@ -33,12 +33,13 @@ pub fn get_leveled_preset(presets: &[RoomPreset], level: &RoomLevel) -> Option<R
         .cloned()
 }
 
-pub fn choose_center_presets(
-    settings: &Mut<DungeonSettings>,
+/// chooses selected amount of rooms for each room class
+pub fn choose_filler_presets(
+    settings: &DungeonSettings,
     room_database: &Res<DungeonRoomDatabase>,
 ) -> Vec<RoomPreset> {
     let mut chosen_presets: Vec<RoomPreset> = Vec::new();
-    let room_cfg = &settings.room_amount;
+    let room_cfg = &settings.distribution;
 
     for _ in 0..room_cfg.small_short {
         if !room_database.small_short_rooms.is_empty() {
@@ -96,15 +97,6 @@ pub fn choose_center_presets(
     chosen_presets
 }
 
-pub fn rects_too_display(filled_positions: &[Rect]) -> Vec<String> {
-    let filled_pos_vec = filled_positions
-        .iter()
-        .map(|f| f.min)
-        .map(|f| format!("Vec2{{{},{}}}", f.x, f.y))
-        .collect::<Vec<String>>();
-    filled_pos_vec
-}
-
 #[allow(clippy::redundant_else)]
 /// Creates randomly positioned `Rect` that doesnt overlap any `Rect` in `occupied_positions`
 ///
@@ -119,15 +111,9 @@ pub fn random_room_positon(
     let mut attempt_count = 0;
     let max_attempts = 100;
 
-    info!(
-        "occupied positions: {:?}",
-        rects_too_display(filled_positions)
-    );
-    info!("room size: {}", size);
-
     loop {
         if attempt_count >= max_attempts {
-            info!("expanding testing range");
+            info!("expanding dungeon map range");
             attempt_count = 0;
             expanding_range *= 1.2;
         }
@@ -136,7 +122,6 @@ pub fn random_room_positon(
         let x = (rng.gen_range(-expanding_range..expanding_range) / TILE_SIZE).round() * TILE_SIZE;
         let y = (rng.gen_range(-expanding_range..expanding_range) / TILE_SIZE).round() * TILE_SIZE;
         let (width, height) = (size.x, size.y);
-        info!("new room position: X: {}, Y: {}", x, y);
 
         let new_5 = Rect::from_center_size(Vec2 { x, y }, size);
         let new_4 = Rect::new(x, y, x - width, y - height); // top left origin
@@ -144,12 +129,7 @@ pub fn random_room_positon(
         let new_2 = Rect::new(x, y, x - width, y + height); // bottom left origin
         let new_1 = Rect::new(x, y, x + width, y + height); // bottom right origin
 
-        let mut valid_origins: Vec<Rect> = Vec::with_capacity(5);
-        valid_origins.push(new_1.clone());
-        valid_origins.push(new_2.clone());
-        valid_origins.push(new_3.clone());
-        valid_origins.push(new_4.clone());
-        valid_origins.push(new_5.clone());
+        let valid_origins: Vec<Rect> = vec![new_1, new_2, new_3, new_4, new_5];
 
         // test if test_rect has no intersections with currently spawned recs
         if filled_positions
@@ -168,6 +148,5 @@ pub fn random_room_positon(
         };
         warn!("bad position. restarting loop!");
         attempt_count += 1;
-        continue;
     }
 }

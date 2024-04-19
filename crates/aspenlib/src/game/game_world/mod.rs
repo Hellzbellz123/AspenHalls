@@ -11,16 +11,10 @@ use rand::prelude::{Rng, ThreadRng};
 use crate::{
     consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
     game::{
-        characters::{
-            components::{CharacterMoveState, CharacterType, TeleportStatus},
-            player::PlayerSelectedHero,
-        },
+        characters::components::{CharacterMoveState, CharacterType, TeleportStatus},
         game_world::{
-            components::{ActorTeleportEvent, PlayerStartLocation, TpTriggerEffect},
-            dungeonator_v2::{
-                components::{DungeonContainerTag, DungeonSettings},
-                GeneratorState,
-            },
+            components::{ActorTeleportEvent, RoomExitTile, TpTriggerEffect},
+            dungeonator_v2::{components::Dungeon, GeneratorState},
             ldtk_bundles::{
                 LdtkCollisionBundle, LdtkEnemySpawnerBundle, LdtkHeroPlaceBundle,
                 LdtkRoomExitBundle, LdtkStartLocBundle, LdtkTeleporterBundle,
@@ -31,6 +25,7 @@ use crate::{
         items::EventSpawnItem,
     },
     loading::registry::RegistryIdentifier,
+    AppState,
 };
 
 /// shared components for dungeon and home
@@ -87,12 +82,12 @@ impl Plugin for GameWorldPlugin {
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
                     listen_rebuild_dungeon_request
-                        .run_if(state_exists_and_equals(GeneratorState::FinishedDungeonGen)),
+                        .run_if(state_exists_and_equals(AppState::PlayingGame)),
                 ),
             )
             .add_systems(
-                OnEnter(GeneratorState::PlaceHallwayRoots),
-                (teleport_player_too_start_location, populate_start_room),
+                OnExit(GeneratorState::FinalizeHallways),
+                populate_start_room,
             );
     }
 }
@@ -100,19 +95,33 @@ impl Plugin for GameWorldPlugin {
 /// listens for dungeon rebuild request if dungeon is finished spawning
 fn listen_rebuild_dungeon_request(
     mut cmds: Commands,
-    mut dungeon_root: Query<(Entity, &mut DungeonSettings), With<DungeonContainerTag>>,
-    enemies: Query<Entity, (With<CharacterMoveState>, Without<PlayerSelectedHero>)>,
+    mut dungeon_root: Query<(Entity, &mut Dungeon)>,
+    // mut cleanup_events: EventWriter<EventCleanupWorld>,
     actions: Res<ActionState<action_maps::Gameplay>>,
+    generator_state: Res<State<GeneratorState>>,
 ) {
     if actions.just_pressed(&action_maps::Gameplay::DebugF2) {
-        cmds.entity(dungeon_root.single().0).despawn_descendants();
-        enemies.for_each(|f| {
-            cmds.entity(f).despawn_recursive();
-        });
-        dungeon_root.single_mut().1.positioned_rooms = Vec::new();
+        // TODO: use cleanup systems
+        // cleanup_events.send(EventCleanupWorld::NewLevel);
+        let Ok((dungeon, ..)) = dungeon_root.get_single_mut() else {
+            return;
+        };
+        cmds.entity(dungeon).despawn_recursive();
+        info!(
+            "despawned old dungeon: current dungeon build state: {:?}",
+            generator_state
+        );
         cmds.insert_resource(NextState(Some(GeneratorState::SelectPresets)));
     }
 }
+
+// /// holds all things related too game data for heirarchy, this might change
+// #[derive(Debug, Component)]
+// pub struct GameContainerTag;
+
+// fn create_world_container(mut cmds: Commands) {
+//     cmds.spawn((Name::new("GameContainer"), GameContainerTag));
+// }
 
 /// Holds `NavGrid`, for easier query
 #[derive(Component)]
@@ -200,7 +209,7 @@ fn handle_teleport_events(
 /// spawns items in the dungeon start room for the player too use
 fn populate_start_room(
     mut ew: EventWriter<EventSpawnItem>,
-    dungeon_root: Query<Entity, With<DungeonContainerTag>>,
+    dungeon_root: Query<Entity, With<Dungeon>>,
 ) {
     let Ok(dungeon) = dungeon_root.get_single() else {
         error!("no dungeon too spawn starting weaoins at");
@@ -216,55 +225,6 @@ fn populate_start_room(
         spawn_data: (RegistryIdentifier("smallpistol".to_string()), 1),
         requester: dungeon,
     });
-}
-
-/// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
-// TODO: find all uses of cmds.spawn(()) and add cleanup component
-// cleanup component should be a system that querys for a specific DespawnComponent and despawns all entitys in the query
-#[allow(clippy::type_complexity)]
-fn teleport_player_too_start_location(
-    mut player_query: Query<(Entity, &mut CharacterMoveState), With<PlayerSelectedHero>>,
-    start_location: Query<(&PlayerStartLocation, &GlobalTransform)>,
-    mut tp_events: EventWriter<ActorTeleportEvent>,
-) {
-    if start_location.is_empty() {
-        warn!("error teleporting player too start location: no locations");
-        return;
-    }
-
-    if start_location.get_single().is_err() {
-        warn!("issue teleporting player too start location: multiple locations");
-    }
-
-    let (start_size, start_pos) = {
-        let a = start_location
-            .iter()
-            .next()
-            .expect("PlayerStartLocation should always exist");
-        (a.0.size, a.1.translation().truncate())
-    };
-
-    let start_loc_rect = Rect {
-        min: Vec2 {
-            x: start_pos.x - start_size.x,
-            y: start_pos.y - start_size.y,
-        },
-        max: Vec2 {
-            x: start_pos.x + start_size.x,
-            y: start_pos.y + start_size.y,
-        },
-    };
-
-    let pos = random_point_inside(&start_loc_rect, 3.0).unwrap_or(start_pos);
-
-    warn!("teleporting player too start location: {}", pos);
-    let (player_ent, mut player_tp_state) = player_query.single_mut();
-    tp_events.send(ActorTeleportEvent {
-        tp_type: TpTriggerEffect::Global(pos),
-        target: Some(player_ent),
-        sender: None,
-    });
-    player_tp_state.teleport_status = TeleportStatus::Requested;
 }
 
 /// Takes `TileEnumTags` that is added from ldtk editor
@@ -284,7 +244,7 @@ fn process_tile_enum_tags(
             if let Some(mut cmds) = commands.get_entity(entity) {
                 cmds.remove::<TileEnumTags>();
             } else {
-                warn!("tag entity was despawned")
+                warn!("tag entity was despawned");
             }
         }
         for tag in tags {
@@ -304,7 +264,7 @@ fn process_tile_enum_tags(
 /// checks tile enum tag for collider tag, creates shape for collider, passes too `insert_collider`, tag is then removed from `tile_enum_tags`
 fn check_tag_colliders(
     tag: &str,
-    commands: &mut Commands<'_, '_>,
+    cmds: &mut Commands<'_, '_>,
     entity: Entity,
     tile_enum_tag: &mut Mut<'_, TileEnumTags>,
     degrees: f32,
@@ -313,86 +273,86 @@ fn check_tag_colliders(
         "CollideUp" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(0.0, -12.), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideDown" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideLeft" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideRight" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideCornerLR" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideCornerUR" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideCornerLL" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideCornerUL" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideInnerUL" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(-12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideInnerLL" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideInnerUR" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideInnerLR" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "DoubleWallVertical" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
                 (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "CollideInnerWall" | "CollideOuterWall" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(0.0, 14.0), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_collider(commands, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
         }
         "RoomExit" => {
-            // TODO: atm it is unused
-            // in the future this might be expanded on
+            cmds.entity(entity).insert(RoomExitTile);
+            remove_value(&mut tile_enum_tag.tags, tag);
         }
         unknown => {
             println!("ERROR: Unknown Tile Enum Tag on this entity: {unknown}");
@@ -401,22 +361,25 @@ fn check_tag_colliders(
 }
 
 /// inserts collider onto passed entity, collides with everything
-fn insert_collider(
+fn insert_tile_collider(
     commands: &mut Commands<'_, '_>,
     entity: Entity,
     shape: Vec<(Vec2, f32, Collider)>,
     tag: &str,
     tags: &mut Mut<'_, TileEnumTags>,
 ) {
-    commands.entity(entity).insert(LdtkCollisionBundle {
-        name: Name::new(tag.to_owned()),
-        rigidbody: RigidBody::Fixed,
-        collision_shape: Collider::compound(shape),
-        collision_group: CollisionGroups {
-            memberships: AspenCollisionLayer::WORLD,
-            filters: Group::ALL,
+    commands.entity(entity).insert((
+        RoomExitTile,
+        LdtkCollisionBundle {
+            name: Name::new(tag.to_owned()),
+            rigidbody: RigidBody::Fixed,
+            collision_shape: Collider::compound(shape),
+            collision_group: CollisionGroups {
+                memberships: AspenCollisionLayer::WORLD,
+                filters: Group::ALL,
+            },
         },
-    });
+    ));
     remove_value(&mut tags.tags, tag);
 }
 
