@@ -42,8 +42,16 @@ pub fn build_hallways(
     let graph_data = (tile_graph.center, tile_graph.size);
 
     for (_hallway_eid, mut hallway, _) in &mut hallways {
+        if hallway.built {
+            continue;
+        }
+
         info!("generating path for hallway: {:?}", hallway.connected_rooms);
-        let hallway_path = create_path_simple(tile_graph, &hallway);
+        let Some(hallway_path) = create_path_simple(tile_graph, &hallway) else {
+            hallway.built = true;
+            error!("could not generate path for {:?}", hallway);
+            continue;
+        };
 
         mark_path_as_hallway_tiles(&hallway_path, tile_graph);
 
@@ -98,18 +106,24 @@ pub struct HallwayPoints {
 fn create_path_simple(
     tile_graph: &TileGraph,
     hallway: &Mut<HallWayBlueprint>,
-) -> VecDeque<NodeIndex> {
+) -> Option<VecDeque<NodeIndex>> {
     info!("getting hallway side nodes");
+    let start_pos = tile_graph.get_node_at_translation(hallway.start_pos);
+    let end_pos = tile_graph.get_node_at_translation(hallway.end_pos);
 
-    let bad_pos_msg = |pos: IVec2| -> String { format!("node position should exist: {pos}") };
+    let Some(start) = start_pos else {
+        error!("Could not get start translation from tile position");
+        return None;
+    };
+    let Some(end) = end_pos else {
+        error!("Could not get end translation from tile position");
+        return None;
+    };
 
-    let first_side = HallwayPoints {
-        start: get_node_for_position(tile_graph, hallway.start_pos).unwrap_or_else(|| { panic!("{}", bad_pos_msg(hallway.start_pos)) }),
-        end: get_node_for_position(tile_graph, hallway.end_pos).unwrap_or_else(|| { panic!("{}", bad_pos_msg(hallway.end_pos)) })
-      };
+    let first_side = HallwayPoints { start, end };
 
     info!("calculating first sides path");
-    dijkstra_path(tile_graph, first_side)
+    Some(dijkstra_path(tile_graph, first_side))
 }
 
 /// calculates dijkstra path between nodes
@@ -117,15 +131,17 @@ fn dijkstra_path(tile_graph: &TileGraph, hallway: HallwayPoints) -> VecDeque<Nod
     info!("getting path list");
 
     let edge_cost = |edge: EdgeReference<TileGraphEdge>| {
-        let mut cost =edge.weight().cost; // 1.0
-        let (a,b) = tile_graph.edge_endpoints(edge.id()).expect("this edge should exist");
+        let mut cost = edge.weight().cost; // 1.0
+        let (a, b) = tile_graph
+            .edge_endpoints(edge.id())
+            .expect("this edge should exist");
         let mut neighbor_count = 0;
         tile_graph.neighbors(a).for_each(|f| {
             neighbor_count += tile_graph.neighbors(f).count();
         }); // 4 neighbors if valid, each neighbor has 4 if valid, 16 total
         tile_graph.neighbors(b).for_each(|f| {
             neighbor_count += tile_graph.neighbors(f).count();
-        });// 4 neighbors if valid, each neighbor has 4 if valid, 16 total
+        }); // 4 neighbors if valid, each neighbor has 4 if valid, 16 total
 
         if neighbor_count == 32 {
             cost += 0.0;
@@ -140,7 +156,7 @@ fn dijkstra_path(tile_graph: &TileGraph, hallway: HallwayPoints) -> VecDeque<Nod
         &tile_graph.graph,
         hallway.start,
         Some(hallway.end),
-        edge_cost
+        edge_cost,
     );
 
     // Reconstruct the shortest path to the end node
@@ -169,9 +185,23 @@ fn dijkstra_path(tile_graph: &TileGraph, hallway: HallwayPoints) -> VecDeque<Nod
             break;
         }
     }
+
     if path_node_indecies.is_empty() {
-        warn!("could not generate path");
+        let path_start_pos = tile_graph
+            .node_weight(hallway.start)
+            .expect("node should exist")
+            .tile;
+        let path_end_pos = tile_graph
+            .node_weight(hallway.end)
+            .expect("node should exist")
+            .tile;
+        let path_start_debug = tile_graph.get_tiles_translation(path_start_pos);
+        let path_end_debug = tile_graph.get_tiles_translation(path_end_pos);
+        info!("path start debug: {:?}", path_start_debug);
+        info!("path end debug: {:?}", path_end_debug);
+        panic!("could not generate path");
     }
+
     path_node_indecies
 }
 
@@ -187,15 +217,6 @@ fn mark_path_as_hallway_tiles(expanded_path: &VecDeque<NodeIndex>, tile_graph: &
             error!("building node included in path");
         }
     }
-}
-
-/// finds `node_index` for givent tile position
-pub fn get_node_for_position(tile_graph: &TileGraph, position: IVec2) -> Option<NodeIndex> {
-    tile_graph.node_indices().find(|&node_index| {
-        let node = tile_graph.graph[node_index];
-        let node_pos = get_tile_translation(tile_graph.center, tile_graph.size, node.tile);
-        node_pos.as_ivec2() == position
-    })
 }
 
 /// calculates distance between 2 uvecs

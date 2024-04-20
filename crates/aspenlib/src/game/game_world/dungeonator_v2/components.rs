@@ -96,8 +96,9 @@ pub struct DungeonRoomDatabase {
 pub struct DungeonSettings {
     /// dungeon max size / 2.0
     pub map_halfsize: f32,
-    /// minimum space between dungeon rooms, in tiles
-    pub tiles_between_rooms: i32,
+    // TODO: readd, disabled because it breaks maths
+    // /// minimum space between dungeon rooms, in tiles
+    // pub tiles_between_rooms: i32,
     /// amount of rooms inside dungeon
     pub distribution: RoomDistribution,
     /// percentage of paths between

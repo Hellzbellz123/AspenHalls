@@ -9,11 +9,12 @@ use bevy::{
 use bevy_ecs_ldtk::{assets::LdtkExternalLevel, prelude::LdtkProject};
 
 use crate::{
+    consts::TILE_SIZE,
     game::game_world::dungeonator_v2::{
         components::{
-            try_get_roomlevel, try_get_roomshape, try_get_roomtype,
-            DungeonRoomBundle, DungeonRoomDatabase, RoomBlueprint,
-            RoomDescriptor, RoomLevel, RoomPreset, RoomShape, RoomType, Dungeon,
+            try_get_roomlevel, try_get_roomshape, try_get_roomtype, Dungeon, DungeonRoomBundle,
+            DungeonRoomDatabase, RoomBlueprint, RoomDescriptor, RoomLevel, RoomPreset, RoomShape,
+            RoomType,
         },
         utils::{choose_filler_presets, get_leveled_preset, random_room_positon},
         GeneratorState,
@@ -52,6 +53,21 @@ pub fn generate_room_database(
     dungeon_project
         .iter_external_levels(&level_assets)
         .for_each(|level_def| {
+            // check if room assets are right size,
+            // if they arent the correct size we get annoying panics elsewhere
+            if ["DungeonStartL1", "TestingHalls"].iter().all(|f| f != level_def.identifier())
+                && ((level_def.px_wid() / TILE_SIZE as i32) % 2 != 0
+                    || (level_def.px_hei() / TILE_SIZE as i32) % 2 != 0)
+            {
+                panic!("Dungeon filler room MUST be even number of tiles in size for x AND y: {}", level_def.identifier());
+            }
+            if ["DungeonStartL1"].iter().all(|f| f == level_def.identifier())
+                && ((level_def.px_wid() / TILE_SIZE as i32) / 2 == 0
+                    || (level_def.px_hei() / TILE_SIZE as i32) / 2 == 0)
+            {
+                panic!("ONLY Dungeon Start room MUST be odd number of tiles in size for x AND y: {}", level_def.identifier());
+            }
+
             let field_instances = level_def.field_instances();
             let room_shape = try_get_roomshape(field_instances)
                 .expect("No size ident on room definiton. Check Ldtk Editor for errors");
@@ -131,9 +147,7 @@ pub fn select_presets(
 /// spawns possible dungeon rooms from `dungeon_root.dungeon_settings.useable_dungeons`
 pub fn spawn_presets(
     mut cmds: Commands,
-    dungeon_root: Query<
-        (Entity, &Dungeon, &Handle<LdtkProject>),
-    >,
+    dungeon_root: Query<(Entity, &Dungeon, &Handle<LdtkProject>)>,
 ) {
     let (dungeon_root, dungeon_settings, _proj_handle) = dungeon_root.single();
     if dungeon_settings.rooms.is_empty() {
@@ -144,18 +158,16 @@ pub fn spawn_presets(
     cmds.entity(dungeon_root).with_children(|rooms| {
         for room in &dungeon_settings.rooms {
             let name = format!("DungeonRoom-{}", room.name);
-            rooms.spawn((
-                DungeonRoomBundle {
-                    room: room.clone(),
-                    name: Name::new(name),
-                    id: room.asset_id.clone(),
-                    spatial: SpatialBundle::from_transform(Transform::from_xyz(
-                        room.position.x as f32,
-                        room.position.y as f32,
-                        0.0,
-                    )),
-                },
-            ));
+            rooms.spawn((DungeonRoomBundle {
+                room: room.clone(),
+                name: Name::new(name),
+                id: room.asset_id.clone(),
+                spatial: SpatialBundle::from_transform(Transform::from_xyz(
+                    room.position.x as f32,
+                    room.position.y as f32,
+                    0.0,
+                )),
+            },));
         }
     });
 }

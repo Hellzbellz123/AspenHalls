@@ -118,18 +118,16 @@ pub fn random_room_positon(
             expanding_range *= 1.2;
         }
 
-        let half = settings.tiles_between_rooms as f32 * TILE_SIZE / 2.0;
         let x = (rng.gen_range(-expanding_range..expanding_range) / TILE_SIZE).round() * TILE_SIZE;
         let y = (rng.gen_range(-expanding_range..expanding_range) / TILE_SIZE).round() * TILE_SIZE;
         let (width, height) = (size.x, size.y);
 
-        let new_5 = Rect::from_center_size(Vec2 { x, y }, size);
-        let new_4 = Rect::new(x, y, x - width, y - height); // top left origin
-        let new_3 = Rect::new(x, y, x + width, y - height); // top right origin
-        let new_2 = Rect::new(x, y, x - width, y + height); // bottom left origin
-        let new_1 = Rect::new(x, y, x + width, y + height); // bottom right origin
-
-        let valid_origins: Vec<Rect> = vec![new_1, new_2, new_3, new_4, new_5];
+        let mut valid_origins: Vec<Rect> = Vec::new();
+        valid_origins.push(Rect::from_center_size(Vec2 { x, y }, size));
+        valid_origins.push(Rect::new(x, y, x - width, y - height)); // top left
+        valid_origins.push(Rect::new(x, y, x + width, y - height)); // top right
+        valid_origins.push(Rect::new(x, y, x - width, y + height)); // bottom left
+        valid_origins.push(Rect::new(x, y, x + width, y + height)); // bottom right
 
         // test if test_rect has no intersections with currently spawned recs
         if filled_positions
@@ -137,11 +135,9 @@ pub fn random_room_positon(
             .all(|f| valid_origins.iter().any(|o| o.intersect(*f).is_empty()))
         {
             if let Some(rect) = valid_origins.iter().find(|new| {
-                let new_place = new.inset(half);
-                filled_positions.iter().all(|filled| {
-                    let filled = filled.inset(half);
-                    filled.intersect(new_place).is_empty()
-                })
+                filled_positions
+                    .iter()
+                    .all(|filled| filled.intersect(**new).is_empty())
             }) {
                 return rect.to_owned();
             };

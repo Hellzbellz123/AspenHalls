@@ -18,7 +18,7 @@ use crate::{
     game::game_world::{
         components::RoomExitTile,
         dungeonator_v2::{
-            components::Dungeon, hallways::hallway_builder::manhattan_distance_tiles,
+            components::{Dungeon, RoomBlueprint}, hallways::hallway_builder::manhattan_distance_tiles, tile_graph,
         },
     },
 };
@@ -37,38 +37,35 @@ pub fn create_tile_graph(
         Option<&Collider>,
         Option<&RoomExitTile>,
     )>,
+    // room_query: Query<(&RoomBlueprint, &Transform)>
 ) {
     info!("creating tilegraph");
     let (mut dungeon, dungeon_position) = dungeon_container.single_mut();
-    let center_translation = dungeon_position.translation().truncate();
+    dungeon.tile_graph.size = actual_map_tile_size(&tile_query);
+    dungeon.tile_graph.center = dungeon_position.translation().truncate();
+    // TODO: fix tilegraph sub tile translations.
+    // currently it will break if dungeon is not centered on 0?
+    // room_query.iter().map(|f| f.1.translation.truncate() + f.0.size).sum::<Vec2>() / room_query.iter().len() as f32;
 
-    // adding a border seems too break calculations,
-    // but i want a border on the outside of rooms for valid hallways
-    let map_tile_size = actual_map_tile_size(&tile_query);
     let mut tile_nodes = Vec::new();
 
     info!("checking positions for tiles and creating nodes");
     filter_and_create_nodes(
-        map_tile_size,
-        center_translation,
+        &dungeon.tile_graph,
         tile_query,
         &mut tile_nodes,
     );
 
     info!("creating graph from nodes");
-    let mut finished_graph: Graph<TileGraphNode, TileGraphEdge, Undirected, u32> =
+    let mut filled_graph: Graph<TileGraphNode, TileGraphEdge, Undirected, u32> =
         Graph::from_elements(tile_nodes);
 
     info!("connecting adjectent nodes in graph");
-    connect_adjacent_nodes(&mut finished_graph);
+    connect_adjacent_nodes(&mut filled_graph);
     info!("finished connecting adjacent nodes");
 
     info!("created dungeon tile graph");
-    dungeon.tile_graph = TileGraph {
-        graph: finished_graph,
-        size: map_tile_size,
-        center: center_translation,
-    };
+    dungeon.tile_graph.graph = filled_graph;
 }
 
 // fn create_simple_tile_graph(
@@ -78,8 +75,7 @@ pub fn create_tile_graph(
 #[allow(clippy::type_complexity)]
 /// check each tile position for a tile in gameworld and add node too list
 fn filter_and_create_nodes(
-    map_tile_size: u32,
-    center_translation: Vec2,
+    tile_graph: &TileGraph,
     tile_query: Query<(
         Entity,
         &TilePos,
@@ -91,11 +87,11 @@ fn filter_and_create_nodes(
     )>,
     tile_nodes: &mut Vec<Element<TileGraphNode, TileGraphEdge>>,
 ) {
-    for x_pos in 0..=map_tile_size {
-        for y_pos in 0..=map_tile_size {
+    for x_pos in 0..=tile_graph.size {
+        for y_pos in 0..=tile_graph.size {
             let coords = UVec2 { x: x_pos, y: y_pos };
             // Calculate the actual translation of the tile based on dungeon position
-            let tile_translation = get_tile_translation(center_translation, map_tile_size, coords);
+            let tile_translation = tile_graph.get_tiles_translation(coords);
 
             // Check if tile position is occupied
             if tile_occupies_position(&tile_query, tile_translation) {
@@ -165,12 +161,18 @@ fn calculate_weight(
 ) -> f32 {
     let (current_index, current_node) = current;
     let (other_index, other_node) = other;
+
+    // TODO: maybe change this assert too only check 1 tile distance
     assert!(
-        manhattan_distance_tiles(current_node.tile, other_node.tile) == 1 || manhattan_distance_tiles(current_node.tile, other_node.tile) == 2,
+        manhattan_distance_tiles(current_node.tile, other_node.tile) == 1
+            || manhattan_distance_tiles(current_node.tile, other_node.tile) == 2,
         "tiles are not adjacent: {}",
         manhattan_distance_tiles(current_node.tile, other_node.tile)
     );
-    assert!(current_index != other_index, "calculating weights between same tiles not allowed");
+    assert!(
+        current_index != other_index,
+        "calculating weights between same tiles not allowed"
+    );
 
     let multiplier = if graph.neighbors(*current_index).count() < 4 {
         5.0
@@ -201,7 +203,7 @@ const fn is_adjacent(pos1: UVec2, pos2: UVec2) -> bool {
     let col_diff = (pos1.y as i32 - pos2.y as i32).abs();
 
     // Nodes are adjacent if their row or column difference is less than or equal to 1
-    (row_diff <= 1 && col_diff == 0) || (row_diff == 0 && col_diff <= 1) //|| (row_diff == 1 && col_diff == 1)
+    (row_diff == 1 && col_diff == 0) || (row_diff == 0 && col_diff == 1) //|| (row_diff == 1 && col_diff == 1)
 }
 
 #[allow(clippy::type_complexity)]
@@ -235,16 +237,6 @@ fn actual_map_tile_size(
         min_y
     );
     map_tile_size
-}
-
-/// Calculate the actual translation of the tile based on dungeon position
-pub fn get_tile_translation(center_translation: Vec2, map_tile_size: u32, coords: UVec2) -> Vec2 {
-    Vec2::new(
-        (coords.x as f32).mul_add(TILE_SIZE, center_translation.x)
-            - ((map_tile_size as f32 * TILE_SIZE) / 2.0),
-        (coords.y as f32).mul_add(TILE_SIZE, center_translation.y)
-            - ((map_tile_size as f32 * TILE_SIZE) / 2.0),
-    )
 }
 
 #[allow(clippy::type_complexity)]
@@ -402,13 +394,6 @@ impl TileType {
     pub const fn can_be_hallway(self) -> bool {
         matches!(self, Self::Hallway | Self::RoomExit | Self::Unused)
     }
-
-    // pub fn is_exit(self) -> bool {
-    //     match self {
-    //         TileType::RoomExit { .. } => true,
-    //         _ => false,
-    //     }
-    // }
 }
 
 /// map of notable tiles in each tile position for dungeon
@@ -419,28 +404,41 @@ pub struct TileGraph {
     pub graph: Graph<TileGraphNode, TileGraphEdge, Undirected>,
     /// the x or y size of the dungeon
     pub size: u32,
+    pub border: u32,
     /// the center translation of the dungeon
     pub center: Vec2,
 }
 
 impl TileGraph {
     /// creates a new tilegraph
-    pub fn new(size: u32, center: Vec2) -> Self {
+    pub fn new(size: u32, border: u32, center: Vec2) -> Self {
         Self {
             graph: Graph::new_undirected(),
             size,
+            border,
             center,
         }
     }
 
     /// get tiles translation relative too center of dungeon
-    pub fn get_tile_translation(self, x_pos: u32, y_pos: u32) -> Vec2 {
+    pub fn get_tiles_translation(&self, coords: UVec2) -> Vec2 {
         let cx = self.center.x;
         let cy = self.center.y;
+
         Vec2::new(
-            (x_pos as f32).mul_add(TILE_SIZE, cx) - ((self.size as f32 * TILE_SIZE) / 2.0),
-            (y_pos as f32).mul_add(TILE_SIZE, cy) - ((self.size as f32 * TILE_SIZE) / 2.0),
+            (coords.x as f32).mul_add(TILE_SIZE, cx) - (((self.size - self.border) as f32 * TILE_SIZE) / 2.0),
+            (coords.y as f32).mul_add(TILE_SIZE, cy) - (((self.size - self.border) as f32 * TILE_SIZE) / 2.0),
         )
+    }
+
+    /// finds `node_index` for given tile position
+    pub fn get_node_at_translation(&self, position: IVec2) -> Option<NodeIndex> {
+        self.node_references()
+            .find(|f| {
+                let node_pos = self.get_tiles_translation(f.1.tile);
+                node_pos.as_ivec2() == position
+            })
+            .map(|f| f.0)
     }
 }
 

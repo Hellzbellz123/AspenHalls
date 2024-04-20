@@ -123,7 +123,7 @@ fn fix_graph(room_graph: &mut Graph<DungeonGraphNode, DungeonGraphEdge, Undirect
             petgraph::algo::kosaraju_scc(&*room_graph);
 
         if connected_components.len() > 1 {
-            warn!("graph is bad, fixing graph");
+            warn!("graph is bad, fixing graph. groups : {}", connected_components.len());
             warn!("connected nodes: {:?}", connected_components);
             connected_components.sort_by_key(Vec::len);
 

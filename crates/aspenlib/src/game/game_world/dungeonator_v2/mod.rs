@@ -149,11 +149,14 @@ fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<AspenMapHand
         dungeon: Dungeon {
             rooms: Vec::new(),
             hallways: Vec::new(),
-            tile_graph: TileGraph::new(4000 / 32, position.translation.truncate()),
+            // TODO: fix this
+            // border is applied too each room asset so 0 here
+            tile_graph: TileGraph::new(4000 / 32, 0, position.translation.truncate()),
             settings: DungeonSettings {
                 // room placing settings
                 map_halfsize: 2000.0,
-                tiles_between_rooms: 4,
+                // TODO: use this but make it working
+                // tiles_between_rooms: 4,
                 distribution: RoomDistribution {
                     small_short: 6,
                     small_long: 4,

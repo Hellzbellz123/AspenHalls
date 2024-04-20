@@ -231,8 +231,7 @@ fn process_tile_enum_tags(
     if tiles_with_enums.is_empty() {
         return;
     }
-    // 90 degrees radian
-    let ninety_degrees = std::f32::consts::FRAC_PI_2;
+
     for (entity, mut tile_enum_tag) in &mut tiles_with_enums {
         let tags = tile_enum_tag.tags.clone();
         if tags.is_empty() {
@@ -244,116 +243,167 @@ fn process_tile_enum_tags(
             }
         }
         for tag in tags {
-            check_tag_colliders(
+            if check_tag_for_colliders(
                 &tag,
                 &mut commands,
                 entity,
                 &mut tile_enum_tag,
-                ninety_degrees,
-            );
+            ) {
+                continue;
+            }
+            if check_tag_misc(
+                &tag,
+                &mut commands,
+                entity,
+                &mut tile_enum_tag,
+            ) {
+                continue;
+            }
+            info!("Unknown Tile Enum Tag on entity: {tag}");
         }
     }
 }
 
-// TODO:
-// maybe make this a system the registers a bundle?
-/// checks tile enum tag for collider tag, creates shape for collider, passes too `insert_collider`, tag is then removed from `tile_enum_tags`
-fn check_tag_colliders(
+fn check_tag_misc(
     tag: &str,
     cmds: &mut Commands<'_, '_>,
     entity: Entity,
-    tile_enum_tag: &mut Mut<'_, TileEnumTags>,
-    degrees: f32,
-) {
-    match tag {
+    tag_info: &mut Mut<'_, TileEnumTags>,
+) -> bool {
+    let tag_was_handled = match tag {
+        "RoomExit" => {
+            cmds.entity(entity).insert(RoomExitTile);
+            tag_info.tags.retain(|f| f != tag);
+            true
+        }
+        "HallwayBoundry" => {
+            true
+        }
+        _ => {
+            false
+        }
+    };
+
+    if tag_was_handled {
+        tag_info.tags.retain(|f| f != tag);
+    }
+    tag_was_handled
+}
+// TODO:
+// maybe make this a system the registers a bundle?
+/// checks tile enum tag for collider tag, creates shape for collider, passes too `insert_collider`, tag is then removed from `tile_enum_tags`
+fn check_tag_for_colliders(
+    tag: &str,
+    cmds: &mut Commands<'_, '_>,
+    entity: Entity,
+    tag_info: &mut Mut<'_, TileEnumTags>,
+) -> bool {
+    // 90 degrees radian
+    let degrees = std::f32::consts::FRAC_PI_2;
+
+    let tag_was_handled = match tag {
         "CollideUp" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(0.0, -12.), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideDown" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideLeft" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideRight" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideCornerLR" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideCornerUR" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideCornerLL" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideCornerUL" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideInnerUL" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(-12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideInnerLL" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideInnerUR" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideInnerLR" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
                 (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "DoubleWallVertical" => {
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
                 (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
             ];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
         "CollideInnerWall" | "CollideOuterWall" => {
             let shape: Vec<(Vect, Rot, Collider)> =
                 vec![(Vec2::new(0.0, 14.0), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag, tile_enum_tag);
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
         }
-        "RoomExit" => {
-            cmds.entity(entity).insert(RoomExitTile);
-            remove_value(&mut tile_enum_tag.tags, tag);
+        _ => {
+            false
         }
-        unknown => {
-            println!("ERROR: Unknown Tile Enum Tag on this entity: {unknown}");
-        }
+    };
+    if tag_was_handled {
+        tag_info.tags.retain(|f| f != tag);
     }
+    tag_was_handled
 }
 
 /// inserts collider onto passed entity, collides with everything
@@ -362,10 +412,8 @@ fn insert_tile_collider(
     entity: Entity,
     shape: Vec<(Vec2, f32, Collider)>,
     tag: &str,
-    tags: &mut Mut<'_, TileEnumTags>,
 ) {
     commands.entity(entity).insert((
-        RoomExitTile,
         LdtkCollisionBundle {
             name: Name::new(tag.to_owned()),
             rigidbody: RigidBody::Fixed,
@@ -376,12 +424,7 @@ fn insert_tile_collider(
             },
         },
     ));
-    remove_value(&mut tags.tags, tag);
-}
 
-/// takes reference too string and a value, removes from the Vec<String>
-fn remove_value(vec: &mut Vec<String>, value: &str) {
-    vec.retain(|elem| elem != value);
 }
 
 /// returns a point inside the rect with -`inset`. `inset` is multiplied by `TILE_SIZE`
