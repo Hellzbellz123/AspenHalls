@@ -3,9 +3,9 @@ use bevy::{
     log::{error, info},
     math::Vec2,
     prelude::{
-        on_event, state_exists_and_equals, Commands, DespawnRecursiveExt, Entity, EventReader,
-        GlobalTransform, IntoSystemConfigs, OnExit, OrthographicProjection, Plugin, Query,
-        Transform, Update, With, Without,
+        in_state, on_event, Commands, DespawnRecursiveExt, Entity, EventReader, GlobalTransform,
+        IntoSystemConfigs, OnExit, OrthographicProjection, Plugin, Query, Transform, Update, With,
+        Without,
     },
 };
 use bevy_ecs_ldtk::prelude::{LevelEvent, LevelSet};
@@ -16,7 +16,7 @@ use bevy_mod_picking::{
 use bevy_rapier2d::prelude::CollisionEvent;
 
 use crate::{
-    consts::{ACTOR_Z_INDEX, HIGHLIGHT_TINT},
+    consts::ACTOR_Z_INDEX,
     game::{
         characters::{
             components::CharacterMoveState,
@@ -54,10 +54,8 @@ impl Plugin for HideOutPlugin {
             (
                 // TODO: fix scheduling
                 teleporter_collisions.run_if(on_event::<CollisionEvent>()),
-                create_playable_heroes.run_if(
-                    state_exists_and_equals(AppState::StartMenu)
-                        .and_then(on_event::<LevelEvent>()),
-                ),
+                create_playable_heroes
+                    .run_if(in_state(AppState::StartMenu).and_then(on_event::<LevelEvent>())),
             ),
         );
     }
@@ -115,6 +113,7 @@ fn populate_hero_spots(
     let mut hero_spots = hero_spots.iter();
 
     info!("placing heroes");
+    // TODO: swap this around for better expandability?
     registry.characters.heroes.values().for_each(|thing| {
         let Some(spot) = hero_spots.next() else {
             error!("no more hero spots");
@@ -127,7 +126,6 @@ fn populate_hero_spots(
             bundle,
             PickableBundle::default(),
             On::<Pointer<Down>>::send_event::<SelectThisHeroForPlayer>(),
-            HIGHLIGHT_TINT,
         ));
     });
 }

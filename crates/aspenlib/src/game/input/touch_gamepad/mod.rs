@@ -43,10 +43,10 @@ impl Plugin for TouchInputPlugin {
                     shunts::touch_zoom_in,
                     shunts::touch_zoom_out,
                 )
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                    .run_if(in_state(AppState::PlayingGame)),
             )
                 .in_set(AspenInputSystemSet::TouchInput)
-                .run_if(resource_exists::<ActionState<action_maps::Gameplay>>()),
+                .run_if(resource_exists::<ActionState<action_maps::Gameplay>>),
         );
     }
 }
@@ -243,7 +243,7 @@ fn spawn_touch_gamepad(
 }
 
 /// fills right pod with button rows
-fn create_button_rows(right_pod_parts: &mut ChildBuilder<'_, '_, '_>, touch_assets: &Res<'_, AspenTouchHandles>) {
+fn create_button_rows(right_pod_parts: &mut ChildBuilder , touch_assets: &Res<AspenTouchHandles>) {
     right_pod_parts
         .spawn((
             Name::new("RightPodButtons"),
@@ -307,7 +307,7 @@ fn create_button_rows(right_pod_parts: &mut ChildBuilder<'_, '_, '_>, touch_asse
 }
 
 /// spawn game utility buttons
-fn spawn_top_buttons(top_buttons: &mut ChildBuilder<'_, '_, '_>, touch_assets: &Res<'_, AspenTouchHandles>) {
+fn spawn_top_buttons(top_buttons: &mut ChildBuilder , touch_assets: &Res<AspenTouchHandles>) {
     spawn_controlsbutton(
         top_buttons,
         Some(touch_assets.menu_button.clone()),
@@ -350,7 +350,7 @@ fn spawn_top_buttons(top_buttons: &mut ChildBuilder<'_, '_, '_>, touch_assets: &
 }
 
 /// spawn player functionality buttons
-fn spawn_middle_buttons(middle_buttons: &mut ChildBuilder<'_, '_, '_>, touch_assets: &Res<'_, AspenTouchHandles>) {
+fn spawn_middle_buttons(middle_buttons: &mut ChildBuilder, touch_assets: &Res<AspenTouchHandles>) {
     // lower buttons
     spawn_controlsbutton(
         middle_buttons,

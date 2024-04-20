@@ -63,7 +63,7 @@ pub fn build_hallways(
             cmds.spawn((
                 Name::new("HallwayPoint"),
                 MaterialMesh2dBundle {
-                    mesh: meshes.add(Mesh::from(shape::Circle::new(5.0))).into(),
+                    mesh: meshes.add(Mesh::from(Circle::new(5.0))).into(),
                     transform: Transform::from_xyz(pos_a.x, pos_a.y, 10.0),
                     material: materials.add(ColorMaterial::from(Color::RED)),
                     ..default()

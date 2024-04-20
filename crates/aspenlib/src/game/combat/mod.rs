@@ -30,7 +30,7 @@ impl Plugin for CombatPlugin {
 
         app.add_systems(
             PreUpdate,
-            apply_damage_system.run_if(state_exists_and_equals(AppState::PlayingGame)),
+            apply_damage_system.run_if(in_state(AppState::PlayingGame)),
         );
 
         app.add_systems(
@@ -39,7 +39,7 @@ impl Plugin for CombatPlugin {
                 delegate_attack_events.run_if(on_event::<EventRequestAttack>()),
                 handle_death_system,
             )
-                .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                .run_if(in_state(AppState::PlayingGame)),
         );
     }
 }

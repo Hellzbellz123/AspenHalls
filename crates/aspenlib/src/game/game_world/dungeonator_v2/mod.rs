@@ -6,7 +6,7 @@ use bevy::{
     log::info,
     math::Vec2,
     prelude::{
-        apply_deferred, default, resource_changed, resource_exists, state_exists_and_equals,
+        apply_deferred, default, resource_changed, resource_exists, in_state,
         Commands, Condition, IntoSystemConfigs, OnEnter, OnExit, Plugin, Res, SpatialBundle,
         Transform, Update,
     },
@@ -91,7 +91,7 @@ impl Plugin for DungeonGeneratorPlugin {
             ]
         );
 
-        app.add_state::<GeneratorState>();
+        app.init_state::<GeneratorState>();
 
         app.add_systems(
             OnEnter(GeneratorState::SelectPresets),
@@ -102,7 +102,7 @@ impl Plugin for DungeonGeneratorPlugin {
         app.add_systems(
             Update,
             hallways::update_room_instances.run_if(
-                state_exists_and_equals(GeneratorState::FinalizeRooms)
+                in_state(GeneratorState::FinalizeRooms)
                     .and_then(on_timer(Duration::from_secs_f32(0.2))),
             ),
         );
@@ -112,7 +112,7 @@ impl Plugin for DungeonGeneratorPlugin {
         );
         app.add_systems(
             Update,
-            hallways::plan_hallways.run_if(state_exists_and_equals(GeneratorState::PlanHallways)),
+            hallways::plan_hallways.run_if(in_state(GeneratorState::PlanHallways)),
         );
         app.add_systems(
             OnEnter(GeneratorState::PlaceHallwayRoots),
@@ -125,15 +125,15 @@ impl Plugin for DungeonGeneratorPlugin {
         app.add_systems(
             Update,
             (hallways::hallway_builder::build_hallways)
-                .run_if(state_exists_and_equals(GeneratorState::FinalizeHallways)),
+                .run_if(in_state(GeneratorState::FinalizeHallways)),
         );
 
         app.add_systems(
             Update,
             rooms::generate_room_database.run_if(
-                resource_exists::<AspenMapHandles>().and_then(
-                    resource_changed::<Assets<LdtkExternalLevel>>()
-                        .or_else(resource_changed::<Assets<LdtkProject>>()),
+                resource_exists::<AspenMapHandles>.and_then(
+                    resource_changed::<Assets<LdtkExternalLevel>>
+                        .or_else(resource_changed::<Assets<LdtkProject>>),
                 ),
             ),
         );

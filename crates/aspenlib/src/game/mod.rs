@@ -75,7 +75,7 @@ impl Plugin for AspenHallsPlugin {
             .add_systems(
                 Update,
                 ((update_actor_size, time_to_live)
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),),
+                    .run_if(in_state(AppState::PlayingGame)),),
             );
     }
 }
@@ -96,11 +96,11 @@ fn time_to_live(
 /// update actor size if its custom size is not already set
 fn update_actor_size(
     mut query: Query<(
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
+        &mut Sprite,
+        &TextureAtlas,
         &RegistryIdentifier,
     )>,
-    texture_atlass: Res<Assets<TextureAtlas>>,
+    texture_atlasses: Res<Assets<TextureAtlasLayout>>,
     obje_assets: Res<Assets<ItemDefinition>>,
     char_assets: Res<Assets<CharacterDefinition>>,
 ) {
@@ -109,9 +109,9 @@ fn update_actor_size(
             continue;
         }
 
-        let atlas = texture_atlass
-            .get(texture_atlas)
-            .expect("texture for this spritesheet is missing");
+        let atlas = texture_atlasses
+            .get(texture_atlas.layout.clone())
+            .expect("texture atlas layout for this spritesheet is missing");
         let original_size = atlas.textures.first().expect("no textures in atlas").size();
         let aspect_ratio = original_size.x / original_size.y;
 

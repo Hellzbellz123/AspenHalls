@@ -127,7 +127,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
         Update,
         (
             utilities::set_window_icon
-                .run_if(resource_exists::<AspenInitHandles>().and_then(run_once())),
+                .run_if(resource_exists::<AspenInitHandles>.and_then(run_once())),
             utilities::cursor_grab_system,
         ),
     );

@@ -42,7 +42,7 @@ impl Plugin for CharactersPlugin {
                     update_character_move_state,
                     character_spawner::creep_spawner_system,
                 )
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                    .run_if(in_state(AppState::PlayingGame)),
                 character_spawner::spawn_character_on_event
                     .run_if(on_event::<EventSpawnCharacter>()),
             ),

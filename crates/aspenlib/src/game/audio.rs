@@ -61,10 +61,10 @@ impl Plugin for AudioPlugin {
             Update,
             (
                 prepare_actor_spatial_sound,
-                actor_footstep_sound_system.run_if(state_exists_and_equals(AppState::PlayingGame)),
+                actor_footstep_sound_system.run_if(in_state(AppState::PlayingGame)),
                 play_background_audio.run_if(run_once()),
             )
-                .run_if(resource_exists::<AspenAudioHandles>()),
+                .run_if(resource_exists::<AspenAudioHandles>),
         );
         // .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
     }

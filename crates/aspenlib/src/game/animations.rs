@@ -56,25 +56,27 @@ impl Plugin for AnimationsPlugin {
 fn change_character_animations(
     mut change_events: EventWriter<EventAnimationChange>,
     mut characters: Query<(Entity, &CharacterMoveState, &Velocity), Changed<CharacterMoveState>>,
-    mut sprite_query: Query<&mut TextureAtlasSprite>,
+    mut sprite_query: Query<&mut Sprite>,
 ) {
     for (character, move_state, velocity) in &mut characters {
         let move_status = &move_state.move_status.0;
         let move_direction = vector_to_pi4(velocity.linvel.normalize());
         match move_status {
-            CurrentMovement::None => change_events.send(EventAnimationChange {
-                anim_handle: AnimHandle::from_index(CharacterAnimations::IDLE),
-                actor: character,
-            }),
+            CurrentMovement::None => {
+                change_events.send(EventAnimationChange {
+                    anim_handle: AnimHandle::from_index(CharacterAnimations::IDLE),
+                    actor: character,
+                });
+            }
             _ => match move_direction {
-                MoveDirection::South => change_events.send(EventAnimationChange {
+                MoveDirection::South => {change_events.send(EventAnimationChange {
                     anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_DOWN),
                     actor: character,
-                }),
-                MoveDirection::North => change_events.send(EventAnimationChange {
+                });},
+                MoveDirection::North => {change_events.send(EventAnimationChange {
                     anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_UP),
                     actor: character,
-                }),
+                });},
                 MoveDirection::East => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = false;
@@ -100,7 +102,7 @@ fn change_character_animations(
                         anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
                         actor: character,
                     });
-                },
+                }
                 MoveDirection::SouthEast => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = false;
@@ -109,7 +111,7 @@ fn change_character_animations(
                         anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
                         actor: character,
                     });
-                },
+                }
                 MoveDirection::NorthWest => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = false;
@@ -118,7 +120,7 @@ fn change_character_animations(
                         anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_UP),
                         actor: character,
                     });
-                },
+                }
                 MoveDirection::SouthWest => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = false;
@@ -127,7 +129,7 @@ fn change_character_animations(
                         anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_DOWN),
                         actor: character,
                     });
-                },
+                }
             },
         }
     }

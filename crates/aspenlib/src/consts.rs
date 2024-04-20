@@ -1,4 +1,4 @@
-use bevy::{math::vec4, pbr::StandardMaterial, prelude::Vec2};
+use bevy::prelude::Vec2;
 use bevy_rapier2d::{geometry::Group, prelude::Collider};
 
 /// width/height of standard tile in gameworld
@@ -30,7 +30,10 @@ pub const ACTOR_COLLIDER_DIMENSIONS: (bevy::prelude::Vec2, bevy::prelude::Vec2, 
 #[must_use]
 pub fn actor_collider(size: Vec2) -> Collider {
     Collider::capsule(
-        Vec2 { x: 0.0, y: (size.x / 2.0) - 2.0 },
+        Vec2 {
+            x: 0.0,
+            y: (size.x / 2.0) - 2.0,
+        },
         Vec2 {
             x: 0.0,
             y: size.y / 1.5,
@@ -38,21 +41,6 @@ pub fn actor_collider(size: Vec2) -> Collider {
         size.x / 2.0,
     )
 }
-
-// /// creates a collider for a character given a size
-// pub fn actor_collider(size: Vec2) -> Collider {
-//     Collider::capsule(
-//         Vec2 {
-//             x: 0.0,
-//             y: -size.y / 5.0,
-//         },
-//         Vec2 {
-//             x: 0.0,
-//             y: size.y / 3.0,
-//         },
-//         size.x / 2.0,
-//     )
-// }
 
 /// default actor collider shape for most entities
 #[must_use]
@@ -98,23 +86,6 @@ impl AspenCollisionLayer {
     /// use as the membership and bitwise-or what you do NOT want too collide with
     pub const EVERYTHING: Group = Group::ALL;
 }
-
-use bevy_mod_picking::prelude::*;
-/// tint for selectable players
-pub const HIGHLIGHT_TINT: Highlight<StandardMaterial> = Highlight {
-    hovered: Some(HighlightKind::new_dynamic(|matl| StandardMaterial {
-        base_color: matl.base_color + vec4(-0.2, -0.2, 0.4, 0.0),
-        ..matl.to_owned()
-    })),
-    pressed: Some(HighlightKind::new_dynamic(|matl| StandardMaterial {
-        base_color: matl.base_color + vec4(-0.3, -0.3, 0.5, 0.0),
-        ..matl.to_owned()
-    })),
-    selected: Some(HighlightKind::new_dynamic(|matl| StandardMaterial {
-        base_color: matl.base_color + vec4(-0.3, 0.2, -0.3, 0.0),
-        ..matl.to_owned()
-    })),
-};
 
 // supported resolutions
 // const RESOLUTIONS: [(f32, f32); 28] = [

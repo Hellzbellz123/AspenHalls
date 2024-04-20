@@ -89,7 +89,7 @@ pub mod debug_plugin {
             .add_systems(
                 Update,
                 (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                    .run_if(in_state(AppState::PlayingGame)),
             );
 
             debug_dump_graphs(app);

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
+use bevy_console::{AddConsoleCommand, ConsoleConfiguration, ConsolePlugin};
 
 /// holds definitions of commands
 mod commands;
@@ -14,7 +14,7 @@ impl Plugin for QuakeConPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(ConsolePlugin)
             .insert_resource(ConsoleConfiguration {
-                keys: vec![ToggleConsoleKey::KeyCode(KeyCode::Grave)],
+                keys: vec![KeyCode::Backquote],
                 left_pos: 200.0,
                 top_pos: 100.0,
                 height: 400.0,

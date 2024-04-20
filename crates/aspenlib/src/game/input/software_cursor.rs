@@ -16,15 +16,15 @@ impl Plugin for SoftwareCursorPlugin {
         app.register_type::<SoftWareCursor>();
         app.add_systems(
             OnEnter(AppState::Loading),
-            spawn_software_cursor.run_if(not(any_with_component::<SoftWareCursor>())),
+            spawn_software_cursor.run_if(not(any_with_component::<SoftWareCursor>)),
         );
 
         app.add_systems(
             PreUpdate,
             update_software_cursor_position
                 .run_if(
-                    resource_exists::<AspenCursorPosition>()
-                        .and_then(any_with_component::<SoftWareCursor>()),
+                    resource_exists::<AspenCursorPosition>
+                        .and_then(any_with_component::<SoftWareCursor>),
                 )
                 .in_set(AspenInputSystemSet::SoftwareCursor),
         );

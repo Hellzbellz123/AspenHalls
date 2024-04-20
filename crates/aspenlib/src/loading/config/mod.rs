@@ -258,7 +258,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 
     info!("Logging and Asset Server Initialized");
     // add vanillacoffee stuff
-    vanillacoffee.add_state::<AppState>();
+    vanillacoffee.init_state::<AppState>();
 
     let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
 
@@ -291,7 +291,6 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                             }
                         },
                         window_level: bevy::window::WindowLevel::Normal,
-                        fit_canvas_to_parent: true,
                         cursor: Cursor {
                             icon: CursorIcon::Crosshair,
                             visible: true,
@@ -324,10 +323,10 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     vanillacoffee.add_systems(
         Update,
         (
-            apply_window_settings.run_if(resource_changed::<WindowSettings>()),
-            apply_sound_settings.run_if(resource_changed::<SoundSettings>()),
-            apply_camera_zoom.run_if(resource_changed::<GeneralSettings>()),
-            update_difficulty_settings.run_if(resource_changed::<GeneralSettings>()),
+            apply_window_settings.run_if(resource_changed::<WindowSettings>),
+            apply_sound_settings.run_if(resource_changed::<SoundSettings>),
+            apply_camera_zoom.run_if(resource_changed::<GeneralSettings>),
+            update_difficulty_settings.run_if(resource_changed::<GeneralSettings>),
             on_resize_system.run_if(on_event::<WindowResized>()),
         ),
     );
@@ -345,8 +344,22 @@ fn apply_window_settings(
     window_settings: Res<WindowSettings>,
     // mut frame_limiter_cfg: ResMut<FramepaceSettings>,
     mut mut_window_entity: Query<(Entity, &mut Window)>,
+    mut last_resolution: Local<Vec2>,
 ) {
     let (_w_ent, mut b_window) = mut_window_entity.single_mut();
+
+    // TODO: fix this system too work better?
+    if window_settings.resolution == *last_resolution
+        && *last_resolution
+            == (Vec2 {
+                x: b_window.width(),
+                y: b_window.height(),
+            })
+    {
+        return;
+    }
+    *last_resolution = window_settings.resolution;
+
     // let w_window = winit.get_window(w_ent).unwrap();
 
     // let requested_limiter = Limiter::from_framerate(window_settings.frame_rate_target);

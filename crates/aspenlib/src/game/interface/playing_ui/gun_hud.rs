@@ -39,7 +39,7 @@ pub fn create_gun_hud(playing_ui_parts: &mut ChildBuilder) {
 }
 
 /// spawns gun slots widget
-fn create_gun_slots(gun_hud_parts: &mut ChildBuilder<'_, '_, '_>) {
+fn create_gun_slots(gun_hud_parts: &mut ChildBuilder) {
     gun_hud_parts
         .spawn((
             Name::new("GunSlotsContainer"),
@@ -68,7 +68,7 @@ fn create_gun_slots(gun_hud_parts: &mut ChildBuilder<'_, '_, '_>) {
 }
 
 /// spawns ammo bar widget
-fn create_ammo_bar(gun_hud_parts: &mut ChildBuilder<'_, '_, '_>) {
+fn create_ammo_bar(gun_hud_parts: &mut ChildBuilder) {
     // TODO: make this unique widget with splits per ammo count
     gun_hud_parts
         .spawn((
@@ -153,7 +153,6 @@ fn create_gun_slot(gun_slot_parts: &mut ChildBuilder, slot: WeaponSlot, size: f3
                 border: UiRect::all(Val::Px(2.0)),
                 ..default()
             },
-            texture_atlas: Handle::default(),
             ..default()
         },
     ));
@@ -175,29 +174,33 @@ pub struct UiWeaponSlot(WeaponSlot);
 
 /// update ui ammo slot with equipped weapon
 pub fn update_ui_ammo_slots(
-    player_query: Query<&WeaponCarrier, (With<PlayerSelectedHero>, Changed<WeaponCarrier>)>,
-    weapon_query: Query<&Handle<TextureAtlas>, With<CurrentlyDrawnWeapon>>,
+    player_query: Query<&WeaponCarrier, With<PlayerSelectedHero>>,
+    weapon_query: Query<(&Handle<Image>, &TextureAtlas), With<CurrentlyDrawnWeapon>>,
     mut ui_weapon_slot: Query<
-        (&UiWeaponSlot, &mut Handle<TextureAtlas>, &mut Outline),
+        (&UiWeaponSlot, &mut TextureAtlas, &mut UiImage, &mut Outline),
         Without<CurrentlyDrawnWeapon>,
     >,
 ) {
     let Ok(player_slots) = player_query.get_single() else {
         return;
     };
-    for (ui_slot, mut texture_atlas, mut outline) in &mut ui_weapon_slot {
-        if player_slots.drawn_slot.is_some_and(|f| f == ui_slot.0) {
+
+    for (slot_id, mut slot_atlas, mut slot_image, mut outline) in &mut ui_weapon_slot {
+        if player_slots.drawn_slot.is_some_and(|f| f == slot_id.0) {
             outline.color = super::colors::HIGHLIGHT;
         } else {
             outline.color = super::colors::ACCENT;
         }
 
-        let Some(weapon_in_slot) = player_slots.weapon_slots.get(&ui_slot.0).unwrap() else {
+        let Some(weapon_in_slot) = player_slots.weapon_slots.get(&slot_id.0).unwrap() else {
             continue;
         };
 
-        if let Ok(a) = weapon_query.get(*weapon_in_slot) {
-            *texture_atlas = a.clone_weak();
+        if let Ok((weapon_image, weapon_atlas)) = weapon_query.get(*weapon_in_slot) {
+            if slot_image.texture != *weapon_image {
+                slot_image.texture = weapon_image.clone_weak();
+                slot_atlas.layout = weapon_atlas.layout.clone_weak();
+            }
         }
     }
 }

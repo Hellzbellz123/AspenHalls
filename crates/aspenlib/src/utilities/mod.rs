@@ -3,12 +3,7 @@
 use std::{cmp::Ordering, ops::Mul};
 use winit::window::Icon;
 
-use bevy::{
-    ecs::query::{ReadOnlyWorldQuery, WorldQuery},
-    log::warn,
-    prelude::*,
-    window::CursorGrabMode,
-};
+use bevy::{ecs::query::WorldQuery, log::warn, prelude::*, window::CursorGrabMode};
 use bevy_rapier2d::{pipeline::CollisionEvent, rapier::geometry::CollisionEventFlags};
 
 use crate::{
@@ -32,20 +27,22 @@ macro_rules! register_types {
 macro_rules! on_enter {
     ($system_name:ident, $state:expr) => {
         app.add_systems(OnEnter($state), $system_name)
-            .run_if(state_exists_and_equals($state))
+            .run_if(in_state($state))
     };
 }
 
 /// # Panics
 /// will panic if it cant find a window to attach icons, or the icon is not present
 pub fn set_window_icon(
-    window_query: Query<Entity, &Window>,
+    window_query: Query<(Entity, &Window)>,
     init_assets: Res<AspenInitHandles>,
     image_assets: Res<Assets<Image>>,
     // we have to use `NonSend` here
     windows: NonSend<bevy::winit::WinitWindows>,
 ) {
-    if let Ok(main_window) = window_query.get_single() {
+    // TODO: use bevy internal window icon utilties
+
+    if let Ok((main_window, bevy_window)) = window_query.get_single() {
         let Some(winit_window) = windows.get_window(main_window) else {
             warn!("NO WINDOW TOO SET ICON");
             return;
@@ -73,8 +70,8 @@ pub fn set_window_icon(
 /// handle cursor lock for game
 pub fn cursor_grab_system(
     mut windows: Query<&mut Window>,
-    btn: Res<Input<MouseButton>>,
-    key: Res<Input<KeyCode>>,
+    btn: Res<ButtonInput<MouseButton>>,
+    key: Res<ButtonInput<KeyCode>>,
 ) {
     let mut window = windows.single_mut();
 
@@ -256,64 +253,5 @@ pub fn on_component_added<T: Component>(
                 }
             }
         }
-    }
-}
-
-/// get either mutably util function
-pub trait GetEitherMut<'world, Element, Filter = ()>
-where
-    Element: WorldQuery,
-    Filter: ReadOnlyWorldQuery,
-{
-    /// mutable get either entity
-    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
-}
-
-impl<'world, 'state, Element, Filter> GetEitherMut<'world, Element, Filter>
-    for Query<'world, 'state, Element, Filter>
-where
-    Element: WorldQuery,
-    Filter: ReadOnlyWorldQuery,
-{
-    fn get_either_mut(&mut self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
-        let to_query: Entity;
-        if self.get(this).is_ok() {
-            to_query = this;
-        } else if self.get(otherwise).is_ok() {
-            to_query = otherwise;
-        } else {
-            return None;
-        };
-
-        self.get_mut(to_query).ok()
-    }
-}
-
-/// trait allowing get either for a readonly world query
-pub trait GetEither<'world, Element, Filter = ()>
-where
-    Element: ReadOnlyWorldQuery,
-{
-    /// returns one of two elements from world query
-    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>>;
-}
-
-impl<'world, 'state, Element, Filter> GetEither<'world, Element, Filter>
-    for Query<'world, 'state, Element, Filter>
-where
-    Element: ReadOnlyWorldQuery,
-    Filter: ReadOnlyWorldQuery,
-{
-    fn get_either(&self, this: Entity, otherwise: Entity) -> Option<Element::Item<'_>> {
-        let to_query: Entity;
-        if self.get(this).is_ok() {
-            to_query = this;
-        } else if self.get(otherwise).is_ok() {
-            to_query = otherwise;
-        } else {
-            return None;
-        };
-
-        self.get(to_query).ok()
     }
 }

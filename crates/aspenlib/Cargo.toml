@@ -56,12 +56,12 @@ lazy_static = { version = "1.4.0" }
 rand = { version = "0.8" }
 log = "0.4.20"
 serde = { version = "1.0" }
-strum = { version = "0.25.0", features = ["derive", "std", "strum_macros"] }
+strum = { version = "0.26", features = ["derive", "std", "strum_macros"] }
 toml = { version = "0.8" }
 ron = { version = "0.8" }
-winit = { version = "0.28", default-features = false, features = [
+winit = { version = "0.29", default-features = false, features = [
   "x11",
-  # "wayland",
+  "wayland",
 ] }
 clap = { version = "4.2" }
 image = { version = "0.24", default_features = false, features = ["png"] }
@@ -74,7 +74,7 @@ bevy = { path = "../../deps/bevy", default-features = false, features = [
   "bevy_winit",     # Support for creating windows
   "multi-threaded", # enable multithreading in bevy_ecs / bevy_tasks
   "x11",            # Support xOrg Windows
-  # "wayland",          # Support Wayland windows
+  "wayland",          # Support Wayland windows
   "png",              # png is my preffered image format
   "serialize",        # Support for `serde` Serialize/Deserialize
   "tonemapping_luts", # extra tonemapping utils requires ktx2 & zstd
@@ -125,7 +125,7 @@ bevy_mod_debugdump = { path = "../../deps/bevy_mod_debugdump", features = [
   "render_graph",
 ] }
 bevy-debug-text-overlay = { path = "../../deps/bevy_debug_text_overlay", default-features = false, features = [
-  "builtin-font",
+  "debug",
 ] }
 bevy_mod_picking = { path = "../../deps/bevy_mod_picking/", default-features = false, features = [
   "backend_raycast",

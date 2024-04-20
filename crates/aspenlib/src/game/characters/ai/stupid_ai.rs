@@ -273,7 +273,7 @@ fn wander_action(
     mut enemy_query: Query<(
         &Transform,
         &mut Velocity,
-        &mut TextureAtlasSprite,
+        &mut Sprite,
         &mut AIWanderConfig,
     )>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,

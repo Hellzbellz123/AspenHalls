@@ -21,7 +21,7 @@ impl Plugin for UnArmedPlugin {
         app.add_event::<EventAttackUnarmed>();
         app.add_systems(
             Update,
-            delegate_unarmed_attacks.run_if(state_exists_and_equals(AppState::PlayingGame)),
+            delegate_unarmed_attacks.run_if(in_state(AppState::PlayingGame)),
         );
     }
 }

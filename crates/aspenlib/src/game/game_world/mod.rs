@@ -62,10 +62,6 @@ impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_event::<ActorTeleportEvent>()
             //.add_state::<GeneratorStage>()
-            .insert_resource(TilemapRenderSettings {
-                render_chunk_size: RENDER_CHUNK_SIZE,
-                ..Default::default()
-            })
             .add_plugins((
                 hideout::HideOutPlugin,
                 dungeonator_v2::DungeonGeneratorPlugin,
@@ -79,10 +75,10 @@ impl Plugin for GameWorldPlugin {
             .add_systems(
                 Update,
                 (
-                    process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>()),
+                    process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
                     listen_rebuild_dungeon_request
-                        .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                        .run_if(in_state(AppState::PlayingGame)),
                 ),
             )
             .add_systems(

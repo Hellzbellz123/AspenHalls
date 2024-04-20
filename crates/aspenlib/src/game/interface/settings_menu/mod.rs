@@ -16,6 +16,8 @@ use crate::{
     loading::assets::AspenInitHandles,
 };
 
+// TODO: expand settings menu too include different settings
+
 /// game configuration ui
 pub struct SettingsMenuPlugin;
 
@@ -28,8 +30,8 @@ impl Plugin for SettingsMenuPlugin {
                 close_settings_interaction,
                 apply_settings_interaction,
                 toggle_settings_interactions.run_if(
-                    state_exists_and_equals(AppState::PauseMenu)
-                        .or_else(state_exists_and_equals(AppState::StartMenu)),
+                    in_state(AppState::PauseMenu)
+                        .or_else(in_state(AppState::StartMenu)),
                 ),
             ),
         );

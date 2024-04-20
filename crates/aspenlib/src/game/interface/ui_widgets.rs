@@ -52,7 +52,7 @@ pub fn spawn_menu_title(child_builder: &mut ChildBuilder, font: Handle<Font>, te
             },
         )
         .with_background_color(random_color(Some(0.6)))
-        .with_text_alignment(TextAlignment::Center)
+        .with_text_justify(JustifyText::Center)
         .with_style(Style {
             aspect_ratio: None,
             display: Display::Flex,

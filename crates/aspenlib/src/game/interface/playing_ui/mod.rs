@@ -23,13 +23,13 @@ impl Plugin for PlayingUiPlugin {
             .add_systems(
                 Update,
                 ((
-                    toggle_playing_ui.run_if(state_changed::<AppState>()),
+                    toggle_playing_ui.run_if(state_changed::<AppState>),
                     (
                         stat_hud::update_player_hp_bar,
                         gun_hud::update_ui_ammo_counter,
                         gun_hud::update_ui_ammo_slots,
                     )
-                        .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                        .run_if(in_state(AppState::PlayingGame)),
                 ),),
             )
             .add_systems(

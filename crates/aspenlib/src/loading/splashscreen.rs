@@ -1,8 +1,5 @@
 use bevy::{
-    core_pipeline::{
-        clear_color::ClearColorConfig,
-        tonemapping::{DebandDither, Tonemapping},
-    },
+    core_pipeline::tonemapping::{DebandDither, Tonemapping},
     prelude::*,
     render::{camera::ScalingMode, primitives::Frustum},
 };
@@ -43,10 +40,10 @@ pub struct SplashPlugin;
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            OnEnter(AppState::Loading),
-            (spawn_main_camera, splash_setup).chain(),
-        );
-        app.add_systems(OnExit(AppState::Loading), despawn_with::<OnlySplashScreen>);
+            Startup,
+            spawn_main_camera);
+        app.add_systems(OnEnter(AppState::Loading), splash_setup);
+        app.add_systems(OnEnter(AppState::StartMenu), despawn_with::<OnlySplashScreen>);
     }
 }
 
@@ -70,6 +67,7 @@ fn spawn_main_camera(mut commands: Commands) {
                 is_active: true,
                 order: 1,
                 hdr: true,
+                clear_color: ClearColorConfig::Default,
                 ..default()
             },
             tonemapping: Tonemapping::TonyMcMapface,
@@ -83,9 +81,6 @@ fn spawn_main_camera(mut commands: Commands) {
                 ..default()
             },
             frustum: Frustum::default(),
-            camera_2d: Camera2d {
-                clear_color: ClearColorConfig::Default,
-            },
             transform: Transform::from_xyz(200.0, 100.0, 999.0),
             ..default()
         },
@@ -101,7 +96,7 @@ fn spawn_main_camera(mut commands: Commands) {
             ),
             ..default()
         },
-        UiCameraConfig { show_ui: true },
+        // UiCameraConfig { show_ui: true },
     ));
     info!("Main Camera Spawned");
 }
@@ -114,6 +109,7 @@ fn splash_setup(mut commands: Commands, init_assets: Res<AspenInitHandles>) {
         OnlySplashScreen,
         ImageBundle {
             style: Style {
+                position_type: PositionType::Absolute,
                 margin: UiRect::all(Val::Px(0.0)),
                 min_width: Val::Percent(100.0),
                 min_height: Val::Percent(100.0),

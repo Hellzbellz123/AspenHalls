@@ -45,14 +45,13 @@ impl Plugin for PlayerPlugin {
                     actions::change_weapon,
                     actions::aim_weapon,
                 )
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),),
+                    .run_if(in_state(AppState::PlayingGame)),),
             )
             .add_systems(OnExit(AppState::StartMenu), build_player_from_selected_hero)
             .add_systems(
                 Update,
                 select_wanted_hero.run_if(
-                    state_exists_and_equals(AppState::StartMenu)
-                        .and_then(on_event::<SelectThisHeroForPlayer>()),
+                    in_state(AppState::StartMenu).and_then(on_event::<SelectThisHeroForPlayer>()),
                 ),
             );
     }
@@ -85,11 +84,10 @@ fn select_wanted_hero(
 
     for event in select_events.read() {
         debug!("selecting hero");
-        cmds.entity(event.0).insert(PlayerSelectedHero).remove::<(
-            PickableBundle,
-            Highlight<StandardMaterial>,
-            On<Pointer<Down>>,
-        )>();
+        cmds.entity(event.0)
+            .insert(PlayerSelectedHero)
+            .remove::<On<Pointer<Down>>>()
+            .remove::<PickableBundle>();
         cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
     }
 }

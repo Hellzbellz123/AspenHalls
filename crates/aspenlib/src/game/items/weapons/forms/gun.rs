@@ -243,7 +243,7 @@ pub fn format_gun_animations(sheet: &mut Spritesheet) {
 //     ecs::{query::Without, schedule::IntoSystemConfigs},
 //     log::info,
 //     prelude::{
-//         default, state_exists_and_equals, App, BuildChildren, Commands, Deref, DerefMut, Handle,
+//         default, in_state, App, BuildChildren, Commands, Deref, DerefMut, Handle,
 //         Image, Name, Plugin, Query, Res, Resource, Sprite, SpriteBundle, Time, Timer, TimerMode,
 //         Transform, TransformBundle, Update, Vec2, Vec3, With,
 //     },
@@ -276,7 +276,7 @@ pub fn format_gun_animations(sheet: &mut Spritesheet) {
 //     fn build(&self, app: &mut App) {
 //         app.add_systems(
 //             Update,
-//             enemy_can_shoot_check.run_if(state_exists_and_equals(AppState::PlayingGame)),
+//             enemy_can_shoot_check.run_if(in_state(AppState::PlayingGame)),
 //         );
 //     }
 // }

@@ -40,7 +40,7 @@ impl Plugin for WeaponItemPlugin {
         app.add_event::<EventAttackWeapon>()
             .add_systems(
                 PreUpdate,
-                update_selected_weapon.run_if(state_exists_and_equals(AppState::PlayingGame)),
+                update_selected_weapon.run_if(in_state(AppState::PlayingGame)),
             )
             .add_systems(PreUpdate, prepare_weapons)
             .add_systems(
@@ -52,7 +52,7 @@ impl Plugin for WeaponItemPlugin {
                     equipped_weapon_positioning,
                     weapon_visibility_system,
                 )
-                    .run_if(state_exists_and_equals(AppState::PlayingGame)),
+                    .run_if(in_state(AppState::PlayingGame)),
             );
     }
 }
@@ -108,12 +108,13 @@ fn handle_weapon_attacks(
         };
 
         match weapon_descriptor {
-            WeaponDescriptor::Gun(cfg) => gunshoot_events.send(GunShootEvent {
-                gun: weapon_attack.weapon,
-                settings: *cfg,
-            }),
-            // WeaponDescriptor::Flail { .. } => {}
-            // WeaponDescriptor::Blade { .. } => {}
+            WeaponDescriptor::Gun(cfg) => {
+                gunshoot_events.send(GunShootEvent {
+                    gun: weapon_attack.weapon,
+                    settings: *cfg,
+                });
+            } // WeaponDescriptor::Flail { .. } => {}
+              // WeaponDescriptor::Blade { .. } => {}
         }
     }
 }
@@ -130,7 +131,7 @@ pub struct EventAttackWeapon {
 /// flips weapon sprite if aim angle is not between -90 and 90 degrees
 fn flip_weapon_sprites(
     // all weapons with a sprite
-    mut weapon_query: Query<(&WeaponHolder, &Transform, &mut TextureAtlasSprite)>,
+    mut weapon_query: Query<(&WeaponHolder, &Transform, &mut Sprite)>,
 ) {
     for (weapon_holder, weapon_transform, mut sprite) in &mut weapon_query {
         if weapon_holder.is_some() {

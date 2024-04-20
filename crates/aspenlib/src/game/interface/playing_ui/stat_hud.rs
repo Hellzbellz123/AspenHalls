@@ -63,6 +63,10 @@ fn create_hero_portrait(hud_parts: &mut ChildBuilder) {
                         height: Val::Percent(200.0),
                         ..default()
                     },
+                    texture_atlas: TextureAtlas {
+                        layout: Handle::default(),
+                        index: 0,
+                    },
                     ..default()
                 },
             ));
@@ -219,17 +223,19 @@ impl StatBar {
 /// modifys player portrait too currently selected player
 /// only runs if portrait handle is not player sprite atlas
 pub fn update_player_portrait(
-    player_query: Query<&Handle<TextureAtlas>, With<PlayerSelectedHero>>,
+    player_query: Query<(&TextureAtlas, &Handle<Image>), With<PlayerSelectedHero>>,
+
     mut player_portrait: Query<
-        &mut Handle<TextureAtlas>,
+        (&mut UiImage, &mut TextureAtlas),
         (With<UiPlayerPortrait>, Without<PlayerSelectedHero>),
     >,
 ) {
-    let mut ui_portrait = player_portrait.single_mut();
-    let player_atlas_handle = player_query.single();
+    let (mut portrait_image, mut portrait_atlas) = player_portrait.single_mut();
+    let (player_atlas, player_image) = player_query.single();
 
-    if *ui_portrait != *player_atlas_handle {
-        *ui_portrait = player_atlas_handle.clone_weak();
+    if portrait_image.texture != *player_image {
+        portrait_image.texture = player_image.clone_weak();
+        portrait_atlas.layout = player_atlas.layout.clone_weak()
     }
 }
 
