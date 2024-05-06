@@ -83,38 +83,36 @@ fn update_software_cursor_position(
     mut software_cursor: Query<(&mut Style, &SoftWareCursor, &mut BackgroundColor), With<Node>>,
     window_query: Query<&Window>,
 ) {
-    let (mut cursor_style, cursor_data, mut cursor_color) = software_cursor.single_mut();
-    let Ok(ptrans) = player.get_single() else {
-        let Ok(window) = window_query.get_single() else {
-            error!("no window too update software cursor");
-            return;
-        };
-
-        let window_cur_pos = window.cursor_position().unwrap_or(Vec2 {
-            x: window.width() / 2.0,
-            y: window.height() / 2.0,
-        });
-
-        cursor_style.left = Val::Px(window_cur_pos.x - cursor_data.offset.x);
-        cursor_style.top = Val::Px(window_cur_pos.y - cursor_data.offset.y);
+    let Ok((mut cursor_style, cursor_data, mut cursor_color)) = software_cursor.get_single_mut()
+    else {
+        error!("no software cursor too update");
+        return;
+    };
+    let Ok(window) = window_query.get_single() else {
+        error!("no window too position software cursor");
         return;
     };
 
     let (look_local, look_world) = (os_cursor_pos.screen, os_cursor_pos.world);
     let color = cursor_color.0;
 
-    if ptrans
-        .translation()
-        .distance(look_world.extend(0.0))
-        .le(&cursor_data.hide_distance)
-    {
+    let distance = player
+        .get_single()
+        .map_or(cursor_data.hide_distance + 100.0, |transform| {
+            transform.translation().truncate().distance(look_world)
+        });
+
+    if distance.le(&cursor_data.hide_distance) {
         *cursor_color = BackgroundColor(color.with_a(cursor_data.hide_alpha.clamp(0.0, 1.0)));
     } else {
         *cursor_color = BackgroundColor(color.with_a(cursor_data.show_alpha.clamp(0.0, 1.0)));
     };
 
-    cursor_style.left = Val::Px(look_local.x - cursor_data.offset.x);
-    cursor_style.top = Val::Px(look_local.y - cursor_data.offset.y);
+    let percent_x = ((look_local.x - cursor_data.offset.x) / window.width()) * 100.0;
+    let percent_y = ((look_local.y - cursor_data.offset.y) / window.height()) * 100.0;
+
+    cursor_style.left = Val::Percent(percent_x.abs());
+    cursor_style.top = Val::Percent(percent_y.abs());
 }
 
 // TODO: software cursor image should change based on button interaction
