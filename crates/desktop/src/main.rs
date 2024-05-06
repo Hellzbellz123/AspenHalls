@@ -14,12 +14,12 @@ use std::path::Path;
 pub const APP_SETTINGS_PATH: &str = "./config.toml";
 
 fn main() {
-    human_panic::setup_panic!(Metadata {
-        name: "AspenHalls".into(),
-        version: env!("CARGO_PKG_VERSION").into(),
-        authors: "Hellzbellz <hellzbellz123 on github.com>".into(),
-        homepage: "https://hellzbellz123.github.io/AspenHalls".into(),
-    });
+    human_panic::setup_panic!(
+        human_panic::Metadata::new("AspenHalls", env!("CARGO_PKG_VERSION"))
+            .authors("Hellzbellz <hellzbellz123 on github.com>")
+            .homepage("https://hellzbellz123.github.io/AspenHalls")
+            .support("- Open a support request on github")
+    );
 
     info!("Starting launcher: Native");
     let cfg_file: ConfigFile = load_settings();

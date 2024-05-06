@@ -29,5 +29,5 @@ bevy_egui = { version = "*", default-features = false, features = [
 ] }
 aspenlib = { path = "../aspenlib" }
 toml = { version = "0.8" }
-human-panic ="1.2.2"
+human-panic ="2.0.0"
 
