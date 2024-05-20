@@ -85,7 +85,7 @@ pub enum ActionNumber {
 
 impl From<ActionNumber> for String {
     fn from(val: ActionNumber) -> Self {
-        use ActionNumber::{One, Two, Three, Four, Five};
+        use ActionNumber::{Five, Four, One, Three, Two};
         match val {
             One => "One".to_string(),
             Two => "Two".to_string(),

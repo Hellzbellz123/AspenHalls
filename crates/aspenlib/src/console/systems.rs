@@ -127,11 +127,18 @@ pub fn teleport_command(
                     return;
                 };
                 let Some(closest) = characters.iter().min_by(|lhs, rhs| {
-                    let distance_a = lhs.1.translation.distance_squared(player_pos.translation);
-                    let distance_b = rhs.1.translation.distance_squared(player_pos.translation);
-                    distance_a
-                        .partial_cmp(&distance_b)
-                        .unwrap_or(std::cmp::Ordering::Less)
+                    // Not saving distance, doesnt matter if we square faster
+                    let distance_a = lhs
+                        .1
+                        .translation
+                        .as_ivec3()
+                        .distance_squared(player_pos.translation.as_ivec3());
+                    let distance_b = rhs
+                        .1
+                        .translation
+                        .as_ivec3()
+                        .distance_squared(player_pos.translation.as_ivec3());
+                    distance_a.cmp(&distance_b)
                 }) else {
                     spawn.reply_failed("Closest Enemy error");
                     return;

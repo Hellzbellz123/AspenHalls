@@ -11,25 +11,25 @@ use bevy_touch_stick::TouchStick;
 use leafwing_input_manager::prelude::ActionState;
 
 /// press zoom out action if shunt is touched
-pub fn touch_zoom_out(
-    interaction_query: Query<(&Interaction, &Children), (Changed<Interaction>, With<ZoomOutTag>)>,
-    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
-) {
-    for (interaction, _) in &interaction_query {
-        if *interaction == Interaction::Pressed {
-            actions.press(&action_maps::Gameplay::ZoomOut);
-        }
-    }
-}
-
-/// press zoom in action if shunt is touched
 pub fn touch_zoom_in(
     interaction_query: Query<(&Interaction, &Children), (Changed<Interaction>, With<ZoomInTag>)>,
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     for (interaction, _) in &interaction_query {
-        if *interaction == Interaction::Pressed {
-            actions.press(&action_maps::Gameplay::ZoomIn);
+        if matches!(*interaction, Interaction::Pressed) {
+            actions.press(&action_maps::Gameplay::ZoomSubtract);
+        }
+    }
+}
+
+/// press zoom in action if shunt is touched
+pub fn touch_zoom_out(
+    interaction_query: Query<(&Interaction, &Children), (Changed<Interaction>, With<ZoomOutTag>)>,
+    mut actions: ResMut<ActionState<action_maps::Gameplay>>,
+) {
+    for (interaction, _) in &interaction_query {
+        if matches!(*interaction, Interaction::Pressed) {
+            actions.press(&action_maps::Gameplay::ZoomAdd);
         }
     }
 }
@@ -40,7 +40,7 @@ pub fn touch_pause_game(
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     for (interaction, _) in &interaction_query {
-        if *interaction == Interaction::Pressed {
+        if matches!(*interaction, Interaction::Pressed) {
             debug!("pause shunt triggered");
             actions.press(&action_maps::Gameplay::Pause);
         }
@@ -53,7 +53,7 @@ pub fn touch_heal(
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     for (interaction, _) in &interaction_query {
-        if *interaction == Interaction::Pressed {
+        if matches!(*interaction, Interaction::Pressed) {
             debug!("Heal shunt triggered");
             actions.press(&action_maps::Gameplay::Heal);
         }
@@ -69,7 +69,7 @@ pub fn touch_cycle_weapon(
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     for (interaction, _) in &interaction_query {
-        if *interaction == Interaction::Pressed {
+        if matches!(*interaction, Interaction::Pressed) {
             debug!("Swap shunt triggered");
             actions.press(&action_maps::Gameplay::CycleWeapon);
         }
@@ -86,7 +86,7 @@ pub fn touch_interaction_button(
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
     for (interaction, _) in &interaction_query {
-        if *interaction == Interaction::Pressed {
+        if matches!(*interaction, Interaction::Pressed) {
             debug!("Interact shunt triggered");
             actions.press(&action_maps::Gameplay::Interact);
         }
@@ -98,13 +98,15 @@ pub fn touch_trigger_sprint(
     sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
-    let stick = sticks
+    let stick_ui = sticks
         .iter()
         .find(|f| f.id == TouchStickBinding::MoveTouchInput)
         .expect("always exists at this point");
 
-    if stick.value.abs().max_element() >= 0.85 {
-        // debug!("touch too press Sprint");
+    let magnitude = stick_ui.value.length();
+
+    if magnitude >= 0.65 {
+        trace!("touch too press Sprint");
         actions.press(&action_maps::Gameplay::Sprint);
     }
 }
@@ -114,13 +116,15 @@ pub fn touch_trigger_attack(
     sticks: Query<&TouchStick<TouchStickBinding>, Changed<TouchStick<TouchStickBinding>>>,
     mut actions: ResMut<ActionState<action_maps::Gameplay>>,
 ) {
-    let stick = sticks
+    let stick_ui = sticks
         .iter()
         .find(|f| f.id == TouchStickBinding::LookTouchInput)
         .expect("always exists at this point");
 
-    if stick.value.abs().max_element() >= 0.85 {
-        debug!("touch too press Shoot");
+    let magnitude = stick_ui.value.length();
+
+    if magnitude >= 0.65 {
+        trace!("touch too press Shoot");
         actions.press(&action_maps::Gameplay::Attack);
     }
 }

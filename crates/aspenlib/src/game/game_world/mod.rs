@@ -3,7 +3,7 @@ use bevy_ecs_ldtk::{
     prelude::{EntityIid, LdtkEntityAppExt},
     TileEnumTags,
 };
-use bevy_ecs_tilemap::prelude::*;
+
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 use leafwing_input_manager::action_state::ActionState;
 use rand::prelude::{Rng, ThreadRng};
@@ -38,14 +38,6 @@ pub mod hideout;
 /// bundles for entities that are defined inside ldtk
 mod ldtk_bundles;
 
-/// chunk size
-const CHUNK_SIZE: UVec2 = UVec2 { x: 16, y: 16 };
-/// Render chunk sizes are set to 4 render chunks per user specified chunk.
-const RENDER_CHUNK_SIZE: UVec2 = UVec2 {
-    x: CHUNK_SIZE.x * 2,
-    y: CHUNK_SIZE.y * 2,
-};
-
 /// game world plugin handles home area and dungeon generator functions
 pub struct GameWorldPlugin;
 
@@ -77,8 +69,7 @@ impl Plugin for GameWorldPlugin {
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
-                    listen_rebuild_dungeon_request
-                        .run_if(in_state(AppState::PlayingGame)),
+                    listen_rebuild_dungeon_request.run_if(in_state(AppState::PlayingGame)),
                 ),
             )
             .add_systems(
@@ -89,12 +80,21 @@ impl Plugin for GameWorldPlugin {
 }
 
 /// listens for dungeon rebuild request if dungeon is finished spawning
+#[allow(clippy::type_complexity)]
 fn listen_rebuild_dungeon_request(
     mut cmds: Commands,
     mut dungeon_root: Query<(Entity, &mut Dungeon)>,
     // mut cleanup_events: EventWriter<EventCleanupWorld>,
     actions: Res<ActionState<action_maps::Gameplay>>,
     generator_state: Res<State<GeneratorState>>,
+    actors: Query<
+        Entity,
+        (
+            With<RegistryIdentifier>,
+            Without<PlayerSelectedHero>,
+            Without<Parent>,
+        ),
+    >,
 ) {
     if actions.just_pressed(&action_maps::Gameplay::DebugF2) {
         // TODO: use cleanup systems
@@ -103,6 +103,9 @@ fn listen_rebuild_dungeon_request(
             return;
         };
         cmds.entity(dungeon).despawn_recursive();
+        actors.iter().for_each(|f| {
+            cmds.entity(f).despawn_recursive();
+        });
         info!(
             "despawned old dungeon: current dungeon build state: {:?}",
             generator_state
@@ -243,20 +246,10 @@ fn process_tile_enum_tags(
             }
         }
         for tag in tags {
-            if check_tag_for_colliders(
-                &tag,
-                &mut commands,
-                entity,
-                &mut tile_enum_tag,
-            ) {
+            if check_tag_for_colliders(&tag, &mut commands, entity, &mut tile_enum_tag) {
                 continue;
             }
-            if check_tag_misc(
-                &tag,
-                &mut commands,
-                entity,
-                &mut tile_enum_tag,
-            ) {
+            if check_tag_misc(&tag, &mut commands, entity, &mut tile_enum_tag) {
                 continue;
             }
             info!("Unknown Tile Enum Tag on entity: {tag}");
@@ -272,7 +265,8 @@ fn check_tag_misc(
 ) -> bool {
     let tag_was_handled = match tag {
         "RoomExit" => {
-            cmds.entity(entity).insert(RoomExitTile);
+            cmds.entity(entity)
+                .insert((Name::new("RoomExit"), RoomExitTile));
             tag_info.tags.retain(|f| f != tag);
             true
         }
@@ -292,11 +286,12 @@ fn check_tag_misc(
 // TODO:
 // maybe make this a system the registers a bundle?
 /// checks tile enum tag for collider tag, creates shape for collider, passes too `insert_collider`, tag is then removed from `tile_enum_tags`
+#[allow(clippy::too_many_lines)]
 fn check_tag_for_colliders(
     tag: &str,
-    cmds: &mut Commands<'_, '_>,
+    cmds: &mut Commands,
     entity: Entity,
-    tag_info: &mut Mut<'_, TileEnumTags>,
+    tag_info: &mut Mut<TileEnumTags>,
 ) -> bool {
     // 90 degrees radian
     let degrees = std::f32::consts::FRAC_PI_2;
@@ -396,9 +391,7 @@ fn check_tag_for_colliders(
             insert_tile_collider(cmds, entity, shape, tag);
             true
         }
-        _ => {
-            false
-        }
+        _ => false,
     };
     if tag_was_handled {
         tag_info.tags.retain(|f| f != tag);
@@ -408,23 +401,20 @@ fn check_tag_for_colliders(
 
 /// inserts collider onto passed entity, collides with everything
 fn insert_tile_collider(
-    commands: &mut Commands<'_, '_>,
+    commands: &mut Commands,
     entity: Entity,
     shape: Vec<(Vec2, f32, Collider)>,
     tag: &str,
 ) {
-    commands.entity(entity).insert((
-        LdtkCollisionBundle {
-            name: Name::new(tag.to_owned()),
-            rigidbody: RigidBody::Fixed,
-            collision_shape: Collider::compound(shape),
-            collision_group: CollisionGroups {
-                memberships: AspenCollisionLayer::WORLD,
-                filters: Group::ALL,
-            },
+    commands.entity(entity).insert((LdtkCollisionBundle {
+        name: Name::new(tag.to_owned()),
+        rigidbody: RigidBody::Fixed,
+        collision_shape: Collider::compound(shape),
+        collision_group: CollisionGroups {
+            memberships: AspenCollisionLayer::WORLD,
+            filters: Group::ALL,
         },
-    ));
-
+    },));
 }
 
 /// returns a point inside the rect with -`inset`. `inset` is multiplied by `TILE_SIZE`

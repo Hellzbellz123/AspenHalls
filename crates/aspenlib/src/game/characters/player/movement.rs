@@ -40,12 +40,12 @@ pub fn update_player_velocity(
     let speed = if actions.pressed(&action_maps::Gameplay::Sprint)
         && move_state.move_perms == AllowedMovement::Run
     {
-        player_stats.attrs().move_speed * SPRINT_MODIFIER
+        player_stats.attrs().base_speed * SPRINT_MODIFIER
     } else {
-        player_stats.attrs().move_speed * WALK_MODIFIER
+        player_stats.attrs().base_speed * WALK_MODIFIER
     };
 
-    let new_velocity = Velocity::linear(delta.xy().clamp_length_max(1.0) * speed);
+    let new_velocity = Velocity::linear(delta.xy() * speed);
 
     *velocity = new_velocity;
 }
@@ -73,8 +73,13 @@ pub fn camera_movement_system(
     let (player_transform, player_velocity) = player_move_query.single();
     let camera_transform = camera_trans.translation.truncate();
 
+    let modified_velocity = Vec2 {
+        x: player_velocity.linvel.x * 0.95,
+        y: player_velocity.linvel.y * 0.65,
+    };
+
     let camera_target = player_transform.translation.truncate()
-        + (player_velocity.linvel * camera_data.look_ahead_factor);
+        + (modified_velocity * camera_data.look_ahead_factor);
 
     // Calculate the movement speed based on time.delta()
     let movement_speed: f32 =

@@ -73,6 +73,11 @@ pub enum GeneratorState {
     FinishedDungeonGen,
 }
 
+// TODO: implemenet as external reusable plugin
+//fire events for dungeons instead of using states as we do.
+// maybe wrap `GeneratorState` inside an event struct (<--, better imo, can more data) or make it an event
+// this should make enabling multiple dungeons alot easier
+
 /// generates dungeons from ldtk level files
 pub struct DungeonGeneratorPlugin;
 
@@ -81,6 +86,7 @@ impl Plugin for DungeonGeneratorPlugin {
         register_types!(
             app,
             [
+                Dungeon,
                 RoomExit,
                 RoomPreset,
                 RoomBlueprint,

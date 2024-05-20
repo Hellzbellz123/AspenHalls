@@ -57,11 +57,11 @@
     "heal_button": File (
         path: "init/textures_touch/heal.png"
     ),
-    "zoom_in_button": File (
-        path: "init/textures_touch/zoom_in.png"
+    "zoom_minus_button": File (
+        path: "init/textures_touch/zoom_minus.png"
     ),
-    "zoom_out_button": File (
-        path: "init/textures_touch/zoom_out.png"
+    "zoom_plus_button": File (
+        path: "init/textures_touch/zoom_plus.png"
     ),
     "action_one": File (
         path: "init/textures_touch/action1.png"

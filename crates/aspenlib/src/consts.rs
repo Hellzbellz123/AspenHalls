@@ -1,6 +1,10 @@
 use bevy::prelude::Vec2;
 use bevy_rapier2d::{geometry::Group, prelude::Collider};
 
+#[allow(clippy::needless_bool, reason = "allows easier enabling of the bool for testing spawners")]
+/// global enemy spawner toggle
+pub const CHARACTER_SPAWN_DISABLED: bool = if cfg!(debug_assertions) {false} else {false};
+
 /// width/height of standard tile in gameworld
 pub const TILE_SIZE: f32 = 32.0;
 
@@ -59,10 +63,10 @@ pub fn default_actor_collider() -> Collider {
 pub const MIN_VELOCITY: f32 = 0.005;
 
 /// if walking, speed is multiplied by this
-pub const WALK_MODIFIER: f32 = 0.7;
+pub const WALK_MODIFIER: f32 = 1.3;
 
 /// if running, speed is multiplied by this
-pub const SPRINT_MODIFIER: f32 = 1.3;
+pub const SPRINT_MODIFIER: f32 = 1.7;
 
 #[non_exhaustive]
 /// Collision Groups wrapper

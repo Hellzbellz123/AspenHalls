@@ -7,7 +7,7 @@ use bevy_rapier2d::prelude::Velocity;
 
 use crate::{
     game::characters::components::{CharacterMoveState, CurrentMovement, MoveDirection},
-    utilities::vector_to_pi4,
+    utilities::vector_to_cardinal_direction,
 };
 
 // TODO: redo player animations to be based on where the mouse cursor is pointing, not player velocity
@@ -60,7 +60,10 @@ fn change_character_animations(
 ) {
     for (character, move_state, velocity) in &mut characters {
         let move_status = &move_state.move_status.0;
-        let move_direction = vector_to_pi4(velocity.linvel.normalize());
+
+        // use pi4?
+        let move_direction = vector_to_cardinal_direction(velocity.linvel);
+
         match move_status {
             CurrentMovement::None => {
                 change_events.send(EventAnimationChange {
@@ -69,14 +72,18 @@ fn change_character_animations(
                 });
             }
             _ => match move_direction {
-                MoveDirection::South => {change_events.send(EventAnimationChange {
-                    anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_DOWN),
-                    actor: character,
-                });},
-                MoveDirection::North => {change_events.send(EventAnimationChange {
-                    anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_UP),
-                    actor: character,
-                });},
+                MoveDirection::South => {
+                    change_events.send(EventAnimationChange {
+                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_DOWN),
+                        actor: character,
+                    });
+                }
+                MoveDirection::North => {
+                    change_events.send(EventAnimationChange {
+                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_UP),
+                        actor: character,
+                    });
+                }
                 MoveDirection::East => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = false;
@@ -94,42 +101,7 @@ fn change_character_animations(
                         actor: character,
                     });
                 }
-                MoveDirection::NorthEast => {
-                    let mut sprite = sprite_query.get_mut(character).expect("msg");
-                    sprite.flip_x = false;
-
-                    change_events.send(EventAnimationChange {
-                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
-                        actor: character,
-                    });
-                }
-                MoveDirection::SouthEast => {
-                    let mut sprite = sprite_query.get_mut(character).expect("msg");
-                    sprite.flip_x = false;
-
-                    change_events.send(EventAnimationChange {
-                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_RIGHT),
-                        actor: character,
-                    });
-                }
-                MoveDirection::NorthWest => {
-                    let mut sprite = sprite_query.get_mut(character).expect("msg");
-                    sprite.flip_x = false;
-
-                    change_events.send(EventAnimationChange {
-                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_UP),
-                        actor: character,
-                    });
-                }
-                MoveDirection::SouthWest => {
-                    let mut sprite = sprite_query.get_mut(character).expect("msg");
-                    sprite.flip_x = false;
-
-                    change_events.send(EventAnimationChange {
-                        anim_handle: AnimHandle::from_index(CharacterAnimations::WALK_DOWN),
-                        actor: character,
-                    });
-                }
+                _ => panic!("should not have got this direction from vec_to_pi4"),
             },
         }
     }

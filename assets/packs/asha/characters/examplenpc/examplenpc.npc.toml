@@ -16,7 +16,7 @@ intelligence = 10
 armor = 10
 hp_regen = 2.5
 mana_regen = 4.0
-move_speed = 90.0
+base_speed = 90.0
 range = 48.0
 arm_speed = 1.0
 

@@ -45,11 +45,11 @@ pub struct AspenInitHandles {
 pub struct AspenTouchHandles {
     // button handles
     /// zoom in button image
-    #[asset(key = "zoom_in_button")]
-    pub zoom_in_button: Handle<Image>,
+    #[asset(key = "zoom_plus_button")]
+    pub zoom_plus_button: Handle<Image>,
     /// zoom out button image
-    #[asset(key = "zoom_out_button")]
-    pub zoom_out_button: Handle<Image>,
+    #[asset(key = "zoom_minus_button")]
+    pub zoom_minus_button: Handle<Image>,
     /// menu button image
     #[asset(key = "menu_button")]
     pub menu_button: Handle<Image>,

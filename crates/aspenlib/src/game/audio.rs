@@ -54,7 +54,7 @@ impl Plugin for AudioPlugin {
         .add_audio_channel::<AmbienceSoundChannel>()
         .add_audio_channel::<GameSoundChannel>()
         .insert_resource(SpacialAudio {
-            max_distance: 150.0,
+            max_distance: 1500.0,
         })
         .add_systems(OnEnter(AppState::Loading), setup_sound_volume)
         .add_systems(

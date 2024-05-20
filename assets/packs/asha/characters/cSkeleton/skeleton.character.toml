@@ -15,7 +15,7 @@ intelligence = 10
 armor = 10
 hp_regen = 5.0
 mana_regen = 5.0
-move_speed = 150.0
+base_speed = 150.0
 range = 150.0
 arm_speed = 1.0
 damage = { physical = 20.0, elemental = "None" }

@@ -206,8 +206,8 @@ fn dijkstra_path(tile_graph: &TileGraph, hallway: HallwayPoints) -> VecDeque<Nod
 }
 
 /// marks list of node indecies as hallways in tile graph
-fn mark_path_as_hallway_tiles(expanded_path: &VecDeque<NodeIndex>, tile_graph: &mut TileGraph) {
-    for node_ids in expanded_path {
+pub fn mark_path_as_hallway_tiles(path: &VecDeque<NodeIndex>, tile_graph: &mut TileGraph) {
+    for node_ids in path {
         let one = tile_graph
             .node_weight_mut(*node_ids)
             .expect("node should exist");
@@ -219,16 +219,9 @@ fn mark_path_as_hallway_tiles(expanded_path: &VecDeque<NodeIndex>, tile_graph: &
     }
 }
 
-/// calculates distance between 2 uvecs
-pub const fn manhattan_distance_tiles(v1: UVec2, v2: UVec2) -> u32 {
+/// calculates Manhattan distance between 2 tiles on a grid
+pub const fn distance_tiles(v1: UVec2, v2: UVec2) -> u32 {
     let dx = v2.x.saturating_sub(v1.x);
     let dy = v2.y.saturating_sub(v1.y);
-    dx + dy
-}
-
-/// calculates tile distance between 2 Transforms.translation
-pub fn manhattan_distance(v1: Vec2, v2: Vec2) -> f32 {
-    let dx = (v2.x - v1.x).abs();
-    let dy = (v2.y - v1.y).abs();
     dx + dy
 }

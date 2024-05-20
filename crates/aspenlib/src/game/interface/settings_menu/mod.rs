@@ -29,10 +29,8 @@ impl Plugin for SettingsMenuPlugin {
             (
                 close_settings_interaction,
                 apply_settings_interaction,
-                toggle_settings_interactions.run_if(
-                    in_state(AppState::PauseMenu)
-                        .or_else(in_state(AppState::StartMenu)),
-                ),
+                toggle_settings_interactions
+                    .run_if(in_state(AppState::PauseMenu).or_else(in_state(AppState::StartMenu))),
             ),
         );
     }

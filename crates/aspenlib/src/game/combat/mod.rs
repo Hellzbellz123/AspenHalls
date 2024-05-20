@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 
 use crate::{
-    consts::ACTOR_Z_INDEX,
     game::{
         attributes_stats::{CharacterStats, DamageQueue},
         characters::player::PlayerSelectedHero,
         combat::unarmed::EventAttackUnarmed,
+        game_world::components::{ActorTeleportEvent, TpTriggerEffect},
         items::weapons::{
             components::{WeaponDescriptor, WeaponHolder},
             EventAttackWeapon,
@@ -84,21 +84,28 @@ fn handle_death_system(
         ),
         Changed<CharacterStats>,
     >,
+    mut teleport_event: EventWriter<ActorTeleportEvent>,
 ) {
-    for (ent, mut stats, mut transform, player_control) in &mut damaged_query {
+    for (ent, mut stats, _transform, player_control) in &mut damaged_query {
         if stats.get_current_health() <= 0.0 {
             if player_control.is_some() {
-                error!("player died, moving player");
+                info!("player died, moving player");
                 // player is entity that died
                 stats.set_health(150.0);
-                *transform = Transform::from_translation(Vec3::new(0.0, 0.0, ACTOR_Z_INDEX));
                 game_info.player_deaths += 1;
-            } else {
-                // entity that died is not player
-                error!("despawning entity");
-                game_info.enemies_deaths += 1;
-                cmds.entity(ent).despawn_recursive();
+
+                teleport_event.send(ActorTeleportEvent {
+                    tp_type: TpTriggerEffect::Event("StartDungeonGen".to_string()),
+                    target: Some(ent),
+                    sender: Some(ent),
+                });
+                continue;
             }
+
+            // entity that died is not player
+            error!("despawning entity");
+            game_info.enemies_deaths += 1;
+            cmds.entity(ent).despawn_recursive();
         }
     }
 }

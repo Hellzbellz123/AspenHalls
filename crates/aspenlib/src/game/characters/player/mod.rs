@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::hashbrown::HashMap};
 use bevy_mod_picking::{
     events::{Down, Pointer},
-    prelude::{Highlight, ListenerInput, On, PickingInteraction},
+    prelude::{ListenerInput, On, PickingInteraction},
     PickableBundle,
 };
 
@@ -14,8 +14,9 @@ use crate::{
     },
     loading::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
+        splashscreen::MainCamera,
     },
-    AppState,
+    AppState, GeneralSettings,
 };
 
 use bevy_rapier2d::prelude::CollisionGroups;
@@ -76,18 +77,26 @@ fn select_wanted_hero(
     start_menu_query: Query<&Style, (With<Node>, With<StartMenuTag>)>,
     mut cmds: Commands,
     mut select_events: EventReader<SelectThisHeroForPlayer>,
+    mut camera_query: Query<&mut OrthographicProjection, With<MainCamera>>,
+    settings: Res<GeneralSettings>,
 ) {
     let start_menu_style = start_menu_query.single();
+    let mut camera_projection = camera_query.single_mut();
+
     if start_menu_style.display != Display::None {
         return;
     }
 
-    for event in select_events.read() {
-        debug!("selecting hero");
-        cmds.entity(event.0)
+    for SelectThisHeroForPlayer(hero, ..) in select_events.read() {
+        trace!("resetting zoom");
+        camera_projection.scale = settings.camera_zoom;
+
+        trace!("selecting hero");
+        cmds.entity(*hero)
             .insert(PlayerSelectedHero)
             .remove::<On<Pointer<Down>>>()
             .remove::<PickableBundle>();
+
         cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
     }
 }

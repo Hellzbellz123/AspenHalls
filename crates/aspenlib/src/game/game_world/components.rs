@@ -21,6 +21,8 @@ pub struct BossArea {
     pub boss_defeated: bool,
 }
 
+// TODO: spawner waves
+// if empty wave then randomly fill wave based on room level
 /// spawner for enemies
 #[derive(Component, Default, Debug, Clone, Reflect)]
 #[reflect(Component)]

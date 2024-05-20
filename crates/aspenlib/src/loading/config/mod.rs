@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_ecs_ldtk::assets::LdtkProject;
 use bevy_kira_audio::{AudioChannel, AudioControl};
-use bevy_mod_logfu::LogFuPlugin;
+
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -239,18 +239,22 @@ impl Default for SoundSettings {
 
 /// creates an `App` with logging and initialization assets
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
-    let mut vanillacoffee = App::new();
-    vanillacoffee.insert_resource(AssetMetaCheck::Never);
+    let mut asha = App::new();
+    asha.insert_resource(AssetMetaCheck::Never);
 
-    vanillacoffee.add_plugins((
-        LogFuPlugin {
-            filter: cfg_file.log_filter.unwrap_or_default(),
+    asha.add_plugins((
+        LogPlugin {
+            filter: if cfg!(feature = "trace") {
+                String::new()
+            } else {
+                cfg_file.log_filter.unwrap_or_default()
+            },
             level: bevy::log::Level::TRACE,
-            log_too_file: true,
+            update_subscriber: None,
         },
         AssetPlugin {
             file_path: "assets".to_string(),
-            processed_file_path: "imported_assets/Default".to_string(),
+            processed_file_path: "streamed_assets/Default".to_string(),
             watch_for_changes_override: None,
             mode: AssetMode::Unprocessed,
         },
@@ -258,11 +262,11 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 
     info!("Logging and Asset Server Initialized");
     // add vanillacoffee stuff
-    vanillacoffee.init_state::<AppState>();
+    asha.init_state::<AppState>();
 
     let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
 
-    vanillacoffee
+    asha
         .add_plugins({
             DefaultPlugins
                 .set(WindowPlugin {
@@ -320,7 +324,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
         .insert_resource(cfg_file.general_settings)
         .insert_resource(difficulty_settings);
 
-    vanillacoffee.add_systems(
+    asha.add_systems(
         Update,
         (
             apply_window_settings.run_if(resource_changed::<WindowSettings>),
@@ -332,7 +336,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     );
 
     // add bevy plugins
-    vanillacoffee
+    asha
 }
 
 //TODO: move this to loading plugin and only run it when the settings resource changes (clicking apply in the settings menu, or reacting to OS changes), or on game load.

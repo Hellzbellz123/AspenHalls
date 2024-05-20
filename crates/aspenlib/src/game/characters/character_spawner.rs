@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use rand::{prelude::SliceRandom, thread_rng};
 
 use crate::{
+    consts::CHARACTER_SPAWN_DISABLED,
     game::{
         characters::{components::CharacterType, creeps, EventSpawnCharacter},
         game_world::components::{CharacterSpawner, SpawnerTimer},
@@ -24,6 +25,11 @@ pub fn creep_spawner_system(
     all_characters: Query<(&Transform, &CharacterType)>,
     registry: Res<ActorRegistry>,
 ) {
+    if CHARACTER_SPAWN_DISABLED {
+        error_once!("Enemy spawning disabled");
+        return;
+    }
+
     let mut rng = thread_rng();
     for (spawner_entity, spawner_transform, spawner_state, mut spawner_timer, _entity_level) in
         &mut spawner_query

@@ -75,6 +75,9 @@ fn create_playable_heroes(
             if registry.characters.heroes.is_empty() {
                 error!("no heroes too pick from");
             }
+            if hero_spots.is_empty() {
+                error!("no hero spots too put heroes");
+            }
 
             info!("preparing heroes and focusing camera");
             populate_hero_spots(&registry, &hero_spots, &mut commands);

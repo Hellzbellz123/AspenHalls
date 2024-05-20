@@ -74,8 +74,7 @@ impl Plugin for AspenHallsPlugin {
             ))
             .add_systems(
                 Update,
-                ((update_actor_size, time_to_live)
-                    .run_if(in_state(AppState::PlayingGame)),),
+                ((update_actor_size, time_to_live).run_if(in_state(AppState::PlayingGame)),),
             );
     }
 }
@@ -95,11 +94,7 @@ fn time_to_live(
 
 /// update actor size if its custom size is not already set
 fn update_actor_size(
-    mut query: Query<(
-        &mut Sprite,
-        &TextureAtlas,
-        &RegistryIdentifier,
-    )>,
+    mut query: Query<(&mut Sprite, &TextureAtlas, &RegistryIdentifier)>,
     texture_atlasses: Res<Assets<TextureAtlasLayout>>,
     obje_assets: Res<Assets<ItemDefinition>>,
     char_assets: Res<Assets<CharacterDefinition>>,
@@ -109,17 +104,11 @@ fn update_actor_size(
             continue;
         }
 
-        let atlas = texture_atlasses
-            .get(texture_atlas.layout.clone())
-            .expect("texture atlas layout for this spritesheet is missing");
+        let Some(atlas) = texture_atlasses.get(texture_atlas.layout.clone()) else {
+            error!("texture atlas layout for this spritesheet is missing");
+            continue;
+        };
         let original_size = atlas.textures.first().expect("no textures in atlas").size();
-        let aspect_ratio = original_size.x / original_size.y;
-
-        trace!(
-            "image size: {}, aspect ratio: {}",
-            original_size,
-            aspect_ratio
-        );
 
         let final_size: Vec2 = {
             let maybe_characer = char_assets
@@ -135,16 +124,11 @@ fn update_actor_size(
                 def.actor.pixel_size
             } else {
                 warn!("character has no asset");
-                return;
+                continue;
             }
         };
 
         let new_custom_size = scale_to_fit(original_size, final_size);
-
-        // info!(
-        //     "target size: {}, new_custom_size: {}",
-        //     final_size, new_custom_size
-        // );
         sprite.custom_size = Some(new_custom_size);
     }
 }

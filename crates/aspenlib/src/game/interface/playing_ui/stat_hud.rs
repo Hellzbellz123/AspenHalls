@@ -222,9 +222,9 @@ impl StatBar {
 
 /// modifys player portrait too currently selected player
 /// only runs if portrait handle is not player sprite atlas
+#[allow(clippy::type_complexity)]
 pub fn update_player_portrait(
     player_query: Query<(&TextureAtlas, &Handle<Image>), With<PlayerSelectedHero>>,
-
     mut player_portrait: Query<
         (&mut UiImage, &mut TextureAtlas),
         (With<UiPlayerPortrait>, Without<PlayerSelectedHero>),
@@ -235,7 +235,7 @@ pub fn update_player_portrait(
 
     if portrait_image.texture != *player_image {
         portrait_image.texture = player_image.clone_weak();
-        portrait_atlas.layout = player_atlas.layout.clone_weak()
+        portrait_atlas.layout = player_atlas.layout.clone_weak();
     }
 }
 

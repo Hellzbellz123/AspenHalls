@@ -270,12 +270,7 @@ fn attack_action(
 
 /// handles enemy's that are doing the wander action
 fn wander_action(
-    mut enemy_query: Query<(
-        &Transform,
-        &mut Velocity,
-        &mut Sprite,
-        &mut AIWanderConfig,
-    )>,
+    mut enemy_query: Query<(&Transform, &mut Velocity, &mut Sprite, &mut AIWanderConfig)>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,
     rapier_context: Res<RapierContext>,
 ) {

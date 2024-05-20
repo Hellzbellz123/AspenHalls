@@ -6,39 +6,27 @@
   "configurations": [
     {
       "type": "lldb",
+      "request": "attach",
+      "name": "Attach",
+      "program": "${workspaceFolder}/target/debug/aspen_halls_desktop"
+    },
+    {
+      "type": "lldb",
       "request": "launch",
       "name": "Build and Debug 'Aspen Halls Native'",
       "cargo": {
         "args": [
           "build",
-          "--bin=aspen_halls_native",
-          "--package=aspen_halls_native"
+          "--bin=aspen_halls_desktop",
+          "--package=aspen_halls_desktop"
         ],
         "filter": {
-          "name": "aspen_halls_native",
+          "name": "aspen_halls_desktop",
           "kind": "bin"
         }
       },
       "args": [],
-      "cwd": "${workspaceFolder}/launchers/native"
-    },
-    {
-      "type": "lldb",
-      "request": "launch",
-      "name": "Debug 'Aspen Halls Native'",
-      "cargo": {
-        "args": [
-          "run",
-          "--bin=aspen_halls_native",
-          "--package=aspen_halls_native"
-        ],
-        "filter": {
-          "name": "aspen_halls_native",
-          "kind": "bin"
-        }
-      },
-      "args": [],
-      "cwd": "${workspaceFolder}/launchers/native"
+      "cwd": "${workspaceFolder}/crates/desktop"
     }
   ]
 }

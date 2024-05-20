@@ -5,11 +5,14 @@ use bevy_rapier2d::dynamics::Velocity;
 use crate::{
     consts::{MIN_VELOCITY, WALK_MODIFIER},
     game::{
-        animations::EventAnimationChange,
+        animations::{CharacterAnimations, EventAnimationChange},
         attributes_stats::CharacterStats,
-        characters::components::{CharacterMoveState, CurrentMovement},
+        characters::components::{
+            CharacterInventory, CharacterMoveState, CharacterType, CurrentMovement,
+        },
     },
     loading::registry::RegistryIdentifier,
+    register_types,
     utilities::vector_to_pi8,
     AppState,
 };
@@ -32,6 +35,8 @@ pub struct CharactersPlugin;
 
 impl Plugin for CharactersPlugin {
     fn build(&self, app: &mut App) {
+        register_types!(app, [CharacterType, CharacterMoveState, CharacterInventory]);
+
         app.add_event::<EventSpawnCharacter>();
         app.add_plugins((player::PlayerPlugin, ai::AIPlugin));
 
@@ -69,31 +74,36 @@ fn update_character_move_state(
 ) {
     for (actor, mut move_state, velocity, stats) in &mut actor_query {
         let stats = stats.attrs();
-        let abs = velocity.linvel.abs();
-        let nrm = velocity.linvel.normalize();
+        let total_velocity = velocity.linvel.abs();
+        let velocity = velocity.linvel;
 
-        if abs.max_element() < MIN_VELOCITY {
-            if move_state.move_status.0 != CurrentMovement::None {
-                anim_events.send(EventAnimationChange {
-                    anim_handle: AnimHandle::from_index(0),
-                    actor,
-                });
-                move_state.move_status.0 = CurrentMovement::None;
-                return;
-            }
-        } else if abs.max_element() <= (stats.move_speed * WALK_MODIFIER) {
+        let walk_speed = stats.base_speed * WALK_MODIFIER;
+
+        let dir = vector_to_pi8(velocity);
+        move_state.move_status.1 = dir;
+
+        if (MIN_VELOCITY..=walk_speed).contains(&total_velocity.length()) {
+            // walking
             if move_state.move_status.0 != CurrentMovement::Walk {
                 move_state.move_status.0 = CurrentMovement::Walk;
-                return;
+                continue;
             }
-        } else if abs.max_element() <= stats.move_speed
-            && move_state.move_status.0 != CurrentMovement::Run
-        {
-            move_state.move_status.0 = CurrentMovement::Run;
-            return;
+        } else if total_velocity.length() > walk_speed {
+            // running
+            if move_state.move_status.0 != CurrentMovement::Run {
+                move_state.move_status.0 = CurrentMovement::Run;
+                continue;
+            }
+        } else {
+            // not moving
+            if move_state.move_status.0 != CurrentMovement::None {
+                move_state.move_status.0 = CurrentMovement::None;
+                anim_events.send(EventAnimationChange {
+                    anim_handle: AnimHandle::from_index(CharacterAnimations::IDLE),
+                    actor,
+                });
+                continue;
+            }
         }
-
-        let dir = vector_to_pi8(nrm);
-        move_state.move_status.1 = dir;
     }
 }

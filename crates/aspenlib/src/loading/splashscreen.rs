@@ -39,11 +39,12 @@ pub struct SplashPlugin;
 
 impl Plugin for SplashPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            Startup,
-            spawn_main_camera);
+        app.add_systems(Startup, spawn_main_camera);
         app.add_systems(OnEnter(AppState::Loading), splash_setup);
-        app.add_systems(OnEnter(AppState::StartMenu), despawn_with::<OnlySplashScreen>);
+        app.add_systems(
+            OnEnter(AppState::StartMenu),
+            despawn_with::<OnlySplashScreen>,
+        );
     }
 }
 

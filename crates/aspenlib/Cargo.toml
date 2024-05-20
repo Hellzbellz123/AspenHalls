@@ -45,29 +45,30 @@ cast_possible_wrap = { level = "allow" }
 
 
 [features]
-develop = []
+develop = [
+  "bevy/file_watcher",
+  "bevy/glam_assert"
+]
 dynamic = ["bevy/dynamic_linking"]
-trace = ["bevy_mod_logfu/trace_tracy", "bevy_mod_logfu/trace_tracy_memory"]
+trace = ["bevy/trace_tracy"] #, "bevy_mod_logfu/trace_tracy_memory"]
 
 [dependencies]
 # rayon = "1.10.0"
 # crossbeam = { version = "0.8.4", features = ["nightly", "crossbeam-channel"] }
-lazy_static = { version = "1.4.0" }
+# strum = { version = "0.26", features = ["derive", "std", "strum_macros"] }
+# num-integer = { version = "0.1" }
+# lazy_static = { version = "1.4.0" }
 rand = { version = "0.8" }
 log = "0.4.20"
+clap = { version = "4.2" }
 serde = { version = "1.0" }
-strum = { version = "0.26", features = ["derive", "std", "strum_macros"] }
 toml = { version = "0.8" }
 ron = { version = "0.8" }
 winit = { version = "0.29", default-features = false, features = [
   "x11",
   "wayland",
 ] }
-clap = { version = "4.2" }
 image = { version = "0.24", default_features = false, features = ["png"] }
-voronator = { version = "0.2" }
-petgraph = { version = "0.6" }
-num-integer = { version = "0.1" }
 bevy = { path = "../../deps/bevy", default-features = false, features = [
   "bevy_pbr",       # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
   "bevy_ui",        # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
@@ -82,8 +83,7 @@ bevy = { path = "../../deps/bevy", default-features = false, features = [
   "zstd",             # zstd is for ktx2 compression
   # "bevy_gilrs",             # Gamepad input support
   # "subpixel_glyph_atlas",   # Subpixel antialiasing for text/fonts
-  # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet?
-  # "bevy_scene",             # scenes are unused atm
+  # "bevy_gizmos",            # bevy gizmos for linedrawing, not used yet? impl debug systems with this tool
 ] }
 
 # personal bevy plugins

@@ -254,7 +254,7 @@ pub struct Attributes {
     /// recovery rate per second
     pub mana_regen: f32,
     /// how fast can this actor move
-    pub move_speed: f32,
+    pub base_speed: f32,
     /// unarmed range. not applied too ranged weapons
     pub range: f32,
     /// unarmed attack speed, also effects reload speed
@@ -462,7 +462,7 @@ impl Attributes {
         hp_regen: 1.0,
         max_mana: 1.0,
         mana_regen: 1.0,
-        move_speed: 1.0,
+        base_speed: 1.0,
         strength: 1,
         agility: 1,
         intelligence: 1,
@@ -481,7 +481,7 @@ impl Attributes {
         hp_regen: 0.0,
         max_mana: 0.0,
         mana_regen: 0.0,
-        move_speed: 0.0,
+        base_speed: 0.0,
         strength: 0,
         agility: 0,
         intelligence: 0,
@@ -500,7 +500,7 @@ impl Attributes {
         hp_regen: 0.5,
         max_mana: 20.0,
         mana_regen: 0.5,
-        move_speed: 10.0,
+        base_speed: 10.0,
         strength: 2,
         agility: 2,
         intelligence: 6,
@@ -519,7 +519,7 @@ impl Attributes {
         hp_regen: 10.0,
         max_mana: 200.0,
         mana_regen: 10.0,
-        move_speed: 120.0,
+        base_speed: 120.0,
         strength: 10,
         agility: 10,
         intelligence: 10,
@@ -538,7 +538,7 @@ impl Attributes {
         hp_regen: 2.5,
         max_mana: 50.0,
         mana_regen: 4.0,
-        move_speed: 90.0,
+        base_speed: 90.0,
         strength: 10,
         agility: 10,
         intelligence: 10,
@@ -557,7 +557,7 @@ impl Attributes {
         hp_regen: 6.0,
         max_mana: 120.0,
         mana_regen: 6.0,
-        move_speed: 110.0,
+        base_speed: 110.0,
         strength: 10,
         agility: 10,
         intelligence: 10,
@@ -576,7 +576,7 @@ impl Attributes {
         hp_regen: 5.5,
         max_mana: 500.0,
         mana_regen: 20.0,
-        move_speed: 140.0,
+        base_speed: 140.0,
         strength: 10,
         agility: 10,
         intelligence: 10,
@@ -598,7 +598,7 @@ impl Attributes {
             hp_regen: 5.0 * scale_float,
             max_mana: (200 * scale_integer) as f32,
             mana_regen: 10.0 * scale_float,
-            move_speed: 100.0 * scale_float,
+            base_speed: 100.0 * scale_float,
             strength: 10 * scale_integer,
             agility: 10 * scale_integer,
             intelligence: 10 * scale_integer,
@@ -618,7 +618,7 @@ impl Attributes {
             && self.hp_regen == 0.0
             && self.max_mana == 0.0
             && self.mana_regen == 0.0
-            && self.move_speed == 0.0
+            && self.base_speed == 0.0
             && self.strength == 0
             && self.agility == 0
             && self.intelligence == 0
@@ -639,7 +639,7 @@ impl Add for Attributes {
             hp_regen: self.hp_regen + rhs.hp_regen,
             max_mana: self.max_mana + rhs.max_mana,
             mana_regen: self.mana_regen + rhs.mana_regen,
-            move_speed: self.move_speed + rhs.move_speed,
+            base_speed: self.base_speed + rhs.base_speed,
             strength: self.strength + rhs.strength,
             agility: self.agility + rhs.agility,
             intelligence: self.intelligence + rhs.intelligence,
@@ -661,7 +661,7 @@ impl Mul for Attributes {
             hp_regen: self.hp_regen * rhs.hp_regen,
             max_mana: self.max_mana * rhs.max_mana,
             mana_regen: self.mana_regen * rhs.mana_regen,
-            move_speed: self.move_speed * rhs.move_speed,
+            base_speed: self.base_speed * rhs.base_speed,
             strength: self.strength * rhs.strength,
             agility: self.agility * rhs.agility,
             intelligence: self.intelligence * rhs.intelligence,
@@ -682,7 +682,7 @@ impl Sum for Attributes {
             hp_regen: acc.hp_regen + f.hp_regen,
             max_mana: acc.max_mana + f.max_mana,
             mana_regen: acc.mana_regen + f.mana_regen,
-            move_speed: acc.move_speed + f.move_speed,
+            base_speed: acc.base_speed + f.base_speed,
             strength: acc.strength + f.strength,
             agility: acc.agility + f.agility,
             intelligence: acc.intelligence + f.intelligence,

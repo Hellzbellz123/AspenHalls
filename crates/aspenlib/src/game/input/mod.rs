@@ -1,9 +1,6 @@
 use std::hash::Hash;
 
-use bevy::{
-    ecs::schedule::IntoSystemSetConfigs, prelude::*,
-    window::PrimaryWindow,
-};
+use bevy::{ecs::schedule::IntoSystemSetConfigs, prelude::*, window::PrimaryWindow};
 use leafwing_input_manager::{
     plugin::{InputManagerPlugin, InputManagerSystem},
     prelude::{ActionState, InputMap},
@@ -96,14 +93,14 @@ fn update_cursor_position_resource(
     // mut last_position: Local<AspenCursorPosition>,
 ) {
     let window = window_query.single();
-    let window_half_size = Vec2::new(window.width(), window.width()) / 2.0;
+    let window_half_size = Vec2::new(window.width(), window.height()) / 2.0;
     let joy_axis = input.clamped_axis_pair(&action_maps::Gameplay::Look);
 
-    let cursor_screen_pos: Vec2 = if joy_axis.is_some_and(|f| f.xy().abs() != Vec2::ZERO) {
+    let cursor_screen_pos: Vec2 = if joy_axis.is_some_and(|axis| axis.xy().abs() != Vec2::ZERO) {
         let joy_axis = joy_axis.unwrap().xy();
         Vec2::new(
             joy_axis.x.mul_add(window_half_size.x, window_half_size.x),
-            (-joy_axis.y).mul_add(window_half_size.y, window_half_size.y)
+            (-joy_axis.y).mul_add(window_half_size.y, window_half_size.y),
         )
     } else {
         window_query

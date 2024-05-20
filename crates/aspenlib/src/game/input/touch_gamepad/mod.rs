@@ -40,8 +40,8 @@ impl Plugin for TouchInputPlugin {
                     shunts::touch_cycle_weapon,
                     shunts::touch_interaction_button,
                     shunts::touch_heal,
-                    shunts::touch_zoom_in,
                     shunts::touch_zoom_out,
+                    shunts::touch_zoom_in,
                 )
                     .run_if(in_state(AppState::PlayingGame)),
             )
@@ -93,11 +93,11 @@ pub struct Action5Tag;
 
 /// tag too query zoom out button
 #[derive(Component)]
-pub struct ZoomInTag;
+pub struct ZoomOutTag;
 
 /// tag too query zoom in button
 #[derive(Component)]
-pub struct ZoomOutTag;
+pub struct ZoomInTag;
 
 // TODO add more buttons
 // menu buttton top left corner. options menu.
@@ -243,7 +243,7 @@ fn spawn_touch_gamepad(
 }
 
 /// fills right pod with button rows
-fn create_button_rows(right_pod_parts: &mut ChildBuilder , touch_assets: &Res<AspenTouchHandles>) {
+fn create_button_rows(right_pod_parts: &mut ChildBuilder, touch_assets: &Res<AspenTouchHandles>) {
     right_pod_parts
         .spawn((
             Name::new("RightPodButtons"),
@@ -307,7 +307,7 @@ fn create_button_rows(right_pod_parts: &mut ChildBuilder , touch_assets: &Res<As
 }
 
 /// spawn game utility buttons
-fn spawn_top_buttons(top_buttons: &mut ChildBuilder , touch_assets: &Res<AspenTouchHandles>) {
+fn spawn_top_buttons(top_buttons: &mut ChildBuilder, touch_assets: &Res<AspenTouchHandles>) {
     spawn_controlsbutton(
         top_buttons,
         Some(touch_assets.menu_button.clone()),
@@ -323,8 +323,8 @@ fn spawn_top_buttons(top_buttons: &mut ChildBuilder , touch_assets: &Res<AspenTo
     );
     spawn_controlsbutton(
         top_buttons,
-        Some(touch_assets.zoom_in_button.clone()),
-        "Zoom In".to_string(),
+        Some(touch_assets.zoom_minus_button.clone()),
+        "Zoom Out".to_string(),
         UiRect {
             right: Val::Percent(45.0),
             bottom: Val::Auto,
@@ -332,12 +332,12 @@ fn spawn_top_buttons(top_buttons: &mut ChildBuilder , touch_assets: &Res<AspenTo
             top: Val::Percent(5.0),
         },
         (Val::Px(50.0), Val::Px(50.0)),
-        ZoomInTag,
+        ZoomOutTag,
     );
     spawn_controlsbutton(
         top_buttons,
-        Some(touch_assets.zoom_out_button.clone()),
-        "Zoom Out".to_string(),
+        Some(touch_assets.zoom_plus_button.clone()),
+        "Zoom In".to_string(),
         UiRect {
             right: Val::Percent(70.0),
             top: Val::Percent(5.0),
@@ -345,7 +345,7 @@ fn spawn_top_buttons(top_buttons: &mut ChildBuilder , touch_assets: &Res<AspenTo
             bottom: Val::Auto,
         },
         (Val::Px(50.0), Val::Px(50.0)),
-        ZoomOutTag,
+        ZoomInTag,
     );
 }
 

@@ -16,8 +16,8 @@ pub fn build_kbm_map(input_map: &mut InputMap<Gameplay>) {
             (Gameplay::UseAction3, UserInput::Single(InputKind::PhysicalKey(KeyCode::Digit3))),
             (Gameplay::UseAction4, UserInput::Single(InputKind::PhysicalKey(KeyCode::Digit4))),
             (Gameplay::UseAction5, UserInput::Single(InputKind::PhysicalKey(KeyCode::Digit5))),
-            (Gameplay::ZoomIn, UserInput::Single(InputKind::PhysicalKey(KeyCode::NumpadAdd))),
-            (Gameplay::ZoomOut,UserInput::Single(InputKind::PhysicalKey(KeyCode::NumpadSubtract))),
+            (Gameplay::ZoomAdd,UserInput::Single(InputKind::PhysicalKey(KeyCode::NumpadAdd))),
+            (Gameplay::ZoomSubtract, UserInput::Single(InputKind::PhysicalKey(KeyCode::NumpadSubtract))),
             (Gameplay::Pause, UserInput::Single(InputKind::PhysicalKey(KeyCode::Escape))),
             (Gameplay::DebugF1, UserInput::Single(InputKind::PhysicalKey(KeyCode::F1))),
             (Gameplay::DebugF2, UserInput::Single(InputKind::PhysicalKey(KeyCode::F2))),
@@ -37,8 +37,8 @@ pub fn build_gamepad_map(input_map: &mut InputMap<Gameplay>) {
         (Gameplay::Attack, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::South))),
         (Gameplay::Interact, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::East))),
         (Gameplay::CycleWeapon, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::North))),
-        (Gameplay::ZoomIn, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadUp))),
-        (Gameplay::ZoomOut, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadDown))),
+        (Gameplay::ZoomAdd, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadUp))),
+        (Gameplay::ZoomSubtract, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadDown))),
         (Gameplay::Pause, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::Start))),
         (Gameplay::Melee, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadLeft))),
         (Gameplay::Heal, UserInput::Single(InputKind::GamepadButton(GamepadButtonType::DPadRight))),
@@ -49,8 +49,10 @@ impl Gameplay {
     /// default game input mappings
     pub fn default_input_map() -> InputMap<Self> {
         let mut input_map: InputMap<Self> = InputMap::default();
+
         build_kbm_map(&mut input_map);
         build_gamepad_map(&mut input_map);
+
         input_map
     }
 }
@@ -58,13 +60,7 @@ impl Gameplay {
 /// non menu actions
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum Gameplay {
-    // /// look target in window coordinates.
-    // /// updated with `LookDelta``
-    // CursorScreen,
-    // /// look target in world space.
-    // /// updated with `LookDelta`
-    // CursorWorld,
-    /// look target delta
+    /// cursor position onscreen
     /// gathered from gamepad sticks and translated into a cursor position
     Look,
     /// Vec2: input from keyboard is collected via VirtualDPad, gamepad via DualAxis
@@ -92,9 +88,9 @@ pub enum Gameplay {
     UseAction5,
 
     /// Num - for keyboard
-    ZoomIn,
+    ZoomSubtract,
     /// Num + for keyboard
-    ZoomOut,
+    ZoomAdd,
     /// Esc for keyboard
     Pause,
     /// spawn skeleton near player

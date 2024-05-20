@@ -3,7 +3,7 @@
 use std::{cmp::Ordering, ops::Mul};
 use winit::window::Icon;
 
-use bevy::{ecs::query::WorldQuery, log::warn, prelude::*, window::CursorGrabMode};
+use bevy::{ecs::query::WorldQuery, log::{warn, BoxedSubscriber}, prelude::*, window::CursorGrabMode};
 use bevy_rapier2d::{pipeline::CollisionEvent, rapier::geometry::CollisionEventFlags};
 
 use crate::{
@@ -113,8 +113,7 @@ pub fn tiles_to_f32(distance: i32) -> f32 {
 
 /// converts velocity too move direction in 8 cardinals
 pub fn vector_to_pi8(vec: Vec2) -> MoveDirection {
-    let angle = vec.y.atan2(vec.x).to_degrees() + 360.0;
-
+    let angle = get_velocity_angle(vec);
     let index = ((angle + 22.5) / 45.0) as usize % 8;
 
     match index {
@@ -130,16 +129,31 @@ pub fn vector_to_pi8(vec: Vec2) -> MoveDirection {
 }
 
 /// converts velocity too move direction in 4 cardinals
-pub fn vector_to_pi4(linear_velocity: Vec2) -> MoveDirection {
-    let angle = linear_velocity.y.atan2(linear_velocity.x).to_degrees() + 360.0;
-    let index = (angle / 90.0) as usize % 4;
-
-    match index {
-        0 => MoveDirection::East,
-        1 => MoveDirection::North,
-        2 => MoveDirection::West,
-        _ => MoveDirection::South,
+pub fn vector_to_cardinal_direction(linear_velocity: Vec2) -> MoveDirection {
+    if linear_velocity.x.abs() > linear_velocity.y.abs() {
+        if linear_velocity.x >= 0.0 {
+            MoveDirection::East
+        } else {
+            MoveDirection::West
+        }
+    } else if linear_velocity.y >= 0.0 {
+        MoveDirection::North
+    } else {
+        MoveDirection::South
     }
+}
+
+// does this actually work the way im expecting?
+/// returns normal direction of given velocity
+fn get_velocity_angle(vec: Vec2) -> f32 {
+    let mut angle = vec.y.atan2(vec.x).to_degrees();
+    if angle < 0.0 {
+        angle += 360.0;
+    } else if angle >= 360.0 {
+        angle -= 360.0;
+    }
+
+    angle
 }
 
 /// turns a collision event into its parts

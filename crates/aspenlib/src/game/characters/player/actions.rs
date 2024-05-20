@@ -26,9 +26,9 @@ pub fn zoom_control(
         1.0
     };
 
-    if actions.pressed(&action_maps::Gameplay::ZoomIn) {
+    if actions.pressed(&action_maps::Gameplay::ZoomSubtract) {
         settings.camera_zoom -= 0.05 * multiplier;
-    } else if actions.pressed(&action_maps::Gameplay::ZoomOut) {
+    } else if actions.pressed(&action_maps::Gameplay::ZoomAdd) {
         settings.camera_zoom += 0.05 * multiplier;
     }
 }

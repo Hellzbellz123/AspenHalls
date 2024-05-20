@@ -1,6 +1,6 @@
 use bevy::{
     ecs::{component::Component, reflect::ReflectComponent},
-    prelude::Entity,
+    prelude::{Entity, Vec2},
     reflect::{std_traits::ReflectDefault, Reflect},
     utils::HashMap,
 };
@@ -43,6 +43,7 @@ pub enum CharacterType {
 /// character move state and move permissions
 /// current teleport status
 #[derive(Debug, Component, Reflect, Clone, Default)]
+#[reflect(Component)]
 pub struct CharacterMoveState {
     /// what movment is this actor doing currently
     pub move_status: (CurrentMovement, MoveDirection),
@@ -54,6 +55,7 @@ pub struct CharacterMoveState {
 
 /// character items and value
 #[derive(Debug, Component, Reflect, Clone, Default)]
+#[reflect(Component)]
 pub struct CharacterInventory {
     /// what items this character is carrying
     pub items: HashMap<Entity, (RegistryIdentifier, ItemSlot)>,
@@ -145,6 +147,52 @@ pub enum MoveDirection {
     NorthWest,
     /// velocity -Y -X
     SouthWest,
+}
+
+/// actor 8 axis move direction
+#[derive(Debug, Reflect, Clone, Default, PartialEq, Eq)]
+pub enum CardinalDirection {
+    #[default]
+    /// velocity -Y
+    South,
+    /// velocity +Y
+    North,
+    /// velocity +X
+    East,
+    /// velocity -X
+    West,
+}
+
+impl CardinalDirection {
+    /// turns a linear velocity into one of 4 cardinal directions
+    pub fn from_velocitypi4(velocity: Vec2) -> Self {
+        let angle = velocity.y.atan2(velocity.x).to_degrees() + 360.0;
+        let index = (angle / 90.0) as usize % 4;
+
+        match index {
+            0 => Self::East,
+            1 => Self::North,
+            2 => Self::West,
+            _ => Self::South,
+        }
+    }
+
+    /// calculates a direction from `point_a` too `point_b`
+    pub fn from_positions(from: Vec2, too: Vec2) -> Self {
+        let delta = too - from;
+
+        if delta.x.abs() > delta.y.abs() {
+            if delta.x >= 0.0 {
+                Self::East
+            } else {
+                Self::West
+            }
+        } else if delta.y >= 0.0 {
+            Self::North
+        } else {
+            Self::South
+        }
+    }
 }
 
 /// entity teleport status

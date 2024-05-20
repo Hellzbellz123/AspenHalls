@@ -1,4 +1,6 @@
-use crate::{game::interface::InterfaceRootTag, loading::assets::AspenTouchHandles, AppState, register_types};
+use crate::{
+    game::interface::InterfaceRootTag, loading::assets::AspenTouchHandles, register_types, AppState,
+};
 use bevy::prelude::*;
 
 /// player actions ui widgets
@@ -15,10 +17,7 @@ pub struct PlayingUiPlugin;
 
 impl Plugin for PlayingUiPlugin {
     fn build(&self, app: &mut App) {
-        register_types!(app, [
-            stat_hud::StatBar,
-            gun_hud::PlayerAmmoBar
-        ]);
+        register_types!(app, [stat_hud::StatBar, gun_hud::PlayerAmmoBar]);
         app.add_systems(OnExit(AppState::Loading), spawn_playing_ui)
             .add_systems(
                 Update,
