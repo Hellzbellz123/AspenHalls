@@ -44,9 +44,9 @@
 		{
 			"__identifier": "Entity_Layer",
 			"__type": "Entities",
-			"__cWid": 112,
-			"__cHei": 80,
-			"__gridSize": 16,
+			"__cWid": 56,
+			"__cHei": 40,
+			"__gridSize": 32,
 			"__opacity": 1,
 			"__pxTotalOffsetX": 0,
 			"__pxTotalOffsetY": 0,
@@ -67,24 +67,24 @@
 			"entityInstances": [
 				{
 					"__identifier": "PlayerStartLoc",
-					"__grid": [46,50],
-					"__pivot": [0,0],
+					"__grid": [23,27],
+					"__pivot": [0,1],
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
 					"iid": "1f824062-8990-11ee-a550-3b0dec257196",
 					"width": 160,
-					"height": 112,
+					"height": 96,
 					"defUid": 7,
-					"px": [736,800],
+					"px": [736,896],
 					"fieldInstances": [],
 					"__worldX": 2848,
-					"__worldY": -2848
+					"__worldY": -2752
 				},
 				{
 					"__identifier": "Teleporter",
-					"__grid": [54,30],
-					"__pivot": [0,0],
+					"__grid": [27,16],
+					"__pivot": [0,1],
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
@@ -92,7 +92,7 @@
 					"width": 64,
 					"height": 64,
 					"defUid": 67,
-					"px": [864,480],
+					"px": [864,544],
 					"fieldInstances": [
 						{ "__identifier": "TeleporterType", "__type": "LocalEnum.TeleportType", "__value": "Event", "__tile": null, "defUid": 35, "realEditorValues": [{
 							"id": "V_String",
@@ -106,12 +106,12 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 2976,
-					"__worldY": -3168
+					"__worldY": -3104
 				},
 				{
 					"__identifier": "Teleporter",
-					"__grid": [38,20],
-					"__pivot": [0,0],
+					"__grid": [19,11],
+					"__pivot": [0,1],
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
@@ -119,7 +119,7 @@
 					"width": 64,
 					"height": 64,
 					"defUid": 67,
-					"px": [608,320],
+					"px": [608,384],
 					"fieldInstances": [
 						{ "__identifier": "TeleporterType", "__type": "LocalEnum.TeleportType", "__value": "Local", "__tile": null, "defUid": 35, "realEditorValues": [] },
 						{ "__identifier": "TeleporterAction", "__type": "String", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] },
@@ -135,12 +135,12 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 2720,
-					"__worldY": -3328
+					"__worldY": -3264
 				},
 				{
 					"__identifier": "Teleporter",
-					"__grid": [28,6],
-					"__pivot": [0,0],
+					"__grid": [14,4],
+					"__pivot": [0,1],
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
@@ -148,7 +148,7 @@
 					"width": 64,
 					"height": 64,
 					"defUid": 67,
-					"px": [448,96],
+					"px": [448,160],
 					"fieldInstances": [
 						{ "__identifier": "TeleporterType", "__type": "LocalEnum.TeleportType", "__value": "Local", "__tile": null, "defUid": 35, "realEditorValues": [] },
 						{ "__identifier": "TeleporterAction", "__type": "String", "__value": null, "__tile": null, "defUid": 33, "realEditorValues": [] },
@@ -164,7 +164,7 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 2560,
-					"__worldY": -3552
+					"__worldY": -3488
 				}
 			]
 		},

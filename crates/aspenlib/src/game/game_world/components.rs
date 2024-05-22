@@ -9,7 +9,7 @@ use crate::{
 #[derive(Component, Default)]
 pub struct HeroSpot {
     /// name of hero that should be spawned at this `HeroSpot`
-    pub what_hero: String,
+    pub hero_id: RegistryIdentifier,
 }
 
 /// location for Dungeon final bosses

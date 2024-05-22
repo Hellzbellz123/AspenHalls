@@ -11,7 +11,7 @@
 	"iid": "244ce3b0-c640-11ed-aa57-bfc2da97beed",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 475658,
-	"nextUid": 89,
+	"nextUid": 90,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -48,7 +48,7 @@
 			"uid": 4,
 			"doc": null,
 			"uiColor": null,
-			"gridSize": 16,
+			"gridSize": 32,
 			"guideGridWid": 0,
 			"guideGridHei": 0,
 			"displayOpacity": 1,
@@ -96,7 +96,7 @@
 			"pxOffsetY": 0,
 			"parallaxFactorX": 0,
 			"parallaxFactorY": 0,
-			"parallaxScaling": true,
+			"parallaxScaling": false,
 			"requiredTags": [],
 			"excludedTags": [],
 			"autoTilesKilledByOtherLayerUid": null,
@@ -141,41 +141,6 @@
 			"uiTileRect": null,
 			"nineSliceBorders": [],
 			"maxCount": 1,
-			"limitScope": "PerLevel",
-			"limitBehavior": "PreventAdding",
-			"pivotX": 0,
-			"pivotY": 0,
-			"fieldDefs": []
-		},
-		{
-			"identifier": "RoomExit",
-			"uid": 10,
-			"tags": ["world"],
-			"exportToToc": false,
-			"allowOutOfBounds": false,
-			"doc": "Used too calculate room exits for connecting paths",
-			"width": 32,
-			"height": 32,
-			"resizableX": true,
-			"resizableY": true,
-			"minWidth": 32,
-			"maxWidth": 32,
-			"minHeight": 32,
-			"maxHeight": 32,
-			"keepAspectRatio": false,
-			"tileOpacity": 1,
-			"fillOpacity": 0.08,
-			"lineOpacity": 0,
-			"hollow": false,
-			"color": "#D77643",
-			"renderMode": "Tile",
-			"showName": true,
-			"tilesetId": 2,
-			"tileRenderMode": "FitInside",
-			"tileRect": { "tilesetUid": 2, "x": 240, "y": 208, "w": 16, "h": 16 },
-			"uiTileRect": null,
-			"nineSliceBorders": [],
-			"maxCount": 4,
 			"limitScope": "PerLevel",
 			"limitBehavior": "PreventAdding",
 			"pivotX": 0,
@@ -619,7 +584,7 @@
 			"limitScope": "PerLevel",
 			"limitBehavior": "MoveLastOne",
 			"pivotX": 0,
-			"pivotY": 0,
+			"pivotY": 1,
 			"fieldDefs": [
 				{
 					"identifier": "TeleporterType",
@@ -805,7 +770,7 @@
 			"maxCount": 0,
 			"limitScope": "PerLevel",
 			"limitBehavior": "MoveLastOne",
-			"pivotX": 1,
+			"pivotX": 0,
 			"pivotY": 1,
 			"fieldDefs": [
 				{
@@ -878,7 +843,7 @@
 			"maxCount": 0,
 			"limitScope": "PerLevel",
 			"limitBehavior": "MoveLastOne",
-			"pivotX": 1,
+			"pivotX": 0,
 			"pivotY": 1,
 			"fieldDefs": [
 				{
@@ -951,8 +916,8 @@
 			"maxCount": 0,
 			"limitScope": "PerLevel",
 			"limitBehavior": "MoveLastOne",
-			"pivotX": 0,
-			"pivotY": 0,
+			"pivotX": 0.5,
+			"pivotY": 0.5,
 			"fieldDefs": [
 				{
 					"identifier": "SpawnIdentifiers",
@@ -1034,7 +999,7 @@
 		{
 			"__cWid": 6,
 			"__cHei": 12,
-			"identifier": "Homemade_tilemap32x32",
+			"identifier": "Room_Tiles",
 			"uid": 2,
 			"relPath": "texture_atlas/homemade_tilemap32x32.png",
 			"embedAtlas": null,
@@ -1070,6 +1035,47 @@
 			"cachedPixelData": {
 				"opaqueTiles": "011110001110000000110011000010000000000000000000000000000000000000000000",
 				"averageColors": "b533f642fb92fba3f8824533a533a533fa6af948fa697533a533a5334533453375334533f642f63275337533f666f2224555755515556555f223e2229555255525558555a222a222000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+			}
+		},
+		{
+			"__cWid": 4,
+			"__cHei": 7,
+			"identifier": "Hallway_Tiles",
+			"uid": 89,
+			"relPath": "texture_atlas/hallway_tiles.png",
+			"embedAtlas": null,
+			"pxWid": 128,
+			"pxHei": 224,
+			"tileGridSize": 32,
+			"spacing": 0,
+			"padding": 0,
+			"tags": [],
+			"tagsSourceEnumUid": 10,
+			"enumTags": [
+				{ "enumValueId": "CollideUp", "tileIds": [16] },
+				{ "enumValueId": "CollideDown", "tileIds": [19] },
+				{ "enumValueId": "CollideLeft", "tileIds": [17] },
+				{ "enumValueId": "CollideRight", "tileIds": [18] },
+				{ "enumValueId": "CollideCornerUL", "tileIds": [] },
+				{ "enumValueId": "CollideCornerLL", "tileIds": [] },
+				{ "enumValueId": "CollideCornerUR", "tileIds": [] },
+				{ "enumValueId": "CollideCornerLR", "tileIds": [] },
+				{ "enumValueId": "CollideInnerUL", "tileIds": [] },
+				{ "enumValueId": "CollideInnerLL", "tileIds": [] },
+				{ "enumValueId": "CollideInnerUR", "tileIds": [] },
+				{ "enumValueId": "CollideInnerLR", "tileIds": [] },
+				{ "enumValueId": "DoubleWallVertical", "tileIds": [] },
+				{ "enumValueId": "CollideInnerWall", "tileIds": [] },
+				{ "enumValueId": "CollideOuterWall", "tileIds": [] },
+				{ "enumValueId": "CrawlOver", "tileIds": [] },
+				{ "enumValueId": "RoomExit", "tileIds": [2] },
+				{ "enumValueId": "HallwayBoundry", "tileIds": [] }
+			],
+			"customData": [],
+			"savedSelections": [],
+			"cachedPixelData": {
+				"opaqueTiles": "0000101100000000000000000000",
+				"averageColors": "2b002b002b002b00f3330000f333fb862643264326432643b633b633b633b633863386338633863356335633563356339633963300000000"
 			}
 		}
 	], "enums": [
@@ -1246,8 +1252,8 @@
 			"identifier": "DungeonStartL1",
 			"iid": "ab01cb70-c640-11ed-8990-97df4ce06d05",
 			"uid": 13,
-			"worldX": 0,
-			"worldY": -1728,
+			"worldX": 1216,
+			"worldY": -1056,
 			"worldDepth": 0,
 			"pxWid": 768,
 			"pxHei": 768,
@@ -1273,7 +1279,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [null] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "n" }, { "levelIid": "dd78f4e0-8990-11ee-a550-8328dbe0c3aa", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "s" }, { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "w" }, { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "s" } ]
 		},
 		{
 			"identifier": "RewardTest",
@@ -1306,7 +1312,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [{ "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "s" }]
+			"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "s" }, { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "e" } ]
 		},
 		{
 			"identifier": "SmallShortDonutRoom",
@@ -1336,7 +1342,14 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" }, { "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
+			"__neighbours": [
+				{ "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "n" },
+				{ "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "w" },
+				{ "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "n" },
+				{ "levelIid": "07c8c8a0-8990-11ee-a13c-658f4c52f50f", "dir": "e" },
+				{ "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" },
+				{ "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" }
+			]
 		},
 		{
 			"identifier": "TinySquare",
@@ -1366,14 +1379,14 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "c24a48e0-8990-11ee-94a7-3d3f425ee144", "dir": "n" }, { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "e" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" } ]
+			"__neighbours": [ { "levelIid": "c24a48e0-8990-11ee-94a7-3d3f425ee144", "dir": "n" }, { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "e" }, { "levelIid": "d513f760-8990-11ee-94a7-dbb291629cb2", "dir": "n" }, { "levelIid": "c24d3c10-c640-11ed-8990-6d252beb4b76", "dir": "s" } ]
 		},
 		{
 			"identifier": "BossRoomL1",
 			"iid": "d513f760-8990-11ee-94a7-dbb291629cb2",
 			"uid": 47,
-			"worldX": 992,
-			"worldY": -1120,
+			"worldX": 512,
+			"worldY": -992,
 			"worldDepth": 0,
 			"pxWid": 704,
 			"pxHei": 704,
@@ -1399,7 +1412,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [null] }
 			],
 			"layerInstances": null,
-			"__neighbours": []
+			"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "e" }, { "levelIid": "c24a48e0-8990-11ee-94a7-3d3f425ee144", "dir": "w" }, { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "s" }, { "levelIid": "49d60130-8990-11ee-a13c-7d4ae0661be6", "dir": "s" } ]
 		},
 		{
 			"identifier": "TinyEyeBall",
@@ -1459,7 +1472,7 @@
 				{ "__identifier": "IdentLevel", "__type": "LocalEnum.IdentLevel", "__value": "Level1", "__tile": null, "defUid": 50, "realEditorValues": [] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "w" }, { "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "e" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
+			"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "n" }, { "levelIid": "546df553-c640-11ed-8990-3f25e5085b95", "dir": "w" }, { "levelIid": "6b44d230-c640-11ed-8990-01a5cc32fb81", "dir": "e" }, { "levelIid": "5b782c80-c640-11ed-8990-fd73507372fd", "dir": "s" } ]
 		},
 		{
 			"identifier": "SailrmenSea_Men",
@@ -1758,7 +1771,7 @@
 				}] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "s" }, { "levelIid": "dd78f4e0-8990-11ee-a550-8328dbe0c3aa", "dir": "e" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "dd78f4e0-8990-11ee-a550-8328dbe0c3aa", "dir": "e" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
 		},
 		{
 			"identifier": "HideoutL2",
@@ -1794,7 +1807,7 @@
 				}] }
 			],
 			"layerInstances": null,
-			"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "s" }, { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "w" }, { "levelIid": "1f824060-8990-11ee-a550-159737c4cb9e", "dir": "ne" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
+			"__neighbours": [ { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "w" }, { "levelIid": "1f824060-8990-11ee-a550-159737c4cb9e", "dir": "ne" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
 		},
 		{
 			"identifier": "HideoutL3",

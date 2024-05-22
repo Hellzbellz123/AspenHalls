@@ -63,9 +63,9 @@ pub mod debug_plugin {
             // add inspector plugins
             app.add_plugins((
                 StateInspectorPlugin::<AppState>::default()
-                    .run_if(input_toggle_active(true, KeyCode::F3)),
+                    .run_if(input_toggle_active(if cfg!(debug_assertions) {true} else {false}, KeyCode::F3)),
                 StateInspectorPlugin::<GeneratorState>::default()
-                    .run_if(input_toggle_active(true, KeyCode::F3)),
+                    .run_if(input_toggle_active(if cfg!(debug_assertions) {true} else {false}, KeyCode::F3)),
                 WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
                 // ResourceInspectorPlugin::<>::default()
                 //      .run_if(input_toggle_active(true, KeyCode::F3)),

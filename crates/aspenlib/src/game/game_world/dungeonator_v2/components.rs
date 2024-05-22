@@ -13,10 +13,16 @@ use bevy_ecs_ldtk::{
     prelude::{ldtk::FieldInstance, FieldValue, LdtkProject},
     LevelIid,
 };
+use bevy_ecs_tilemap::prelude::TilemapSize;
 
-use crate::game::game_world::{
-    components::RoomExit,
-    dungeonator_v2::{hallways::HallWayBlueprint, tile_graph::TileGraph},
+use crate::{
+    consts::TILE_SIZE,
+    game::game_world::{
+        components::RoomExit,
+        dungeonator_v2::{
+            hallways::HallWayBlueprint, room_graph::RoomGraph, tile_graph::TileGraph,
+        },
+    },
 };
 
 /// bundle for easy spawning of dungeon
@@ -94,8 +100,12 @@ pub struct DungeonRoomDatabase {
 /// `useable_rooms` and hallways are filled by other systems
 #[derive(Debug, Clone, Default, Reflect)]
 pub struct DungeonSettings {
-    /// dungeon max size / 2.0
-    pub map_halfsize: f32,
+    /// level for leveled rooms
+    pub level: RoomLevel,
+    /// border around outside of dungeon in tiles
+    pub border: u32,
+    /// how wide/tall this dungeon should be in tiles
+    pub size: TilemapSize,
     // TODO: readd, disabled because it breaks maths
     // /// minimum space between dungeon rooms, in tiles
     // pub tiles_between_rooms: i32,
@@ -106,17 +116,29 @@ pub struct DungeonSettings {
     pub hallway_loop_chance: f32,
 }
 
+impl DungeonSettings {
+    pub fn get_center(&self, origin: Vec2) -> Vec2 {
+        let half_size_x = (self.size.x as f32 * TILE_SIZE) / 2.0;
+        let half_size_y = (self.size.y as f32 * TILE_SIZE) / 2.0;
+
+        Vec2 {
+            x: origin.x + half_size_x,
+            y: origin.y + half_size_y,
+        }
+    }
+}
+
 /// self contained dungeon data component
 #[derive(Debug, Clone, Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct Dungeon {
-    /// postion checked rooms
-    pub rooms: Vec<RoomBlueprint>,
-    /// position checked hallways
-    pub hallways: Vec<HallWayBlueprint>,
     /// settings too configure this dungeon
     pub settings: DungeonSettings,
-    /// graph of all tiles building tiles in dungeon
+    /// graph of all building tiles in dungeon
     pub tile_graph: TileGraph,
+    /// graph of rooms and hallway connections
+    #[reflect(ignore)]
+    pub room_graph: RoomGraph,
 }
 
 /// room instances before being placed
@@ -130,12 +152,27 @@ pub struct RoomPreset {
     pub name: String,
     /// - Rect.max is position + size
     /// size of room
-    pub size: Vec2,
+    pub size: IVec2,
+    // exit offsets
+    pub exits: Vec<IVec2>,
 }
 
 impl RoomBlueprint {
     /// creates `RoomBlueprint` from a room preset
     pub fn from_preset(preset: &RoomPreset, position: Vec2, id: u32) -> Self {
+        let room_exits = preset
+            .exits
+            .iter()
+            .map(|f| RoomExit {
+                parent: RoomID(id),
+                hallway_connected: false,
+                position: IVec2 {
+                    x: (position.x as i32 + f.x),
+                    y: (position.y as i32 + f.y),
+                },
+            })
+            .collect::<Vec<RoomExit>>();
+
         Self {
             descriptor: preset.descriptor.clone(),
             asset_id: preset.room_asset_id.clone(),
@@ -143,8 +180,13 @@ impl RoomBlueprint {
             name: preset.name.clone(),
             size: preset.size,
             id: RoomID(id),
-            exits: Vec::new(),
+            exits: room_exits,
         }
+    }
+
+    /// returns the rooms spawn point
+    pub fn center(&self) -> IVec2 {
+        self.position + (self.size / 2)
     }
 }
 
@@ -153,21 +195,21 @@ impl RoomBlueprint {
 pub struct RoomID(pub u32);
 
 /// room placed by room placer
-#[derive(Debug, Clone, Reflect, Component, Default, PartialEq)]
+#[derive(Debug, Clone, Reflect, Component, Default, PartialEq, Eq)]
 #[reflect(Component)]
 pub struct RoomBlueprint {
     /// information used too describe room
     pub descriptor: RoomDescriptor,
     /// what room asset should this blueprint pull from
     pub asset_id: LevelIid,
-    /// where is this room located in worldspace
-    pub position: IVec2,
     /// what exits does this room possess
     pub exits: Vec<RoomExit>,
     /// what is this room names
     pub name: String,
+    /// center of this room in worldspace
+    pub position: IVec2,
     /// how large is this room
-    pub size: Vec2,
+    pub size: IVec2,
     /// rooms unique number
     pub id: RoomID,
 }
@@ -207,7 +249,7 @@ pub struct RoomDistribution {
 }
 
 /// what level is this room
-#[derive(Debug, Clone, Reflect, PartialEq, Eq, PartialOrd, Default, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Default, Ord, Reflect)]
 pub enum RoomLevel {
     /// DEBUG LEVEL
     Level0,

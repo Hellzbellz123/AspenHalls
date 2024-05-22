@@ -1,43 +1,39 @@
-use std::time::Duration;
+use bevy_ecs_tilemap::prelude::TilemapSize;
+use rand::prelude::Rng;
+use std::collections::VecDeque;
 
 use bevy::{
-    asset::Assets,
-    ecs::schedule::States,
-    log::info,
-    math::Vec2,
-    prelude::{
-        apply_deferred, default, resource_changed, resource_exists, in_state,
-        Commands, Condition, IntoSystemConfigs, OnEnter, OnExit, Plugin, Res, SpatialBundle,
-        Transform, Update,
-    },
+    prelude::*,
     reflect::Reflect,
-    time::common_conditions::on_timer,
+    utils::petgraph::{
+        self,
+        data::FromElements,
+        prelude::{EdgeRef, Graph},
+    },
 };
 use bevy_ecs_ldtk::{assets::LdtkExternalLevel, prelude::LdtkProject};
 
 use crate::{
-    game::game_world::{
-        components::RoomExit,
-        dungeonator_v2::{
-            components::{
-                Dungeon, DungeonContainerBundle, DungeonRoomDatabase, DungeonSettings,
-                RoomBlueprint, RoomDistribution, RoomPreset,
+    consts::TILE_SIZE,
+    game::{
+        characters::player::PlayerSelectedHero,
+        game_world::{
+            components::{ActorTeleportEvent, RoomExit, TpTriggerEffect},
+            dungeonator_v2::{
+                components::{
+                    Dungeon, DungeonContainerBundle, DungeonHallWayBundle, DungeonRoomBundle,
+                    DungeonRoomDatabase, DungeonSettings, RoomBlueprint, RoomDistribution,
+                    RoomPreset, RoomType,
+                },
+                hallways::{create_hallway_layer, HallWayBlueprint, HallwayLayer},
+                room_graph::RoomGraph,
+                tile_graph::TileGraph,
             },
-            hallways::HallWayBlueprint, tile_graph::TileGraph,
-        }, random_point_inside,
+            random_point_inside,
+        },
     },
     loading::assets::AspenMapHandles,
     register_types,
-};
-
-use bevy::prelude::*;
-
-use crate::game::{
-    characters::{
-        components::{CharacterMoveState, TeleportStatus},
-        player::PlayerSelectedHero,
-    },
-    game_world::components::{ActorTeleportEvent, TpTriggerEffect},
 };
 
 /// Dungeon Generator components
@@ -45,7 +41,9 @@ pub mod components;
 /// hallway creation system
 pub mod hallways;
 /// room selection and creation
-pub mod rooms;
+pub mod room_database;
+/// per dungeon graph of rooms and connections
+pub mod room_graph;
 /// global tile graph map thing
 pub mod tile_graph;
 /// dungeon generation utilitys
@@ -58,15 +56,9 @@ pub enum GeneratorState {
     #[default]
     NoDungeon,
     /// select presets
-    SelectPresets,
+    LayoutDungeon,
     /// spawns rooms in world
-    SpawnSelectedRooms,
-    /// modify PlacedRoom position too be center of rooms
-    FinalizeRooms,
-    /// CreatingDungeon
-    PlanHallways,
-    /// place hallway blueprints
-    PlaceHallwayRoots,
+    CompleteHallways,
     /// build hallway tiles for each blueprint
     FinalizeHallways,
     /// finished making dunegon
@@ -99,68 +91,78 @@ impl Plugin for DungeonGeneratorPlugin {
 
         app.init_state::<GeneratorState>();
 
-        app.add_systems(
-            OnEnter(GeneratorState::SelectPresets),
-            (spawn_dungeon_root, apply_deferred, rooms::select_presets).chain(),
-        );
-        app.add_systems(OnExit(GeneratorState::SelectPresets), (rooms::spawn_presets, teleport_player_too_start_location).chain());
-
+        // create a new room database anytime we get new room assets
         app.add_systems(
             Update,
-            hallways::update_room_instances.run_if(
-                in_state(GeneratorState::FinalizeRooms)
-                    .and_then(on_timer(Duration::from_secs_f32(0.2))),
-            ),
-        );
-        app.add_systems(
-            OnExit(GeneratorState::FinalizeRooms),
-            tile_graph::create_tile_graph,
-        );
-        app.add_systems(
-            Update,
-            hallways::plan_hallways.run_if(in_state(GeneratorState::PlanHallways)),
-        );
-        app.add_systems(
-            OnEnter(GeneratorState::PlaceHallwayRoots),
-            (
-                apply_deferred,
-                hallways::spawn_hallway_roots,
-                apply_deferred,
-            ),
-        );
-        app.add_systems(
-            Update,
-            (hallways::hallway_builder::build_hallways)
-                .run_if(in_state(GeneratorState::FinalizeHallways)),
-        );
-
-        app.add_systems(
-            Update,
-            rooms::generate_room_database.run_if(
+            room_database::build_room_presets.run_if(
                 resource_exists::<AspenMapHandles>.and_then(
                     resource_changed::<Assets<LdtkExternalLevel>>
                         .or_else(resource_changed::<Assets<LdtkProject>>),
                 ),
             ),
         );
+
+        // step 1 create graph
+        app.add_systems(
+            OnEnter(GeneratorState::LayoutDungeon),
+            (
+                spawn_new_dungeon,
+                apply_deferred,
+                layout_dungeon,
+                apply_deferred,
+            )
+                .chain(),
+        );
+
+        app.add_systems(
+            Update,
+            (tile_graph::create_tile_graph, apply_deferred).chain().run_if(in_state(GeneratorState::CompleteHallways)),
+        );
+
+        app.add_systems(
+            OnEnter(GeneratorState::FinalizeHallways),
+            (create_hallway_layer, apply_deferred).chain(),
+        );
+
+        app.add_systems(
+            Update,
+            hallways::hallway_builder::build_hallways.run_if(
+                in_state(GeneratorState::FinalizeHallways)
+                    .and_then(any_with_component::<HallwayLayer>),
+            ),
+        );
     }
 }
 
 /// spawns dungeon root
-fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<AspenMapHandles>) {
-    info!("spawning dungeon container");
-    let position = Transform::from_xyz(0.0, 0.0, 0.0);
-    cmds.spawn((DungeonContainerBundle {
-        name: "DungeonContainer".into(),
+fn spawn_new_dungeon(
+    mut cmds: Commands,
+    ldtk_project_handles: Res<AspenMapHandles>,
+    dungeon_root: Query<Entity, With<Dungeon>>,
+) {
+    // TODO: proper dungeon end system with cleanup
+    if dungeon_root.get_single().is_ok() {
+        cmds.entity(dungeon_root.single()).despawn_recursive();
+    }
+
+    let span = 15000.0;
+    let mut rng = rand::thread_rng();
+    let origin = Transform::from_xyz(
+        ensure_tile_pos(rng.gen_range(-span..span)),
+        ensure_tile_pos(rng.gen_range(-span..span)),
+        0.0,
+    );
+    info!("spawning dungeon at {origin:?}");
+
+    cmds.spawn(DungeonContainerBundle {
+        name: "The Aspen Halls".into(),
         dungeon: Dungeon {
-            rooms: Vec::new(),
-            hallways: Vec::new(),
-            // TODO: fix this
-            // border is applied too each room asset so 0 here
-            tile_graph: TileGraph::new(4000 / 32, 0, position.translation.truncate()),
             settings: DungeonSettings {
+                level: components::RoomLevel::Level1,
+                // border is applied too each room asset so 0 here
+                border: 4,
                 // room placing settings
-                map_halfsize: 2000.0,
+                size: TilemapSize { x: 64, y: 64 },
                 // TODO: use this but make it working
                 // tiles_between_rooms: 4,
                 distribution: RoomDistribution {
@@ -168,52 +170,198 @@ fn spawn_dungeon_root(mut cmds: Commands, ldtk_project_handles: Res<AspenMapHand
                     small_long: 4,
                     medium_short: 2,
                     medium_long: 2,
-                    large_short: 3,
-                    large_long: 2,
-                    huge_short: 1,
-                    huge_long: 1,
+                    large_short: 0,
+                    large_long: 0,
+                    huge_short: 0,
+                    huge_long: 0,
                     special: 2,
                 },
                 // hallway placing settings/data
                 hallway_loop_chance: 0.08,
             },
+            tile_graph: TileGraph {
+                graph: Graph::new_undirected(),
+                center_world: origin.translation.truncate(),
+            },
+            room_graph: RoomGraph::default(),
         },
         ldtk_project: ldtk_project_handles.default_levels.clone(),
         spatial: SpatialBundle {
-            transform: position,
+            transform: origin,
             ..default()
         },
-    },));
+    });
+}
+
+/// creates vec of `RoomPreset` too be built into `DungeonRoomBundles` using  `DungeonSettings` and current progress in the dungeon
+pub fn layout_dungeon(
+    mut cmds: Commands,
+    room_database: Res<DungeonRoomDatabase>,
+    mut dungeon_root: Query<(Entity, &mut Dungeon, &Transform)>,
+    player_query: Query<Entity, With<PlayerSelectedHero>>,
+    mut tp_events: EventWriter<ActorTeleportEvent>,
+) {
+    let (dungon_id, dungeon, dungeon_transform) = dungeon_root.single_mut();
+
+    info!("creating dungeon room blueprints");
+    let mut positioned_presets = create_dungeon_blueprint(dungeon, room_database);
+
+    info!("creating room graph from blueprints");
+    let mut room_graph = RoomGraph::new(positioned_presets.make_contiguous());
+
+    info!("connecting graph");
+    room_graph.connect_graph_randomly();
+
+    info!("computing minimum spanning tree of graph");
+    room_graph.graph = Graph::from_elements(petgraph::algo::min_spanning_tree(&room_graph.graph));
+
+    info!("verifying graph connectivity");
+    room_graph.verify_graph_connections();
+
+    #[cfg(debug_assertions)]
+    {
+        info!("room graph finished, dumping too file");
+        room_graph.dump_too_file();
+    }
+
+    info!("spawning rooms");
+    room_graph.node_weights().for_each(|weight| {
+        if let room_graph::RoomGraphNode::Room(bp) = weight {
+            cmds.entity(dungon_id).with_children(|rooms| {
+                rooms.spawn(DungeonRoomBundle {
+                    name: bp.name.clone().into(),
+                    id: bp.asset_id.clone(),
+                    room: bp.clone(),
+                    spatial: SpatialBundle::from_transform(Transform::from_translation(
+                        bp.position.as_vec2().extend(0.0),
+                    )),
+                });
+            });
+        };
+    });
+
+    teleport_player_too_start_location(
+        dungeon_transform.translation.truncate(),
+        &player_query,
+        &mut tp_events,
+    );
+
+    info!("spawning hallways");
+    room_graph.edge_references().for_each(|edge| {
+        let source = room_graph.graph.node_weight(edge.source()).expect("msg");
+        let target = room_graph.graph.node_weight(edge.target()).expect("msg");
+
+        if target.is_exit() && source.is_exit() && source != target {
+            let hallway_name = format!(
+                "Hallway{:?}->{:?}",
+                source.get_node_id(),
+                target.get_node_id()
+            );
+
+            let start_pos = source.get_nodes_offset();
+            let end_pos = target.get_nodes_offset();
+
+            cmds.spawn(DungeonHallWayBundle {
+                name: Name::new(hallway_name),
+                hallway: HallWayBlueprint {
+                    start_pos: IVec2 {
+                        x: start_pos.x,
+                        y: start_pos.y,
+                    },
+                    end_pos: IVec2 {
+                        x: end_pos.x,
+                        y: end_pos.y,
+                    },
+                    distance: edge.weight().length,
+                    node_path: VecDeque::new(),
+                    connected_rooms: (*source.get_node_id(), *target.get_node_id()),
+                    built: false,
+                },
+                spatial: SpatialBundle::from_transform(Transform::from_translation(
+                    start_pos.as_vec2().extend(0.0),
+                )),
+            })
+            .set_parent(dungon_id);
+        } else {
+            info!("bad graph edge");
+        }
+    });
+
+    cmds.insert_resource(NextState(Some(GeneratorState::CompleteHallways)));
+}
+
+// TODO: use a quad-tree structure too improve performance?
+// tbh this part of the module is actually pretty quick compared too building the tilegraph
+/// returns random list of room blueprints for a dungeon
+fn create_dungeon_blueprint(
+    dungeon: Mut<Dungeon>,
+    room_database: Res<DungeonRoomDatabase>,
+) -> VecDeque<RoomBlueprint> {
+    let mut room_positions = Vec::new();
+    let progress_level = &dungeon.settings.level;
+
+    // choose presets
+    let mut presets = utils::choose_filler_presets(&dungeon.settings, &room_database);
+
+    // add start and end presets
+    presets.push_back(utils::get_leveled_preset(&room_database.end_rooms, progress_level).unwrap());
+    presets
+        .push_front(utils::get_leveled_preset(&room_database.start_rooms, progress_level).unwrap());
+
+    // turn room blueprint
+    let mut positioned_blueprints: VecDeque<RoomBlueprint> = VecDeque::new();
+    for (i, preset) in presets.iter().enumerate() {
+        let rooms_space = if preset.descriptor.rtype == RoomType::DungeonStart {
+            Rect::from_center_size(Vec2::ZERO, preset.size.as_vec2())
+        } else {
+            utils::random_room_positon(&room_positions, preset.size.as_vec2(), &dungeon.settings)
+        };
+        room_positions.push(rooms_space);
+        positioned_blueprints.push_back(RoomBlueprint::from_preset(
+            preset,
+            Vec2 {
+                x: ensure_tile_pos(rooms_space.min.x),
+                y: ensure_tile_pos(rooms_space.min.y),
+            },
+            i as u32,
+        ));
+    }
+
+    positioned_blueprints
+}
+
+/// rounds `element` too nearest multiple of tilesize
+fn ensure_tile_pos(element: f32) -> f32 {
+    (element / TILE_SIZE).round() * TILE_SIZE
 }
 
 /// teleports player too the average `Transform` of all entities with `PlayerStartLocation`
 #[allow(clippy::type_complexity)]
 fn teleport_player_too_start_location(
-    mut player_query: Query<(Entity, &mut CharacterMoveState), With<PlayerSelectedHero>>,
-    mut tp_events: EventWriter<ActorTeleportEvent>,
+    dungeon_center: Vec2,
+    player_query: &Query<Entity, With<PlayerSelectedHero>>,
+    tp_events: &mut EventWriter<ActorTeleportEvent>,
 ) {
     let start_size = Vec2 { x: 50.0, y: 50.0 };
-    let start_pos = Vec2::ZERO;
 
     let start_loc_rect = Rect {
         min: Vec2 {
-            x: start_pos.x - start_size.x,
-            y: start_pos.y - start_size.y,
+            x: dungeon_center.x - start_size.x,
+            y: dungeon_center.y - start_size.y,
         },
         max: Vec2 {
-            x: start_pos.x + start_size.x,
-            y: start_pos.y + start_size.y,
+            x: dungeon_center.x + start_size.x,
+            y: dungeon_center.y + start_size.y,
         },
     };
 
-    let pos = random_point_inside(&start_loc_rect, 3.0).unwrap_or(start_pos);
+    let pos = random_point_inside(&start_loc_rect, 1.0).unwrap_or(dungeon_center);
 
     warn!("teleporting player too start location: {}", pos);
-    let (player_ent, mut player_tp_state) = player_query.single_mut();
+    let player_ent = player_query.single();
     tp_events.send(ActorTeleportEvent {
         tp_type: TpTriggerEffect::Global(pos),
         target: Some(player_ent),
         sender: Some(player_ent),
     });
-    player_tp_state.teleport_status = TeleportStatus::Requested;
 }

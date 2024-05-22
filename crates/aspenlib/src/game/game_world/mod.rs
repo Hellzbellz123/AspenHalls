@@ -11,7 +11,10 @@ use rand::prelude::{Rng, ThreadRng};
 use crate::{
     consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
     game::{
-        characters::components::{CharacterMoveState, CharacterType, TeleportStatus},
+        characters::{
+            components::{CharacterMoveState, CharacterType, TeleportStatus},
+            player::PlayerSelectedHero,
+        },
         game_world::{
             components::{ActorTeleportEvent, RoomExitTile, TpTriggerEffect},
             dungeonator_v2::{components::Dungeon, GeneratorState},
@@ -53,7 +56,6 @@ pub struct GameWorldPlugin;
 impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
         app.add_event::<ActorTeleportEvent>()
-            //.add_state::<GeneratorStage>()
             .add_plugins((
                 hideout::HideOutPlugin,
                 dungeonator_v2::DungeonGeneratorPlugin,
@@ -110,7 +112,7 @@ fn listen_rebuild_dungeon_request(
             "despawned old dungeon: current dungeon build state: {:?}",
             generator_state
         );
-        cmds.insert_resource(NextState(Some(GeneratorState::SelectPresets)));
+        cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
     }
 }
 
@@ -193,7 +195,7 @@ fn handle_teleport_events(
             TpTriggerEffect::Event(event) => {
                 match event.as_str() {
                     "StartDungeonGen" => {
-                        cmds.insert_resource(NextState(Some(GeneratorState::SelectPresets)));
+                        cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
                     }
                     event => {
                         warn!("unhandled Teleport Event Action: {}", event);
@@ -257,6 +259,12 @@ fn process_tile_enum_tags(
     }
 }
 
+// TODO: get rid of this, it feels like a dirty ass hack
+#[derive(Component)]
+/// room border markers
+pub struct RoomBoundryTile;
+
+/// checks for tags unrelated too collision
 fn check_tag_misc(
     tag: &str,
     cmds: &mut Commands<'_, '_>,
@@ -271,11 +279,11 @@ fn check_tag_misc(
             true
         }
         "HallwayBoundry" => {
+            cmds.entity(entity)
+                .insert((Name::new("RoomBoundry"), RoomBoundryTile));
             true
         }
-        _ => {
-            false
-        }
+        _ => false,
     };
 
     if tag_was_handled {
@@ -381,6 +389,14 @@ fn check_tag_for_colliders(
             let shape: Vec<(Vect, Rot, Collider)> = vec![
                 (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
                 (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
+            ];
+            insert_tile_collider(cmds, entity, shape, tag);
+            true
+        }
+        "DoubleWallHorizontal" => {
+            let shape: Vec<(Vect, Rot, Collider)> = vec![
+                (Vec2::new(12.0, 4.0), 0.0, Collider::cuboid(16.0, 4.0)),
+                (Vec2::new(-12.0, 4.0), 0.0, Collider::cuboid(16.0, 4.0)),
             ];
             insert_tile_collider(cmds, entity, shape, tag);
             true

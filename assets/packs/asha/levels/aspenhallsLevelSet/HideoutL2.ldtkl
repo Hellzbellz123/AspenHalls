@@ -44,9 +44,9 @@
 		{
 			"__identifier": "Entity_Layer",
 			"__type": "Entities",
-			"__cWid": 92,
-			"__cHei": 40,
-			"__gridSize": 16,
+			"__cWid": 46,
+			"__cHei": 20,
+			"__gridSize": 32,
 			"__opacity": 1,
 			"__pxTotalOffsetX": 0,
 			"__pxTotalOffsetY": 0,
@@ -67,8 +67,8 @@
 			"entityInstances": [
 				{
 					"__identifier": "PlayerStartLoc",
-					"__grid": [34,30],
-					"__pivot": [0,0],
+					"__grid": [17,16],
+					"__pivot": [0,1],
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#BE4A2F",
@@ -76,15 +76,15 @@
 					"width": 160,
 					"height": 64,
 					"defUid": 7,
-					"px": [544,480],
+					"px": [544,544],
 					"fieldInstances": [],
 					"__worldX": 1184,
-					"__worldY": -1888
+					"__worldY": -1824
 				},
 				{
 					"__identifier": "Teleporter",
-					"__grid": [42,10],
-					"__pivot": [0,0],
+					"__grid": [21,6],
+					"__pivot": [0,1],
 					"__tags": ["world"],
 					"__tile": null,
 					"__smartColor": "#D06A06",
@@ -92,7 +92,7 @@
 					"width": 64,
 					"height": 64,
 					"defUid": 67,
-					"px": [672,160],
+					"px": [672,224],
 					"fieldInstances": [
 						{ "__identifier": "TeleporterType", "__type": "LocalEnum.TeleportType", "__value": "Event", "__tile": null, "defUid": 35, "realEditorValues": [{
 							"id": "V_String",
@@ -106,7 +106,135 @@
 						{ "__identifier": "TeleportGlobalRef", "__type": "Array<Float>", "__value": [0,0], "__tile": null, "defUid": 39, "realEditorValues": [ null, null ] }
 					],
 					"__worldX": 1312,
-					"__worldY": -2208
+					"__worldY": -2144
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [17,8],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c155bad0-fec0-11ee-a60d-f54b69c63f6e",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [544,288],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1184,
+					"__worldY": -2080
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [17,12],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c1f5f270-fec0-11ee-a60d-27e15a52b364",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [544,416],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1184,
+					"__worldY": -1952
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [20,8],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c2cb91f0-fec0-11ee-a60d-03b9d4484d50",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [640,288],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1280,
+					"__worldY": -2080
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [20,12],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c34fb610-fec0-11ee-a60d-5903d1422b7a",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [640,416],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1280,
+					"__worldY": -1952
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [23,12],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c3addba0-fec0-11ee-a60d-01d7655dcd3f",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [736,416],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1376,
+					"__worldY": -1952
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [23,8],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c4372fe0-fec0-11ee-a60d-5d7b89283408",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [736,288],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1376,
+					"__worldY": -2080
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [26,8],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c4d23760-fec0-11ee-a60d-d3de20d78ab1",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [832,288],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1472,
+					"__worldY": -2080
+				},
+				{
+					"__identifier": "HeroLocation",
+					"__grid": [26,12],
+					"__pivot": [0,1],
+					"__tags": ["Actor"],
+					"__tile": null,
+					"__smartColor": "#9E0000",
+					"iid": "c53f9f30-fec0-11ee-a60d-afb8f3a60acb",
+					"width": 32,
+					"height": 32,
+					"defUid": 73,
+					"px": [832,416],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"__worldX": 1472,
+					"__worldY": -1952
 				}
 			]
 		},
@@ -603,5 +731,5 @@
 			"entityInstances": []
 		}
 	],
-	"__neighbours": [ { "levelIid": "ab01cb70-c640-11ed-8990-97df4ce06d05", "dir": "s" }, { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "w" }, { "levelIid": "1f824060-8990-11ee-a550-159737c4cb9e", "dir": "ne" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
+	"__neighbours": [ { "levelIid": "7ab56830-8990-11ee-a550-1380b8d0b8e4", "dir": "w" }, { "levelIid": "1f824060-8990-11ee-a550-159737c4cb9e", "dir": "ne" }, { "levelIid": "e48949c0-8990-11ee-a550-f91ac169a863", "dir": "n" } ]
 }
