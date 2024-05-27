@@ -23,7 +23,7 @@ use crate::{
             player::{PlayerSelectedHero, SelectThisHeroForPlayer},
         },
         game_world::{
-            components::HeroSpot,
+            components::HeroLocation,
             dungeonator_v2::GeneratorState,
             hideout::systems::{spawn_world_container, teleporter_collisions},
         },
@@ -66,7 +66,7 @@ fn create_playable_heroes(
     mut level_spawn_events: EventReader<LevelEvent>,
     mut commands: Commands,
     registry: Res<ActorRegistry>,
-    hero_spots: Query<&GlobalTransform, With<HeroSpot>>,
+    hero_spots: Query<&GlobalTransform, With<HeroLocation>>,
     mut camera_query: Query<(&mut Transform, &mut OrthographicProjection), With<MainCamera>>,
 ) {
     for event in level_spawn_events.read() {

@@ -12,7 +12,6 @@ use bevy_rapier2d::{
 use big_brain::{
     prelude::{ActionState, Actor, Score},
     thinker::ThinkerBuilder,
-    // BigBrainStage,
     BigBrainSet,
 };
 use rand::{thread_rng, Rng};

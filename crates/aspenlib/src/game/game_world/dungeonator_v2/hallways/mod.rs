@@ -19,7 +19,7 @@ pub mod hallway_builder;
 pub mod walls;
 
 /// amount of this type that shares parents
-#[derive(Debug, PartialEq, Eq, PartialOrd, Clone)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Reflect)]
 pub struct SiblingCount(pub u32);
 
 /// hallway representation

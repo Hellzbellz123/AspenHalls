@@ -63,7 +63,7 @@
 			"gridTiles": [],
 			"entityInstances": [
 				{
-					"__identifier": "PlayerStartLoc",
+					"__identifier": "StartLocation",
 					"__grid": [9,14],
 					"__pivot": [0,1],
 					"__tags": ["world"],

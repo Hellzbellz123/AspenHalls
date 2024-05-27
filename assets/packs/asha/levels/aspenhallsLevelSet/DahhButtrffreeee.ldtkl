@@ -60,7 +60,7 @@
 			"gridTiles": [],
 			"entityInstances": [
 				{
-					"__identifier": "EnemySpawner",
+					"__identifier": "CharacterSpawner",
 					"__grid": [29,10],
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
@@ -72,18 +72,16 @@
 					"defUid": 66,
 					"px": [944,336],
 					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
-						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
-						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
-						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
+						{ "__identifier": "CharacterWaves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 91, "realEditorValues": [] },
+						{ "__identifier": "RandomWave", "__type": "Bool", "__value": true, "__tile": null, "defUid": 92, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": null, "__tile": null, "defUid": 95, "realEditorValues": [] },
+						{ "__identifier": "WaitTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 97, "realEditorValues": [] }
 					],
 					"__worldX": 3376,
 					"__worldY": 752
 				},
 				{
-					"__identifier": "EnemySpawner",
+					"__identifier": "CharacterSpawner",
 					"__grid": [7,7],
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
@@ -95,18 +93,16 @@
 					"defUid": 66,
 					"px": [240,240],
 					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
-						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
-						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
-						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
+						{ "__identifier": "CharacterWaves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 91, "realEditorValues": [] },
+						{ "__identifier": "RandomWave", "__type": "Bool", "__value": true, "__tile": null, "defUid": 92, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": null, "__tile": null, "defUid": 95, "realEditorValues": [] },
+						{ "__identifier": "WaitTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 97, "realEditorValues": [] }
 					],
 					"__worldX": 2672,
 					"__worldY": 656
 				},
 				{
-					"__identifier": "EnemySpawner",
+					"__identifier": "CharacterSpawner",
 					"__grid": [7,14],
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
@@ -118,12 +114,10 @@
 					"defUid": 66,
 					"px": [240,464],
 					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
-						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
-						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
-						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 82, "realEditorValues": [] },
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [] }
+						{ "__identifier": "CharacterWaves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 91, "realEditorValues": [] },
+						{ "__identifier": "RandomWave", "__type": "Bool", "__value": true, "__tile": null, "defUid": 92, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": null, "__tile": null, "defUid": 95, "realEditorValues": [] },
+						{ "__identifier": "WaitTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 97, "realEditorValues": [] }
 					],
 					"__worldX": 2672,
 					"__worldY": 880

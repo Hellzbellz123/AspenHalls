@@ -10,13 +10,14 @@ pub mod r#impl;
 #[derive(Debug, Deref, DerefMut, Clone, Default, Reflect)]
 /// rooms and hallways for a given dungeon
 pub struct RoomGraph {
-    #[deref]
     /// underlying room and hallway information
+    #[deref]
+    #[reflect(ignore)] // TODO: fix reflect for graphs
     pub graph: Graph<RoomGraphNode, RoomGraphEdge, Undirected>,
 }
 
 /// node for dungeon graph structure
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Reflect)]
 pub enum RoomGraphNode {
     /// node is a dungeon room
     Room(RoomBlueprint),
@@ -30,7 +31,7 @@ pub enum RoomGraphNode {
 }
 
 /// aka hallway
-#[derive(Debug, PartialEq, PartialOrd, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Reflect)]
 pub struct RoomGraphEdge {
     /// how long is this connection between rooms
     pub length: f32,

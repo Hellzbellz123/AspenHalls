@@ -156,7 +156,7 @@ pub mod debug_plugin {
     /// dumps scheduling graphs for given App
     pub fn debug_dump_graphs(app: &mut App) {
         let target = Path::new(".schedule");
-        match fs::try_exists(target) {
+        match target.try_exists() {
             Err(error) => {
                 warn!("problem with {:?} directory: {}", target, error);
             }

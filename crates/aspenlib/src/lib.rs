@@ -1,18 +1,12 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // disable console on windows for release builds
-#![feature(stmt_expr_attributes)]
-#![feature(type_ascription)]
 #![feature(lint_reasons)]
-#![feature(trivial_bounds)]
-#![feature(exact_size_is_empty)]
-#![feature(fs_try_exists)]
 #![feature(let_chains)]
-#![feature(unwrap_infallible)]
-#![feature(float_minimum_maximum)]
 #![doc = r"
 AspenHalls, My video game.
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 "]
 
+/// Debug and Development related functions
+mod debug;
 /// general component store
 mod bundles;
 /// things related too `command_console`
@@ -20,9 +14,6 @@ mod console;
 /// general consts file, if it gets used more than
 /// twice it should be here
 mod consts;
-#[cfg(feature = "develop")]
-/// Debug and Development related functions
-mod debug;
 /// actual game plugin, ui and all "game" functionality
 mod game;
 /// Holds all Asset Collections and handles loading them
@@ -31,7 +22,7 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-use crate::{game::DungeonFloor, loading::assets::AspenInitHandles};
+use crate::{game::{DungeonFloor, combat::{BulletOwnerFilter, SameUserDataFilter}}, loading::assets::AspenInitHandles};
 use bevy::prelude::*;
 
 pub use loading::config::*;
@@ -105,9 +96,7 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
-            bevy_rapier2d::plugin::RapierPhysicsPlugin::<
-                bevy_rapier2d::prelude::NoUserData,
-            >::pixels_per_meter(32.0),
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<SameUserDataFilter>::pixels_per_meter(32.0),
         ))
         .insert_resource(bevy_rapier2d::prelude::RapierConfiguration {
             gravity: Vec2::ZERO,

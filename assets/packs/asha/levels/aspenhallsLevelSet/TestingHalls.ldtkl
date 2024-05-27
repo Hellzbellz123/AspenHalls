@@ -66,7 +66,7 @@
 			"gridTiles": [],
 			"entityInstances": [
 				{
-					"__identifier": "PlayerStartLoc",
+					"__identifier": "StartLocation",
 					"__grid": [36,24],
 					"__pivot": [0,1],
 					"__tags": ["world"],
@@ -468,10 +468,13 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [416,736],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": "rexxen", "__tile": null, "defUid": 68, "realEditorValues": [{
-						"id": "V_String",
-						"params": ["rexxen"]
-					}] }],
+					"fieldInstances": [
+						{ "__identifier": "SpawnIdentifier", "__type": "String", "__value": "rexxen", "__tile": null, "defUid": 68, "realEditorValues": [{
+							"id": "V_String",
+							"params": ["rexxen"]
+						}] },
+						{ "__identifier": "InDungeonHireable", "__type": "Bool", "__value": false, "__tile": null, "defUid": 94, "realEditorValues": [] }
+					],
 					"__worldX": 416,
 					"__worldY": -2560
 				},
@@ -487,15 +490,18 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [704,768],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": "bennen", "__tile": null, "defUid": 68, "realEditorValues": [{
-						"id": "V_String",
-						"params": ["bennen"]
-					}] }],
+					"fieldInstances": [
+						{ "__identifier": "SpawnIdentifier", "__type": "String", "__value": "bennen", "__tile": null, "defUid": 68, "realEditorValues": [{
+							"id": "V_String",
+							"params": ["bennen"]
+						}] },
+						{ "__identifier": "InDungeonHireable", "__type": "Bool", "__value": false, "__tile": null, "defUid": 94, "realEditorValues": [] }
+					],
 					"__worldX": 704,
 					"__worldY": -2528
 				},
 				{
-					"__identifier": "EnemySpawner",
+					"__identifier": "CharacterSpawner",
 					"__grid": [60,22],
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
@@ -507,46 +513,16 @@
 					"defUid": 66,
 					"px": [1936,720],
 					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
-						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
-						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
-						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [
-							{
-								"entityIid": "6e3da550-fec0-11ee-a60d-85037bdee275",
-								"layerIid": "e48949c1-8990-11ee-a550-0725e27c6bf4",
-								"levelIid": "e48949c0-8990-11ee-a550-f91ac169a863",
-								"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
-							},
-							{
-								"entityIid": "6dbbf230-fec0-11ee-a60d-75e1f8259e3b",
-								"layerIid": "e48949c1-8990-11ee-a550-0725e27c6bf4",
-								"levelIid": "e48949c0-8990-11ee-a550-f91ac169a863",
-								"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
-							},
-							{
-								"entityIid": "6d28d9f0-fec0-11ee-a60d-331d63181284",
-								"layerIid": "e48949c1-8990-11ee-a550-0725e27c6bf4",
-								"levelIid": "e48949c0-8990-11ee-a550-f91ac169a863",
-								"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
-							}
-						], "__tile": null, "defUid": 82, "realEditorValues": [ {
-							"id": "V_String",
-							"params": ["6e3da550-fec0-11ee-a60d-85037bdee275"]
-						}, {
-							"id": "V_String",
-							"params": ["6dbbf230-fec0-11ee-a60d-75e1f8259e3b"]
-						}, {
-							"id": "V_String",
-							"params": ["6d28d9f0-fec0-11ee-a60d-331d63181284"]
-						} ] },
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [{ "id": "V_Int", "params": [3] }] }
+						{ "__identifier": "CharacterWaves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 91, "realEditorValues": [] },
+						{ "__identifier": "RandomWave", "__type": "Bool", "__value": true, "__tile": null, "defUid": 92, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": null, "__tile": null, "defUid": 95, "realEditorValues": [] },
+						{ "__identifier": "WaitTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 97, "realEditorValues": [] }
 					],
 					"__worldX": 1936,
 					"__worldY": -2576
 				},
 				{
-					"__identifier": "EnemySpawner",
+					"__identifier": "CharacterSpawner",
 					"__grid": [50,23],
 					"__pivot": [0.5,0.5],
 					"__tags": ["world"],
@@ -558,40 +534,10 @@
 					"defUid": 66,
 					"px": [1616,752],
 					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 88, "realEditorValues": [] },
-						{ "__identifier": "DurationSecs", "__type": "Float", "__value": 5, "__tile": null, "defUid": 66, "realEditorValues": [] },
-						{ "__identifier": "EnemyWaves", "__type": "Int", "__value": 3, "__tile": null, "defUid": 79, "realEditorValues": [] },
-						{ "__identifier": "EnemiesPerWave", "__type": "Int", "__value": 1, "__tile": null, "defUid": 80, "realEditorValues": [] },
-						{ "__identifier": "Waves", "__type": "Array<EntityRef>", "__value": [
-							{
-								"entityIid": "6e3da550-fec0-11ee-a60d-85037bdee275",
-								"layerIid": "e48949c1-8990-11ee-a550-0725e27c6bf4",
-								"levelIid": "e48949c0-8990-11ee-a550-f91ac169a863",
-								"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
-							},
-							{
-								"entityIid": "6dbbf230-fec0-11ee-a60d-75e1f8259e3b",
-								"layerIid": "e48949c1-8990-11ee-a550-0725e27c6bf4",
-								"levelIid": "e48949c0-8990-11ee-a550-f91ac169a863",
-								"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
-							},
-							{
-								"entityIid": "6d28d9f0-fec0-11ee-a60d-331d63181284",
-								"layerIid": "e48949c1-8990-11ee-a550-0725e27c6bf4",
-								"levelIid": "e48949c0-8990-11ee-a550-f91ac169a863",
-								"worldIid": "3e8481b0-ed50-11ed-b7b4-0f9ae1286ec6"
-							}
-						], "__tile": null, "defUid": 82, "realEditorValues": [ {
-							"id": "V_String",
-							"params": ["6e3da550-fec0-11ee-a60d-85037bdee275"]
-						}, {
-							"id": "V_String",
-							"params": ["6dbbf230-fec0-11ee-a60d-75e1f8259e3b"]
-						}, {
-							"id": "V_String",
-							"params": ["6d28d9f0-fec0-11ee-a60d-331d63181284"]
-						} ] },
-						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": 3, "__tile": null, "defUid": 64, "realEditorValues": [{ "id": "V_Int", "params": [3] }] }
+						{ "__identifier": "CharacterWaves", "__type": "Array<EntityRef>", "__value": [], "__tile": null, "defUid": 91, "realEditorValues": [] },
+						{ "__identifier": "RandomWave", "__type": "Bool", "__value": true, "__tile": null, "defUid": 92, "realEditorValues": [] },
+						{ "__identifier": "MaxEnemies", "__type": "Int", "__value": null, "__tile": null, "defUid": 95, "realEditorValues": [] },
+						{ "__identifier": "WaitTime", "__type": "Float", "__value": 0, "__tile": null, "defUid": 97, "realEditorValues": [] }
 					],
 					"__worldX": 1616,
 					"__worldY": -2544
@@ -610,17 +556,13 @@
 					"px": [976,272],
 					"fieldInstances": [
 						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [], "__tile": null, "defUid": 73, "realEditorValues": [] },
-						{ "__identifier": "Interacted", "__type": "Bool", "__value": false, "__tile": null, "defUid": 78, "realEditorValues": [] },
-						{ "__identifier": "DebugWeaponSpawner", "__type": "Bool", "__value": true, "__tile": null, "defUid": 76, "realEditorValues": [{
-							"id": "V_Bool",
-							"params": [ true ]
-						}] }
+						{ "__identifier": "Interacted", "__type": "Bool", "__value": false, "__tile": null, "defUid": 78, "realEditorValues": [] }
 					],
 					"__worldX": 976,
 					"__worldY": -3024
 				},
 				{
-					"__identifier": "EnemyWave",
+					"__identifier": "SpawnerWave",
 					"__grid": [55,20],
 					"__pivot": [0.5,0.5],
 					"__tags": ["DataEntity"],
@@ -631,18 +573,15 @@
 					"height": 16,
 					"defUid": 83,
 					"px": [1776,656],
-					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": ["Slime"], "__tile": null, "defUid": 84, "realEditorValues": [{
-							"id": "V_String",
-							"params": ["Slime"]
-						}] },
-						{ "__identifier": "WaveID", "__type": "Int", "__value": 0, "__tile": null, "defUid": 85, "realEditorValues": [] }
-					],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": ["Slime"], "__tile": null, "defUid": 84, "realEditorValues": [{
+						"id": "V_String",
+						"params": ["Slime"]
+					}] }],
 					"__worldX": 1776,
 					"__worldY": -2640
 				},
 				{
-					"__identifier": "EnemyWave",
+					"__identifier": "SpawnerWave",
 					"__grid": [55,21],
 					"__pivot": [0.5,0.5],
 					"__tags": ["DataEntity"],
@@ -653,21 +592,18 @@
 					"height": 16,
 					"defUid": 83,
 					"px": [1776,688],
-					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [ "Slime", "Slime" ], "__tile": null, "defUid": 84, "realEditorValues": [ {
-							"id": "V_String",
-							"params": ["Slime"]
-						}, {
-							"id": "V_String",
-							"params": ["Slime"]
-						} ] },
-						{ "__identifier": "WaveID", "__type": "Int", "__value": 0, "__tile": null, "defUid": 85, "realEditorValues": [] }
-					],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": [ "Slime", "Slime" ], "__tile": null, "defUid": 84, "realEditorValues": [ {
+						"id": "V_String",
+						"params": ["Slime"]
+					}, {
+						"id": "V_String",
+						"params": ["Slime"]
+					} ] }],
 					"__worldX": 1776,
 					"__worldY": -2608
 				},
 				{
-					"__identifier": "EnemyWave",
+					"__identifier": "SpawnerWave",
 					"__grid": [55,22],
 					"__pivot": [0.5,0.5],
 					"__tags": ["DataEntity"],
@@ -678,13 +614,10 @@
 					"height": 16,
 					"defUid": 83,
 					"px": [1776,720],
-					"fieldInstances": [
-						{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": ["Skeleton"], "__tile": null, "defUid": 84, "realEditorValues": [{
-							"id": "V_String",
-							"params": ["Skeleton"]
-						}] },
-						{ "__identifier": "WaveID", "__type": "Int", "__value": 0, "__tile": null, "defUid": 85, "realEditorValues": [] }
-					],
+					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "Array<String>", "__value": ["Skeleton"], "__tile": null, "defUid": 84, "realEditorValues": [{
+						"id": "V_String",
+						"params": ["Skeleton"]
+					}] }],
 					"__worldX": 1776,
 					"__worldY": -2576
 				}

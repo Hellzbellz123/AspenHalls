@@ -6,11 +6,11 @@ use bevy_mod_picking::{
 };
 
 use crate::{
-    bundles::ItemColliderBundle,
+    bundles::ActorColliderBundle,
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
         characters::components::WeaponSlot, components::ActorColliderType,
-        interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier,
+        interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier, combat::BulletOwnerFilter,
     },
     loading::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
@@ -126,7 +126,9 @@ pub fn build_player_from_selected_hero(
             weapon_slots: hero_weapon_slots(),
         },))
         .with_children(|child| {
-            child.spawn((ItemColliderBundle {
+            child.spawn((
+                BulletOwnerFilter(selected_hero),
+                ActorColliderBundle {
                 tag: ActorColliderType::Character,
                 name: Name::new("PlayerCollider"),
                 transform_bundle: TransformBundle {

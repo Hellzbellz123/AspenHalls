@@ -3,7 +3,7 @@ use bevy_rapier2d::geometry::{Collider, CollisionGroups};
 use rand::{thread_rng, Rng};
 
 use crate::{
-    bundles::ItemColliderBundle,
+    bundles::ActorColliderBundle,
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
     game::components::ActorColliderType,
     loading::{
@@ -49,7 +49,7 @@ pub fn spawn_weapon(
             .with_children(|child| {
                 let collider_name = format!("{}Collider", modified_weapon_ref.name.as_str());
                 let size = item_def.actor.pixel_size;
-                child.spawn(ItemColliderBundle {
+                child.spawn(ActorColliderBundle {
                     tag: ActorColliderType::Item,
                     name: Name::new(collider_name),
                     collider: Collider::capsule(

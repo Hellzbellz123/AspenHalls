@@ -84,7 +84,7 @@ pub fn spawn_command(
 
             spawn.reply_ok("Spawning character");
             ew_character.send(EventSpawnCharacter {
-                spawn_data: (identifier, 1),
+                identifier,
                 // TODO: this is a shortcut, fix
                 requester: player_query.single(),
             });

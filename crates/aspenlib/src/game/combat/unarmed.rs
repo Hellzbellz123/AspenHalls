@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bundles::{ItemColliderBundle, ProjectileBundle, RigidBodyBundle},
+    bundles::{ActorColliderBundle, ProjectileBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
     game::{
         attributes_stats::{Damage, ElementalEffect, PhysicalDamage, ProjectileStats},
@@ -85,7 +85,7 @@ pub fn delegate_unarmed_attacks(
             .with_children(|bullet_parts| {
                 bullet_parts.spawn((
                     ActiveEvents::COLLISION_EVENTS,
-                    ItemColliderBundle {
+                    ActorColliderBundle {
                         name: Name::new("MonsterProjectileCollider"),
                         transform_bundle: TransformBundle {
                             local: (Transform {

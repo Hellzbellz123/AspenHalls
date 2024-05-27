@@ -66,7 +66,7 @@
 			"gridTiles": [],
 			"entityInstances": [
 				{
-					"__identifier": "PlayerStartLoc",
+					"__identifier": "StartLocation",
 					"__grid": [6,15],
 					"__pivot": [0,1],
 					"__tags": ["world"],
@@ -120,7 +120,10 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [160,352],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"fieldInstances": [
+						{ "__identifier": "SpawnIdentifier", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] },
+						{ "__identifier": "InDungeonHireable", "__type": "Bool", "__value": false, "__tile": null, "defUid": 94, "realEditorValues": [] }
+					],
 					"__worldX": 160,
 					"__worldY": -2016
 				},
@@ -136,7 +139,10 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [448,352],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"fieldInstances": [
+						{ "__identifier": "SpawnIdentifier", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] },
+						{ "__identifier": "InDungeonHireable", "__type": "Bool", "__value": false, "__tile": null, "defUid": 94, "realEditorValues": [] }
+					],
 					"__worldX": 448,
 					"__worldY": -2016
 				},
@@ -152,7 +158,10 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [448,256],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"fieldInstances": [
+						{ "__identifier": "SpawnIdentifier", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] },
+						{ "__identifier": "InDungeonHireable", "__type": "Bool", "__value": false, "__tile": null, "defUid": 94, "realEditorValues": [] }
+					],
 					"__worldX": 448,
 					"__worldY": -2112
 				},
@@ -168,7 +177,10 @@
 					"height": 32,
 					"defUid": 73,
 					"px": [160,256],
-					"fieldInstances": [{ "__identifier": "SpawnIdentifiers", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] }],
+					"fieldInstances": [
+						{ "__identifier": "SpawnIdentifier", "__type": "String", "__value": null, "__tile": null, "defUid": 68, "realEditorValues": [] },
+						{ "__identifier": "InDungeonHireable", "__type": "Bool", "__value": false, "__tile": null, "defUid": 94, "realEditorValues": [] }
+					],
 					"__worldX": 160,
 					"__worldY": -2112
 				}

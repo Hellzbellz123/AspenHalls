@@ -5,34 +5,44 @@ use crate::{
     game::game_world::dungeonator_v2::components::RoomID, loading::registry::RegistryIdentifier,
 };
 
+// TODO: implement hireable system.
+// get near hireable hero locations, if acted on and money available, insert HeroAssistant ai bundle onto hero
+// and deduct money from player save info
+
 /// location of hero that player can choose at start of game
-#[derive(Component, Default)]
-pub struct HeroSpot {
+#[derive(Debug, Component, Default, Reflect)]
+#[reflect(Component)]
+pub struct HeroLocation {
     /// name of hero that should be spawned at this `HeroSpot`
-    pub hero_id: RegistryIdentifier,
+    pub hero_id: Option<RegistryIdentifier>,
+    /// is this hero spot hireable and populated during a dungeon run
+    pub in_dungeon_hireable: bool,
 }
 
-/// location for Dungeon final bosses
-#[derive(Debug, Component, Default)]
-pub struct BossArea {
-    /// list of enemys that are considered "bosses"
-    pub dungeon_boss: Vec<RegistryIdentifier>,
-    /// true/false are bosses defeated
-    pub boss_defeated: bool,
+// TODO: better spawning systems/id system
+#[derive(Debug, Component, Default, Reflect, Clone)]
+#[reflect(Component)]
+pub struct SpawnerWave {
+    /// identifiers that should be spawned for this wave
+    pub too_spawn: Vec<RegistryIdentifier>,
+    /// list of entitites spawned for this wave
+    pub spawned_entities: Vec<Entity>
 }
 
 // TODO: spawner waves
 // if empty wave then randomly fill wave based on room level
-/// spawner for enemies
-#[derive(Component, Default, Debug, Clone, Reflect)]
+/// spawner for characters
+#[derive(Debug, Component, Default, Reflect, Clone)]
 #[reflect(Component)]
 pub struct CharacterSpawner {
     /// list of enemys too spawn
-    pub enemies_too_spawn: Vec<RegistryIdentifier>,
+    pub waves: Vec<ReferenceToAnEntityInstance>,
+    /// infinitely spawn characters?
+    pub random_wave: bool,
     /// how far away can spawn
     pub spawn_radius: f32,
     /// max enemies in spawner radius
-    pub max_enemies: i32,
+    pub max_spawned: i32,
     /// list of enemies spawned by spawner
     pub spawned_characters: Vec<Entity>,
 }
@@ -40,6 +50,11 @@ pub struct CharacterSpawner {
 /// tile is a room exit
 #[derive(Component, Default, Debug, Clone)]
 pub struct RoomExitTile;
+
+// TODO: get rid of this, it feels like a dirty ass hack
+/// room border markers
+#[derive(Component)]
+pub struct RoomBoundryTile;
 
 /// spawner for enemies
 #[derive(Component, Default, Debug, Clone, Reflect)]
@@ -50,13 +65,14 @@ pub struct WeaponSpawner {
     /// is this spawner interacted?
     pub interacted_only: bool,
     /// has this spawner been activated yet?
-    pub triggered: bool,
+    pub used: bool,
     /// is this a debug spawner?
     pub debug: bool,
 }
 
 /// just a marker for sensors, saying whether active
-#[derive(Component, Clone, Debug, Default)]
+#[derive(Component, Clone, Debug, Default, Reflect)]
+#[reflect(Component)]
 pub struct Teleporter {
     /// is this teleporter allowed too trigger
     pub active: bool,
@@ -65,7 +81,8 @@ pub struct Teleporter {
 }
 
 /// Marks player start location
-#[derive(Component, Default)]
+#[derive(Component, Default, Reflect)]
+#[reflect(Component)]
 pub struct PlayerStartLocation {
     /// area of this start location. any point inside can be chosen.
     /// - inset of 2 tiles is applied when spawning
@@ -106,7 +123,7 @@ pub struct ActorTeleportEvent {
 /// - `Local` must be given a tile uuid
 /// - `Event` must be given a valid event string
 /// - `Global` defaults too world 0 0 if invalid data is passed.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Reflect)]
 pub enum TpTriggerEffect {
     //TODO: expand this for better type checking
     /// string type triggering other `Event`

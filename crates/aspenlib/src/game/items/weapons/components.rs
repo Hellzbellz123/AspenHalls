@@ -19,7 +19,7 @@ pub struct CurrentAmmo {
     pub max: u32,
 }
 
-/// entity that holds this weapon, and the slot that it is in
+/// slot that weapon occupies and entity id that has the slot
 #[derive(Debug, Clone, Copy, Component, Default, Reflect, Deref, DerefMut)]
 #[reflect(Component)]
 pub struct WeaponHolder(pub Option<(WeaponSlot, Entity)>);

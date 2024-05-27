@@ -4,47 +4,45 @@ use bevy_ecs_ldtk::{
     TileEnumTags,
 };
 
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, RigidBody, Rot, Vect};
 use leafwing_input_manager::action_state::ActionState;
 use rand::prelude::{Rng, ThreadRng};
 
 use crate::{
-    consts::{AspenCollisionLayer, ACTOR_Z_INDEX, TILE_SIZE},
+    consts::{ACTOR_Z_INDEX, TILE_SIZE},
     game::{
         characters::{
             components::{CharacterMoveState, CharacterType, TeleportStatus},
             player::PlayerSelectedHero,
         },
         game_world::{
-            components::{ActorTeleportEvent, RoomExitTile, TpTriggerEffect},
+            components::{ActorTeleportEvent, RoomExitTile, TpTriggerEffect, RoomBoundryTile, SpawnerWave, SpawnerTimer, Teleporter, CharacterSpawner, WeaponSpawner, PlayerStartLocation, HeroLocation},
             dungeonator_v2::{components::Dungeon, GeneratorState},
-            ldtk_bundles::{
-                LdtkCollisionBundle, LdtkEnemySpawnerBundle, LdtkHeroPlaceBundle,
-                LdtkRoomExitBundle, LdtkStartLocBundle, LdtkTeleporterBundle,
-                LdtkWeaponSpawnerBundle,
-            },
+            world_objects::{
+                LdtkCharacterSpawner, LdtkHeroLocation,
+                LdtkStartLocation, LdtkTeleporter, LdtkWeaponSpawner, LdtkSpawnerWave,
+            }, collisions::handle_and_removed_collider_tag, self,
         },
         input::action_maps,
         items::EventSpawnItem,
     },
     loading::registry::RegistryIdentifier,
-    AppState,
+    AppState, register_types,
 };
 
+mod collisions;
 /// shared components for dungeon and home
 pub mod components;
-// pub mod dungeonator_v1;
 /// holds dungeon generator plugin
 pub mod dungeonator_v2;
 /// hideout plugin, spawns home area for before and after dungeons
 pub mod hideout;
 /// bundles for entities that are defined inside ldtk
-mod ldtk_bundles;
+mod world_objects;
 
 /// game world plugin handles home area and dungeon generator functions
 pub struct GameWorldPlugin;
 
-// TODO:
+// TODO: for faster/more effecient dungeon generation?
 // Take main ldtk asset, create 3 tile layers from the many tile layers on the ldtk rooms
 // spawn these 3 tile layers on large grid, rooms will have their own entity for holding data about room
 // tiles will be set too the main dungeon grid.
@@ -55,23 +53,29 @@ pub struct GameWorldPlugin;
 
 impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
+        register_types!(app, [SpawnerWave, SpawnerTimer, Teleporter, CharacterSpawner, WeaponSpawner, PlayerStartLocation, HeroLocation]);
+
         app.add_event::<ActorTeleportEvent>()
             .add_plugins((
                 hideout::HideOutPlugin,
                 dungeonator_v2::DungeonGeneratorPlugin,
             ))
-            .register_ldtk_entity::<LdtkTeleporterBundle>("Teleporter")
-            .register_ldtk_entity::<LdtkEnemySpawnerBundle>("EnemySpawner")
-            .register_ldtk_entity::<LdtkWeaponSpawnerBundle>("WeaponSpawner")
-            .register_ldtk_entity::<LdtkStartLocBundle>("PlayerStartLoc")
-            .register_ldtk_entity::<LdtkRoomExitBundle>("RoomExit")
-            .register_ldtk_entity::<LdtkHeroPlaceBundle>("HeroLocation")
+            .register_ldtk_entity::<LdtkSpawnerWave>("SpawnerWave")
+            .register_ldtk_entity::<LdtkTeleporter>("Teleporter")
+            .register_ldtk_entity::<LdtkCharacterSpawner>("CharacterSpawner")
+            .register_ldtk_entity::<LdtkWeaponSpawner>("WeaponSpawner")
+            .register_ldtk_entity::<LdtkStartLocation>("StartLocation")
+            .register_ldtk_entity::<LdtkHeroLocation>("HeroLocation")
             .add_systems(
                 Update,
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>),
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
-                    listen_rebuild_dungeon_request.run_if(in_state(AppState::PlayingGame)),
+                    (
+                        listen_rebuild_dungeon_request,
+                        game_world::world_objects::character_spawners_system,
+                    )
+                        .run_if(in_state(AppState::PlayingGame)),
                 ),
             )
             .add_systems(
@@ -248,10 +252,10 @@ fn process_tile_enum_tags(
             }
         }
         for tag in tags {
-            if check_tag_for_colliders(&tag, &mut commands, entity, &mut tile_enum_tag) {
+            if handle_and_removed_collider_tag(&tag, &mut commands, entity, &mut tile_enum_tag) {
                 continue;
             }
-            if check_tag_misc(&tag, &mut commands, entity, &mut tile_enum_tag) {
+            if handle_and_removed_misc_tag(&tag, &mut commands, entity, &mut tile_enum_tag) {
                 continue;
             }
             info!("Unknown Tile Enum Tag on entity: {tag}");
@@ -259,13 +263,8 @@ fn process_tile_enum_tags(
     }
 }
 
-// TODO: get rid of this, it feels like a dirty ass hack
-#[derive(Component)]
-/// room border markers
-pub struct RoomBoundryTile;
-
 /// checks for tags unrelated too collision
-fn check_tag_misc(
+fn handle_and_removed_misc_tag(
     tag: &str,
     cmds: &mut Commands<'_, '_>,
     entity: Entity,
@@ -290,147 +289,6 @@ fn check_tag_misc(
         tag_info.tags.retain(|f| f != tag);
     }
     tag_was_handled
-}
-// TODO:
-// maybe make this a system the registers a bundle?
-/// checks tile enum tag for collider tag, creates shape for collider, passes too `insert_collider`, tag is then removed from `tile_enum_tags`
-#[allow(clippy::too_many_lines)]
-fn check_tag_for_colliders(
-    tag: &str,
-    cmds: &mut Commands,
-    entity: Entity,
-    tag_info: &mut Mut<TileEnumTags>,
-) -> bool {
-    // 90 degrees radian
-    let degrees = std::f32::consts::FRAC_PI_2;
-
-    let tag_was_handled = match tag {
-        "CollideUp" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(0.0, -12.), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideDown" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideLeft" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideRight" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(-12.0, 0.0), 0.0, Collider::cuboid(4.0, 16.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideCornerLR" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(-12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideCornerUR" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(-12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideCornerLL" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(12.0, 12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideCornerUL" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(12.0, -12.0), 0.0, Collider::cuboid(4.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideInnerUL" => {
-            let shape: Vec<(Vect, Rot, Collider)> = vec![
-                (Vec2::new(-12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
-                (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-            ];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideInnerLL" => {
-            let shape: Vec<(Vect, Rot, Collider)> = vec![
-                (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
-                (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-            ];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideInnerUR" => {
-            let shape: Vec<(Vect, Rot, Collider)> = vec![
-                (Vec2::new(12.0, -4.0), degrees, Collider::cuboid(12.0, 4.0)),
-                (Vec2::new(0.0, 12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-            ];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideInnerLR" => {
-            let shape: Vec<(Vect, Rot, Collider)> = vec![
-                (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(12.0, 4.0)),
-                (Vec2::new(0.0, -12.0), 0.0, Collider::cuboid(16.0, 4.0)),
-            ];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "DoubleWallVertical" => {
-            let shape: Vec<(Vect, Rot, Collider)> = vec![
-                (Vec2::new(12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
-                (Vec2::new(-12.0, 4.0), degrees, Collider::cuboid(16.0, 4.0)),
-            ];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "DoubleWallHorizontal" => {
-            let shape: Vec<(Vect, Rot, Collider)> = vec![
-                (Vec2::new(12.0, 4.0), 0.0, Collider::cuboid(16.0, 4.0)),
-                (Vec2::new(-12.0, 4.0), 0.0, Collider::cuboid(16.0, 4.0)),
-            ];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        "CollideInnerWall" | "CollideOuterWall" => {
-            let shape: Vec<(Vect, Rot, Collider)> =
-                vec![(Vec2::new(0.0, 14.0), 0.0, Collider::cuboid(16.0, 4.0))];
-            insert_tile_collider(cmds, entity, shape, tag);
-            true
-        }
-        _ => false,
-    };
-    if tag_was_handled {
-        tag_info.tags.retain(|f| f != tag);
-    }
-    tag_was_handled
-}
-
-/// inserts collider onto passed entity, collides with everything
-fn insert_tile_collider(
-    commands: &mut Commands,
-    entity: Entity,
-    shape: Vec<(Vec2, f32, Collider)>,
-    tag: &str,
-) {
-    commands.entity(entity).insert((LdtkCollisionBundle {
-        name: Name::new(tag.to_owned()),
-        rigidbody: RigidBody::Fixed,
-        collision_shape: Collider::compound(shape),
-        collision_group: CollisionGroups {
-            memberships: AspenCollisionLayer::WORLD,
-            filters: Group::ALL,
-        },
-    },));
 }
 
 /// returns a point inside the rect with -`inset`. `inset` is multiplied by `TILE_SIZE`

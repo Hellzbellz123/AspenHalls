@@ -1,8 +1,8 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::system::SystemParam};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    bundles::{ItemColliderBundle, ProjectileBundle, RigidBodyBundle},
+    bundles::{ActorColliderBundle, ProjectileBundle, RigidBodyBundle},
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
         animations::{EventAnimationChange, GunAnimations},
@@ -10,7 +10,7 @@ use crate::{
         components::{ActorColliderType, TimeToLive},
         items::weapons::components::{
             AttackDamage, CurrentAmmo, CurrentlyDrawnWeapon, GunCfg, WeaponHolder, WeaponTimers,
-        },
+        }, combat::BulletOwnerFilter,
     },
     loading::assets::AspenInitHandles,
 };
@@ -190,7 +190,8 @@ pub fn create_bullet(
     ))
     .with_children(|child| {
         child.spawn((
-            ItemColliderBundle {
+            BulletOwnerFilter(entity),
+            ActorColliderBundle {
                 name: Name::new("GunProjectileCollider"),
                 transform_bundle: TransformBundle {
                     local: (Transform {
@@ -207,6 +208,7 @@ pub fn create_bullet(
                 tag: ActorColliderType::Projectile,
             },
             ActiveEvents::COLLISION_EVENTS,
+            ActiveHooks::FILTER_CONTACT_PAIRS,
         ));
     });
 }
@@ -239,6 +241,7 @@ pub fn format_gun_animations(sheet: &mut Spritesheet) {
         anim_reload.end_action = AnimEndAction::Next(handle_idle);
     }
 }
+
 // use bevy::{
 //     ecs::{query::Without, schedule::IntoSystemConfigs},
 //     log::info,

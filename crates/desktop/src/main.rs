@@ -1,3 +1,4 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // disable console on windows for release builds
 #![doc = r"
     Aspen Halls native launcher, deals with loading the configuration.
     After valid configuration is found/created, starts bevy app
@@ -14,6 +15,8 @@ use std::path::Path;
 pub const APP_SETTINGS_PATH: &str = "./config.toml";
 
 fn main() {
+    // check AppDir for config file, if no cfg, first run, guess settings based on hardware
+    // otherwise load app settings from config file
     human_panic::setup_panic!(
         human_panic::Metadata::new("AspenHalls", env!("CARGO_PKG_VERSION"))
             .authors("Hellzbellz <hellzbellz123 on github.com>")

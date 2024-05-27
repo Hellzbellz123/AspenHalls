@@ -10,7 +10,7 @@ use crate::{
             components::{CharacterMoveState, CharacterType},
         },
         components::{ActorColliderType, TimeToLive},
-        items::weapons::components::{AttackDamage, WeaponDescriptor, WeaponHolder},
+        items::weapons::components::{AttackDamage, WeaponDescriptor, WeaponHolder}, combat::BulletOwnerFilter,
     },
     loading::registry::RegistryIdentifier,
 };
@@ -78,7 +78,7 @@ pub struct ProjectileBundle {
 
 /// collider bundle for actors
 #[derive(Bundle)]
-pub struct ItemColliderBundle {
+pub struct ActorColliderBundle {
     /// name of collider
     pub name: Name,
     /// type of collider

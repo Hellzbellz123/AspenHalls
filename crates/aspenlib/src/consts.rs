@@ -3,7 +3,7 @@ use bevy_rapier2d::{geometry::Group, prelude::Collider};
 
 #[allow(clippy::needless_bool, reason = "allows easier enabling of the bool for testing spawners")]
 /// global enemy spawner toggle
-pub const CHARACTER_SPAWN_DISABLED: bool = if cfg!(debug_assertions) {false} else {false};
+pub const CHARACTER_SPAWNERS_DISABLED: bool = if cfg!(debug_assertions) {false} else {false};
 
 /// width/height of standard tile in gameworld
 pub const TILE_SIZE: f32 = 32.0;

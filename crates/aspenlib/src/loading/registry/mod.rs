@@ -11,7 +11,7 @@ use bevy::{
     reflect::Reflect,
     utils::HashMap,
 };
-use rand::prelude::IteratorRandom;
+use rand::prelude::{IteratorRandom, Rng};
 
 use crate::{
     bundles::{CharacterBundle, WeaponBundle},
@@ -122,9 +122,10 @@ impl CharacterRegistry {
     }
 
     /// returns random creep identifier
-    pub fn random_creep(&self) -> Option<&RegistryIdentifier> {
+    pub fn random_creep_wave(&self) -> Vec<&RegistryIdentifier> {
         let mut rng = rand::thread_rng();
-        self.creeps.keys().choose(&mut rng)
+        let wave_length = rng.gen_range(0..=5);
+        self.creeps.keys().choose_multiple(&mut rng, wave_length)
     }
 }
 

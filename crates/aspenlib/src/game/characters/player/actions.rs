@@ -3,7 +3,7 @@ use bevy_rapier2d::geometry::{Collider, CollisionGroups};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
-    bundles::ItemColliderBundle,
+    bundles::ActorColliderBundle,
     consts::TILE_SIZE,
     game::{
         characters::{components::WeaponSlot, player::PlayerSelectedHero, EventSpawnCharacter},
@@ -48,7 +48,7 @@ pub fn spawn_custom(
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
         spawn_event_writer.send(EventSpawnCharacter {
             requester: player,
-            spawn_data: (RegistryIdentifier("skeleton".to_owned()), 1),
+            identifier: RegistryIdentifier("skeleton".to_owned()),
         });
     };
 }
@@ -248,7 +248,7 @@ pub fn equip_closest_weapon(
             };
             cmds.entity(weapon_ent).remove_parent();
             cmds.entity(weapon_ent).with_children(|f| {
-                f.spawn(ItemColliderBundle {
+                f.spawn(ActorColliderBundle {
                     name: Name::new("DroppedWeaponCollider"),
                     tag: ActorColliderType::Item,
                     collider: Collider::default(),

@@ -1,4 +1,8 @@
-use bevy::prelude::*;
+use bevy::{ecs::system::SystemParam, prelude::*, reflect::Enum};
+use bevy_rapier2d::{
+    geometry::SolverFlags,
+    pipeline::{BevyPhysicsHooks, PairFilterContextView},
+};
 
 use crate::{
     game::{
@@ -124,6 +128,7 @@ fn delegate_attack_events(
                     warn!("attack event received but weapon is missing important components");
                     continue;
                 };
+
                 weapon_attack_events.send(EventAttackWeapon {
                     requester: attack_request.requester,
                     weapon: weapon_id,
@@ -190,4 +195,32 @@ pub struct PlayerSaveInformation {
     pub total_deaths: i32,
     /// total amonut of items player has collected
     pub items_got: i32,
+}
+
+#[derive(Component, PartialEq, Eq, Clone, Copy)]
+pub struct BulletOwnerFilter(pub Entity);
+
+// A custom filter that allows contacts/intersections only between rigid-bodies
+// with the same CustomFilterTag component value.
+// Note that using collision groups would be a more efficient way of doing
+// this, but we use custom filters instead for demonstration purpose.
+#[derive(SystemParam)]
+pub struct SameUserDataFilter<'w, 's> {
+    tags: Query<'w, 's, &'static BulletOwnerFilter>,
+}
+
+impl BevyPhysicsHooks for SameUserDataFilter<'_, '_> {
+    fn filter_contact_pair(&self, context: PairFilterContextView) -> Option<SolverFlags> {
+        if let Some(a_filter) = self.tags.get(context.collider1()).ok()
+            && let Some(b_filter) = self.tags.get(context.collider2()).ok()
+        {
+            if a_filter.0 == b_filter.0 {
+                // this bullet was requested by opposite entitity
+                // dont 'hit' it.
+                return None;
+            }
+        }
+
+        Some(SolverFlags::COMPUTE_IMPULSES)
+    }
 }
