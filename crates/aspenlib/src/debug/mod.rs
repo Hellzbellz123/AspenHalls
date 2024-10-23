@@ -1,3 +1,6 @@
+use bevy::ecs::reflect::ReflectResource;
+use bevy::prelude::{Reflect, Resource};
+
 #[cfg(feature = "develop")]
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
 /// dump game directory function.
@@ -18,10 +21,14 @@ pub mod debug_plugin {
     };
     use bevy_debug_text_overlay::OverlayPlugin;
     use bevy_ecs_ldtk::{assets::LdtkProject, GridCoords, IntGridCell, LayerMetadata};
-    use bevy_inspector_egui::quick::{StateInspectorPlugin, WorldInspectorPlugin};
+    use bevy_inspector_egui::{
+        bevy_inspector::{ui_for_all_assets, ui_for_resources, ui_for_world_entities_filtered},
+        quick::{StateInspectorPlugin, WorldInspectorPlugin},
+    };
     use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
     use bevy_prototype_lyon as svg;
     use bevy_rapier2d::render::RapierDebugRenderPlugin;
+    use big_brain::{choices::Choice, prelude::{ActionSpan, Actor, HasThinker, Score, Scorer, Thinker}};
 
     #[cfg(feature = "develop")]
     #[cfg(not(any(target_os = "android", target_family = "wasm")))]
@@ -75,15 +82,15 @@ pub mod debug_plugin {
             );
             // add inspector plugins
             app.add_plugins((
-                StateInspectorPlugin::<AppState>::default()
-                    .run_if(input_toggle_active(if cfg!(debug_assertions) {true} else {false}, KeyCode::F3)),
-                StateInspectorPlugin::<GeneratorState>::default()
-                    .run_if(input_toggle_active(if cfg!(debug_assertions) {true} else {false}, KeyCode::F3)),
+                StateInspectorPlugin::<AppState>::default().run_if(input_toggle_active(
+                    if cfg!(debug_assertions) { true } else { false },
+                    KeyCode::F3,
+                )),
+                StateInspectorPlugin::<GeneratorState>::default().run_if(input_toggle_active(
+                    if cfg!(debug_assertions) { true } else { false },
+                    KeyCode::F3,
+                )),
                 WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
-                // ResourceInspectorPlugin::<>::default()
-                //      .run_if(input_toggle_active(true, KeyCode::F3)),
-                // StateInspectorPlugin::<RequestedMenu>::default(),
-                // StateInspectorPlugin::<GeneratorStage>::default(),
             ))
             // add other debug plugins
             .add_plugins((
@@ -101,12 +108,53 @@ pub mod debug_plugin {
             // TODO: refactor these systems into nice sets and stages
             .add_systems(
                 Update,
-                (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
-                    .run_if(in_state(AppState::PlayingGame)),
+                (
+                    (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
+                        .run_if(in_state(AppState::PlayingGame)),
+                    // world_inspector_ui.run_if(input_toggle_active(
+                    //     if cfg!(debug_assertions) { true } else { false },
+                    //     KeyCode::F3,
+                    // )),
+                ),
             );
 
             debug_dump_graphs(app);
         }
+    }
+
+    fn world_inspector_ui(world: &mut World) {
+        let egui_context = world
+            .query_filtered::<&mut bevy_egui::EguiContext, With<bevy::window::PrimaryWindow>>()
+            .get_single(world);
+
+        let Ok(egui_context) = egui_context else {
+            return;
+        };
+        let mut egui_context = egui_context.clone();
+
+        bevy_egui::egui::Window::new("World Inspector")
+            .default_size([300.0, 100.0])
+            .show(egui_context.get_mut(), |ui| {
+                bevy_egui::egui::ScrollArea::both().show(ui, |ui| {
+                    bevy_egui::egui::CollapsingHeader::new("Entities")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            ui_for_world_entities_filtered::<(
+                                Without<Parent>,
+                                Without<big_brain::prelude::ActionState>,
+                            )>(world, ui, true);
+                        });
+                    bevy_egui::egui::CollapsingHeader::new("Resources").show(ui, |ui| {
+                        ui_for_resources(world, ui);
+                    });
+                    bevy_egui::egui::CollapsingHeader::new("Assets").show(ui, |ui| {
+                        ui_for_all_assets(world, ui);
+                    });
+
+                    // bevy_inspector_egui::bevy_inspector::ui_for_world(world, ui);
+                    // ui.allocate_space(ui.available_size());
+                });
+            });
     }
 
     /// query's spawners and creates debug representations for spawner area

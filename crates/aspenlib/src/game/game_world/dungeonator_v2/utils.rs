@@ -34,7 +34,8 @@ pub fn get_leveled_preset<'a>(
 
     presets
         .iter()
-        .filter(|f| f.descriptor.level == *level)
+        // TODO ADD LEVELED START/END rooms
+        // .filter(|f| f.descriptor.level == *level)
         .choose(&mut rng)
 }
 
@@ -146,7 +147,7 @@ pub fn random_room_positon(
             Rect::new(x, y, x - width, y - height),
             Rect::new(x, y, x + width, y - height),
             Rect::new(x, y, x - width, y + height),
-            Rect::new(x, y, x + width, y + height)
+            Rect::new(x, y, x + width, y + height),
         ];
 
         // test if test_rect has no intersections with currently spawned recs

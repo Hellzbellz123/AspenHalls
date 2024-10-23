@@ -266,63 +266,62 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 
     let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
 
-    asha
-        .add_plugins({
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        present_mode: if cfg_file.window_settings.v_sync {
-                            PresentMode::AutoVsync
+    asha.add_plugins({
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    present_mode: if cfg_file.window_settings.v_sync {
+                        PresentMode::AutoVsync
+                    } else {
+                        PresentMode::AutoNoVsync
+                    },
+                    position: WindowPosition::Automatic,
+                    title: "Aspen Halls".to_string(),
+                    resolution: WindowResolution::new(
+                        cfg_file.window_settings.resolution.x,
+                        cfg_file.window_settings.resolution.y,
+                    ), // .with_scale_factor_override(
+                    //     cfg_file.window_settings.window_scale_override,
+                    // )
+                    mode: {
+                        if cfg_file.window_settings.full_screen {
+                            // if full screen is true, use borderless full screen
+                            // cursor mode is confined to the window so it cant
+                            // leave without alt tab
+                            WindowMode::BorderlessFullscreen
                         } else {
-                            PresentMode::AutoNoVsync
-                        },
-                        position: WindowPosition::Automatic,
-                        title: "Aspen Halls".to_string(),
-                        resolution: WindowResolution::new(
-                            cfg_file.window_settings.resolution.x,
-                            cfg_file.window_settings.resolution.y,
-                        ), // .with_scale_factor_override(
-                        //     cfg_file.window_settings.window_scale_override,
-                        // )
-                        mode: {
-                            if cfg_file.window_settings.full_screen {
-                                // if full screen is true, use borderless full screen
-                                // cursor mode is confined to the window so it cant
-                                // leave without alt tab
-                                WindowMode::BorderlessFullscreen
-                            } else {
-                                WindowMode::Windowed
-                            }
-                        },
-                        window_level: bevy::window::WindowLevel::Normal,
-                        cursor: Cursor {
-                            icon: CursorIcon::Crosshair,
-                            visible: true,
-                            ..default()
-                        },
+                            WindowMode::Windowed
+                        }
+                    },
+                    window_level: bevy::window::WindowLevel::Normal,
+                    cursor: Cursor {
+                        icon: CursorIcon::Crosshair,
+                        visible: true,
                         ..default()
-                    }),
+                    },
                     ..default()
-                })
-                .set(ImagePlugin::default_nearest())
-                .disable::<LogPlugin>()
-                .disable::<AssetPlugin>()
-        })
-        .insert_resource(if cfg_file.render_settings.msaa {
-            Msaa::Sample4
-        } else {
-            Msaa::Off
-        })
-        .insert_resource(ClearColor(Color::rgba(
-            26.0 / 255.0,
-            25.0 / 255.0,
-            25.0 / 255.0,
-            1.0,
-        )))
-        .insert_resource(cfg_file.window_settings)
-        .insert_resource(cfg_file.sound_settings)
-        .insert_resource(cfg_file.general_settings)
-        .insert_resource(difficulty_settings);
+                }),
+                ..default()
+            })
+            .set(ImagePlugin::default_nearest())
+            .disable::<LogPlugin>()
+            .disable::<AssetPlugin>()
+    })
+    .insert_resource(if cfg_file.render_settings.msaa {
+        Msaa::Sample4
+    } else {
+        Msaa::Off
+    })
+    .insert_resource(ClearColor(Color::rgba(
+        26.0 / 255.0,
+        25.0 / 255.0,
+        25.0 / 255.0,
+        1.0,
+    )))
+    .insert_resource(cfg_file.window_settings)
+    .insert_resource(cfg_file.sound_settings)
+    .insert_resource(cfg_file.general_settings)
+    .insert_resource(difficulty_settings);
 
     asha.add_systems(
         Update,

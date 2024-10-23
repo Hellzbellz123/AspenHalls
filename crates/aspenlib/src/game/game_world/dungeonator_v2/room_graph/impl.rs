@@ -225,12 +225,15 @@ impl RoomGraph {
 
     /// returns references to room blueprints inside roomgraph
     pub fn get_rooms(&self) -> Vec<&RoomBlueprint> {
-        self.node_weights().filter_map(|node: _ | {
-            match node {
+        self.node_weights()
+            .filter_map(|node: _| match node {
                 RoomGraphNode::Room(a) => Some(a),
-                RoomGraphNode::Exit { exit: _, brothers: _ } => None,
-            }
-        }).collect()
+                RoomGraphNode::Exit {
+                    exit: _,
+                    brothers: _,
+                } => None,
+            })
+            .collect()
     }
 }
 
@@ -254,7 +257,7 @@ impl RoomGraphNode {
     /// get graph node position
     pub const fn get_nodes_offset(&self) -> IVec2 {
         match self {
-            Self::Room(blueprint) => blueprint.position,
+            Self::Room(blueprint) => blueprint.room_space.min,
             Self::Exit { exit, .. } => exit.position,
         }
     }

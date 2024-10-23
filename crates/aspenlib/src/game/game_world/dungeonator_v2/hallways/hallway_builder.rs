@@ -186,7 +186,9 @@ pub fn are_inline(prev: &TilePos, next: &TilePos) -> bool {
 
     if prev.x == next.x && pn_diff_y == 2 {
         true
-    } else { prev.y == next.y && pn_diff_x == 2 }
+    } else {
+        prev.y == next.y && pn_diff_x == 2
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]

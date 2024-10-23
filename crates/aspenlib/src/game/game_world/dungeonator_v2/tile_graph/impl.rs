@@ -1,11 +1,7 @@
 use bevy::{
     prelude::*,
     utils::petgraph::{
-        self,
-        prelude::{Undirected},
-        stable_graph::NodeIndex,
-        visit::{IntoNodeReferences},
-        Graph,
+        self, prelude::Undirected, stable_graph::NodeIndex, visit::IntoNodeReferences, Graph,
     },
 };
 use bevy_ecs_ldtk::GridCoords;
@@ -173,7 +169,11 @@ pub fn connect_adjacent_nodes(dungeon: &mut Dungeon) {
         let TileGraphNode { tile: tile_b, .. } = tilegraph[*b];
         let distance_a = distance_tiles(last_node, tile_a);
         let distance_b = distance_tiles(last_node, tile_b);
-        last_node = if distance_a > distance_b {tile_a} else {tile_b};
+        last_node = if distance_a > distance_b {
+            tile_a
+        } else {
+            tile_b
+        };
         distance_a.cmp(&distance_b)
     });
 

@@ -26,7 +26,7 @@ pub struct SpawnerWave {
     /// identifiers that should be spawned for this wave
     pub too_spawn: Vec<RegistryIdentifier>,
     /// list of entitites spawned for this wave
-    pub spawned_entities: Vec<Entity>
+    pub spawned_entities: Vec<Entity>,
 }
 
 // TODO: spawner waves

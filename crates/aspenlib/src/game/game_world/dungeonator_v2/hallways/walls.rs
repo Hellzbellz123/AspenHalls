@@ -53,7 +53,7 @@ pub fn spawn_straight_section(
                 },
                 TexID::WallSouth,
             ),
-            TexID::WDoubleVert
+            TexID::WDoubleVert,
         ),
     };
 
@@ -85,7 +85,7 @@ pub fn spawn_straight_section(
                 hallway_storage,
             );
         }
-        }
+    }
 }
 
 pub fn spawn_corner_section(
@@ -589,7 +589,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                &TexID::IcornerNw,
+                    &TexID::IcornerNw,
                     parent,
                     hallway_container,
                     hallway_storage,

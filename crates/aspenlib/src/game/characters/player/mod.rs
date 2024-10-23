@@ -6,9 +6,7 @@ use bevy_mod_picking::{
 };
 
 use crate::{
-    bundles::ActorColliderBundle,
-    consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
-    game::{
+    bundles::ActorColliderBundle, consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX}, game::{
         characters::components::WeaponSlot, components::ActorColliderType,
         interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier,
     },
@@ -130,26 +128,27 @@ pub fn build_player_from_selected_hero(
             child.spawn((
                 EntityCreator(selected_hero),
                 ActorColliderBundle {
-                tag: ActorColliderType::Character,
-                name: Name::new("PlayerCollider"),
-                transform_bundle: TransformBundle {
-                    local: (Transform {
-                        // transform relative to parent
-                        translation: (Vec3 {
-                            x: 0.,
-                            y: 0.,
-                            z: ACTOR_PHYSICS_Z_INDEX,
+                    tag: ActorColliderType::Character,
+                    name: Name::new("PlayerCollider"),
+                    transform_bundle: TransformBundle {
+                        local: (Transform {
+                            // transform relative to parent
+                            translation: (Vec3 {
+                                x: 0.,
+                                y: 0.,
+                                z: ACTOR_PHYSICS_Z_INDEX,
+                            }),
+                            ..default()
                         }),
                         ..default()
-                    }),
-                    ..default()
+                    },
+                    collider: actor_collider(char_def.actor.pixel_size),
+                    collision_groups: CollisionGroups::new(
+                        AspenCollisionLayer::ACTOR,
+                        AspenCollisionLayer::EVERYTHING,
+                    ),
                 },
-                collider: actor_collider(char_def.actor.pixel_size),
-                collision_groups: CollisionGroups::new(
-                    AspenCollisionLayer::ACTOR,
-                    AspenCollisionLayer::EVERYTHING,
-                ),
-            },));
+            ));
         });
 }
 

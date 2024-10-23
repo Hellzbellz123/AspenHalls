@@ -24,7 +24,6 @@ pub struct EventSpawnBoss {
 pub mod utils {
     use bevy::prelude::*;
     use bevy_rapier2d::geometry::CollisionGroups;
-    use rand::{thread_rng, Rng};
 
     use crate::{
         bundles::ActorColliderBundle,

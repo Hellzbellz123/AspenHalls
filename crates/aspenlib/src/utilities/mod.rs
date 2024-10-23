@@ -3,7 +3,12 @@
 use std::{cmp::Ordering, ops::Mul};
 use winit::window::Icon;
 
-use bevy::{ecs::query::WorldQuery, log::{warn, BoxedSubscriber}, prelude::*, window::CursorGrabMode};
+use bevy::{
+    ecs::{query::WorldQuery, system::{Command, EntityCommands}},
+    log::{warn, BoxedSubscriber},
+    prelude::*,
+    window::CursorGrabMode,
+};
 use bevy_rapier2d::{pipeline::CollisionEvent, rapier::geometry::CollisionEventFlags};
 
 use crate::{

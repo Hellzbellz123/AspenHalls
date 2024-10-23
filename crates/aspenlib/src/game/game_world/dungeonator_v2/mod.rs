@@ -116,7 +116,9 @@ impl Plugin for DungeonGeneratorPlugin {
 
         app.add_systems(
             Update,
-            (tile_graph::create_tile_graph, apply_deferred).chain().run_if(in_state(GeneratorState::CompleteHallways)),
+            (tile_graph::create_tile_graph, apply_deferred)
+                .chain()
+                .run_if(in_state(GeneratorState::CompleteHallways)),
         );
 
         app.add_systems(
@@ -138,12 +140,15 @@ impl Plugin for DungeonGeneratorPlugin {
 fn spawn_new_dungeon(
     mut cmds: Commands,
     ldtk_project_handles: Res<AspenMapHandles>,
-    dungeon_root: Query<Entity, With<Dungeon>>,
+    dungeon_root: Query<(Entity, &Dungeon)>,
 ) {
     // TODO: proper dungeon end system with cleanup
-    if dungeon_root.get_single().is_ok() {
-        cmds.entity(dungeon_root.single()).despawn_recursive();
-    }
+    let level = if let Ok((ent, dungeon)) = dungeon_root.get_single() {
+        cmds.entity(ent).despawn_recursive(); // this happens next frame so dungeon still exists
+        dungeon.settings.level.clone().next_level()
+    } else {
+        components::RoomLevel::Level1
+    };
 
     let span = 15000.0;
     let mut rng = rand::thread_rng();
@@ -158,7 +163,7 @@ fn spawn_new_dungeon(
         name: "The Aspen Halls".into(),
         dungeon: Dungeon {
             settings: DungeonSettings {
-                level: components::RoomLevel::Level1,
+                level,
                 // border is applied too each room asset so 0 here
                 border: 4,
                 // room placing settings
@@ -166,10 +171,10 @@ fn spawn_new_dungeon(
                 // TODO: use this but make it working
                 // tiles_between_rooms: 4,
                 distribution: RoomDistribution {
-                    small_short: 6,
-                    small_long: 4,
-                    medium_short: 2,
-                    medium_long: 2,
+                    small_short: 3,
+                    small_long: 2,
+                    medium_short: 1,
+                    medium_long: 1,
                     large_short: 0,
                     large_long: 0,
                     huge_short: 0,
@@ -233,7 +238,7 @@ pub fn layout_dungeon(
                     id: bp.asset_id.clone(),
                     room: bp.clone(),
                     spatial: SpatialBundle::from_transform(Transform::from_translation(
-                        bp.position.as_vec2().extend(0.0),
+                        bp.room_space.min.as_vec2().extend(0.0),
                     )),
                 });
             });
@@ -302,6 +307,10 @@ fn create_dungeon_blueprint(
 
     // choose presets
     let mut presets = utils::choose_filler_presets(&dungeon.settings, &room_database);
+    if presets.is_empty() {
+        error!("presets could not be chosen from room database");
+        error!("database {:?}", room_database);
+    }
 
     // add start and end presets
     presets.push_back(utils::get_leveled_preset(&room_database.end_rooms, progress_level).unwrap());
@@ -319,9 +328,9 @@ fn create_dungeon_blueprint(
         room_positions.push(rooms_space);
         positioned_blueprints.push_back(RoomBlueprint::from_preset(
             preset,
-            Vec2 {
-                x: ensure_tile_pos(rooms_space.min.x),
-                y: ensure_tile_pos(rooms_space.min.y),
+            IVec2 {
+                x: ensure_tile_pos(rooms_space.min.x) as i32,
+                y: ensure_tile_pos(rooms_space.min.y) as i32,
             },
             i as u32,
         ));

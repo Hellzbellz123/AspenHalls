@@ -6,7 +6,7 @@ use bevy::{
     },
     log::warn,
     math::{IVec2, Vec2},
-    prelude::{Component, Handle, Name, SpatialBundle},
+    prelude::{Component, Entity, Handle, IRect, Name, SpatialBundle},
     reflect::Reflect,
 };
 use bevy_ecs_ldtk::{
@@ -129,7 +129,7 @@ impl DungeonSettings {
 }
 
 /// self contained dungeon data component
-#[derive(Debug, Clone, Component, Default, Reflect)]
+#[derive(Debug, Component, Default, Reflect)]
 #[reflect(Component)]
 pub struct Dungeon {
     /// settings too configure this dungeon
@@ -168,7 +168,7 @@ pub struct RoomPreset {
 
 impl RoomBlueprint {
     /// creates `RoomBlueprint` from a room preset
-    pub fn from_preset(preset: &RoomPreset, position: Vec2, id: u32) -> Self {
+    pub fn from_preset(preset: &RoomPreset, position: IVec2, id: u32) -> Self {
         let room_exits = preset
             .exits
             .iter()
@@ -176,8 +176,8 @@ impl RoomBlueprint {
                 parent: RoomID(id),
                 hallway_connected: false,
                 position: IVec2 {
-                    x: (position.x as i32 + f.x),
-                    y: (position.y as i32 + f.y),
+                    x: (position.x + f.x),
+                    y: (position.y + f.y),
                 },
             })
             .collect::<Vec<RoomExit>>();
@@ -185,9 +185,8 @@ impl RoomBlueprint {
         Self {
             descriptor: preset.descriptor.clone(),
             asset_id: preset.room_asset_id.clone(),
-            position: position.as_ivec2(),
+            room_space: IRect::from_corners(position, position + preset.size),
             name: preset.name.clone(),
-            size: preset.size,
             id: RoomID(id),
             exits: room_exits,
         }
@@ -195,7 +194,7 @@ impl RoomBlueprint {
 
     /// returns the rooms spawn point
     pub fn center(&self) -> IVec2 {
-        self.position + (self.size / 2)
+        self.room_space.center()
     }
 }
 
@@ -215,10 +214,8 @@ pub struct RoomBlueprint {
     pub exits: Vec<RoomExit>,
     /// what is this room names
     pub name: String,
-    /// center of this room in worldspace
-    pub position: IVec2,
-    /// how large is this room
-    pub size: IVec2,
+    /// room position in worldspace and size in px
+    pub room_space: IRect,
     /// rooms unique number
     pub id: RoomID,
 }
@@ -269,6 +266,20 @@ pub enum RoomLevel {
     Level2,
     /// second upgrade too rooms
     Level3,
+    /// third upgrade too rooms
+    Level4,
+}
+
+impl RoomLevel {
+    pub fn next_level(self) -> Self {
+        match self {
+            RoomLevel::Level0 => RoomLevel::Level0,
+            RoomLevel::Level1 => RoomLevel::Level2,
+            RoomLevel::Level2 => RoomLevel::Level2,
+            RoomLevel::Level3 => RoomLevel::Level4,
+            RoomLevel::Level4 => RoomLevel::Level4,
+        }
+    }
 }
 
 /// what function does this room serve in the dungeon
@@ -286,6 +297,8 @@ pub enum RoomType {
     Normal,
     /// select hero and prepare for the coming dungeon run
     Hideout,
+    /// small unique non ending bosses
+    MiniBoss,
 }
 
 /// what size/shape is this room
@@ -348,6 +361,7 @@ pub fn try_get_roomlevel(field_instances: &[FieldInstance]) -> Option<RoomLevel>
         "Level1" => Some(RoomLevel::Level1),
         "Level2" => Some(RoomLevel::Level2),
         "Level3" => Some(RoomLevel::Level3),
+        "Level4" => Some(RoomLevel::Level4),
         _ => None,
     }
 }
@@ -363,10 +377,11 @@ pub fn try_get_roomtype(field_instances: &[FieldInstance]) -> Option<RoomType> {
 
     match enum_value.as_str() {
         "DungeonStart" => Some(RoomType::DungeonStart),
-        "Boss" => Some(RoomType::DungeonEnd),
+        "DungeonEnd" => Some(RoomType::DungeonEnd),
         "Special" => Some(RoomType::Special),
         "Normal" => Some(RoomType::Normal),
         "Hideout" => Some(RoomType::Hideout),
+        "MiniBoss" => Some(RoomType::MiniBoss),
         e => {
             warn!("unknown room type {:?}", e);
             None

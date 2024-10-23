@@ -5,8 +5,6 @@ AspenHalls, My video game.
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 "]
 
-/// Debug and Development related functions
-mod debug;
 /// general component store
 mod bundles;
 /// things related too `command_console`
@@ -14,6 +12,9 @@ mod console;
 /// general consts file, if it gets used more than
 /// twice it should be here
 mod consts;
+
+/// Debug and Development related functions
+mod debug;
 /// actual game plugin, ui and all "game" functionality
 mod game;
 /// Holds all Asset Collections and handles loading them
@@ -96,7 +97,9 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
             bevy_ecs_ldtk::LdtkPlugin,
             bevy_framepace::FramepacePlugin,
             bevy_prototype_lyon::prelude::ShapePlugin,
-            bevy_rapier2d::plugin::RapierPhysicsPlugin::<SameUserDataFilter>::pixels_per_meter(32.0),
+            bevy_rapier2d::plugin::RapierPhysicsPlugin::<SameUserDataFilter>::pixels_per_meter(
+                32.0,
+            ),
         ))
         .insert_resource(bevy_rapier2d::prelude::RapierConfiguration {
             gravity: Vec2::ZERO,

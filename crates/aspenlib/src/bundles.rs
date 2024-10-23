@@ -10,7 +10,7 @@ use crate::{
             components::{CharacterMoveState, CharacterType},
         },
         components::{ActorColliderType, TimeToLive},
-        items::weapons::components::{AttackDamage, WeaponDescriptor, WeaponHolder}, combat::BulletOwnerFilter,
+        items::weapons::components::{AttackDamage, WeaponDescriptor, WeaponHolder},
     },
     loading::registry::RegistryIdentifier,
 };

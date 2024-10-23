@@ -65,13 +65,13 @@ impl Plugin for AspenHallsPlugin {
         app
             // actual game plugin
             .add_plugins((
+                audio::AudioPlugin,
                 combat::CombatPlugin,
                 characters::CharactersPlugin,
                 items::ItemsPlugin,
                 input::InputPlugin,
                 game_world::GameWorldPlugin,
                 interface::InterfacePlugin,
-                audio::AudioPlugin,
                 animations::AnimationsPlugin,
             ))
             .add_systems(

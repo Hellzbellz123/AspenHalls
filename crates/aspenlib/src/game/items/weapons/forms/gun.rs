@@ -1,4 +1,4 @@
-use bevy::{prelude::*, ecs::system::SystemParam};
+use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_rapier2d::prelude::*;
 
 use crate::{

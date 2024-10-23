@@ -89,6 +89,7 @@ pub fn build_room_presets(
             building_tiles.iter().enumerate()
                 .filter(|(_idx, tile)| tile.t == 2 )
                 .map(|(_idx, tile)| {
+
                 //TODO: this value need too be calculated with a bottom origin
                 // ldtk gives offset with top origin
                 let tile_px_y = layer_height - tile.px.y - 32;

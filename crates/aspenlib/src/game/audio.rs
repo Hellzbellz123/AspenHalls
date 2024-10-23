@@ -65,8 +65,8 @@ impl Plugin for AudioPlugin {
                 play_background_audio.run_if(run_once()),
             )
                 .run_if(resource_exists::<AspenAudioHandles>),
-        );
-        // .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
+        )
+        .add_systems(OnEnter(AppState::Loading), setup_sound_volume);
     }
 }
 
@@ -88,6 +88,7 @@ fn play_background_audio(
     audio_assets: Res<AspenAudioHandles>,
     audio: Res<AudioChannel<MusicSoundChannel>>,
 ) {
+    info!("starting background soundtrack");
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 

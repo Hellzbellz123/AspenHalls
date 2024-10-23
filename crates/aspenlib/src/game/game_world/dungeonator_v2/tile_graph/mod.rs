@@ -12,8 +12,12 @@ use crate::game::game_world::{
     components::RoomExitTile,
     dungeonator_v2::{
         components::{Dungeon, RoomBlueprint},
+        hallways::{
+            hallway_builder::{create_path_simple, mark_path_as_hallway_tiles},
+            HallWayBlueprint,
+        },
         tile_graph::r#impl::{actual_map_tile_size, populate_tilegraph},
-        GeneratorState, hallways::{HallWayBlueprint, hallway_builder::{create_path_simple, mark_path_as_hallway_tiles}},
+        GeneratorState,
     },
     RoomBoundryTile,
 };
