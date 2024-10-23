@@ -117,7 +117,7 @@ pub fn build_room_presets(
                 RoomType::Hideout => dungeon_database.hideouts.push(room),
                 RoomType::DungeonStart => dungeon_database.start_rooms.push(room),
                 RoomType::DungeonEnd => dungeon_database.end_rooms.push(room),
-                RoomType::Normal | RoomType::Special => match room_shape {
+                RoomType::Normal | RoomType::Special | RoomType::MiniBoss => match room_shape {
                     RoomShape::NonStandard => dungeon_database.special_rooms.push(room),
                     RoomShape::SmallShort => dungeon_database.small_short_rooms.push(room),
                     RoomShape::SmallLong => dungeon_database.small_long_rooms.push(room),

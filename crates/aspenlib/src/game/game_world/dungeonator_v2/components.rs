@@ -141,6 +141,15 @@ pub struct Dungeon {
     pub room_graph: RoomGraph,
 }
 
+#[derive(Debug, Default, Reflect, Clone, PartialEq, PartialOrd)]
+pub enum BossState {
+    #[default]
+    UnSpawned,
+    Idle,
+    Engaged,
+    Defeated,
+}
+
 /// room instances before being placed
 #[derive(Debug, Clone, Reflect)]
 pub struct RoomPreset {

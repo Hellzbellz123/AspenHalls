@@ -19,7 +19,7 @@ pub struct WanderScore;
 /// actor combat ai cfg
 #[derive(Debug, Clone, Default, Reflect, Component, serde::Deserialize)]
 #[reflect(Component)]
-pub struct AICombatConfig {
+pub struct AICombatAggroConfig {
     /// when ai will consider chasing
     pub chase_start: i32,
     /// max distance from spawn ai will chase
@@ -36,7 +36,7 @@ pub struct AICombatConfig {
 /// holds attack state. how often?, can shoot??, should shoot? target range?
 #[derive(Component, Default, Clone, Debug, Reflect)]
 #[reflect(Component)]
-pub struct AIShootConfig {
+pub struct AIAutoShootConfig {
     /// ai shoot range
     pub find_target_range: i32,
     /// timer for shooting
@@ -73,6 +73,10 @@ pub struct AIChaseAction;
 #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
 #[reflect(Component)]
 pub struct AIWanderAction;
+
+
+// TODO: move ai config too this enum, each ai type gets a scorer that determines its actions using config data held inside AiType, AiType is defined inside character_definition
+
 
 /// type of ai this ai wanting character should get
 #[derive(

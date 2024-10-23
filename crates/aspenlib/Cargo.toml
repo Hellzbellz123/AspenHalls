@@ -132,3 +132,4 @@ bevy_mod_picking = { path = "../../deps/bevy_mod_picking/", default-features = f
   "highlight",
 ] }
 bevy_asepritesheet = { path = "../../deps/bevy_asepritesheet" }
+pretty-type-name = "1.0.1"

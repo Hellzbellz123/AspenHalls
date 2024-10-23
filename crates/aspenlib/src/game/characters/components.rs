@@ -25,10 +25,16 @@ pub enum CharacterType {
     /// - final enemy of dungeon level
     /// - hostile too all npcs
     Boss,
+    /// - random unique bosses
+    /// - hostile too all npcs
+    MiniBoss,
     /// - generic enemy for dungeon levels
     /// - passive too creep
     #[default]
     Creep,
+    /// elite enemies in room
+    /// - passive too creep
+    CreepElite,
     /// - runs away from creeps
     /// - passive too self and freindly
     Critter,

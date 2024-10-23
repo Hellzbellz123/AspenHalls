@@ -1,4 +1,4 @@
-use bevy::{ecs::system::SystemParam, prelude::*, reflect::Enum};
+use bevy::{ecs::system::SystemParam, prelude::*};
 use bevy_rapier2d::{
     geometry::SolverFlags,
     pipeline::{BevyPhysicsHooks, PairFilterContextView},
@@ -9,7 +9,7 @@ use crate::{
         attributes_stats::{CharacterStats, DamageQueue},
         characters::player::PlayerSelectedHero,
         combat::unarmed::EventAttackUnarmed,
-        game_world::components::{ActorTeleportEvent, TpTriggerEffect},
+        game_world::{RegenReason, RegenerateDungeonEvent},
         items::weapons::{
             components::{WeaponDescriptor, WeaponHolder},
             EventAttackWeapon,
@@ -88,20 +88,17 @@ fn handle_death_system(
         ),
         Changed<CharacterStats>,
     >,
-    mut teleport_event: EventWriter<ActorTeleportEvent>,
+    mut regen_event: EventWriter<RegenerateDungeonEvent>,
 ) {
     for (ent, mut stats, _transform, player_control) in &mut damaged_query {
         if stats.get_current_health() <= 0.0 {
             if player_control.is_some() {
-                info!("player died, moving player");
-                // player is entity that died
+                info!("player died, resetting player");
                 stats.set_health(150.0);
                 game_info.player_deaths += 1;
 
-                teleport_event.send(ActorTeleportEvent {
-                    tp_type: TpTriggerEffect::Event("StartDungeonGen".to_string()),
-                    target: Some(ent),
-                    sender: Some(ent),
+                regen_event.send(RegenerateDungeonEvent {
+                    reason: RegenReason::PlayerDeath,
                 });
                 continue;
             }

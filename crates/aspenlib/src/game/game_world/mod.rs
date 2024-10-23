@@ -15,18 +15,24 @@ use crate::{
             player::PlayerSelectedHero,
         },
         game_world::{
-            components::{ActorTeleportEvent, RoomExitTile, TpTriggerEffect, RoomBoundryTile, SpawnerWave, SpawnerTimer, Teleporter, CharacterSpawner, WeaponSpawner, PlayerStartLocation, HeroLocation},
+            self,
+            collisions::handle_and_removed_collider_tag,
+            components::{
+                ActorTeleportEvent, CharacterSpawner, HeroLocation, PlayerStartLocation,
+                RoomBoundryTile, RoomExitTile, SpawnerTimer, SpawnerWave, Teleporter,
+                TpTriggerEffect, WeaponSpawner,
+            },
             dungeonator_v2::{components::Dungeon, GeneratorState},
             world_objects::{
-                LdtkCharacterSpawner, LdtkHeroLocation,
-                LdtkStartLocation, LdtkTeleporter, LdtkWeaponSpawner, LdtkSpawnerWave,
-            }, collisions::handle_and_removed_collider_tag, self,
+                LdtkCharacterSpawner, LdtkHeroLocation, LdtkSpawnerWave, LdtkStartLocation,
+                LdtkTeleporter, LdtkWeaponSpawner,
+            },
         },
         input::action_maps,
         items::EventSpawnItem,
     },
     loading::registry::RegistryIdentifier,
-    AppState, register_types,
+    register_types, AppState,
 };
 
 mod collisions;
@@ -36,9 +42,10 @@ pub mod components;
 pub mod dungeonator_v2;
 /// hideout plugin, spawns home area for before and after dungeons
 pub mod hideout;
+/// player progression module
+pub mod progress;
 /// bundles for entities that are defined inside ldtk
 mod world_objects;
-
 /// game world plugin handles home area and dungeon generator functions
 pub struct GameWorldPlugin;
 
@@ -47,16 +54,26 @@ pub struct GameWorldPlugin;
 // spawn these 3 tile layers on large grid, rooms will have their own entity for holding data about room
 // tiles will be set too the main dungeon grid.
 // this should all be done using bevy_ecs_tilemap data structures,
-// Implement PathFinding Algorithms for the tilemap
-// a function that creates a path from point a on the tilemap too point b with references too each tile position,
-// probably a Vec((TilePos, TileType))
 
 impl Plugin for GameWorldPlugin {
     fn build(&self, app: &mut bevy::app::App) {
-        register_types!(app, [SpawnerWave, SpawnerTimer, Teleporter, CharacterSpawner, WeaponSpawner, PlayerStartLocation, HeroLocation]);
+        register_types!(
+            app,
+            [
+                SpawnerWave,
+                SpawnerTimer,
+                Teleporter,
+                CharacterSpawner,
+                WeaponSpawner,
+                PlayerStartLocation,
+                HeroLocation
+            ]
+        );
 
-        app.add_event::<ActorTeleportEvent>()
+        app.add_event::<RegenerateDungeonEvent>()
+            .add_event::<ActorTeleportEvent>()
             .add_plugins((
+                progress::GameProgressPlugin,
                 hideout::HideOutPlugin,
                 dungeonator_v2::DungeonGeneratorPlugin,
             ))
@@ -73,7 +90,11 @@ impl Plugin for GameWorldPlugin {
                     handle_teleport_events.run_if(on_event::<ActorTeleportEvent>()),
                     (
                         listen_rebuild_dungeon_request,
-                        game_world::world_objects::character_spawners_system,
+                        debug_regen_dungeon,
+                        game_world::world_objects::character_spawners_system.run_if(
+                            in_state(GeneratorState::NoDungeon)
+                                .or_else(in_state(GeneratorState::FinishedDungeonGen)),
+                        ),
                     )
                         .run_if(in_state(AppState::PlayingGame)),
                 ),
@@ -88,10 +109,8 @@ impl Plugin for GameWorldPlugin {
 /// listens for dungeon rebuild request if dungeon is finished spawning
 #[allow(clippy::type_complexity)]
 fn listen_rebuild_dungeon_request(
+    mut regen_events: EventReader<RegenerateDungeonEvent>,
     mut cmds: Commands,
-    mut dungeon_root: Query<(Entity, &mut Dungeon)>,
-    // mut cleanup_events: EventWriter<EventCleanupWorld>,
-    actions: Res<ActionState<action_maps::Gameplay>>,
     generator_state: Res<State<GeneratorState>>,
     actors: Query<
         Entity,
@@ -102,22 +121,46 @@ fn listen_rebuild_dungeon_request(
         ),
     >,
 ) {
-    if actions.just_pressed(&action_maps::Gameplay::DebugF2) {
-        // TODO: use cleanup systems
-        // cleanup_events.send(EventCleanupWorld::NewLevel);
-        let Ok((dungeon, ..)) = dungeon_root.get_single_mut() else {
+    for regen_event in regen_events.read() {
+        if regen_event.reason == RegenReason::FirstGeneration {
+            warn!("laying out first dungeon");
+            cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
             return;
-        };
-        cmds.entity(dungeon).despawn_recursive();
+        }
+
+        info!("despawning old actors");
         actors.iter().for_each(|f| {
             cmds.entity(f).despawn_recursive();
         });
-        info!(
-            "despawned old dungeon: current dungeon build state: {:?}",
-            generator_state
-        );
+
         cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
+        break;
     }
+    regen_events.clear();
+}
+
+fn debug_regen_dungeon(
+    actions: Res<ActionState<action_maps::Gameplay>>,
+    mut regen_event: EventWriter<RegenerateDungeonEvent>,
+) {
+    if actions.just_pressed(&action_maps::Gameplay::DebugF2) {
+        regen_event.send(RegenerateDungeonEvent {
+            reason: RegenReason::ManualRegen,
+        });
+    }
+}
+
+#[derive(Event, Debug)]
+pub struct RegenerateDungeonEvent {
+    pub reason: RegenReason,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum RegenReason {
+    BossDefeat,
+    ManualRegen,
+    PlayerDeath,
+    FirstGeneration,
 }
 
 // /// holds all things related too game data for heirarchy, this might change
@@ -136,6 +179,7 @@ pub struct GridContainerTag;
 /// warns if event is unknown
 fn handle_teleport_events(
     mut cmds: Commands,
+    mut regen_event: EventWriter<RegenerateDungeonEvent>,
     mut tp_events: EventReader<ActorTeleportEvent>,
     mut characters: Query<(&mut Transform, &mut CharacterMoveState), With<CharacterType>>,
     global_transforms: Query<&GlobalTransform>,
@@ -199,7 +243,10 @@ fn handle_teleport_events(
             TpTriggerEffect::Event(event) => {
                 match event.as_str() {
                     "StartDungeonGen" => {
-                        cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
+                        // TODO: reset dungeon before changing state.
+                        regen_event.send(RegenerateDungeonEvent {
+                            reason: RegenReason::FirstGeneration,
+                        });
                     }
                     event => {
                         warn!("unhandled Teleport Event Action: {}", event);

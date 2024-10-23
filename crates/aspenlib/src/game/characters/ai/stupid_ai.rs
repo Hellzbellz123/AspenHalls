@@ -21,7 +21,7 @@ use crate::{
     game::{
         characters::{
             ai::components::{
-                AIChaseAction, AICombatConfig, AIWanderAction, AIWanderConfig, AttackScorer,
+                AIChaseAction, AICombatAggroConfig, AIWanderAction, AIWanderConfig, AttackScorer,
                 ChaseScorer,
             },
             player::PlayerSelectedHero,
@@ -32,7 +32,7 @@ use crate::{
     utilities::tiles_to_f32,
 };
 
-use super::components::{AIShootAction, AIShootConfig};
+use super::components::{AIShootAction, AIAutoShootConfig};
 
 /// stupid ai systems and functions
 pub struct StupidAiPlugin;
@@ -56,13 +56,13 @@ impl Plugin for StupidAiPlugin {
 
 /// All Components needed for `stupid_ai` functionality
 #[derive(Bundle)]
-pub struct StupidAiBundle {
+pub struct BasicAiBundle {
     /// ai chase/attack config
-    pub combat_config: AICombatConfig,
+    pub combat_config: AICombatAggroConfig,
     /// stupid wander action
     pub wander_config: AIWanderConfig,
     /// stupid shoot action
-    pub shoot_config: AIShootConfig,
+    pub shoot_config: AIAutoShootConfig,
     /// chooses action
     pub thinker: ThinkerBuilder,
 }
@@ -76,7 +76,7 @@ fn stupid_ai_aggro_manager(
     // player
     player_query: Query<(Entity, &Transform), With<PlayerSelectedHero>>,
     // enemies that can aggro
-    can_attack_query: Query<(Entity, &Transform, &AICombatConfig)>,
+    can_attack_query: Query<(Entity, &Transform, &AICombatAggroConfig)>,
     // scorers
     mut scorers: ParamSet<(
         Query<(&Actor, &mut Score), With<ChaseScorer>>,
@@ -134,14 +134,14 @@ fn stupid_ai_aggro_manager(
                 set_chase_score(&mut scorers, this_actor, 0.7);
             } else {
                 trace!("target out of chase range");
-                set_chase_score(&mut scorers, this_actor, 0.0);
+                set_chase_score(&mut scorers, this_actor, 0.5);
             }
             if target_in_shoot_range && !target_in_personalspace {
                 trace!("target in shoot range");
                 set_attack_score(&mut scorers, this_actor, 0.9);
             } else {
                 trace!("target not in shoot range");
-                set_attack_score(&mut scorers, this_actor, 0.0);
+                set_attack_score(&mut scorers, this_actor, 0.4);
             }
         } else {
             set_attack_score(&mut scorers, this_actor, 0.0);
@@ -153,7 +153,7 @@ fn stupid_ai_aggro_manager(
 /// handles enemy's that can chase
 fn chase_action(
     player_query: Query<&Transform, With<PlayerSelectedHero>>,
-    mut enemy_query: Query<(&Transform, &mut Velocity, &AICombatConfig)>,
+    mut enemy_query: Query<(&Transform, &mut Velocity, &AICombatAggroConfig)>,
     mut chasing_enemies: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
 ) {
     let Ok(player_transform) = player_query.get_single() else {
@@ -218,7 +218,7 @@ fn attack_action(
     // player_collider_query: Query<Entity, With<PlayerColliderTag>>,
     time: Res<Time>,
     player_query: Query<(Entity, &Transform), With<PlayerSelectedHero>>,
-    mut enemy_query: Query<(&Transform, &mut AIShootConfig)>,
+    mut enemy_query: Query<(&Transform, &mut AIAutoShootConfig)>,
     mut ai_with_attacks: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
     mut attack_requests: EventWriter<EventRequestAttack>,
 ) {

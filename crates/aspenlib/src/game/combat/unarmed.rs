@@ -6,7 +6,7 @@ use crate::{
     consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
     game::{
         attributes_stats::{Damage, ElementalEffect, PhysicalDamage, ProjectileStats},
-        characters::ai::components::AIShootConfig,
+        characters::ai::components::AIAutoShootConfig,
         components::{ActorColliderType, TimeToLive},
     },
     loading::assets::AspenInitHandles,
@@ -30,7 +30,7 @@ impl Plugin for UnArmedPlugin {
 pub fn delegate_unarmed_attacks(
     mut cmds: Commands,
     mut attack_requests: EventReader<EventAttackUnarmed>,
-    ai_shoot_cfg: Query<&AIShootConfig>,
+    ai_shoot_cfg: Query<&AIAutoShootConfig>,
     assets: Res<AspenInitHandles>,
     locations: Query<&GlobalTransform>,
 ) {
