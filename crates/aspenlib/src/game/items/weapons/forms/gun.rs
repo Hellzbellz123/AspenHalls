@@ -1,4 +1,4 @@
-use bevy::{ecs::system::SystemParam, prelude::*};
+use bevy::{prelude::*};
 use bevy_rapier2d::prelude::*;
 
 use crate::{
@@ -12,7 +12,8 @@ use crate::{
             AttackDamage, CurrentAmmo, CurrentlyDrawnWeapon, GunCfg, WeaponHolder, WeaponTimers,
         },
     },
-    loading::assets::AspenInitHandles, utilities::EntityCreator,
+    loading::assets::AspenInitHandles,
+    utilities::EntityCreator,
 };
 
 /// holds gun item functionality

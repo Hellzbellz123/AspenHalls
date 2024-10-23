@@ -5,6 +5,7 @@ use crate::game::game_world::{
     dungeonator_v2::{components::RoomBlueprint, hallways::SiblingCount},
 };
 
+/// implementation for roomgraph
 pub mod r#impl;
 
 #[derive(Debug, Deref, DerefMut, Clone, Default, Reflect)]

@@ -2,8 +2,7 @@ use bevy::{prelude::*, render::primitives::Aabb};
 
 use crate::{
     game::{
-        characters::{components::CharacterType, player::PlayerSelectedHero},
-        components::ActorType,
+        characters::{player::PlayerSelectedHero},
         input::AspenCursorPosition,
     },
     loading::{assets::AspenInitHandles, registry::RegistryIdentifier},
@@ -117,6 +116,7 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<AspenInitHandles>) {
     ));
 }
 
+/// changes software cursor image based upon certain conditions
 fn update_software_cursor_image(
     os_cursor_pos: Res<AspenCursorPosition>,
     player: Query<&GlobalTransform, With<PlayerSelectedHero>>,
@@ -125,12 +125,18 @@ fn update_software_cursor_image(
         (Without<PlayerSelectedHero>, With<RegistryIdentifier>),
     >,
     mut software_cursor: Query<
-        (&mut SoftWareCursor, &mut BackgroundColor, &mut TextureAtlas, &Node),
+        (
+            &mut SoftWareCursor,
+            &mut BackgroundColor,
+            &mut TextureAtlas,
+            &Node,
+        ),
         With<Node>,
     >,
     game_state: Res<State<AppState>>,
 ) {
-    let Ok((mut cursor_data, mut cursor_color, mut cursor_atlas, node_size)) = software_cursor.get_single_mut()
+    let Ok((mut cursor_data, mut cursor_color, mut cursor_atlas, node_size)) =
+        software_cursor.get_single_mut()
     else {
         return;
     };
@@ -180,10 +186,14 @@ fn update_software_cursor_image(
     }
 }
 
+/// cursor image type
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub enum CursorType {
+    /// default arrow shaped cursor
     Default,
+    /// undimmed crosshair cursor
     HasTarget,
+    /// dimmed crosshair cursor
     NoTarget,
 }
 

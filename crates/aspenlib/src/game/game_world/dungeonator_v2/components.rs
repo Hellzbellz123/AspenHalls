@@ -6,7 +6,7 @@ use bevy::{
     },
     log::warn,
     math::{IVec2, Vec2},
-    prelude::{Component, Entity, Handle, IRect, Name, SpatialBundle},
+    prelude::{Component, Handle, IRect, Name, SpatialBundle},
     reflect::Reflect,
 };
 use bevy_ecs_ldtk::{
@@ -117,6 +117,7 @@ pub struct DungeonSettings {
 }
 
 impl DungeonSettings {
+    /// returns the center of the dungeon
     pub fn get_center(&self, origin: Vec2) -> Vec2 {
         let half_size_x = (self.size.x as f32 * TILE_SIZE) / 2.0;
         let half_size_y = (self.size.y as f32 * TILE_SIZE) / 2.0;
@@ -141,12 +142,17 @@ pub struct Dungeon {
     pub room_graph: RoomGraph,
 }
 
-#[derive(Debug, Default, Reflect, Clone, PartialEq, PartialOrd)]
+/// current boss combat state
+#[derive(Debug, Default, Reflect, Clone, PartialEq, Eq, PartialOrd)]
 pub enum BossState {
+    /// boss has not been spawned yet
     #[default]
     UnSpawned,
+    /// boss is not in range of player
     Idle,
+    /// boss is currently fighting player
     Engaged,
+    /// player has defeated boss
     Defeated,
 }
 
@@ -162,7 +168,7 @@ pub struct RoomPreset {
     /// - Rect.max is position + size
     /// size of room
     pub size: IVec2,
-    // exit offsets
+    /// exit offsets for current room
     pub exits: Vec<IVec2>,
 }
 
@@ -271,13 +277,13 @@ pub enum RoomLevel {
 }
 
 impl RoomLevel {
-    pub fn next_level(self) -> Self {
+    /// returns the advanced '`RoomLevel`'
+    pub const fn next_level(self) -> Self {
         match self {
-            RoomLevel::Level0 => RoomLevel::Level0,
-            RoomLevel::Level1 => RoomLevel::Level2,
-            RoomLevel::Level2 => RoomLevel::Level2,
-            RoomLevel::Level3 => RoomLevel::Level4,
-            RoomLevel::Level4 => RoomLevel::Level4,
+            Self::Level0 => Self::Level0,
+            Self::Level1 => Self::Level2,
+            Self::Level2 => Self::Level3,
+            Self::Level3 | Self::Level4 => Self::Level4,
         }
     }
 }

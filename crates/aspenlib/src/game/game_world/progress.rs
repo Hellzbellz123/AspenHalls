@@ -6,7 +6,7 @@
 use crate::{
     game::{
         characters::{
-            ai::components::{AIChaseAction, AttackScorer, ChaseScorer},
+            ai::components::{AttackScorer, ChaseScorer},
             components::CharacterType,
             player::PlayerSelectedHero,
         },
@@ -16,10 +16,10 @@ use crate::{
 };
 use bevy::prelude::*;
 use big_brain::{
-    prelude::{ActionSpan, HasThinker, Score, Thinker},
-    scorers,
+    prelude::{HasThinker, Score},
 };
 
+/// player progression tracking module
 pub struct GameProgressPlugin;
 
 impl Plugin for GameProgressPlugin {
@@ -34,27 +34,39 @@ impl Plugin for GameProgressPlugin {
     }
 }
 
+/// player progression tracker
 #[derive(Debug, Reflect, Component, Clone)]
 #[reflect(Component)]
 pub struct ProgressManager {
+    /// player progress in CURRENT dungeon
     current: CurrentLevelState,
+    /// player progress unrelated too CURRENT dungeon
     overall: OverallProgressState,
 }
 
+/// current dungeon progression for player
 #[derive(Debug, Reflect, Component, Clone)]
 pub struct CurrentLevelState {
+    /// boss combat state
     boss_state: BossState,
+    /// current room entity id
     current_room: Option<Entity>,
+    /// boss entity id
     boss_id: Option<Entity>,
 }
 
+/// overall progress for player
 #[derive(Debug, Reflect, Component, Clone)]
 pub struct OverallProgressState {
+    /// how much coin player has earned
     coin: i32,
+    /// how much xp player has earnend
     xp: i32,
+    /// how many enemies player has defeated
     kills: i32,
 }
 
+/// creates entity for tracking player progress inside dungeon
 fn initialize_progress_manager(mut cmds: Commands) {
     // load character save state here?
 
@@ -98,6 +110,7 @@ fn update_player_current_room(
     progress_manager.current.current_room = current_room;
 }
 
+/// updates boss state based on boss ai status
 fn update_boss_state(
     mut progress_manager: Query<&mut ProgressManager>,
     boss_query: Query<(Entity, &Transform, &CharacterType)>,
@@ -140,16 +153,16 @@ fn update_boss_state(
                 .expect("could not get scorer component");
 
             if chase_score.get() > 0.0 && current_state == BossState::Idle {
-                progress_manager.current.boss_state = BossState::Engaged
+                progress_manager.current.boss_state = BossState::Engaged;
             } else if attack_score.get() == 0.0 && chase_score.get() == 0.0 {
-                progress_manager.current.boss_state = BossState::Idle
+                progress_manager.current.boss_state = BossState::Idle;
             }
         }
         None => {
             if current_state == BossState::Engaged {
-                progress_manager.current.boss_state = BossState::Defeated
+                progress_manager.current.boss_state = BossState::Defeated;
             } else {
-                progress_manager.current.boss_state = BossState::UnSpawned
+                progress_manager.current.boss_state = BossState::UnSpawned;
             }
         }
     };

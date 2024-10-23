@@ -27,7 +27,6 @@ impl Plugin for SkillusingAiPlugin {
         register_types!(
             app,
             [
-
                 AIShootPatternsConfig,
                 AIPatternEnergy,
                 ShootPatternSpawner,
@@ -69,26 +68,35 @@ pub struct SkillusingAIBundle {
     pub thinker: ThinkerBuilder,
 }
 
+/// scorer tag
 #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
 #[reflect(Component)]
 pub struct AIShootPatterns;
 
+/// shhoot pattern config component
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct AIShootPatternsConfig {
+    /// list of possible patterns that can be used
     pub patterns: VecDeque<(i32, ShootPattern)>,
+    /// cooldown time between patterns
     pub time_between_patterns: Timer,
 }
 
+/// resource for creating `ShootPatterns`
 #[derive(Component, Default, Clone, Debug, Reflect, ActionBuilder)]
 #[reflect(Component)]
 pub struct AIPatternEnergy {
+    /// energy regen per second
     pub per_second: f32,
+    /// current energy character possess
     pub current: f32,
 }
 
+/// different ways groups bullets can be placed in world
 #[derive(Reflect, Debug, Clone)]
 pub enum ShootPattern {
+    /// pillars of bullets between arcs
     BulletsOverArc {
         /// how many time should this pattern be duplicated
         waves: i32,
@@ -101,15 +109,21 @@ pub enum ShootPattern {
         /// focus casters enemy
         focus: bool,
     },
+    /// singular beams divided between arc
     BeamedArc {
+        /// how many beams too place evenly inside arc
         beams: i32,
+        /// individual beam width in pixels
         beam_width: f32,
+        /// arc too spawn beams inside
         arc: i32,
     },
 }
 
+/// maximum pattern energy characters are allowed too possess
 pub const MAX_PATTERN_ENERGY: f32 = 100.0;
 
+/// pattern spawner state
 #[derive(Debug, Component, Reflect)]
 #[reflect(Component)]
 pub struct ShootPatternSpawner {
@@ -123,6 +137,7 @@ pub struct ShootPatternSpawner {
 
 // query skill users energy, if skill user has available energy and is in combat state then set scorer too 1.0
 // else scorer should be 0.0
+/// queues `ShootPatternAction` if actor has enough energy for any pattern and timer between patterns has finished
 fn ai_patterns_use_system(
     time: Res<Time>,
     mut pattern_energy: Query<(Entity, &mut AIPatternEnergy, &mut AIShootPatternsConfig)>,
@@ -133,8 +148,9 @@ fn ai_patterns_use_system(
     children: Query<&Children>,
 ) {
     for (actor, mut pattern_energy, mut patterns_cfg) in &mut pattern_energy {
-        let updated_energy =
-            pattern_energy.current + pattern_energy.per_second * time.delta().as_secs_f32();
+        let updated_energy = pattern_energy
+            .per_second
+            .mul_add(time.delta().as_secs_f32(), pattern_energy.current);
 
         patterns_cfg.time_between_patterns.tick(time.delta());
         pattern_energy.current = updated_energy.clamp(0.0, MAX_PATTERN_ENERGY);
@@ -170,6 +186,7 @@ fn ai_patterns_use_system(
     }
 }
 
+/// spawns `ShootPatternSpawner` for selected shootpattern when ai actor has required energy
 fn ai_patternskill_action(
     mut cmds: Commands,
     mut enemy_query: Query<(
@@ -181,7 +198,6 @@ fn ai_patternskill_action(
     mut action_query: Query<(&Actor, &mut ActionState, &ActionSpan), With<AIShootPatterns>>,
 ) {
     for (actor, mut action_state, _span) in &mut action_query {
-        let _guard = _span.span().enter();
         match *action_state {
             ActionState::Requested => {}
             ActionState::Cancelled => {
@@ -218,8 +234,7 @@ fn ai_patternskill_action(
         let Some((cost, pattern)) = enemy_patterns
             .patterns
             .iter()
-            .filter(|(cost, _)| (*cost as f32) < pattern_energy.current)
-            .next()
+            .find(|(cost, _)| (*cost as f32) < pattern_energy.current)
         else {
             error!("Ai actor did not have a 'ShootPattern' inside AiShootPatternsConfig");
             continue;
@@ -236,13 +251,15 @@ fn ai_patternskill_action(
                 pattern_timer: Timer::from_seconds(PATTERN_DUPLICATE_TIME, TimerMode::Once),
                 runs: 0,
             },
-            SpatialBundle::from_transform(enemy_pos.clone()),
+            SpatialBundle::from_transform(*enemy_pos),
         ));
     }
 }
 
+/// how many seconds between `ShootPatternSpawner` iterations
 const PATTERN_DUPLICATE_TIME: f32 = 0.3;
 
+/// creates entity too replicate shoot patterns
 pub fn shootpatternspawner_system(
     time: Res<Time>,
     init_handles: Res<AspenInitHandles>,
@@ -254,67 +271,55 @@ pub fn shootpatternspawner_system(
 
         if pattern_spawner.pattern_timer.finished() {
             pattern_spawner.pattern_timer.reset();
-            pattern_spawner.runs += 1
-        } else {
-            continue;
-        }
+            pattern_spawner.runs += 1;
 
-        let mut bullet_spawn = spawner_pos.clone();
+            let mut bullet_spawn = *spawner_pos;
 
-        match pattern_spawner.shootpattern {
-            ShootPattern::BulletsOverArc {
-                waves,
-                arc,
-                amount,
-                rotation_per_wave,
-                focus,
-            } => {
-                info!("creating BulletsOverArc pattern");
+            match pattern_spawner.shootpattern {
+                ShootPattern::BulletsOverArc {
+                    waves,
+                    arc: _,
+                    amount,
+                    rotation_per_wave,
+                    focus: _,
+                } => {
+                    info!("creating BulletsOverArc pattern");
 
-                for _ in 1..=amount {
-                    info!("spawning bullet for shoot pattern");
+                    for _ in 1..=amount {
+                        info!("spawning bullet for shoot pattern");
 
-                    bullet_spawn
-                        .rotate_local_x(((rotation_per_wave + (pattern_spawner.runs * 10)) as f32).to_radians());
+                        bullet_spawn.rotate_local_x(
+                            ((rotation_per_wave + (pattern_spawner.runs * 10)) as f32).to_radians(),
+                        );
 
-                    // mostly works, must offset each one by some amount
-                    create_bullet(
-                        spawner_creator.0,
-                        &mut cmds,
-                        &init_handles,
-                        &AttackDamage(Damage {
-                            physical: PhysicalDamage(120.0),
-                            elemental: ElementalEffect::Fire(20.0),
-                        }),
-                        bullet_spawn,
-                        (100.0, 15.0),
-                    )
+                        // mostly works, must offset each one by some amount
+                        create_bullet(
+                            spawner_creator.0,
+                            &mut cmds,
+                            &init_handles,
+                            &AttackDamage(Damage {
+                                physical: PhysicalDamage(120.0),
+                                elemental: ElementalEffect::Fire(20.0),
+                            }),
+                            bullet_spawn,
+                            (100.0, 15.0),
+                        );
+                    }
+
+                    if pattern_spawner.runs == waves {
+                        info!("pattern spawner has finished its pattern, despawning");
+                        cmds.entity(spawner_ent).despawn_recursive();
+                    }
                 }
-
-                if pattern_spawner.runs == waves {
-                    info!("pattern spawner has finished its pattern, despawning");
+                ShootPattern::BeamedArc {
+                    beams: _,
+                    beam_width: _,
+                    arc: _,
+                } => {
+                    warn!("unhandled shoot pattern, despawning");
                     cmds.entity(spawner_ent).despawn_recursive();
                 }
             }
-            ShootPattern::BeamedArc {
-                beams,
-                beam_width,
-                arc,
-            } => {
-                warn!("unhandled shoot pattern, despawning");
-                cmds.entity(spawner_ent).despawn_recursive();
-            }
         }
-
-        // let bullet_fab = ProjectileBundle {
-        //     name: Name::new("PatternProjectile"),
-        //     projectile_stats: ProjectileStats {
-        //         entity_that_shot: spawner_creator.0,
-        //         damage: Damage::default(),
-        //     },
-        //     ttl: TimeToLive::default(),
-        //     sprite_bundle: SpriteBundle::default(),
-        //     rigidbody_bundle: RigidBodyBundle::default(),
-        // };
     }
 }

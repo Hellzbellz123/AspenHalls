@@ -23,7 +23,10 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-use crate::{game::{combat::{SameUserDataFilter},DungeonFloor,},loading::assets::AspenInitHandles,};
+use crate::{
+    game::{combat::SameUserDataFilter, DungeonFloor},
+    loading::assets::AspenInitHandles,
+};
 use bevy::prelude::*;
 
 pub use loading::config::*;
@@ -117,10 +120,8 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
 
     vanillacoffee.add_systems(
         Update,
-        (
-            utilities::set_window_icon
-                .run_if(resource_exists::<AspenInitHandles>.and_then(run_once())),
-        ),
+        (utilities::set_window_icon
+            .run_if(resource_exists::<AspenInitHandles>.and_then(run_once())),),
     );
 
     vanillacoffee

@@ -32,7 +32,7 @@ use crate::{
     utilities::tiles_to_f32,
 };
 
-use super::components::{AIShootAction, AIAutoShootConfig};
+use super::components::{AIAutoShootConfig, AIShootAction};
 
 /// stupid ai systems and functions
 pub struct StupidAiPlugin;

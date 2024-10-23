@@ -19,6 +19,7 @@ impl RoomGraph {
         }
     }
 
+    /// creates new roomgraph from given '`RoomBlueprints`'
     pub fn new(presets: &[RoomBlueprint]) -> Self {
         let mut graph = Self {
             graph: Graph::new_undirected(),

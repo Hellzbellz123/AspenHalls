@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::loading::registry::RegistryIdentifier;
 
+/// boss spawning system/utils
 pub struct BossPlugin;
 
 impl Plugin for BossPlugin {
@@ -13,10 +14,14 @@ impl Plugin for BossPlugin {
     }
 }
 
+/// request too spawn boss entity in world
 #[derive(Debug, Event)]
 pub struct EventSpawnBoss {
+    /// registry id of boss
     pub actor_id: RegistryIdentifier,
+    /// entity that requested boss spawn
     pub spawner: Entity,
+    /// position too spawn boss in world
     pub position: Vec2,
 }
 

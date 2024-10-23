@@ -112,7 +112,7 @@ pub fn hero_location_from_instance(entity_instance: &EntityInstance) -> HeroLoca
         .get_maybe_string_field("SpawnIdentifier")
         .expect("hero locations should have 'SpawnIdentifier' field")
         .clone()
-        .map(|f| RegistryIdentifier(f));
+        .map(RegistryIdentifier);
 
     let &in_dungeon_hireable = entity_instance
         .get_bool_field("InDungeonHireable")

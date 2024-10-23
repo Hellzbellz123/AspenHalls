@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::components::{ActorColliderType, TimeToLive}, loading::{
+    game::components::{ActorColliderType, TimeToLive},
+    loading::{
         custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition},
         registry::RegistryIdentifier,
     },
+    register_types,
     utilities::{scale_to_fit, EntityCreator},
     AppState,
-    register_types,
 };
 
 /// animation functionality

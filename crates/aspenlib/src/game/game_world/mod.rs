@@ -35,6 +35,7 @@ use crate::{
     register_types, AppState,
 };
 
+/// tile collider creation systems/tools
 mod collisions;
 /// shared components for dungeon and home
 pub mod components;
@@ -111,7 +112,7 @@ impl Plugin for GameWorldPlugin {
 fn listen_rebuild_dungeon_request(
     mut regen_events: EventReader<RegenerateDungeonEvent>,
     mut cmds: Commands,
-    generator_state: Res<State<GeneratorState>>,
+    _generator_state: Res<State<GeneratorState>>,
     actors: Query<
         Entity,
         (
@@ -121,24 +122,24 @@ fn listen_rebuild_dungeon_request(
         ),
     >,
 ) {
-    for regen_event in regen_events.read() {
+    if let Some(regen_event) = regen_events.read().next() {
         if regen_event.reason == RegenReason::FirstGeneration {
             warn!("laying out first dungeon");
             cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
             return;
         }
-
+    
         info!("despawning old actors");
         actors.iter().for_each(|f| {
             cmds.entity(f).despawn_recursive();
         });
-
+    
         cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
-        break;
     }
     regen_events.clear();
 }
 
+/// send dungeon regen event for debug purposes
 fn debug_regen_dungeon(
     actions: Res<ActionState<action_maps::Gameplay>>,
     mut regen_event: EventWriter<RegenerateDungeonEvent>,
@@ -150,16 +151,23 @@ fn debug_regen_dungeon(
     }
 }
 
+/// event for rebuilding dungeon layout
 #[derive(Event, Debug)]
 pub struct RegenerateDungeonEvent {
+    /// reason dungeon should regenerate
     pub reason: RegenReason,
 }
 
+/// why should dungeon be rebuilt
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum RegenReason {
+    /// regen dungeon because player has defeated dungeon
     BossDefeat,
+    /// player has requested a dungeon reset
     ManualRegen,
+    /// player has died so regenerate dungeon
     PlayerDeath,
+    /// player started game and dungeon should be generated
     FirstGeneration,
 }
 
@@ -178,7 +186,6 @@ pub struct GridContainerTag;
 /// handles passed player teleport events
 /// warns if event is unknown
 fn handle_teleport_events(
-    mut cmds: Commands,
     mut regen_event: EventWriter<RegenerateDungeonEvent>,
     mut tp_events: EventReader<ActorTeleportEvent>,
     mut characters: Query<(&mut Transform, &mut CharacterMoveState), With<CharacterType>>,

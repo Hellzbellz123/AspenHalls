@@ -16,6 +16,7 @@ use crate::{
 
 /// hallway creation functions
 pub mod hallway_builder;
+/// wall creation functions
 pub mod walls;
 
 /// amount of this type that shares parents
@@ -33,15 +34,18 @@ pub struct HallWayBlueprint {
     pub distance: f32,
     /// rooms connected too hallway
     pub connected_rooms: (RoomID, RoomID),
+    /// list of nodes in tilegraph that are hallway tiles
     #[reflect(ignore)]
     pub node_path: VecDeque<NodeIndex>,
     /// hallway finished building
     pub built: bool,
 }
 
+/// marker component for hallway tile storage
 #[derive(Debug, Component)]
 pub struct HallwayLayer;
 
+/// creates hallway storage entity for further modification
 pub fn create_hallway_layer(
     mut cmds: Commands,
     dungeon: Query<(Entity, &Dungeon, &GlobalTransform)>,

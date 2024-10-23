@@ -11,11 +11,12 @@ use crate::game::{
 use bevy::prelude::*;
 use bevy_ecs_tilemap::tiles::{TilePos, TileStorage};
 
+/// spawns straight sections for given hallway node
 pub fn spawn_straight_section(
     tile_graph: &mut TileGraph,
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
     c_dir: &CardinalDirection,
-    c_coord: &TilePos,
+    c_coord: TilePos,
     hallway_storage: &mut Mut<'_, TileStorage>,
     parent: &mut ChildBuilder<'_>,
     hallway_container: Entity,
@@ -66,7 +67,7 @@ pub fn spawn_straight_section(
                 path_with_direction,
                 tile_graph,
                 wall_a.0,
-                &wall_a.1,
+                wall_a.1,
                 parent,
                 hallway_container,
                 hallway_storage,
@@ -79,7 +80,7 @@ pub fn spawn_straight_section(
                 path_with_direction,
                 tile_graph,
                 wall_b.0,
-                &wall_b.1,
+                wall_b.1,
                 parent,
                 hallway_container,
                 hallway_storage,
@@ -88,22 +89,22 @@ pub fn spawn_straight_section(
     }
 }
 
+#[allow(clippy::too_many_lines, clippy::similar_names)]
+/// spawns appropriate corner tile for given tile position
 pub fn spawn_corner_section(
     tile_graph: &mut TileGraph,
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
-    c_idx: &usize,
+    c_idx: usize,
     c_dir: &CardinalDirection,
-    c_coord: &TilePos,
+    c_coord: TilePos,
     parent: &mut ChildBuilder<'_>,
     hallway_container: Entity,
     hallway_storage: &mut Mut<'_, TileStorage>,
 ) {
     // // if next corner is start of another corner
-    if tile_is_corner(tile_graph, path_with_direction, *c_idx).is_some_and(|f| f) {
+    if tile_is_corner(tile_graph, path_with_direction, c_idx).is_some_and(|f| f) {
         let next_tile_direction = &path_with_direction
-            .get(c_idx + 1)
-            .map(|f| f.2.clone())
-            .unwrap_or(c_dir.clone());
+            .get(c_idx + 1).map_or_else(|| c_dir.clone(), |f| f.2.clone());
 
         match (c_dir, next_tile_direction) {
             (CardinalDirection::South, CardinalDirection::East) => {
@@ -128,7 +129,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerSw,
+                    TexID::IcornerSw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -137,7 +138,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerNe,
+                    TexID::OcornerNe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -146,13 +147,13 @@ pub fn spawn_corner_section(
                 // if previous is corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallWest,
+                        TexID::WallWest,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -168,7 +169,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerNe,
+                        TexID::IcornerNe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -177,7 +178,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerSw,
+                        TexID::OcornerSw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -205,7 +206,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerNe,
+                    TexID::IcornerNe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -214,7 +215,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerSw,
+                    TexID::OcornerSw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -222,13 +223,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallNorth,
+                        TexID::WallNorth,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -244,7 +245,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerSw,
+                        TexID::IcornerSw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -253,7 +254,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerNe,
+                        TexID::OcornerNe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -281,7 +282,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerNw,
+                    TexID::IcornerNw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -290,7 +291,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerSe,
+                    TexID::OcornerSe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -298,13 +299,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallWest,
+                        TexID::WallWest,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -320,7 +321,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerSe,
+                        TexID::IcornerSe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -329,7 +330,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerNw,
+                        TexID::OcornerNw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -358,7 +359,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerSe,
+                    TexID::IcornerSe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -367,7 +368,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerNw,
+                    TexID::OcornerNw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -375,13 +376,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallSouth,
+                        TexID::WallSouth,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -397,7 +398,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerNw,
+                        TexID::IcornerNw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -406,7 +407,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerSe,
+                        TexID::OcornerSe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -435,7 +436,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerNe,
+                    TexID::IcornerNe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -444,7 +445,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerSw,
+                    TexID::OcornerSw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -452,13 +453,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallEast,
+                        TexID::WallEast,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -474,7 +475,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerSw,
+                        TexID::IcornerSw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -483,7 +484,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerNe,
+                        TexID::OcornerNe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -512,7 +513,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerSw,
+                    TexID::IcornerSw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -521,7 +522,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerNe,
+                    TexID::OcornerNe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -529,13 +530,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallSouth,
+                        TexID::WallSouth,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -551,7 +552,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerNe,
+                        TexID::IcornerNe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -560,7 +561,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerSw,
+                        TexID::OcornerSw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -589,7 +590,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerNw,
+                    TexID::IcornerNw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -598,7 +599,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerSe,
+                    TexID::OcornerSe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -606,13 +607,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallNorth,
+                        TexID::WallNorth,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -628,7 +629,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerSe,
+                        TexID::IcornerSe,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -637,7 +638,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerNw,
+                        TexID::OcornerNw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -666,7 +667,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     in_corner,
-                    &TexID::IcornerSe,
+                    TexID::IcornerSe,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -675,7 +676,7 @@ pub fn spawn_corner_section(
                     path_with_direction,
                     tile_graph,
                     out_corner,
-                    &TexID::OcornerNw,
+                    TexID::OcornerNw,
                     parent,
                     hallway_container,
                     hallway_storage,
@@ -683,13 +684,13 @@ pub fn spawn_corner_section(
                 // if previous is not corner { spawn corner peice} else {spawn wall peice}
                 if tile_is_corner(tile_graph, path_with_direction, c_idx.saturating_sub(1))
                     .is_some_and(|tile_is_corner| !tile_is_corner)
-                    || *c_idx == 0
+                    || c_idx == 0
                 {
                     spawn_tile(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::WallEast,
+                        TexID::WallEast,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -705,7 +706,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         out_wall,
-                        &TexID::IcornerNw,
+                        TexID::IcornerNw,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -714,7 +715,7 @@ pub fn spawn_corner_section(
                         path_with_direction,
                         tile_graph,
                         new_corner,
-                        &TexID::OcornerSe,
+                        TexID::OcornerSe,
                         parent,
                         hallway_container,
                         hallway_storage,

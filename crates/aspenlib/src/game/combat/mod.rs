@@ -15,7 +15,8 @@ use crate::{
             EventAttackWeapon,
         },
     },
-    utilities::EntityCreator, AppState
+    utilities::EntityCreator,
+    AppState,
 };
 
 /// handles attacks from characters without weapons
@@ -194,25 +195,19 @@ pub struct PlayerSaveInformation {
     pub items_got: i32,
 }
 
-// A custom filter that allows contacts/intersections only between rigid-bodies
-// with the same CustomFilterTag component value.
-// Note that using collision groups would be a more efficient way of doing
-// this, but we use custom filters instead for demonstration purpose.
+/// A custom filter that ignores contacts if both contact entities share the same '`EntityCreator`'
 #[derive(SystemParam)]
 pub struct SameUserDataFilter<'w, 's> {
+    /// tags for filtering
     tags: Query<'w, 's, &'static EntityCreator>,
 }
 
 impl BevyPhysicsHooks for SameUserDataFilter<'_, '_> {
     fn filter_contact_pair(&self, context: PairFilterContextView) -> Option<SolverFlags> {
-        if let Some(a_filter) = self.tags.get(context.collider1()).ok()
-            && let Some(b_filter) = self.tags.get(context.collider2()).ok()
-        {
-            if a_filter.0 == b_filter.0 {
-                // this bullet was requested by opposite entitity
-                // dont 'hit' it.
-                return None;
-            }
+        if let Some(a_filter) = self.tags.get(context.collider1()).ok() && let Some(b_filter) = self.tags.get(context.collider2()).ok() && a_filter.0 == b_filter.0 {
+            // this bullet was requested by opposite entitity
+            // dont 'hit' it.
+            return None;
         }
 
         Some(SolverFlags::COMPUTE_IMPULSES)

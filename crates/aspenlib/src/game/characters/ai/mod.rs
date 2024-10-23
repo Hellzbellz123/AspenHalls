@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::hashbrown::HashMap};
+use bevy::prelude::*;
 use big_brain::{prelude::*, BigBrainPlugin};
 use std::{collections::VecDeque, time::Duration};
 
@@ -10,7 +10,8 @@ use crate::{
                 AIWanderAction, AIWanderConfig, AiType, AttackScorer, ChaseScorer,
             },
             skillsusing_ai::{
-                AIPatternEnergy, AIShootPatternsConfig, ShootPattern, SkillusingAiPlugin, MAX_PATTERN_ENERGY
+                AIPatternEnergy, AIShootPatternsConfig, ShootPattern, SkillusingAiPlugin,
+                MAX_PATTERN_ENERGY,
             },
         },
         player::PlayerSelectedHero,
@@ -52,8 +53,12 @@ impl Plugin for AIPlugin {
             ]
         );
 
-        app.add_plugins((BigBrainPlugin::new(Update), StupidAiPlugin, SkillusingAiPlugin))
-            .add_systems(Update, initialize_ai);
+        app.add_plugins((
+            BigBrainPlugin::new(Update),
+            StupidAiPlugin,
+            SkillusingAiPlugin,
+        ))
+        .add_systems(Update, initialize_ai);
     }
 }
 
@@ -85,6 +90,7 @@ fn initialize_ai(
     }
 }
 
+/// inserts required components for basic AI functionality
 fn insert_stupid_ai(commands: &mut Commands<'_, '_>, character: Entity, pos: &GlobalTransform) {
     commands.entity(character).insert(stupid_ai::BasicAiBundle {
         combat_config: AICombatAggroConfig {
@@ -113,21 +119,23 @@ fn insert_stupid_ai(commands: &mut Commands<'_, '_>, character: Entity, pos: &Gl
     });
 }
 
+/// default bullet spawn pattern
 fn basic_bullet_pattern() -> VecDeque<(i32, ShootPattern)> {
     let mut map = VecDeque::new();
     map.push_front((
         20,
         ShootPattern::BulletsOverArc {
             arc: 360,
-            amount: 6,
-            waves: 8,
-            rotation_per_wave: 35,
+            amount: 32,
+            waves: 16,
+            rotation_per_wave: 33,
             focus: false,
         },
     ));
     map
 }
 
+/// add skill using ai components too required entity
 fn insert_skillusing_ai(commands: &mut Commands<'_, '_>, character: Entity, pos: &GlobalTransform) {
     commands.entity(character).insert((
         AIPatternEnergy {
@@ -137,7 +145,7 @@ fn insert_skillusing_ai(commands: &mut Commands<'_, '_>, character: Entity, pos:
         skillsusing_ai::SkillusingAIBundle {
             shootpattern: AIShootPatternsConfig {
                 patterns: basic_bullet_pattern(),
-                time_between_patterns: Timer::from_seconds(5.0, TimerMode::Once)
+                time_between_patterns: Timer::from_seconds(5.0, TimerMode::Once),
             },
             combat_config: AICombatAggroConfig {
                 chase_start: 10,

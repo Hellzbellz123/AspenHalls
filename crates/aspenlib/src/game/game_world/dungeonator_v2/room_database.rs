@@ -80,7 +80,7 @@ pub fn build_room_presets(
                 .find(|f| f.identifier == "Building_Layer")
                 .expect("no entity layer on this level");
 
-            let _layer_width = building_layer.c_wid * TILE_SIZE as i32;
+            // let _layer_width = building_layer.c_wid * TILE_SIZE as i32;
             let layer_height = building_layer.c_hei * TILE_SIZE as i32;
 
             let building_tiles = &building_layer.grid_tiles;
@@ -135,6 +135,7 @@ pub fn build_room_presets(
     cmds.insert_resource(dungeon_database);
 }
 
+/// ensures roomsize for certain rooms are correct tilesize
 fn validate_room_size(
     level_def: bevy_ecs_ldtk::prelude::ldtk::loaded_level::LoadedLevel<'_>,
 ) -> Result<(), String> {
@@ -153,7 +154,7 @@ fn validate_room_size(
         return Err(msg);
     }
 
-    if ["DungeonStartL1"]
+    if ["DungeonStartL1", "SomeGarbageSoClippyIsComplacent"]
         .iter()
         .all(|f| f == level_def.identifier())
         && ((level_def.px_wid() / TILE_SIZE as i32) / 2 == 0

@@ -6,7 +6,9 @@ use bevy_mod_picking::{
 };
 
 use crate::{
-    bundles::ActorColliderBundle, consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX}, game::{
+    bundles::ActorColliderBundle,
+    consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
+    game::{
         characters::components::WeaponSlot, components::ActorColliderType,
         interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier,
     },
@@ -14,8 +16,8 @@ use crate::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
         splashscreen::MainCamera,
     },
-    AppState, GeneralSettings,
     utilities::EntityCreator,
+    AppState, GeneralSettings,
 };
 
 use bevy_rapier2d::prelude::CollisionGroups;

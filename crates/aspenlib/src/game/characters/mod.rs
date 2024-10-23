@@ -13,10 +13,9 @@ use crate::{
             components::{CharacterInventory, CharacterMoveState, CharacterType, CurrentMovement},
             creeps::EventSpawnCreep,
         },
-        game_world::{components::CharacterSpawner, dungeonator_v2::GeneratorState},
+        game_world::{components::CharacterSpawner},
     },
     loading::{
-        custom_assets::actor_definitions::CharacterDefinition,
         registry::{ActorRegistry, RegistryIdentifier},
     },
     register_types,
@@ -26,6 +25,7 @@ use crate::{
 
 /// character ai implementation
 pub mod ai;
+/// boss util functions
 pub mod boss;
 /// character components
 pub mod components;
@@ -73,7 +73,10 @@ pub struct EventSpawnCharacter {
 
 impl Default for EventSpawnCharacter {
     fn default() -> Self {
-        Self { identifier: Default::default(), requester: Entity::PLACEHOLDER }
+        Self {
+            identifier: RegistryIdentifier::default(),
+            requester: Entity::PLACEHOLDER,
+        }
     }
 }
 
@@ -88,11 +91,26 @@ pub fn spawn_character_on_event(
     mut boss_events: EventWriter<EventSpawnBoss>,
 ) {
     for event in character_requests.read() {
-        handle_character_spawn(&global_transforms, event, &registry, &spawners, &mut creep_events, &mut boss_events);
+        handle_character_spawn(
+            &global_transforms,
+            event,
+            &registry,
+            &spawners,
+            &mut creep_events,
+            &mut boss_events,
+        );
     }
 }
 
-fn handle_character_spawn(global_transforms: &Query<'_, '_, &GlobalTransform>, event: &EventSpawnCharacter, registry: &Res<'_, ActorRegistry>, spawners: &Query<'_, '_, &CharacterSpawner>, creep_events: &mut EventWriter<'_, EventSpawnCreep>, boss_events: &mut EventWriter<'_, EventSpawnBoss>) {
+/// delegates requested charcter spawns based on character type
+fn handle_character_spawn(
+    global_transforms: &Query<'_, '_, &GlobalTransform>,
+    event: &EventSpawnCharacter,
+    registry: &Res<'_, ActorRegistry>,
+    spawners: &Query<'_, '_, &CharacterSpawner>,
+    creep_events: &mut EventWriter<'_, EventSpawnCreep>,
+    boss_events: &mut EventWriter<'_, EventSpawnBoss>,
+) {
     let Ok(requester_transform) = global_transforms.get(event.requester) else {
         error!("entity requesting teleport does not have a transform");
         return;
@@ -112,15 +130,10 @@ fn handle_character_spawn(global_transforms: &Query<'_, '_, &GlobalTransform>, e
 
     match character_type {
         CharacterType::Creep => {
-            let spawn_pos = if let Ok(spawner) = spawners.get(event.requester) {
-                let mut random_radius = |x: f32| rng.gen_range(-x..x);
-                Vec2 {
-                    x: spawn_pos.x + random_radius(spawner.spawn_radius),
-                    y: spawn_pos.y + random_radius(spawner.spawn_radius),
-                }
-            } else {
-                spawn_pos
-            };
+            let spawn_pos = spawners.get(event.requester).map_or(spawn_pos, |spawner| Vec2 {
+                x: spawn_pos.x + random_radius(spawner.spawn_radius),
+                y: spawn_pos.y + random_radius(spawner.spawn_radius),
+            });
 
             creep_events.send(EventSpawnCreep {
                 actor_id: event.identifier.clone(),
@@ -130,14 +143,10 @@ fn handle_character_spawn(global_transforms: &Query<'_, '_, &GlobalTransform>, e
         }
         CharacterType::Boss => {
             info!("got boss character type");
-            let spawn_pos = if let Ok(spawner) = spawners.get(event.requester) {
-                Vec2 {
-                    x: spawn_pos.x + random_radius(spawner.spawn_radius),
-                    y: spawn_pos.y + random_radius(spawner.spawn_radius),
-                }
-            } else {
-                spawn_pos
-            };
+            let spawn_pos = spawners.get(event.requester).map_or(spawn_pos, |spawner| Vec2 {
+                x: spawn_pos.x + random_radius(spawner.spawn_radius),
+                y: spawn_pos.y + random_radius(spawner.spawn_radius),
+            });
 
             boss_events.send(EventSpawnBoss {
                 actor_id: event.identifier.clone(),

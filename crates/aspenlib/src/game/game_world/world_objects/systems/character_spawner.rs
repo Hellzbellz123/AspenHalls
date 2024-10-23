@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::EntityIid;
-use rand::thread_rng;
+
 
 use crate::{
     consts::CHARACTER_SPAWNERS_DISABLED,
@@ -87,6 +87,6 @@ pub fn character_spawners_system(
                 requester: spawner_entity,
             });
         }
-        cmds.entity(wave_ent).despawn_recursive()
+        cmds.entity(wave_ent).despawn_recursive();
     }
 }

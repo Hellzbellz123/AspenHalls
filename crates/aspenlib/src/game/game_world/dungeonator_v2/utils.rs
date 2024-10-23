@@ -28,7 +28,7 @@ pub fn get_random_preset(presets: &[RoomPreset]) -> Option<&RoomPreset> {
 /// get random preset that matches `level` from `presets`
 pub fn get_leveled_preset<'a>(
     presets: &'a [RoomPreset],
-    level: &'a RoomLevel,
+    _level: &'a RoomLevel,
 ) -> Option<&'a RoomPreset> {
     let mut rng = ThreadRng::default();
 

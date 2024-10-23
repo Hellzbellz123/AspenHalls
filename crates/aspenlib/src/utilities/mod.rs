@@ -4,7 +4,10 @@ use std::{cmp::Ordering, ops::Mul};
 use winit::window::Icon;
 
 use bevy::{
-    ecs::{query::WorldQuery, system::{Command, EntityCommands}},
+    ecs::{
+        query::WorldQuery,
+        system::{Command, EntityCommands},
+    },
     log::{warn, BoxedSubscriber},
     prelude::*,
     window::CursorGrabMode,

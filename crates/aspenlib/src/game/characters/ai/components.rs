@@ -74,9 +74,7 @@ pub struct AIChaseAction;
 #[reflect(Component)]
 pub struct AIWanderAction;
 
-
 // TODO: move ai config too this enum, each ai type gets a scorer that determines its actions using config data held inside AiType, AiType is defined inside character_definition
-
 
 /// type of ai this ai wanting character should get
 #[derive(

@@ -1,5 +1,9 @@
 use bevy::{
-    asset::Handle, ecs::system::Resource, prelude::{Reflect, TextureAtlasLayout}, render::texture::Image, text::Font,
+    asset::Handle,
+    ecs::system::Resource,
+    prelude::{Reflect, TextureAtlasLayout},
+    render::texture::Image,
+    text::Font,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;

@@ -1,6 +1,3 @@
-use bevy::ecs::reflect::ReflectResource;
-use bevy::prelude::{Reflect, Resource};
-
 #[cfg(feature = "develop")]
 #[cfg(not(any(target_os = "android", target_family = "wasm")))]
 /// dump game directory function.
@@ -28,7 +25,10 @@ pub mod debug_plugin {
     use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
     use bevy_prototype_lyon as svg;
     use bevy_rapier2d::render::RapierDebugRenderPlugin;
-    use big_brain::{choices::Choice, prelude::{ActionSpan, Actor, HasThinker, Score, Scorer, Thinker}};
+    use big_brain::{
+        choices::Choice,
+        prelude::{Actor, HasThinker, Score, Scorer, Thinker},
+    };
 
     #[cfg(feature = "develop")]
     #[cfg(not(any(target_os = "android", target_family = "wasm")))]
@@ -83,11 +83,11 @@ pub mod debug_plugin {
             // add inspector plugins
             app.add_plugins((
                 StateInspectorPlugin::<AppState>::default().run_if(input_toggle_active(
-                    if cfg!(debug_assertions) { true } else { false },
+                    cfg!(debug_assertions),
                     KeyCode::F3,
                 )),
                 StateInspectorPlugin::<GeneratorState>::default().run_if(input_toggle_active(
-                    if cfg!(debug_assertions) { true } else { false },
+                    cfg!(debug_assertions),
                     KeyCode::F3,
                 )),
                 WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
@@ -122,6 +122,7 @@ pub mod debug_plugin {
         }
     }
 
+    /// custom world inspector filtering bigbrain ai from world inspector
     fn world_inspector_ui(world: &mut World) {
         let egui_context = world
             .query_filtered::<&mut bevy_egui::EguiContext, With<bevy::window::PrimaryWindow>>()

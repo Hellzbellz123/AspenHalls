@@ -1,4 +1,6 @@
+/// functions for hydrating ldtk instances into entities
 mod decode_instance;
+/// systems too control hydrated instances
 mod systems;
 
 use bevy::prelude::{Bundle, Name};

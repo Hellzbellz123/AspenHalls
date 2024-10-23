@@ -20,6 +20,7 @@ pub struct HeroLocation {
 }
 
 // TODO: better spawning systems/id system
+/// group of enemies spawner should create in world
 #[derive(Debug, Component, Default, Reflect, Clone)]
 #[reflect(Component)]
 pub struct SpawnerWave {

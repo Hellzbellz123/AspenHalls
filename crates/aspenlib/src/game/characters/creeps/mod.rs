@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 use crate::loading::registry::RegistryIdentifier;
 
+/// general creep spawning plugin
 pub struct CreepPlugin;
 
 impl Plugin for CreepPlugin {
@@ -13,10 +14,14 @@ impl Plugin for CreepPlugin {
     }
 }
 
+/// request too create creep entity in world
 #[derive(Debug, Event)]
 pub struct EventSpawnCreep {
+    /// registery id of requested creep
     pub actor_id: RegistryIdentifier,
+    /// what entity requested this creep
     pub spawner: Entity,
+    /// position in world too place this creep
     pub position: Vec2,
 }
 
@@ -29,9 +34,11 @@ pub mod utils {
         bundles::ActorColliderBundle,
         consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
         game::{
-            characters::creeps::EventSpawnCreep, components::ActorColliderType, game_world::components::CharacterSpawner,
+            characters::creeps::EventSpawnCreep, components::ActorColliderType,
+            game_world::components::CharacterSpawner,
         },
-        loading::{custom_assets::actor_definitions::CharacterDefinition, registry::ActorRegistry}, utilities::EntityCreator,
+        loading::{custom_assets::actor_definitions::CharacterDefinition, registry::ActorRegistry},
+        utilities::EntityCreator,
     };
 
     /// spawns creep character in world

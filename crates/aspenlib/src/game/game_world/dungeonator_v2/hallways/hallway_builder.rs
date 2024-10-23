@@ -67,7 +67,7 @@ pub fn build_hallways(
 
         handle_intersections(
             &path_with_direction,
-            &settings.size,
+            settings.size,
             tile_graph,
             &mut cmds,
             hallway_container,
@@ -125,14 +125,12 @@ pub fn tile_is_corner(
         // Check if next2 is None and next1 is Some
         if let (Some((_, prev_pos, _)), None) = (previous, next1) {
             // Check if previous, current, and next1 are inline
-            if are_inline(prev_pos, c_coords) {
+            if are_inline(*prev_pos,* c_coords) {
                 return Some(false);
-            } else {
-                return Some(true);
             }
-        } else {
-            return None;
+            return Some(true);
         }
+        return None;
     }
 
     // Check if previous is None (probably first tile)
@@ -142,18 +140,16 @@ pub fn tile_is_corner(
             "not actually first tile, but couldnt get previous tile"
         );
         if let (Some((_, _, _)), Some((_, next2, _))) = (next1, next2) {
-            if are_inline(c_coords, next2) {
+            if are_inline(*c_coords, *next2) {
                 return Some(false);
-            } else {
-                return Some(true);
             }
-        } else {
-            return None;
+            return Some(true);
         }
+        return None;
     }
 
     if let (Some((_, _, _)), Some((_, next2, _))) = (next1, next2) {
-        if are_inline(c_coords, next2) {
+        if are_inline(*c_coords,* next2) {
             Some(false)
         } else {
             Some(true)
@@ -162,18 +158,19 @@ pub fn tile_is_corner(
         // Check if next2 is None and next1 is Some
         if let (Some((_, prev_coords, _)), Some((_, next1_coords, _))) = (previous, next1) {
             // Check if previous, current, and next1 are inline
-            if are_inline(prev_coords, next1_coords) {
-                Some(false)
-            } else {
-                Some(true)
+            if are_inline(*prev_coords,* next1_coords) {
+                return Some(false)
             }
-        } else {
-            None
+            return Some(true)
         }
+        None
     }
 }
 
-pub fn are_inline(prev: &TilePos, next: &TilePos) -> bool {
+/// checks if tilepositions share a SINGLE common x/y value
+/// or in other words
+/// form a horizontal or vertical plane
+pub fn are_inline(prev: TilePos, next: TilePos) -> bool {
     let pn_diff_y = next
         .y
         .saturating_sub(prev.y)
@@ -191,6 +188,8 @@ pub fn are_inline(prev: &TilePos, next: &TilePos) -> bool {
     }
 }
 
+#[allow(unused)]
+/// hallway  texture id
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TexID {
     ArrowNorth = 0,
@@ -228,7 +227,7 @@ pub enum TexID {
 /// iterates over each node in the hallway and checks if it intersects
 fn handle_intersections(
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
-    size: &TilemapSize,
+    size: TilemapSize,
     tile_graph: &mut TileGraph,
     cmds: &mut Commands<'_, '_>,
     hallway_container: Entity,
@@ -237,38 +236,38 @@ fn handle_intersections(
     for (_, coord_c, _) in path_with_direction {
         cmds.entity(hallway_container).with_children(|parent| {
             let up = coord_c
-                .square_offset(&SquareDirection::North, size)
+                .square_offset(&SquareDirection::North, &size)
                 .expect("msg");
             let down = coord_c
-                .square_offset(&SquareDirection::South, size)
+                .square_offset(&SquareDirection::South, &size)
                 .expect("msg");
             let left = coord_c
-                .square_offset(&SquareDirection::West, size)
+                .square_offset(&SquareDirection::West, &size)
                 .expect("msg");
             let right = coord_c
-                .square_offset(&SquareDirection::East, size)
+                .square_offset(&SquareDirection::East, &size)
                 .expect("msg");
             let up_left = (
                 coord_c
-                    .square_offset(&SquareDirection::NorthWest, size)
+                    .square_offset(&SquareDirection::NorthWest, &size)
                     .expect("msg"),
                 SquareDirection::NorthWest,
             );
             let up_right = (
                 coord_c
-                    .square_offset(&SquareDirection::NorthEast, size)
+                    .square_offset(&SquareDirection::NorthEast, &size)
                     .expect("msg"),
                 SquareDirection::NorthEast,
             );
             let down_left = (
                 coord_c
-                    .square_offset(&SquareDirection::SouthWest, size)
+                    .square_offset(&SquareDirection::SouthWest, &size)
                     .expect("msg"),
                 SquareDirection::SouthWest,
             );
             let down_right = (
                 coord_c
-                    .square_offset(&SquareDirection::SouthEast, size)
+                    .square_offset(&SquareDirection::SouthEast, &size)
                     .expect("msg"),
                 SquareDirection::SouthEast,
             );
@@ -292,7 +291,7 @@ fn handle_intersections(
                         path_with_direction,
                         tile_graph,
                         coord,
-                        &tex_id,
+                        tex_id,
                         parent,
                         hallway_container,
                         hallway_storage,
@@ -310,6 +309,7 @@ fn handle_intersections(
 // create list of edges for all hallways,
 // ignore edges that are shared between nodes
 // edges are 32px long by 4-8px wide
+/// creates walls around walkable hallway tiles
 pub fn create_hallway_walls(
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
     tile_graph: &mut TileGraph,
@@ -324,9 +324,9 @@ pub fn create_hallway_walls(
             spawn_corner_section(
                 tile_graph,
                 path_with_direction,
-                c_idx,
+                *c_idx,
                 c_dir,
-                c_coord,
+                *c_coord,
                 parent,
                 hallway_container,
                 hallway_storage,
@@ -335,7 +335,7 @@ pub fn create_hallway_walls(
                 tile_graph,
                 path_with_direction,
                 c_dir,
-                c_coord,
+                *c_coord,
                 hallway_storage,
                 parent,
                 hallway_container,
@@ -344,6 +344,7 @@ pub fn create_hallway_walls(
     }
 }
 
+/// places tiles in world for a given hallway path
 fn create_floor_for_path(
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
     // tile_graph: &mut TileGraph,
@@ -368,14 +369,16 @@ fn create_floor_for_path(
     }
 }
 
+/// marker component for walkable hallway tiles
 #[derive(Component)]
 pub struct HallwayFloor;
 
+/// spawns tile on position, aborting if position is already occupied
 pub fn spawn_tile(
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
     tile_graph: &mut TileGraph,
     coord: TilePos,
-    tex_id: &TexID,
+    tex_id: TexID,
     parent: &mut ChildBuilder<'_>,
     hallway_container: Entity,
     hallway_storage: &mut TileStorage,
@@ -422,7 +425,7 @@ pub fn spawn_tile(
                 TileBundle {
                     position: coord,
                     tilemap_id: TilemapId(hallway_container),
-                    texture_index: TileTextureIndex(*tex_id as u32),
+                    texture_index: TileTextureIndex(tex_id as u32),
                     ..Default::default()
                 },
             ))
@@ -431,6 +434,7 @@ pub fn spawn_tile(
     }
 }
 
+/// spawns tile on positon without checking if position is occupied
 pub fn spawn_tile_unchecked(
     coord: TilePos,
     tex_id: TexID,
@@ -445,7 +449,7 @@ pub fn spawn_tile_unchecked(
     let tile_entity = parent
         .spawn((
             SpatialBundle::from_transform(local_transfrorm),
-            populate_enum_tags(&tex_id),
+            populate_enum_tags(tex_id),
             TileBundle {
                 position: coord,
                 tilemap_id: TilemapId(hallway_container),
@@ -457,7 +461,8 @@ pub fn spawn_tile_unchecked(
     hallway_storage.set(&coord, tile_entity);
 }
 
-fn populate_enum_tags(tex_id: &TexID) -> TileEnumTags {
+/// adds tile enum tags for given `TexID`
+fn populate_enum_tags(tex_id: TexID) -> TileEnumTags {
     let mut tile_enum = TileEnumTags {
         tags: Vec::new(),
         source_enum_uid: None,
@@ -477,21 +482,22 @@ fn populate_enum_tags(tex_id: &TexID) -> TileEnumTags {
         TexID::WallSouth => tile_enum.tags.push("CollideDown".into()),
         TexID::WDoubleVert => tile_enum.tags.push("DoubleWallVertical".into()),
         TexID::WDoubleHori => tile_enum.tags.push("DoubleWallHorizontal".into()),
-        TexID::UWest => (),
-        TexID::UEast => (),
-        TexID::USouth => (),
-        TexID::UNorth => (),
-        TexID::FloorBase => (),
-        TexID::FloorPoint => (),
-        TexID::FloorBad => (),
-        TexID::ArrowNorth => (),
-        TexID::ArrowSouth => (),
-        TexID::ArrowWest => (),
+        TexID::UWest |
+        TexID::UEast |
+        TexID::USouth |
+        TexID::UNorth |
+        TexID::FloorBase |
+        TexID::FloorPoint |
+        TexID::FloorBad |
+        TexID::ArrowNorth |
+        TexID::ArrowSouth |
+        TexID::ArrowWest |
         TexID::ArrowEast => (),
     }
     tile_enum
 }
 
+/// transforms list of nodes into a directed path with '`TilePos`'
 pub fn path_with_direction(
     tile_graph: &TileGraph,
     input_path: &VecDeque<NodeIndex>,
@@ -573,6 +579,7 @@ pub fn path_with_direction(
     input_path
 }
 
+/// hallway start and end nodes
 #[derive(Debug)]
 pub struct HallwayPoints {
     /// hallway origin
