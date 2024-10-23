@@ -1,12 +1,12 @@
 // this pack holds important data needed for binary too run.
 // it MUST be defined before startup, but can be modified without error
 ({
-    // style sheets for ui
-    "global_style": File (
-        path: "init/styles/global.ess",
+    // mainly app icon, but used in other places too
+    "favicon": File (
+        path: "init/favicon.png",
     ),
-    "menu_style": File (
-        path: "init/styles/menu.ess",
+    "splash_img": File (
+        path: "init/splash.png",
     ),
     "cursor_sheet" : File (
         path: "init/default_cursor.png",
@@ -17,13 +17,6 @@
         columns: 3,
         rows: 1,
     ),
-    // mainly app icon, but used in other places too
-    "favicon": File (
-        path: "init/favicon.png",
-    ),
-    "splash_img": File (
-        path: "init/splash.png",
-    ),
     "title_font": File (
         path: "init/fonts/FantasqueSans-MonoNF.ttf",
     ),
@@ -32,15 +25,6 @@
     ),
     "bold_font": File (
         path: "init/fonts/FiraSans-Bold.ttf",
-    ),
-    "panel_brown": File (
-        path: "init/textures_menu/panel_brown.png",
-    ),
-    "button_unpressed": File (
-        path: "init/textures_menu/buttonSquare_blue.png",
-    ),
-    "button_pressed": File (
-        path: "init/textures_menu/buttonSquare_blue_pressed.png",
     ),
     "move_knob": File (
         path: "init/textures_touch/move_knob.png",

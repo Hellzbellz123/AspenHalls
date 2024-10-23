@@ -57,15 +57,15 @@ fn create_hero_portrait(hud_parts: &mut ChildBuilder) {
             picture.spawn((
                 Name::new("PlayerPortrait"),
                 UiPlayerPortrait,
-                AtlasImageBundle {
+                TextureAtlas {
+                    layout: Handle::default(),
+                    index: 0,
+                },
+                ImageBundle {
                     style: Style {
                         width: Val::Percent(200.0),
                         height: Val::Percent(200.0),
                         ..default()
-                    },
-                    texture_atlas: TextureAtlas {
-                        layout: Handle::default(),
-                        index: 0,
                     },
                     ..default()
                 },

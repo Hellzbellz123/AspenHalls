@@ -35,16 +35,6 @@ pub struct AspenInitHandles {
     /// bold font for EMPHASIS
     #[asset(key = "bold_font")]
     pub font_bold: Handle<Font>,
-
-    /// ui containing image
-    #[asset(key = "panel_brown")]
-    pub img_panel_brown: Handle<Image>,
-    /// blue button texture
-    #[asset(key = "button_unpressed")]
-    pub img_button_blue: Handle<Image>,
-    /// blue button darkened for pressing
-    #[asset(key = "button_pressed")]
-    pub img_button_blue_pressed: Handle<Image>,
 }
 /// asset handles for touch controls UI
 #[allow(clippy::struct_field_names)]

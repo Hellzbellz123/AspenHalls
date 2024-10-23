@@ -216,12 +216,6 @@ pub fn layout_dungeon(
     info!("verifying graph connectivity");
     room_graph.verify_graph_connections();
 
-    #[cfg(debug_assertions)]
-    {
-        info!("room graph finished, dumping too file");
-        room_graph.dump_too_file();
-    }
-
     info!("spawning rooms");
     room_graph.node_weights().for_each(|weight| {
         if let room_graph::RoomGraphNode::Room(bp) = weight {

@@ -146,7 +146,8 @@ fn create_gun_slot(gun_slot_parts: &mut ChildBuilder, slot: WeaponSlot, size: f3
             offset: Val::Px(5.0),
             color: super::colors::ACCENT,
         },
-        AtlasImageBundle {
+        TextureAtlas::default(),
+        ImageBundle {
             style: Style {
                 width: Val::Px(size),
                 height: Val::Px(size),

@@ -85,9 +85,9 @@ pub fn build_hallways(
     }
 
     if hallways.iter().all(|(_, hallway, _)| hallway.built) {
-        info!("creating tile_graph debug files");
-        output_graph_image(tile_graph, settings.size);
-        output_graph_dot(tile_graph);
+        // info!("creating tile_graph debug files");
+        // output_graph_image(tile_graph, settings.size);
+        // output_graph_dot(tile_graph);
 
         info!("all hallways finished");
         cmds.insert_resource(NextState::Pending(GeneratorState::FinishedDungeonGen));
