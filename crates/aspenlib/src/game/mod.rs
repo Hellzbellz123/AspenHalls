@@ -6,7 +6,7 @@ use crate::{
         custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition},
         registry::RegistryIdentifier,
     },
-    utilities::scale_to_fit,
+    utilities::{scale_to_fit, EntityCreator},
     AppState,
 };
 

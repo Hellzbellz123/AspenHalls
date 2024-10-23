@@ -10,9 +10,9 @@ use crate::{
         components::{ActorColliderType, TimeToLive},
         items::weapons::components::{
             AttackDamage, CurrentAmmo, CurrentlyDrawnWeapon, GunCfg, WeaponHolder, WeaponTimers,
-        }, combat::BulletOwnerFilter,
+        },
     },
-    loading::assets::AspenInitHandles,
+    loading::assets::AspenInitHandles, utilities::EntityCreator,
 };
 
 /// holds gun item functionality
@@ -190,7 +190,7 @@ pub fn create_bullet(
     ))
     .with_children(|child| {
         child.spawn((
-            BulletOwnerFilter(entity),
+            EntityCreator(entity),
             ActorColliderBundle {
                 name: Name::new("GunProjectileCollider"),
                 transform_bundle: TransformBundle {

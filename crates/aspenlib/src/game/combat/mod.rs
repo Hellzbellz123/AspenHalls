@@ -15,7 +15,7 @@ use crate::{
             EventAttackWeapon,
         },
     },
-    AppState,
+    utilities::EntityCreator, AppState
 };
 
 /// handles attacks from characters without weapons
@@ -197,16 +197,13 @@ pub struct PlayerSaveInformation {
     pub items_got: i32,
 }
 
-#[derive(Component, PartialEq, Eq, Clone, Copy)]
-pub struct BulletOwnerFilter(pub Entity);
-
 // A custom filter that allows contacts/intersections only between rigid-bodies
 // with the same CustomFilterTag component value.
 // Note that using collision groups would be a more efficient way of doing
 // this, but we use custom filters instead for demonstration purpose.
 #[derive(SystemParam)]
 pub struct SameUserDataFilter<'w, 's> {
-    tags: Query<'w, 's, &'static BulletOwnerFilter>,
+    tags: Query<'w, 's, &'static EntityCreator>,
 }
 
 impl BevyPhysicsHooks for SameUserDataFilter<'_, '_> {

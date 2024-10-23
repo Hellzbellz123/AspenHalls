@@ -10,13 +10,14 @@ use crate::{
     consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX},
     game::{
         characters::components::WeaponSlot, components::ActorColliderType,
-        interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier, combat::BulletOwnerFilter,
+        interface::start_menu::StartMenuTag, items::weapons::components::WeaponCarrier,
     },
     loading::{
         custom_assets::actor_definitions::CharacterDefinition, registry::RegistryIdentifier,
         splashscreen::MainCamera,
     },
     AppState, GeneralSettings,
+    utilities::EntityCreator,
 };
 
 use bevy_rapier2d::prelude::CollisionGroups;
@@ -127,7 +128,7 @@ pub fn build_player_from_selected_hero(
         },))
         .with_children(|child| {
             child.spawn((
-                BulletOwnerFilter(selected_hero),
+                EntityCreator(selected_hero),
                 ActorColliderBundle {
                 tag: ActorColliderType::Character,
                 name: Name::new("PlayerCollider"),

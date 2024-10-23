@@ -30,9 +30,9 @@ pub mod utils {
         consts::{actor_collider, AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
         game::{
             characters::creeps::EventSpawnCreep, components::ActorColliderType,
-            game_world::components::CharacterSpawner, combat::BulletOwnerFilter,
+            game_world::components::CharacterSpawner,
         },
-        loading::{custom_assets::actor_definitions::CharacterDefinition, registry::ActorRegistry},
+        loading::{custom_assets::actor_definitions::CharacterDefinition, registry::ActorRegistry}, utilities::EntityCreator,
     };
 
     /// spawns creep character in world
@@ -89,7 +89,8 @@ pub mod utils {
                 })
                 .id();
 
-            cmds.entity(spawned_enemy).insert(BulletOwnerFilter(spawned_enemy));
+            cmds.entity(spawned_enemy)
+                .insert(EntityCreator(spawned_enemy));
 
             if let Ok(mut spawner_state) = spawners.get_mut(spawn_event.spawner) {
                 spawner_state.spawned_characters.push(spawned_enemy);

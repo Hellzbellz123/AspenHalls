@@ -11,6 +11,11 @@ use crate::{
     loading::assets::AspenInitHandles,
 };
 
+/// hold reference too entity that spawned entity with this component
+#[derive(Debug, Component, Deref, DerefMut, Reflect)]
+#[reflect(Component)]
+pub struct EntityCreator(pub Entity);
+
 /// takes array of types and runs `app.register_type::<T>()` on each
 #[allow(unused_macros)]
 #[macro_export]

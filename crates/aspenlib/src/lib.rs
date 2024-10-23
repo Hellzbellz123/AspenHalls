@@ -22,7 +22,7 @@ mod loading;
 /// misc util functions that cant find a place
 mod utilities;
 
-use crate::{game::{DungeonFloor, combat::{BulletOwnerFilter, SameUserDataFilter}}, loading::assets::AspenInitHandles};
+use crate::{game::{combat::{SameUserDataFilter},DungeonFloor,},loading::assets::AspenInitHandles,};
 use bevy::prelude::*;
 
 pub use loading::config::*;
