@@ -1,12 +1,13 @@
 use std::collections::VecDeque;
 
-use bevy::{prelude::*, utils::petgraph::prelude::NodeIndex};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::LdtkProject;
 use bevy_ecs_tilemap::{
     map::{TilemapTexture, TilemapTileSize, TilemapType},
     tiles::TileStorage,
     TilemapBundle,
 };
+use petgraph::prelude::NodeIndex;
 
 use crate::{
     consts::TILE_SIZE,

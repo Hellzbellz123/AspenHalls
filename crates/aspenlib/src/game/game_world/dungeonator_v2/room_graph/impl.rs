@@ -1,5 +1,5 @@
-use bevy::utils::petgraph::{self, prelude::*};
 use bevy::{prelude::*, utils::HashSet};
+use petgraph::{prelude::NodeIndex, Graph};
 use rand::seq::IteratorRandom;
 
 use crate::game::game_world::dungeonator_v2::{

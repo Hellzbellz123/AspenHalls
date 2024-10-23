@@ -1,10 +1,7 @@
 use bevy::{prelude::*, render::primitives::Aabb};
 
 use crate::{
-    game::{
-        characters::{player::PlayerSelectedHero},
-        input::AspenCursorPosition,
-    },
+    game::{characters::player::PlayerSelectedHero, input::AspenCursorPosition},
     loading::{assets::AspenInitHandles, registry::RegistryIdentifier},
     AppState,
 };
@@ -96,10 +93,9 @@ fn spawn_software_cursor(mut cmds: Commands, tex: Res<AspenInitHandles>) {
             show_alpha: 0.8,
         },
         TextureAtlas::from(tex.cursor_layout.clone()),
-        BorderColor(Color::RED),
         ImageBundle {
+            background_color: BackgroundColor(crate::colors::WHITE.with_alpha(0.0).into()),
             style: Style {
-                border: UiRect::all(Val::Px(2.0)),
                 width: Val::Vw(3.0),
                 aspect_ratio: Some(1.0),
                 position_type: PositionType::Absolute,
@@ -125,12 +121,7 @@ fn update_software_cursor_image(
         (Without<PlayerSelectedHero>, With<RegistryIdentifier>),
     >,
     mut software_cursor: Query<
-        (
-            &mut SoftWareCursor,
-            &mut BackgroundColor,
-            &mut TextureAtlas,
-            &Node,
-        ),
+        (&mut SoftWareCursor, &mut UiImage, &mut TextureAtlas, &Node),
         With<Node>,
     >,
     game_state: Res<State<AppState>>,
@@ -151,17 +142,9 @@ fn update_software_cursor_image(
         });
 
     if distance.le(&cursor_data.hide_distance) && game_state.get() == &AppState::PlayingGame {
-        *cursor_color = BackgroundColor(
-            cursor_color
-                .0
-                .with_a(cursor_data.hide_alpha.clamp(0.0, 1.0)),
-        );
+        cursor_color.color = cursor_color.color.with_alpha(cursor_data.hide_alpha);
     } else {
-        *cursor_color = BackgroundColor(
-            cursor_color
-                .0
-                .with_a(cursor_data.show_alpha.clamp(0.0, 1.0)),
-        );
+        cursor_color.color = cursor_color.color.with_alpha(cursor_data.show_alpha);
     };
 
     if game_state.get() == &AppState::PlayingGame {

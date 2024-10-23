@@ -125,16 +125,16 @@ fn listen_rebuild_dungeon_request(
     if let Some(regen_event) = regen_events.read().next() {
         if regen_event.reason == RegenReason::FirstGeneration {
             warn!("laying out first dungeon");
-            cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
+            cmds.insert_resource(NextState::Pending(GeneratorState::LayoutDungeon));
             return;
         }
-    
+
         info!("despawning old actors");
         actors.iter().for_each(|f| {
             cmds.entity(f).despawn_recursive();
         });
-    
-        cmds.insert_resource(NextState(Some(GeneratorState::LayoutDungeon)));
+
+        cmds.insert_resource(NextState::Pending(GeneratorState::LayoutDungeon));
     }
     regen_events.clear();
 }
@@ -348,7 +348,7 @@ fn handle_and_removed_misc_tag(
 /// returns a point inside the rect with -`inset`. `inset` is multiplied by `TILE_SIZE`
 fn random_point_inside(rect: &Rect, inset: f32) -> Option<Vec2> {
     let mut rng = ThreadRng::default();
-    let useable_space = rect.inset(-(TILE_SIZE * inset));
+    let useable_space = rect.inflate(-(TILE_SIZE * inset));
     let Rect {
         min: usable_min,
         max: usable_max,

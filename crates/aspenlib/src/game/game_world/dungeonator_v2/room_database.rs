@@ -21,13 +21,8 @@ pub fn build_room_presets(
     ldtk_projects: Res<Assets<LdtkProject>>,
     ldtk_levels: Res<Assets<LdtkExternalLevel>>,
 ) {
-    #[cfg(feature = "bevy/file_watcher")]
-    if ldtk_projects.is_changed() || ldtk_levels.is_changed() {
-        info!("dungeon assets changed");
-    }
-
     let dungeon_project = ldtk_projects
-        .get(map_projects.default_levels.clone())
+        .get(map_projects.default_levels.id())
         .expect("project not found")
         .as_parent();
 

@@ -107,7 +107,7 @@ fn update_actor_size(
             continue;
         }
 
-        let Some(atlas) = texture_atlasses.get(texture_atlas.layout.clone()) else {
+        let Some(atlas) = texture_atlasses.get(texture_atlas.layout.id()) else {
             error!("texture atlas layout for this spritesheet is missing");
             continue;
         };
@@ -131,7 +131,7 @@ fn update_actor_size(
             }
         };
 
-        let new_custom_size = scale_to_fit(original_size, final_size);
+        let new_custom_size = scale_to_fit(original_size.as_vec2(), final_size);
         sprite.custom_size = Some(new_custom_size);
     }
 }

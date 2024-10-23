@@ -10,7 +10,7 @@ pub struct TimeToLive(pub Timer);
 #[derive(Debug, Reflect, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
 pub enum ActorType {
     /// actor is an npc
-    /// - NpcType decides freinds/enemies
+    /// - `NpcType` decides freinds/enemies
     Character(CharacterType),
     /// actor is an item, can be equipped
     Item(ItemType),

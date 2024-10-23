@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::EntityIid;
 
-
 use crate::{
     consts::CHARACTER_SPAWNERS_DISABLED,
     game::{

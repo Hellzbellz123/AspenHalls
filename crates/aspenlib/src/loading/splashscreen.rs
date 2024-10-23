@@ -91,18 +91,6 @@ fn spawn_main_camera(mut commands: Commands) {
             transform: Transform::from_xyz(200.0, 100.0, 999.0),
             ..default()
         },
-        FogSettings {
-            color: Color::RED,
-            // directional_light_color: todo!(),
-            // directional_light_exponent: todo!(),
-            falloff: FogFalloff::from_visibility_contrast_colors(
-                100.0,
-                1.0,
-                Color::RED,
-                Color::GRAY,
-            ),
-            ..default()
-        },
         // UiCameraConfig { show_ui: true },
     ));
     info!("Main Camera Spawned");

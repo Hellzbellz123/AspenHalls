@@ -64,36 +64,42 @@ bevy_ecs_tilemap = { path = "deps/bevy_ecs_tilemap" }
 bevy_egui = { path = "deps/bevy_egui" }
 bevy_common_assets = { path = "deps/bevy_common_assets" }
 bevy_ecs_ldtk_macros = { path = "deps/bevy_ecs_ldtk/macros" }
-bevy_dylib = { path = "deps/bevy/crates/bevy_dylib" }
 
 # Replace bevy core crates with local copy for ALL crates that use them ###
 bevy = { workspace = true, path = "deps/bevy" }
+bevy_animation = { path = "deps/bevy/crates/bevy_animation" }
 bevy_a11y = { path = "deps/bevy/crates/bevy_a11y" }
 bevy_app = { path = "deps/bevy/crates/bevy_app" }
 bevy_asset = { path = "deps/bevy/crates/bevy_asset" }
+bevy_audio = { path = "deps/bevy/crates/bevy_audio" }
+bevy_color = {path = "deps/bevy/crates/bevy_color"}
 bevy_core = { path = "deps/bevy/crates/bevy_core" }
 bevy_core_pipeline = { path = "deps/bevy/crates/bevy_core_pipeline" }
 bevy_derive = { path = "deps/bevy/crates/bevy_derive" }
 bevy_diagnostic = { path = "deps/bevy/crates/bevy_diagnostic" }
+bevy_dev_tools = {path = "deps/bevy/crates/bevy_dev_tools"}
+bevy_dynamic_plugin ={ path = "deps/bevy/crates/bevy_dynamic_plugin"}
+bevy_dylib = { path = "deps/bevy/crates/bevy_dylib" }
 bevy_ecs = { path = "deps/bevy/crates/bevy_ecs" }
-bevy_encase_derive = { path = "deps/bevy/crates/bevy_encase_derive" }
-bevy_reflect = { path = "deps/bevy/crates/bevy_reflect" }
-bevy_reflect_derive = { path = "deps/bevy/crates/bevy_reflect/bevy_reflect_derive" }
 bevy_gilrs = { path = "deps/bevy/crates/bevy_gilrs" }
+bevy_encase_derive = { path = "deps/bevy/crates/bevy_encase_derive" }
 bevy_gizmos = { path = "deps/bevy/crates/bevy_gizmos" }
-bevy_hierarchy = { path = "deps/bevy/crates/bevy_hierarchy" }
+bevy_gltf = { path = "deps/bevy/crates/bevy_gltf" }
 bevy_input = { path = "deps/bevy/crates/bevy_input" }
-bevy_internal = { path = "deps/bevy/crates/bevy_internal" }
-bevy_log = { path = "deps/bevy/crates/bevy_log" }
+bevy_hierarchy = { path = "deps/bevy/crates/bevy_hierarchy" }
 bevy_macro_utils = { path = "deps/bevy/crates/bevy_macro_utils" }
+bevy_log = { path = "deps/bevy/crates/bevy_log" }
+bevy_internal = { path = "deps/bevy/crates/bevy_internal" }
 bevy_math = { path = "deps/bevy/crates/bevy_math" }
 bevy_mikktspace = { path = "deps/bevy/crates/bevy_mikktspace" }
 bevy_pbr = { path = "deps/bevy/crates/bevy_pbr" }
 bevy_ptr = { path = "deps/bevy/crates/bevy_ptr" }
+bevy_reflect = { path = "deps/bevy/crates/bevy_reflect" }
 bevy_render = { path = "deps/bevy/crates/bevy_render" }
 bevy_scene = { path = "deps/bevy/crates/bevy_scene" }
 bevy_sprite = { path = "deps/bevy/crates/bevy_sprite" }
 bevy_tasks = { path = "deps/bevy/crates/bevy_tasks" }
+bevy_state = {path = "deps/bevy/crates/bevy_state"}
 bevy_text = { path = "deps/bevy/crates/bevy_text" }
 bevy_time = { path = "deps/bevy/crates/bevy_time" }
 bevy_transform = { path = "deps/bevy/crates/bevy_transform" }
@@ -101,11 +107,6 @@ bevy_ui = { path = "deps/bevy/crates/bevy_ui" }
 bevy_utils = { path = "deps/bevy/crates/bevy_utils" }
 bevy_window = { path = "deps/bevy/crates/bevy_window" }
 bevy_winit = { path = "deps/bevy/crates/bevy_winit" }
-bevy_animation = { path = "deps/bevy/crates/bevy_animation" }
-bevy_audio = { path = "deps/bevy/crates/bevy_audio" }
-bevy_gltf = { path = "deps/bevy/crates/bevy_gltf" }
-# bevy_dynamic_plugin = { path = "deps/bevy/crates/bevy_dynamic_plugin" }
-
 
 # TODO: move the virtual touchpad into a reuseable bevy plugin
 # so other people can just throw it in and use it

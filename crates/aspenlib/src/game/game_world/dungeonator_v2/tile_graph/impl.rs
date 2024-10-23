@@ -1,14 +1,10 @@
-use bevy::{
-    prelude::*,
-    utils::petgraph::{
-        self, prelude::Undirected, stable_graph::NodeIndex, visit::IntoNodeReferences, Graph,
-    },
-};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::GridCoords;
 use bevy_ecs_tilemap::prelude::TilemapSize;
 use bevy_rapier2d::geometry::Collider;
 
 use image::{ImageBuffer, Rgba};
+use petgraph::{prelude::NodeIndex, visit::IntoNodeReferences, Graph, Undirected};
 use std::fs;
 
 use crate::{
@@ -440,7 +436,7 @@ impl std::ops::Add for TileGraphEdge {
     }
 }
 
-impl<'a> std::ops::Add for &'a TileGraphEdge {
+impl std::ops::Add for &TileGraphEdge {
     type Output = TileGraphEdge;
 
     fn add(self, rhs: Self) -> Self::Output {

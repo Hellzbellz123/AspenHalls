@@ -33,9 +33,7 @@ pub fn update_player_velocity(
         }
     };
 
-    let Some(delta) = actions.clamped_axis_pair(&action_maps::Gameplay::Move) else {
-        return;
-    };
+    let delta = actions.clamped_axis_pair(&action_maps::Gameplay::Move);
 
     let speed = if actions.pressed(&action_maps::Gameplay::Sprint)
         && move_state.move_perms == AllowedMovement::Run

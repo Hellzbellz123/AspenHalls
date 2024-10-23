@@ -59,11 +59,11 @@ fn spawn_interface_root(mut cmds: Commands) {
 }
 
 /// unpressed unhovered color
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
 /// cursor goes over or finger drags over color
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
 /// cursor click or finger lift color
-const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
 
 /// updates color of all buttons with text for interactions
 #[allow(clippy::type_complexity)]
@@ -77,15 +77,15 @@ fn update_button_color(
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
-                border_color.0 = Color::RED;
+                border_color.0 = crate::colors::RED.into();
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
-                border_color.0 = Color::WHITE;
+                border_color.0 = crate::colors::WHITE.into();
             }
             Interaction::None => {
                 *color = NORMAL_BUTTON.into();
-                border_color.0 = Color::BLACK;
+                border_color.0 = crate::colors::BLACK.into();
             }
         }
     }
@@ -94,10 +94,10 @@ fn update_button_color(
 /// generated random Rgba color with alpha between 0.8-1.0
 pub fn random_color(alpha: Option<f32>) -> Color {
     let mut rng = rand::thread_rng();
-    Color::Rgba {
+    Color::Srgba(Srgba {
         red: rng.gen(),
         green: rng.gen(),
         blue: rng.gen(),
         alpha: { alpha.map_or_else(|| rng.gen_range(0.8..=1.0), |alpha| alpha) },
-    }
+    })
 }

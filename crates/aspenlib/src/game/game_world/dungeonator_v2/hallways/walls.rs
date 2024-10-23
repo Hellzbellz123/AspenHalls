@@ -104,7 +104,8 @@ pub fn spawn_corner_section(
     // // if next corner is start of another corner
     if tile_is_corner(tile_graph, path_with_direction, c_idx).is_some_and(|f| f) {
         let next_tile_direction = &path_with_direction
-            .get(c_idx + 1).map_or_else(|| c_dir.clone(), |f| f.2.clone());
+            .get(c_idx + 1)
+            .map_or_else(|| c_dir.clone(), |f| f.2.clone());
 
         match (c_dir, next_tile_direction) {
             (CardinalDirection::South, CardinalDirection::East) => {

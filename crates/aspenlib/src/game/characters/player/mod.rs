@@ -98,7 +98,7 @@ fn select_wanted_hero(
             .remove::<On<Pointer<Down>>>()
             .remove::<PickableBundle>();
 
-        cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
+        cmds.insert_resource(NextState::Pending(AppState::PlayingGame));
     }
 }
 

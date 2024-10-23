@@ -414,12 +414,7 @@ fn spawn_controlsbutton<S: Component>(
                 style: Style {
                     display: Display::Flex,
                     position_type: PositionType::Absolute,
-                    margin: UiRect {
-                        left: position.left,
-                        right: position.right,
-                        top: position.top,
-                        bottom: position.bottom,
-                    },
+                    margin: position,
                     // padding: UiRect::all(Val::Auto),
                     border: UiRect::all(Val::Px(2.0)),
                     align_items: AlignItems::Center,
@@ -432,8 +427,8 @@ fn spawn_controlsbutton<S: Component>(
                     height: size.1,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::SEA_GREEN),
-                border_color: BorderColor(Color::RED),
+                background_color: BackgroundColor(crate::colors::SEA_GREEN.into()),
+                border_color: BorderColor(crate::colors::RED.into()),
                 z_index: ZIndex::Local(1),
                 // TODO: change from button with text too fancier image
                 image,
@@ -464,7 +459,16 @@ fn spawn_controlsbutton<S: Component>(
 /// touch stick is fixed position
 #[allow(clippy::too_many_arguments)]
 fn spawn_touchstick<
-    S: Hash + Sync + Send + Clone + Default + Reflect + FromReflect + TypePath + 'static,
+    S: Hash
+        + Sync
+        + Send
+        + Clone
+        + Default
+        + Reflect
+        + FromReflect
+        + TypePath
+        + bevy::reflect::GetTypeRegistration
+        + 'static,
 >(
     touch_controls_builder: &mut ChildBuilder,
     images: (&Handle<Image>, &Handle<Image>),
@@ -491,12 +495,7 @@ fn spawn_touchstick<
                     height: size.1,
                     border: UiRect::all(Val::Px(2.0)),
                     position_type: PositionType::Relative,
-                    margin: UiRect {
-                        left: position.left,
-                        right: position.right,
-                        top: position.top,
-                        bottom: position.bottom,
-                    },
+                    margin: position,
                     ..default()
                 },
                 ..default()
@@ -515,7 +514,7 @@ fn spawn_touchstick<
                         position_type: PositionType::Relative,
                         ..default()
                     },
-                    background_color: Color::ORANGE.with_a(0.3).into(),
+                    background_color: crate::colors::ORANGE.with_alpha(0.3).into(),
                     ..default()
                 },
             ));
@@ -531,7 +530,7 @@ fn spawn_touchstick<
                         margin: UiRect::all(Val::Px(50.0)),
                         ..default()
                     },
-                    background_color: Color::ORANGE.with_a(0.3).into(),
+                    background_color: crate::colors::ORANGE.with_alpha(0.3).into(),
                     ..default()
                 },
             ));
@@ -539,11 +538,11 @@ fn spawn_touchstick<
 }
 
 /// color for button with no interactions
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+const NORMAL_BUTTON: Color = Color::srgb(0.15, 0.15, 0.15);
 /// color for hovered button
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
+const HOVERED_BUTTON: Color = Color::srgb(0.25, 0.25, 0.25);
 /// color for pressed buttons
-const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
+const PRESSED_BUTTON: Color = Color::srgb(0.35, 0.75, 0.35);
 
 /// updates interacted button colors
 #[allow(clippy::type_complexity)]
@@ -562,15 +561,15 @@ fn update_button_colors(
         match *interaction {
             Interaction::Pressed => {
                 *color = PRESSED_BUTTON.into();
-                border_color.0 = Color::RED;
+                border_color.0 = crate::colors::RED.into();
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
-                border_color.0 = Color::WHITE;
+                border_color.0 = crate::colors::WHITE.into();
             }
             Interaction::None => {
                 *color = NORMAL_BUTTON.into();
-                border_color.0 = Color::BLACK;
+                border_color.0 = crate::colors::BLACK.into();
             }
         }
     }

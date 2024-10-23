@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use bevy::{prelude::*, utils::HashMap};
 use bevy_kira_audio::{
-    prelude::{AudioControl, AudioEmitter, SpacialAudio},
+    prelude::{AudioControl, AudioEmitter, SpatialAudio},
     AudioApp, AudioChannel, AudioPlugin as InternalAudioPlugin, AudioSettings,
 };
 use bevy_rapier2d::dynamics::Velocity;
@@ -53,7 +53,7 @@ impl Plugin for AudioPlugin {
         .add_audio_channel::<MusicSoundChannel>()
         .add_audio_channel::<AmbienceSoundChannel>()
         .add_audio_channel::<GameSoundChannel>()
-        .insert_resource(SpacialAudio {
+        .insert_resource(SpatialAudio {
             max_distance: 1500.0,
         })
         .add_systems(OnEnter(AppState::Loading), setup_sound_volume)

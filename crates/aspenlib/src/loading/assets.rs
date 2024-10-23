@@ -1,3 +1,4 @@
+use bevy::prelude::Res;
 use bevy::{
     asset::Handle,
     ecs::system::Resource,
@@ -45,7 +46,6 @@ pub struct AspenInitHandles {
     #[asset(key = "button_pressed")]
     pub img_button_blue_pressed: Handle<Image>,
 }
-
 /// asset handles for touch controls UI
 #[allow(clippy::struct_field_names)]
 #[derive(AssetCollection, Resource, Clone, Debug, Reflect)]

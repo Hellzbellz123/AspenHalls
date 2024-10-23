@@ -15,9 +15,7 @@ use crate::{
     register_types, AppState,
 };
 use bevy::prelude::*;
-use big_brain::{
-    prelude::{HasThinker, Score},
-};
+use big_brain::prelude::{HasThinker, Score};
 
 /// player progression tracking module
 pub struct GameProgressPlugin;

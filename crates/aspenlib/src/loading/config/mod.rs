@@ -54,7 +54,7 @@ impl Default for ConfigFile {
 #[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Debug)]
 #[reflect(Resource)]
 pub struct WindowSettings {
-    /// enable v_sync if true
+    /// enable `v_sync` if true
     pub v_sync: bool,
     /// framerate
     pub frame_rate_target: f64,
@@ -70,7 +70,7 @@ pub struct WindowSettings {
 #[derive(Reflect, Resource, Serialize, Deserialize, Copy, Clone, Default, Debug)]
 #[reflect(Resource)]
 pub struct RenderSettings {
-    /// enable v_sync if true
+    /// enable `v_sync` if true
     pub msaa: bool,
 }
 
@@ -240,7 +240,6 @@ impl Default for SoundSettings {
 /// creates an `App` with logging and initialization assets
 pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     let mut asha = App::new();
-    asha.insert_resource(AssetMetaCheck::Never);
 
     asha.add_plugins((
         LogPlugin {
@@ -250,11 +249,12 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                 cfg_file.log_filter.unwrap_or_default()
             },
             level: bevy::log::Level::TRACE,
-            update_subscriber: None,
+            custom_layer: |_| None,
         },
         AssetPlugin {
             file_path: "assets".to_string(),
             processed_file_path: "streamed_assets/Default".to_string(),
+            meta_check: AssetMetaCheck::Never,
             watch_for_changes_override: None,
             mode: AssetMode::Unprocessed,
         },
@@ -262,7 +262,6 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
 
     info!("Logging and Asset Server Initialized");
     // add vanillacoffee stuff
-    asha.init_state::<AppState>();
 
     let difficulty_settings = create_difficulty_scales(cfg_file.general_settings, None);
 
@@ -312,7 +311,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     } else {
         Msaa::Off
     })
-    .insert_resource(ClearColor(Color::rgba(
+    .insert_resource(ClearColor(Color::srgba(
         26.0 / 255.0,
         25.0 / 255.0,
         25.0 / 255.0,
@@ -322,7 +321,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
     .insert_resource(cfg_file.sound_settings)
     .insert_resource(cfg_file.general_settings)
     .insert_resource(difficulty_settings);
-
+    asha.init_state::<AppState>();
     asha.add_systems(
         Update,
         (
@@ -459,16 +458,7 @@ fn create_difficulty_scales(
     let level_amount = level_amount.unwrap_or(1);
 
     match general_settings.game_difficulty {
-        GameDifficulty::Custom(a) => DifficultyScales {
-            max_enemies_per_room: a.max_enemies_per_room,
-            max_dungeon_amount: a.max_dungeon_amount,
-            player_health_scale: a.player_health_scale,
-            player_damage_scale: a.player_damage_scale,
-            player_speed_scale: a.player_speed_scale,
-            enemy_health_scale: a.enemy_health_scale,
-            enemy_damage_scale: a.enemy_damage_scale,
-            enemy_speed_scale: a.enemy_speed_scale,
-        },
+        GameDifficulty::Custom(a) => a,
         GameDifficulty::Debug => DifficultyScales {
             max_enemies_per_room: 1,
             max_dungeon_amount: 1,

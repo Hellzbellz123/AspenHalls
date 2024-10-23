@@ -20,7 +20,7 @@ pub mod debug_plugin {
     use bevy_ecs_ldtk::{assets::LdtkProject, GridCoords, IntGridCell, LayerMetadata};
     use bevy_inspector_egui::{
         bevy_inspector::{ui_for_all_assets, ui_for_resources, ui_for_world_entities_filtered},
-        quick::{StateInspectorPlugin, WorldInspectorPlugin},
+        quick::StateInspectorPlugin,
     };
     use bevy_mod_debugdump::{render_graph, render_graph_dot, schedule_graph, schedule_graph_dot};
     use bevy_prototype_lyon as svg;
@@ -83,14 +83,17 @@ pub mod debug_plugin {
             // add inspector plugins
             app.add_plugins((
                 StateInspectorPlugin::<AppState>::default().run_if(input_toggle_active(
-                    cfg!(debug_assertions),
+                    if cfg!(debug_assertions) { true } else { false },
                     KeyCode::F3,
                 )),
                 StateInspectorPlugin::<GeneratorState>::default().run_if(input_toggle_active(
-                    cfg!(debug_assertions),
+                    if cfg!(debug_assertions) { true } else { false },
                     KeyCode::F3,
                 )),
-                WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::F3)),
+                // WorldInspectorPlugin::default().run_if(input_toggle_active(
+                //     if cfg!(debug_assertions) { true } else { false },
+                //     KeyCode::F3,
+                // )),
             ))
             // add other debug plugins
             .add_plugins((
@@ -111,10 +114,10 @@ pub mod debug_plugin {
                 (
                     (debug_visualize_spawner, debug_visualize_weapon_spawn_point)
                         .run_if(in_state(AppState::PlayingGame)),
-                    // world_inspector_ui.run_if(input_toggle_active(
-                    //     if cfg!(debug_assertions) { true } else { false },
-                    //     KeyCode::F3,
-                    // )),
+                    world_inspector_ui.run_if(input_toggle_active(
+                        if cfg!(debug_assertions) { true } else { false },
+                        KeyCode::F3,
+                    )),
                 ),
             );
 
@@ -129,6 +132,7 @@ pub mod debug_plugin {
             .get_single(world);
 
         let Ok(egui_context) = egui_context else {
+            warn!("no egui context available");
             return;
         };
         let mut egui_context = egui_context.clone();
@@ -186,7 +190,7 @@ pub mod debug_plugin {
 
             cmds.insert(spawner_visual_bundle).insert(svg::draw::Fill {
                 options: svg::prelude::tess::FillOptions::DEFAULT,
-                color: Color::GREEN.with_a(0.6),
+                color: crate::colors::GREEN.with_alpha(0.6).into(),
             });
         }
     }
@@ -244,7 +248,7 @@ pub mod debug_plugin {
                     ambiguity_enable_on_world: false,
                     style: schedule_theme,
                     collapse_single_system_sets: true,
-                    prettify_system_names: true,
+                    // prettify_system_names: true,
                     ..Default::default()
                 };
 

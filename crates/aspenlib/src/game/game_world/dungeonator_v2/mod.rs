@@ -1,16 +1,9 @@
 use bevy_ecs_tilemap::prelude::TilemapSize;
+use petgraph::{data::FromElements, prelude::EdgeRef, Graph};
 use rand::prelude::Rng;
 use std::collections::VecDeque;
 
-use bevy::{
-    prelude::*,
-    reflect::Reflect,
-    utils::petgraph::{
-        self,
-        data::FromElements,
-        prelude::{EdgeRef, Graph},
-    },
-};
+use bevy::{prelude::*, reflect::Reflect};
 use bevy_ecs_ldtk::{assets::LdtkExternalLevel, prelude::LdtkProject};
 
 use crate::{
@@ -269,14 +262,8 @@ pub fn layout_dungeon(
             cmds.spawn(DungeonHallWayBundle {
                 name: Name::new(hallway_name),
                 hallway: HallWayBlueprint {
-                    start_pos: IVec2 {
-                        x: start_pos.x,
-                        y: start_pos.y,
-                    },
-                    end_pos: IVec2 {
-                        x: end_pos.x,
-                        y: end_pos.y,
-                    },
+                    start_pos,
+                    end_pos,
                     distance: edge.weight().length,
                     node_path: VecDeque::new(),
                     connected_rooms: (*source.get_node_id(), *target.get_node_id()),
@@ -292,7 +279,7 @@ pub fn layout_dungeon(
         }
     });
 
-    cmds.insert_resource(NextState(Some(GeneratorState::CompleteHallways)));
+    cmds.insert_resource(NextState::Pending(GeneratorState::CompleteHallways));
 }
 
 // TODO: use a quad-tree structure too improve performance?

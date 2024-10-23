@@ -13,11 +13,9 @@ use crate::{
             components::{CharacterInventory, CharacterMoveState, CharacterType, CurrentMovement},
             creeps::EventSpawnCreep,
         },
-        game_world::{components::CharacterSpawner},
+        game_world::components::CharacterSpawner,
     },
-    loading::{
-        registry::{ActorRegistry, RegistryIdentifier},
-    },
+    loading::registry::{ActorRegistry, RegistryIdentifier},
     register_types,
     utilities::vector_to_pi8,
     AppState,
@@ -130,10 +128,12 @@ fn handle_character_spawn(
 
     match character_type {
         CharacterType::Creep => {
-            let spawn_pos = spawners.get(event.requester).map_or(spawn_pos, |spawner| Vec2 {
-                x: spawn_pos.x + random_radius(spawner.spawn_radius),
-                y: spawn_pos.y + random_radius(spawner.spawn_radius),
-            });
+            let spawn_pos = spawners
+                .get(event.requester)
+                .map_or(spawn_pos, |spawner| Vec2 {
+                    x: spawn_pos.x + random_radius(spawner.spawn_radius),
+                    y: spawn_pos.y + random_radius(spawner.spawn_radius),
+                });
 
             creep_events.send(EventSpawnCreep {
                 actor_id: event.identifier.clone(),
@@ -143,10 +143,12 @@ fn handle_character_spawn(
         }
         CharacterType::Boss => {
             info!("got boss character type");
-            let spawn_pos = spawners.get(event.requester).map_or(spawn_pos, |spawner| Vec2 {
-                x: spawn_pos.x + random_radius(spawner.spawn_radius),
-                y: spawn_pos.y + random_radius(spawner.spawn_radius),
-            });
+            let spawn_pos = spawners
+                .get(event.requester)
+                .map_or(spawn_pos, |spawner| Vec2 {
+                    x: spawn_pos.x + random_radius(spawner.spawn_radius),
+                    y: spawn_pos.y + random_radius(spawner.spawn_radius),
+                });
 
             boss_events.send(EventSpawnBoss {
                 actor_id: event.identifier.clone(),

@@ -26,7 +26,7 @@ pub struct AICombatAggroConfig {
     pub chase_end: i32,
     /// shoot distance
     pub shoot_range: i32,
-    /// if enemy is inside this characters personal_space, move backward
+    /// if enemy is inside this characters `personal_space`, move backward
     pub personal_space: i32,
     /// scared health
     pub runaway_hp: f32,

@@ -111,7 +111,7 @@ pub struct SpawnerTimer(pub Timer);
 #[derive(Event, Debug)]
 pub struct ActorTeleportEvent {
     /// enum deciding weather this teleport triggers an action or moves entity locally/globall directly
-    /// unhandled tp_actions get warned about
+    /// unhandled `tp_actions` get warned about
     pub tp_type: TpTriggerEffect,
     /// affected entitiy for this teleport
     pub target: Option<Entity>,

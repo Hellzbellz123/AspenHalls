@@ -103,7 +103,7 @@ pub struct RigidBodyBundle {
     pub friction: Friction,
     /// bounciness
     pub how_bouncy: Restitution,
-    /// RigidBody Mass
+    /// `RigidBody` Mass
     pub mass_prop: ColliderMassProperties,
     /// rotation locks
     pub rotation_locks: LockedAxes,

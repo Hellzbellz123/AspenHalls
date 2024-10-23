@@ -170,7 +170,7 @@ fn exit_button_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            exit_event_writer.send(AppExit);
+            exit_event_writer.send(AppExit::Success);
         }
     }
 }

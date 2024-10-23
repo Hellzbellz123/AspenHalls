@@ -13,7 +13,6 @@ use crate::{
 };
 use bevy::app::AppExit;
 use bevy::prelude::*;
-use bevy_rapier2d::plugin::{RapierConfiguration, TimestepMode};
 use leafwing_input_manager::prelude::ActionState;
 
 /// pause game functionality and pause menu ui
@@ -156,7 +155,7 @@ fn exit_button_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            exit_event_writer.send(AppExit);
+            exit_event_writer.send(AppExit::Success);
         }
     }
 }
@@ -181,27 +180,29 @@ fn pause_event_handler(
     game_state: Res<State<AppState>>,
     mut cmds: Commands,
     mut pause_menu_query: Query<&mut Style, (With<Node>, With<PauseMenuTag>)>,
-    mut rapier_cfg: ResMut<RapierConfiguration>,
+    // mut rapier_cfg: Query<&mut RapierConfiguration>,
 ) {
+    // let mut rapier_cfg = rapier_cfg.single_mut();
+
     for _event in pauses.read() {
         match game_state.get() {
             AppState::PlayingGame => {
-                rapier_cfg.timestep_mode = TimestepMode::Variable {
-                    max_dt: 1.0 / 144.0,
-                    time_scale: 0.0,
-                    substeps: 1,
-                };
+                // rapier_cfg.timestep_mode = TimestepMode::Variable {
+                //     max_dt: 1.0 / 144.0,
+                //     time_scale: 0.0,
+                //     substeps: 1,
+                // };
                 pause_menu_query.single_mut().display = Display::Flex;
-                cmds.insert_resource(NextState(Some(AppState::PauseMenu)));
+                cmds.insert_resource(NextState::Pending(AppState::PauseMenu));
             }
             AppState::PauseMenu => {
-                rapier_cfg.timestep_mode = TimestepMode::Variable {
-                    max_dt: 1.0 / 144.0,
-                    time_scale: 1.0,
-                    substeps: 1,
-                };
+                // rapier_cfg.timestep_mode = TimestepMode::Variable {
+                //     max_dt: 1.0 / 144.0,
+                //     time_scale: 1.0,
+                //     substeps: 1,
+                // };
                 pause_menu_query.single_mut().display = Display::None;
-                cmds.insert_resource(NextState(Some(AppState::PlayingGame)));
+                cmds.insert_resource(NextState::Pending(AppState::PlayingGame));
             }
             _ => {}
         }

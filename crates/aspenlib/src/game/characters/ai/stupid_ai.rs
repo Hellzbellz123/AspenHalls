@@ -7,7 +7,7 @@ use bevy::hierarchy::HierarchyQueryExt;
 use bevy::prelude::*;
 use bevy_rapier2d::{
     math::Rot,
-    prelude::{Collider, QueryFilter, RapierContext, Velocity},
+    prelude::{Collider, QueryFilter, RapierContext, ShapeCastOptions, Velocity},
 };
 use big_brain::{
     prelude::{ActionState, Actor, Score},
@@ -72,7 +72,7 @@ pub struct BasicAiBundle {
 #[allow(clippy::type_complexity)]
 fn stupid_ai_aggro_manager(
     names: Query<&Name>,
-    rapier_context: Res<RapierContext>,
+    rapier_context: Query<&RapierContext>,
     // player
     player_query: Query<(Entity, &Transform), With<PlayerSelectedHero>>,
     // enemies that can aggro
@@ -85,6 +85,8 @@ fn stupid_ai_aggro_manager(
     children: Query<&Children>,
     colliders: Query<&Collider>,
 ) {
+    let rapier_context = rapier_context.single();
+
     let Ok((player, player_transform)) = player_query.get_single() else {
         warn!("no player for stupid-ai-manager too use");
         return;
@@ -106,8 +108,12 @@ fn stupid_ai_aggro_manager(
             Rot::MIN,
             direction_to_target,
             &default_actor_collider(),
-            distance_to_target,
-            false,
+            ShapeCastOptions {
+                max_time_of_impact: distance_to_target,
+                target_distance: 0.0,
+                stop_at_penetration: true,
+                compute_impact_geometry_on_penetration: false,
+            },
             QueryFilter::new()
                 .exclude_sensors()
                 .exclude_rigid_body(this_actor),
@@ -271,8 +277,10 @@ fn attack_action(
 fn wander_action(
     mut enemy_query: Query<(&Transform, &mut Velocity, &mut Sprite, &mut AIWanderConfig)>,
     mut thinker_query: Query<(&Actor, &mut ActionState), With<AIWanderAction>>,
-    rapier_context: Res<RapierContext>,
+    rapier_context: Query<&RapierContext>,
 ) {
+    let rapier_context = rapier_context.single();
+
     for (Actor(actor), mut state) in &mut thinker_query {
         if let Ok((enemy_transform, mut velocity, _sprite, mut can_meander_tag)) =
             enemy_query.get_mut(*actor)
@@ -316,22 +324,17 @@ fn wander_action(
                     let direction = (target_pos - enemy_pos).normalize_or_zero();
                     let distance = enemy_pos.distance(target_pos).abs();
 
-                    // let ray = rapier_context.cast_ray(
-                    //     enemy_pos,
-                    //     direction,
-                    //     tiles_to_f32(can_meander_tag.wander_distance),
-                    //     false,
-                    //     QueryFilter::new().exclude_rigid_body(*actor)
-                    //         .exclude_sensors(),
-                    //         // .exclude_rigid_body(*actor),
-                    // );
                     let ray = rapier_context.cast_shape(
                         enemy_pos,
                         Rot::MIN,
                         direction,
                         &default_actor_collider(),
-                        distance,
-                        false,
+                        ShapeCastOptions {
+                            max_time_of_impact: distance,
+                            target_distance: 0.0,
+                            stop_at_penetration: true,
+                            compute_impact_geometry_on_penetration: false,
+                        },
                         QueryFilter::new()
                             .exclude_sensors()
                             .exclude_rigid_body(*actor),

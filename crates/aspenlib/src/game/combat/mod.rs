@@ -55,12 +55,12 @@ impl Plugin for CombatPlugin {
 fn apply_damage_system(
     mut game_info: ResMut<CurrentRunInformation>,
     mut damaged_characters: Query<
-        (&mut CharacterStats, Entity, &DamageQueue),
+        (&mut CharacterStats, Entity, &mut DamageQueue),
         Changed<DamageQueue>,
     >,
     player_controlled: Query<&PlayerSelectedHero>,
 ) {
-    for (mut character_stats, character, damage_queue) in &mut damaged_characters {
+    for (mut character_stats, character, mut damage_queue) in &mut damaged_characters {
         for damage in damage_queue.iter_queue() {
             if character_stats.get_current_health() <= 0.0 {
                 return;
@@ -72,6 +72,7 @@ fn apply_damage_system(
             }
             character_stats.apply_damage(*damage);
         }
+        damage_queue.empty_queue();
     }
 }
 
@@ -204,7 +205,10 @@ pub struct SameUserDataFilter<'w, 's> {
 
 impl BevyPhysicsHooks for SameUserDataFilter<'_, '_> {
     fn filter_contact_pair(&self, context: PairFilterContextView) -> Option<SolverFlags> {
-        if let Some(a_filter) = self.tags.get(context.collider1()).ok() && let Some(b_filter) = self.tags.get(context.collider2()).ok() && a_filter.0 == b_filter.0 {
+        if let Some(a_filter) = self.tags.get(context.collider1()).ok()
+            && let Some(b_filter) = self.tags.get(context.collider2()).ok()
+            && a_filter.0 == b_filter.0
+        {
             // this bullet was requested by opposite entitity
             // dont 'hit' it.
             return None;

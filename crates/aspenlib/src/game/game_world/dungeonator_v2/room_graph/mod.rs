@@ -1,4 +1,5 @@
-use bevy::{prelude::*, utils::petgraph::prelude::*};
+use bevy::prelude::*;
+use petgraph::{Graph, Undirected};
 
 use crate::game::game_world::{
     components::RoomExit,

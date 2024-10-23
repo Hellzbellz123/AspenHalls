@@ -153,7 +153,7 @@
   "memory-view.showMemoryPanel": true,
   "rust-analyzer.cargo.features": ["develop", "dynamic"],
   "rust-analyzer.cargo.targetDir": true,
-  // "rust-analyzer.server.path": "/usr/bin/rust-analyzer",
+  "rust-analyzer.server.path": "/usr/bin/rust-analyzer",
   "todo-tree.tree.showBadges": true,
   "todo-tree.tree.disableCompactFolders": false,
   "todo-tree.tree.showCountsInTree": true

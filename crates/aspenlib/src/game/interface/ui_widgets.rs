@@ -17,8 +17,8 @@ pub fn spawn_button<T: Component>(
                     height: Val::Px(60.0),
                     ..default()
                 },
-                background_color: BackgroundColor(Color::PURPLE),
-                border_color: BorderColor(Color::PINK),
+                background_color: BackgroundColor(crate::colors::PURPLE.into()),
+                border_color: BorderColor(crate::colors::PINK.into()),
                 ..default()
             },
         ))

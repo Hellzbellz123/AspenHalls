@@ -1,4 +1,3 @@
-#![feature(lint_reasons)]
 #![feature(let_chains)]
 #![doc = r"
 AspenHalls, My video game.
@@ -29,6 +28,8 @@ use crate::{
 };
 use bevy::prelude::*;
 
+pub use bevy::color::palettes::css as colors;
+use bevy_rapier2d::prelude::{RapierConfiguration, RapierContext};
 pub use loading::config::*;
 
 /// application stages
@@ -94,20 +95,13 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
     let mut vanillacoffee = loading::config::create_configured_app(cfg_file);
 
     // add third party plugins
-    vanillacoffee
-        .add_plugins((
-            bevy_mod_picking::DefaultPickingPlugins,
-            bevy_ecs_ldtk::LdtkPlugin,
-            bevy_framepace::FramepacePlugin,
-            bevy_prototype_lyon::prelude::ShapePlugin,
-            bevy_rapier2d::plugin::RapierPhysicsPlugin::<SameUserDataFilter>::pixels_per_meter(
-                32.0,
-            ),
-        ))
-        .insert_resource(bevy_rapier2d::prelude::RapierConfiguration {
-            gravity: Vec2::ZERO,
-            ..default()
-        });
+    vanillacoffee.add_plugins((
+        bevy_mod_picking::DefaultPickingPlugins,
+        bevy_ecs_ldtk::LdtkPlugin,
+        bevy_framepace::FramepacePlugin,
+        bevy_prototype_lyon::prelude::ShapePlugin,
+        bevy_rapier2d::plugin::RapierPhysicsPlugin::<SameUserDataFilter>::pixels_per_meter(32.0),
+    ));
 
     vanillacoffee.add_plugins((
         loading::AppLoadingPlugin,
@@ -124,5 +118,12 @@ pub fn start_app(cfg_file: ConfigFile) -> App {
             .run_if(resource_exists::<AspenInitHandles>.and_then(run_once())),),
     );
 
+    vanillacoffee.add_systems(Last, fix_rapier_gravity);
+
     vanillacoffee
+}
+
+fn fix_rapier_gravity(mut rapier_ctx: Query<(&RapierContext, &mut RapierConfiguration)>) {
+    let (_rapier_ctx, mut rapier_cfg) = rapier_ctx.single_mut();
+    rapier_cfg.gravity = Vec2::ZERO;
 }

@@ -1,7 +1,7 @@
 [toolchain]
 # newer versions cause android builds too crash with safety errors?
 # TODO: possible ndk version needs updated
-channel = "nightly-2024-01-12"
+channel = "nightly-2024-10-16"
 profile = "default"
 components = [
   "rustc",

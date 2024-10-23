@@ -16,14 +16,7 @@ use crate::game::{
     },
 };
 
-use bevy::utils::{
-    petgraph::{
-        graph::EdgeReference,
-        prelude::{EdgeRef, NodeIndex},
-    },
-    FloatOrd,
-};
-use bevy::{prelude::*, utils::petgraph::algo};
+use bevy::{math::FloatOrd, prelude::*};
 use bevy_ecs_ldtk::prelude::TileEnumTags;
 use bevy_ecs_tilemap::{
     map::TilemapId,
@@ -32,6 +25,10 @@ use bevy_ecs_tilemap::{
         TilemapSize, TilemapType,
     },
     tiles::{TileBundle, TilePos, TileStorage},
+};
+use petgraph::{
+    graph::EdgeReference,
+    prelude::{EdgeRef, NodeIndex},
 };
 
 // TODO: spawn TileEnumTags for hallway sections for collisions too be created
@@ -93,7 +90,7 @@ pub fn build_hallways(
         output_graph_dot(tile_graph);
 
         info!("all hallways finished");
-        cmds.insert_resource(NextState(Some(GeneratorState::FinishedDungeonGen)));
+        cmds.insert_resource(NextState::Pending(GeneratorState::FinishedDungeonGen));
     }
 }
 
@@ -125,7 +122,7 @@ pub fn tile_is_corner(
         // Check if next2 is None and next1 is Some
         if let (Some((_, prev_pos, _)), None) = (previous, next1) {
             // Check if previous, current, and next1 are inline
-            if are_inline(*prev_pos,* c_coords) {
+            if are_inline(*prev_pos, *c_coords) {
                 return Some(false);
             }
             return Some(true);
@@ -149,7 +146,7 @@ pub fn tile_is_corner(
     }
 
     if let (Some((_, _, _)), Some((_, next2, _))) = (next1, next2) {
-        if are_inline(*c_coords,* next2) {
+        if are_inline(*c_coords, *next2) {
             Some(false)
         } else {
             Some(true)
@@ -158,10 +155,10 @@ pub fn tile_is_corner(
         // Check if next2 is None and next1 is Some
         if let (Some((_, prev_coords, _)), Some((_, next1_coords, _))) = (previous, next1) {
             // Check if previous, current, and next1 are inline
-            if are_inline(*prev_coords,* next1_coords) {
-                return Some(false)
+            if are_inline(*prev_coords, *next1_coords) {
+                return Some(false);
             }
-            return Some(true)
+            return Some(true);
         }
         None
     }
@@ -482,17 +479,17 @@ fn populate_enum_tags(tex_id: TexID) -> TileEnumTags {
         TexID::WallSouth => tile_enum.tags.push("CollideDown".into()),
         TexID::WDoubleVert => tile_enum.tags.push("DoubleWallVertical".into()),
         TexID::WDoubleHori => tile_enum.tags.push("DoubleWallHorizontal".into()),
-        TexID::UWest |
-        TexID::UEast |
-        TexID::USouth |
-        TexID::UNorth |
-        TexID::FloorBase |
-        TexID::FloorPoint |
-        TexID::FloorBad |
-        TexID::ArrowNorth |
-        TexID::ArrowSouth |
-        TexID::ArrowWest |
-        TexID::ArrowEast => (),
+        TexID::UWest
+        | TexID::UEast
+        | TexID::USouth
+        | TexID::UNorth
+        | TexID::FloorBase
+        | TexID::FloorPoint
+        | TexID::FloorBad
+        | TexID::ArrowNorth
+        | TexID::ArrowSouth
+        | TexID::ArrowWest
+        | TexID::ArrowEast => (),
     }
     tile_enum
 }
@@ -647,7 +644,7 @@ fn dijkstra_path(
         cost
     };
 
-    let shortest_paths = algo::dijkstra(
+    let shortest_paths = petgraph::algo::dijkstra(
         &tile_graph.graph,
         hallway.start,
         Some(hallway.end),

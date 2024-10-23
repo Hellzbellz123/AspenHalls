@@ -125,77 +125,77 @@ fn create_hud_container(hud_hud_parts: &mut ChildBuilder, touch_assets: Res<Aspe
 
 /// ui preset colors for no rainbow
 mod colors {
-    use bevy::prelude::Color;
+    use bevy::prelude::{Color, Srgba};
 
     /// background color dark
-    pub const BACKDARK: Color = Color::Rgba {
+    pub const BACKDARK: Color = Color::Srgba(Srgba {
         red: 0.125,
         green: 0.125,
         blue: 0.125,
         alpha: 0.95,
-    };
+    });
 
     /// background color light
-    pub const BACKLIGHT: Color = Color::Rgba {
+    pub const BACKLIGHT: Color = Color::Srgba(Srgba {
         red: 0.225,
         green: 0.225,
         blue: 0.225,
         alpha: 0.85,
-    };
+    });
 
     /// ui accent color
-    pub const ACCENT: Color = Color::Rgba {
+    pub const ACCENT: Color = Color::Srgba(Srgba {
         red: 0.425,
         green: 0.225,
         blue: 0.425,
         alpha: 0.85,
-    };
+    });
 
     /// ui highlight color
-    pub const HIGHLIGHT: Color = Color::Rgba {
+    pub const HIGHLIGHT: Color = Color::Srgba(Srgba {
         red: 0.94,
         green: 0.97,
         blue: 1.0,
         alpha: 1.0,
-    };
+    });
 
     /// ui outline color
-    pub const OUTLINE: Color = Color::Rgba {
+    pub const OUTLINE: Color = Color::Srgba(Srgba {
         red: 0.0,
         green: 0.0,
         blue: 0.0,
         alpha: 1.0,
-    };
+    });
 
     /// hp full color
-    pub const HPFULL: Color = Color::Rgba {
+    pub const HPFULL: Color = Color::Srgba(Srgba {
         red: 0.0,
         green: 1.0,
         blue: 0.0,
         alpha: 1.0,
-    };
+    });
 
     /// hp empty color
-    pub const HPEMPTY: Color = Color::Rgba {
+    pub const HPEMPTY: Color = Color::Srgba(Srgba {
         red: 1.0,
         green: 0.0,
         blue: 0.0,
         alpha: 1.0,
-    };
+    });
 
     /// mana full color
-    pub const MANAFULL: Color = Color::Rgba {
+    pub const MANAFULL: Color = Color::Srgba(Srgba {
         red: 0.0,
         green: 0.0,
         blue: 1.0,
         alpha: 1.0,
-    };
+    });
 
     /// mana empty color
-    pub const UTILITYEMPTY: Color = Color::Rgba {
+    pub const UTILITYEMPTY: Color = Color::Srgba(Srgba {
         red: 0.49,
         green: 1.0,
         blue: 0.83,
         alpha: 1.0,
-    };
+    });
 }

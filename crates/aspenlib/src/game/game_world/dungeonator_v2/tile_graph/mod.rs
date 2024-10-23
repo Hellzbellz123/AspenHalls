@@ -1,12 +1,10 @@
-use bevy::{
-    prelude::*,
-    utils::petgraph::{prelude::Undirected, Graph},
-};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::{
     prelude::{LevelEvent, LevelIid},
     GridCoords,
 };
 use bevy_rapier2d::geometry::Collider;
+use petgraph::{Graph, Undirected};
 
 use crate::game::game_world::{
     components::RoomExitTile,
@@ -91,7 +89,7 @@ pub fn create_tile_graph(
         hallway.node_path = hallway_path;
     }
     info!("created dungeon tile graph");
-    cmds.insert_resource(NextState(Some(GeneratorState::FinalizeHallways)));
+    cmds.insert_resource(NextState::Pending(GeneratorState::FinalizeHallways));
 }
 
 /// what dungeon structure does this node belong too

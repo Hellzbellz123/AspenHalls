@@ -44,7 +44,7 @@ impl Plugin for InputPlugin {
             .insert_resource(action_maps::Gameplay::default_input_map());
 
         // TODO: make this plugin only active by default if target_platform == (ANDROID || IOS) else make it a setting too enable
-        app.add_plugins(touch_gamepad::TouchInputPlugin);
+        // app.add_plugins(touch_gamepad::TouchInputPlugin);
         // TODO: make software cursor an option in the settings, mostly only useful for debugging
         app.add_plugins(software_cursor::SoftwareCursorPlugin);
         // implement targeting system reticle that snaps too nearest interactable actor too cursor. interaction and pickup uses this system?
@@ -96,8 +96,7 @@ fn update_cursor_position_resource(
     let window_half_size = Vec2::new(window.width(), window.height()) / 2.0;
     let joy_axis = input.clamped_axis_pair(&action_maps::Gameplay::Look);
 
-    let cursor_screen_pos: Vec2 = if joy_axis.is_some_and(|axis| axis.xy().abs() != Vec2::ZERO) {
-        let joy_axis = joy_axis.unwrap().xy();
+    let cursor_screen_pos: Vec2 = if joy_axis != Vec2::ZERO {
         Vec2::new(
             joy_axis.x.mul_add(window_half_size.x, window_half_size.x),
             (-joy_axis.y).mul_add(window_half_size.y, window_half_size.y),
