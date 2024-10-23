@@ -13,8 +13,11 @@ pub struct MainCamera {
     /// is this main camera used over some other camera?
     pub in_use: bool,
 
+    /// camera movement offset scale
+    pub movement_scales: Vec2,
+
     /// how fast should this camera move towards the player?
-    pub camera_speed: f32,
+    pub recenter_speed: f32,
 
     /// multiplied by player velocity then added too the camera target
     pub look_ahead_factor: f32,
@@ -23,7 +26,7 @@ pub struct MainCamera {
     pub lerp_change_magnitude: f32,
 
     /// camera speed when player is standing still
-    pub changed_speed: f32,
+    pub player_still_recenter_speed: f32,
 }
 
 /// tag added too splashscreen entities that should be de-spawned after splashscreen
@@ -58,10 +61,11 @@ fn spawn_main_camera(mut commands: Commands) {
         Name::new("MainCamera"),
         MainCamera {
             in_use: true,
-            look_ahead_factor: 1.0,
-            camera_speed: 5.0,
+            look_ahead_factor: 0.6,
+            recenter_speed: 5.0,
             lerp_change_magnitude: 0.5,
-            changed_speed: 0.2,
+            player_still_recenter_speed: 0.05,
+            movement_scales: Vec2 { x: 0.65, y: 0.65 },
         },
         Camera2dBundle {
             camera: Camera {

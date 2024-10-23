@@ -73,20 +73,20 @@ pub fn camera_movement_system(
     let (player_transform, player_velocity) = player_move_query.single();
     let camera_transform = camera_trans.translation.truncate();
 
-    let modified_velocity = Vec2 {
-        x: player_velocity.linvel.x * 0.95,
-        y: player_velocity.linvel.y * 0.65,
+    let scaled_player_velocity = Vec2 {
+        x: player_velocity.linvel.x * camera_data.movement_scales.x,
+        y: player_velocity.linvel.y * camera_data.movement_scales.y,
     };
 
     let camera_target = player_transform.translation.truncate()
-        + (modified_velocity * camera_data.look_ahead_factor);
+        + (scaled_player_velocity * camera_data.look_ahead_factor);
 
     // Calculate the movement speed based on time.delta()
     let movement_speed: f32 =
         if player_velocity.linvel.abs().length() > camera_data.lerp_change_magnitude {
-            camera_data.camera_speed * time.delta_seconds()
+            camera_data.recenter_speed * time.delta_seconds()
         } else {
-            camera_data.changed_speed
+            camera_data.player_still_recenter_speed
         };
 
     // Interpolate (lerp) between the current camera position and the player's position with the adjusted speed

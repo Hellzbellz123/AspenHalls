@@ -8,8 +8,14 @@
     "menu_style": File (
         path: "init/styles/menu.ess",
     ),
-    "cursor_default" : File (
+    "cursor_sheet" : File (
         path: "init/default_cursor.png",
+    ),
+    "cursor_layout" : TextureAtlasLayout (
+        tile_size_x: 128,
+        tile_size_y: 128,
+        columns: 3,
+        rows: 1,
     ),
     // mainly app icon, but used in other places too
     "favicon": File (
@@ -37,45 +43,45 @@
         path: "init/textures_menu/buttonSquare_blue_pressed.png",
     ),
     "move_knob": File (
-        path: "init/textures_touch/move_knob.png"
+        path: "init/textures_touch/move_knob.png",
     ),
     "look_knob": File (
-        path: "init/textures_touch/look_knob.png"
+        path: "init/textures_touch/look_knob.png",
     ),
     "move_outline": File (
-        path: "init/textures_touch/move_outline.png"
+        path: "init/textures_touch/move_outline.png",
     ),
     "look_outline": File (
-        path: "init/textures_touch/look_outline.png"
+        path: "init/textures_touch/look_outline.png",
     ),
     "swap_button": File (
-        path: "init/textures_touch/weapon_switch.png"
+        path: "init/textures_touch/weapon_switch.png",
     ),
     "menu_button": File (
-        path: "init/textures_touch/menu.png"
+        path: "init/textures_touch/menu.png",
     ),
     "heal_button": File (
-        path: "init/textures_touch/heal.png"
+        path: "init/textures_touch/heal.png",
     ),
     "zoom_minus_button": File (
-        path: "init/textures_touch/zoom_minus.png"
+        path: "init/textures_touch/zoom_minus.png",
     ),
     "zoom_plus_button": File (
-        path: "init/textures_touch/zoom_plus.png"
+        path: "init/textures_touch/zoom_plus.png",
     ),
     "action_one": File (
-        path: "init/textures_touch/action1.png"
+        path: "init/textures_touch/action1.png",
     ),
     "action_two": File (
-        path: "init/textures_touch/action2.png"
+        path: "init/textures_touch/action2.png",
     ),
     "action_three": File (
-        path: "init/textures_touch/action3.png"
+        path: "init/textures_touch/action3.png",
     ),
     "action_four": File (
-        path: "init/textures_touch/action4.png"
+        path: "init/textures_touch/action4.png",
     ),
     "action_five": File (
-        path: "init/textures_touch/action5.png"
+        path: "init/textures_touch/action5.png",
     ),
 })

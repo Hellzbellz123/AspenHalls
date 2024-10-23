@@ -67,33 +67,6 @@ pub fn set_window_icon(
     }
 }
 
-/// handle cursor lock for game
-pub fn cursor_grab_system(
-    mut windows: Query<&mut Window>,
-    btn: Res<ButtonInput<MouseButton>>,
-    key: Res<ButtonInput<KeyCode>>,
-) {
-    let mut window = windows.single_mut();
-
-    if btn.just_pressed(MouseButton::Left) {
-        // if you want to use the cursor, but not let it leave the window,
-        // use `Confined` mode:
-        window.cursor.grab_mode = CursorGrabMode::Confined;
-
-        if !cfg!(debug_assertions) {
-            window.cursor.visible = false;
-        }
-    }
-
-    if key.just_pressed(KeyCode::Escape) {
-        window.cursor.grab_mode = CursorGrabMode::None;
-
-        if !cfg!(debug_assertions) {
-            window.cursor.visible = true;
-        }
-    }
-}
-
 /// scales a `Vec2` so its largest value is smaller than x/y of final size
 pub fn scale_to_fit(current: Vec2, final_size: Vec2) -> Vec2 {
     // Calculate scaling factors for both dimensions

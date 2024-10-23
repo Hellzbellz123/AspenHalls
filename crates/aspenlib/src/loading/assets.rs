@@ -1,5 +1,5 @@
 use bevy::{
-    asset::Handle, ecs::system::Resource, prelude::Reflect, render::texture::Image, text::Font,
+    asset::Handle, ecs::system::Resource, prelude::{Reflect, TextureAtlasLayout}, render::texture::Image, text::Font,
 };
 use bevy_asset_loader::prelude::AssetCollection;
 use bevy_ecs_ldtk::prelude::LdtkProject;
@@ -15,9 +15,12 @@ pub struct AspenInitHandles {
     /// splash screen
     #[asset(key = "splash_img")]
     pub img_splashscreen: Handle<Image>,
-    /// default cursor
-    #[asset(key = "cursor_default")]
-    pub cursor_default: Handle<Image>,
+    /// cursor image
+    #[asset(key = "cursor_sheet")]
+    pub cursor_image: Handle<Image>,
+    /// cursor layout
+    #[asset(key = "cursor_layout")]
+    pub cursor_layout: Handle<TextureAtlasLayout>,
     /// large fancy font
     #[asset(key = "title_font")]
     pub font_title: Handle<Font>,
