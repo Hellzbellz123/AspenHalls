@@ -130,6 +130,7 @@ pub struct CharacterStats {
 //TODO: reuse "BuffQueue" of Buff for weapon upgrade system
 /// stats for equipment or items
 #[derive(Debug, Component, Reflect, Clone, Copy)]
+#[reflect(Component)]
 pub struct EquipmentStats {
     /// amount of upgrades too this equipment
     pub upgrade_amount: u32,

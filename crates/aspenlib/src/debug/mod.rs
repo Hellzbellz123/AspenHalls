@@ -60,6 +60,19 @@ pub mod debug_plugin {
                 Handle<LdtkProject>
                 ]
             );
+            // BigBrain unregistered types
+            register_types!(
+                app,
+                [
+                    Actor,
+                    big_brain::prelude::Action,
+                    Scorer,
+                    Score,
+                    Choice,
+                    Thinker,
+                    HasThinker
+                ]
+            );
             // add inspector plugins
             app.add_plugins((
                 StateInspectorPlugin::<AppState>::default()

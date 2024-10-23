@@ -248,7 +248,7 @@ pub fn update_ui_ammo_counter(
     };
 
     if style.width != Val::Percent(percentage) {
-        info!("setting bar width too {}%", percentage);
+        // info!("setting bar width too {}%", percentage);
         style.width = Val::Percent(percentage);
     }
 }

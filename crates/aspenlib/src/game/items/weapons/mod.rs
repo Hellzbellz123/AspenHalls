@@ -15,6 +15,7 @@ use crate::{
         AppState,
     },
     loading::registry::RegistryIdentifier,
+    register_types,
 };
 
 /// combat related components
@@ -32,10 +33,19 @@ pub struct WeaponItemPlugin;
 
 impl Plugin for WeaponItemPlugin {
     fn build(&self, app: &mut App) {
+        register_types!(
+            app,
+            [
+                AttackDamage,
+                EquipmentStats,
+                WeaponCarrier,
+                CurrentAmmo,
+                WeaponTimers,
+                WeaponHolder,
+                WeaponDescriptor
+            ]
+        );
         app.add_plugins(forms::GunWeaponsPlugin);
-
-        app.register_type::<AttackDamage>()
-            .register_type::<EquipmentStats>();
 
         app.add_event::<EventAttackWeapon>()
             .add_systems(

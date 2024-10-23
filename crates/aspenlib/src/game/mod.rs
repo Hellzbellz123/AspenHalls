@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 
 use crate::{
-    game::components::TimeToLive,
-    loading::{
+    game::components::{ActorColliderType, TimeToLive}, loading::{
         custom_assets::actor_definitions::{CharacterDefinition, ItemDefinition},
         registry::RegistryIdentifier,
     },
     utilities::{scale_to_fit, EntityCreator},
     AppState,
+    register_types,
 };
 
 /// animation functionality
@@ -60,6 +60,8 @@ pub struct AspenHallsPlugin;
 
 impl Plugin for AspenHallsPlugin {
     fn build(&self, app: &mut App) {
+        register_types!(app, [ActorColliderType, EntityCreator]);
+
         app
             // actual game plugin
             .add_plugins((

@@ -127,6 +127,7 @@ impl Default for WeaponDescriptor {
 
 /// timers used for weapon attacks
 #[derive(Debug, Clone, Default, Reflect, Component, serde::Deserialize, serde::Serialize)]
+#[reflect(Component)]
 pub struct WeaponTimers {
     /// time between weapon attacks
     pub attack: Timer,

@@ -5,4 +5,4 @@ mod flail;
 /// holds gun style weapon plugin
 mod gun;
 
-pub use gun::{format_gun_animations, GunShootEvent, GunWeaponsPlugin};
+pub use gun::{format_gun_animations, GunShootEvent, GunWeaponsPlugin, create_bullet};

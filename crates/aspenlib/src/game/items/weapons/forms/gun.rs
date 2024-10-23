@@ -60,7 +60,7 @@ fn update_gun_timers(
             firing_timers.refill.tick(time.delta());
 
             if firing_timers.refill.finished() {
-                warn!("finished reloading");
+                // warn!("finished reloading");
                 firing_timers.refill.reset();
                 current_ammo.current = current_ammo.max;
             }
@@ -105,10 +105,10 @@ pub fn receive_gun_shots(
                     actor: weapon,
                 });
             }
-            warn!("reloading");
+            // warn!("reloading");
             continue;
         } else if timers.attack.finished() || current_ammo.current == cfg.max_ammo {
-            info!("bang!");
+            // info!("bang!");
             anim_events.send(EventAnimationChange {
                 anim_handle: AnimHandle::from_index(GunAnimations::FIRE),
                 actor: weapon,
