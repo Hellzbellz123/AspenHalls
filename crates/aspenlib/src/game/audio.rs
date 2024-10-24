@@ -9,11 +9,7 @@ use bevy_kira_audio::{
 use bevy_rapier2d::dynamics::Velocity;
 
 use crate::{
-    consts::MIN_VELOCITY,
-    game::characters::components::{CharacterMoveState, CurrentMovement},
-    loading::assets::AspenAudioHandles,
-    loading::config::SoundSettings,
-    AppState,
+    consts::MIN_VELOCITY, game::characters::{components::{CharacterMoveState, CurrentMovement}, player::PlayerSelectedHero}, loading::{assets::AspenAudioHandles, config::SoundSettings, splashscreen::MainCamera}, register_types, AppState
 };
 
 /// OST music is played on this channel.
@@ -30,7 +26,8 @@ pub struct AmbienceSoundChannel;
 pub struct GameSoundChannel;
 
 /// footstep timer
-#[derive(Debug, Component, Deref, DerefMut)]
+#[derive(Debug, Component, Deref, DerefMut, Reflect)]
+#[reflect(Component)]
 pub struct ActorSoundTimer {
     /// timer for steps
     #[deref]
@@ -45,16 +42,22 @@ pub struct AudioPlugin;
 // This plugin is responsible to control the game audio
 impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
+        register_types!(app, [
+            ActorSoundMap,
+            ActorSoundTimers,
+            ActorSoundTimer
+        ]);
+
         app.insert_resource(AudioSettings {
-            command_capacity: 512,
-            sound_capacity: 512,
+            command_capacity: 256,
+            sound_capacity: 128,
         })
         .add_plugins(InternalAudioPlugin)
         .add_audio_channel::<MusicSoundChannel>()
         .add_audio_channel::<AmbienceSoundChannel>()
         .add_audio_channel::<GameSoundChannel>()
         .insert_resource(SpatialAudio {
-            max_distance: 1500.0,
+            max_distance: 250.0,
         })
         .add_systems(OnEnter(AppState::Loading), setup_sound_volume)
         .add_systems(
@@ -62,7 +65,7 @@ impl Plugin for AudioPlugin {
             (
                 prepare_actor_spatial_sound,
                 actor_footstep_sound_system.run_if(in_state(AppState::PlayingGame)),
-                play_background_audio.run_if(run_once()),
+                play_background_audio.run_if(in_state(AppState::StartMenu).and_then(run_once())),
             )
                 .run_if(resource_exists::<AspenAudioHandles>),
         )
@@ -92,12 +95,20 @@ fn play_background_audio(
     audio.play(audio_assets.game_soundtrack.clone()).looped();
 }
 
+use bevy_kira_audio::prelude::AudioReceiver;
+
 /// applies sound data mapps and a spacial emitter for actors that dont already have emitters
 fn prepare_actor_spatial_sound(
     audio: Res<AspenAudioHandles>,
+    sound_channel: Res<AudioChannel<GameSoundChannel>>,
     mut cmds: Commands,
+    camera: Query<Entity, (With<MainCamera>, Without<AudioReceiver>)>,
     actors: Query<Entity, (With<CharacterMoveState>, Without<AudioEmitter>)>,
 ) {
+    if let Ok(unconfigured_camera) = camera.get_single() {
+        cmds.entity(unconfigured_camera).insert(AudioReceiver);
+    }
+
     let mut rng = rand::thread_rng();
 
     for actor in &actors {
@@ -115,14 +126,18 @@ fn prepare_actor_spatial_sound(
             timer: Timer::new(Duration::from_millis(1000), TimerMode::Once),
             is_first_time: true,
         };
+
         let key = "Footstep";
-        sound_map.insert(key.to_string(), footstep_handle);
+
+        sound_map.insert(key.to_string(), footstep_handle.clone_weak());
         sound_timers.insert(key.to_string(), footstep_timer);
+
+        let footstep_instance = sound_channel.play(footstep_handle.clone_weak()).handle();
 
         cmds.entity(actor).insert((
             ActorSoundMap(sound_map),
             ActorSoundTimers(sound_timers),
-            AudioEmitter { instances: vec![] },
+            AudioEmitter { instances: vec![footstep_instance] },
         ));
     }
 }
@@ -130,11 +145,13 @@ fn prepare_actor_spatial_sound(
 use bevy_kira_audio::AudioSource;
 
 /// map of sound assets too "soundactionid"
-#[derive(Debug, Component, Deref, DerefMut)]
+#[derive(Debug, Component, Deref, DerefMut, Reflect)]
+#[reflect(Component)]
 pub struct ActorSoundMap(HashMap<String, Handle<AudioSource>>);
 
 /// map of timers too "soundactionid"
-#[derive(Debug, Component, Deref, DerefMut)]
+#[derive(Debug, Component, Deref, DerefMut, Reflect)]
+#[reflect(Component)]
 pub struct ActorSoundTimers(HashMap<String, ActorSoundTimer>);
 
 // TODO: make generic across actors and use spatial sound emitters on entitys
@@ -144,14 +161,16 @@ fn actor_footstep_sound_system(
     game_sound: Res<AudioChannel<GameSoundChannel>>,
     mut actor_query: Query<(
         &CharacterMoveState,
-        &mut AudioEmitter,
         &ActorSoundMap,
+        &mut AudioEmitter,
         &mut ActorSoundTimers,
         &Velocity,
-    )>,
+    ),
+    // With<PlayerSelectedHero>
+    >,
     time: Res<Time>,
 ) {
-    for (move_state, _spatial_emitter, sound_map, mut sound_timers, velocity) in &mut actor_query {
+    for (move_state, sound_map, mut spatial_emmiter, mut sound_timers, velocity) in &mut actor_query {
         let key = "Footstep".to_string();
         let footstep_timer = sound_timers
             .get_mut(&key)
@@ -161,14 +180,9 @@ fn actor_footstep_sound_system(
             .expect("audio source did not exist in ActorSoundMap.")
             .to_owned();
 
-        let px_per_sec = velocity.linvel.abs().max_element();
-        if px_per_sec <= MIN_VELOCITY {
-            return;
-        }
-
         let run_dur = Duration::from_secs_f32(0.3);
-        let walk_dur = Duration::from_secs_f32(0.7);
-        // info!("actor move state: {:?}", move_state);
+        let walk_dur = Duration::from_secs_f32(0.45);
+
         footstep_timer.tick(time.delta());
 
         match &move_state.move_status {
@@ -178,9 +192,12 @@ fn actor_footstep_sound_system(
                 }
 
                 if footstep_timer.finished() {
-                    let _snd = game_sound.play(footstep_handle);
-                    // spatial_emitter.instances.push(snd.handle());
+                    let mut snd = game_sound.play(footstep_handle);
+                    spatial_emmiter.instances.push(snd.handle());
                     footstep_timer.reset();
+
+                    // game_sound.play(footstep_handle);
+                    // footstep_timer.reset();
                 }
             }
             (CurrentMovement::Walk, _) => {
@@ -189,8 +206,12 @@ fn actor_footstep_sound_system(
                 }
 
                 if footstep_timer.finished() {
-                    game_sound.play(footstep_handle);
+                    let mut snd = game_sound.play(footstep_handle);
+                    spatial_emmiter.instances.push(snd.handle());
                     footstep_timer.reset();
+
+                    // game_sound.play(footstep_handle);
+                    // footstep_timer.reset();
                 }
             }
             (CurrentMovement::None, _) => {

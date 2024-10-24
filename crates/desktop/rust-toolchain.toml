@@ -1,0 +1,24 @@
+[toolchain]
+# newer versions cause android builds too crash with safety errors?
+# TODO: possible ndk version needs updated
+channel = "nightly-2024-10-16"
+profile = "default"
+components = [
+  "rustc",
+  "rust-std",
+  "cargo",
+  "clippy",
+  "rustfmt",
+  "rust-src",
+  "rust-analyzer",
+  "miri",
+  "llvm-tools",
+]
+targets = [
+  "wasm32-unknown-unknown",
+  "x86_64-unknown-linux-gnu",
+  "x86_64-pc-windows-msvc",
+  "aarch64-linux-android",
+  "armv7-linux-androideabi",
+  "i686-linux-android",
+]

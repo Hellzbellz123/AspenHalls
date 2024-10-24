@@ -77,8 +77,8 @@ bevy_core = { path = "deps/bevy/crates/bevy_core" }
 bevy_core_pipeline = { path = "deps/bevy/crates/bevy_core_pipeline" }
 bevy_derive = { path = "deps/bevy/crates/bevy_derive" }
 bevy_diagnostic = { path = "deps/bevy/crates/bevy_diagnostic" }
-bevy_dev_tools = {path = "deps/bevy/crates/bevy_dev_tools"}
-bevy_dynamic_plugin ={ path = "deps/bevy/crates/bevy_dynamic_plugin"}
+# bevy_dev_tools = {path = "deps/bevy/crates/bevy_dev_tools"}
+# bevy_dynamic_plugin ={ path = "deps/bevy/crates/bevy_dynamic_plugin"}
 bevy_dylib = { path = "deps/bevy/crates/bevy_dylib" }
 bevy_ecs = { path = "deps/bevy/crates/bevy_ecs" }
 bevy_gilrs = { path = "deps/bevy/crates/bevy_gilrs" }

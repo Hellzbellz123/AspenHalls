@@ -1,0 +1,29 @@
+###### OLD MOBILE MAKEFILE #######
+extend = "../../Makefile.toml"
+
+[tasks.package-release]
+private = true
+dependencies = ["build-release-android"]
+workspace = false
+run_task = { name = ["package-mobile-artifacts"] }
+
+[tasks.build-release-android]
+private = true
+workspace = false
+condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
+command = "cargo"
+args = [
+  "apk",
+  "build",
+  "--release",
+  "--package=aspen_halls_mobile",
+  "--features=develop",
+]
+
+#  TODO: figure out solution for ios cross compilation
+
+[tasks.package-mobile-artifacts]
+private = true
+workspace = false
+script_runner = "@shell"
+script.main = "cp ../../target/release/apk/AspenHalls.apk ../../package"

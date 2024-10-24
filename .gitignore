@@ -1,5 +1,6 @@
 .vscode/ra-cache
 target/
+package/
 
 crates/aspenlib/src/utilities/.unused_utils
 crates/desktop/debug.log

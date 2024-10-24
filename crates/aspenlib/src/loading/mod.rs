@@ -51,6 +51,7 @@ impl Plugin for AppLoadingPlugin {
                     "packs/asha/pack.registry",
                 )
                 .load_collection::<AspenDefinitionHandles>()
+                .load_collection::<AspenAudioHandles>()
                 .load_collection::<AspenMapHandles>()
                 .load_collection::<AspenTextureHandles>(),
         );

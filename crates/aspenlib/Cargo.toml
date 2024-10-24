@@ -46,18 +46,15 @@ cast_possible_wrap = { level = "allow" }
 
 [features]
 develop = [
-  "bevy/file_watcher",
-  "bevy/glam_assert"
+  # "bevy/file_watcher",
+  # "bevy/glam_assert"
 ]
 dynamic = ["bevy/dynamic_linking"]
 trace = ["bevy/trace_tracy"] #, "bevy_mod_logfu/trace_tracy_memory"]
 
 [dependencies]
-# rayon = "1.10.0"
-# crossbeam = { version = "0.8.4", features = ["nightly", "crossbeam-channel"] }
-# strum = { version = "0.26", features = ["derive", "std", "strum_macros"] }
-# num-integer = { version = "0.1" }
-# lazy_static = { version = "1.4.0" }
+pretty-type-name = "1.0.1"
+petgraph = "0.6.5"
 rand = { version = "0.8" }
 log = "0.4.20"
 clap = { version = "4.2" }
@@ -67,10 +64,10 @@ ron = { version = "0.8" }
 winit = { version = "0.30" }
 image = { version = "0.25", default_features = false, features = ["png"] }
 bevy = { path = "../../deps/bevy", default-features = false, features = [
-  "bevy_pbr",       # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
-  "bevy_ui",        # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
-  "bevy_winit",     # Support for creating windows
-  "x11",            # Support xOrg Windows
+  "bevy_pbr",   # bevy_pbr / bevy_asset / bevy_render / bevy_core_pipeline
+  "bevy_ui",    # bevy_ui / bevy_text / bevy_sprite / bevy_core_pipeline
+  "bevy_winit", # Support for creating windows
+  "x11",        # Support xOrg Windows
   # "wayland",          # Support Wayland windows
   "png",              # png is my preffered image format
   "serialize",        # Support for `serde` Serialize/Deserialize
@@ -83,12 +80,25 @@ bevy = { path = "../../deps/bevy", default-features = false, features = [
 ] }
 
 # Bevy Dependencies are located in deps folder
+# seldom_map_nav = { path = "../../deps/seldom_map_nav", features = ["bevy"] }
 big-brain = { path = "../../deps/big_brain" }
-leafwing-input-manager = { path = "../../deps/leafwing_input_manager", features = ["default", "timing"]}
-seldom_map_nav = { path = "../../deps/seldom_map_nav", features = ["bevy"] }
-bevy_touch_stick = { path = "../../deps/bevy_touch_stick" }
 bevy_console = { path = "../../deps/bevy_console" }
-bevy-inspector-egui = { path = "../../deps/bevy_inspector_egui/crates/bevy-inspector-egui", default-features = true, features = []}
+bevy_framepace = { path = "../../deps/bevy_framepace" }
+bevy_touch_stick = { path = "../../deps/bevy_touch_stick" }
+bevy_asepritesheet = { path = "../../deps/bevy_asepritesheet" }
+bevy_prototype_lyon = { path = "../../deps/bevy_prototype_lyon" }
+bevy_rapier2d = { path = "../../deps/bevy_rapier/bevy_rapier2d" }
+bevy-inspector-egui = { path = "../../deps/bevy_inspector_egui/crates/bevy-inspector-egui", default-features = false, features = [
+  "bevy_render",
+] }
+bevy_egui = { path = "../../deps/bevy_egui", default-features = false, features = [
+  "default_fonts",
+  "serde",
+] }
+leafwing-input-manager = { path = "../../deps/leafwing_input_manager", features = [
+  "default",
+  "timing",
+] }
 bevy_common_assets = { path = "../../deps/bevy_common_assets", features = [
   "ron",
   "toml",
@@ -99,13 +109,6 @@ bevy_ecs_ldtk = { path = "../../deps/bevy_ecs_ldtk", features = [
 ] }
 bevy_ecs_tilemap = { path = "../../deps/bevy_ecs_tilemap", features = [
   "render",
-] }
-bevy_framepace = { path = "../../deps/bevy_framepace" }
-bevy_prototype_lyon = { path = "../../deps/bevy_prototype_lyon" }
-bevy_rapier2d = { path = "../../deps/bevy_rapier/bevy_rapier2d" }
-bevy_egui = { path = "../../deps/bevy_egui", default-features = false, features = [
-  "default_fonts",
-  "serde",
 ] }
 bevy_asset_loader = { path = "../../deps/bevy_asset_loader/bevy_asset_loader", features = [
   "2d",
@@ -127,6 +130,3 @@ bevy_mod_picking = { path = "../../deps/bevy_mod_picking/", default-features = f
   "selection",
   "highlight",
 ] }
-bevy_asepritesheet = { path = "../../deps/bevy_asepritesheet" }
-pretty-type-name = "1.0.1"
-petgraph = "0.6.5"

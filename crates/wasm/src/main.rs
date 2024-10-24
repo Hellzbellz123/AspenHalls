@@ -38,7 +38,7 @@ fn main() {
         log_filter: Some("Info,wgpu=error,naga=error".to_string()),
         window_settings: WindowSettings {
             v_sync: true,
-            frame_rate_target: 144.0,
+            frame_rate_target: 60.0,
             full_screen: false,
             resolution: Vec2::new(1920.0, 1080.0),
             window_scale_override: 1.0,

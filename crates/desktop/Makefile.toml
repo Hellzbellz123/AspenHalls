@@ -1,0 +1,55 @@
+####### OLD NATIVE MAKEFILE ########
+extend = "../../Makefile.toml"
+
+[tasks.package-release]
+private = false
+dependencies = ["build-release-windows", "build-release-linux", "clean-packagedir"]
+workspace = false
+run_task = { name = ["package-artifacts"] }
+
+[tasks.build-release-linux]
+private = true
+workspace = false
+command = "cargo"
+args = ["build", "--release", "--target=x86_64-unknown-linux-gnu "]
+
+[tasks.build-release-windows]
+private = true
+workspace = false
+# this env fixes Blake3 cross compilation.
+env = { "CARGO_FEATURE_PURE" = "1" }
+command = "cargo"
+args = ["xwin", "build", "--release", "--target=x86_64-pc-windows-msvc"]
+
+
+[tasks.package-artifacts]
+private = false
+dependencies = ["copy-assets", "copy-bin-windows", "copy-bin-linux"]
+workspace = false
+run_task = { name = ["zip-artifacts"]}
+
+[tasks.copy-bin-windows]
+script_runner = "@shell"
+script.pre = "echo 'copying windows binary'"
+script.main = "cp ../../target/x86_64-pc-windows-msvc/release/aspen_halls_desktop.exe ../../package/desktop"
+
+[tasks.copy-bin-linux]
+script_runner = "@shell"
+script.pre = "echo 'copying linux binary'"
+script.main = "cp ../../target/x86_64-unknown-linux-gnu/release/aspen_halls_desktop ../../package/desktop"
+
+[tasks.copy-assets]
+private = true
+script_runner = "@shell"
+script.pre = "cp -r ../../assets ../../package/desktop && cp config.toml ../../package/desktop/"
+
+[tasks.zip-artifacts]
+private = true
+script_runner = "@shell"
+script.pre = "cd ../../package/desktop"
+script.main = "zip -ur ../aspenhalls_desktop.zip *"
+
+[tasks.clean-packagedir]
+private = true
+script_runner = "@shell"
+script.pre = "rm -rf ../../package/desktop/* ../../package/aspenhalls_desktop.zip"

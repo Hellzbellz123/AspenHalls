@@ -86,34 +86,18 @@ resizeable_activity = true
 always_retain_task_state = true
 immersive = true
 
-# See https://developer.android.com/guide/topics/manifest/meta-data-element
+# Defaults to `$HOME/.android/debug.keystore` for the `dev` profile. Will ONLY
+# generate a new debug.keystore if this file does NOT exist. A keystore is never
+# auto-generated for other profiles.
 #
-# Note: there can be several .meta_data entries.
-# Note: the `resource` attribute is currently not supported.
-# [[package.metadata.android.application.activity.meta_data]]
-# name = "android.app.lib_name"
-# value = "game"
-
-# See https://developer.android.com/guide/topics/manifest/intent-filter-element
+# The keystore path can be absolute, or relative to the Cargo.toml file.
 #
-# Note: there can be several .intent_filter entries.
-# [[package.metadata.android.application.activity.intent_filter]]
-# # See https://developer.android.com/guide/topics/manifest/action-element
-# actions = ["android.intent.action.VIEW", "android.intent.action.WEB_SEARCH"]
-# # See https://developer.android.com/guide/topics/manifest/category-element
-# categories = ["android.intent.category.DEFAULT", "android.intent.category.BROWSABLE"]
-
-# See https://developer.android.com/guide/topics/manifest/data-element
-# Note: there can be several .data entries.
-# Note: not specifying an attribute excludes it from the final data specification.
-
-# [package.metadata]
-# app_name = "Aspen Halls"
-# assets = ["../../assets"]
-
-# [package.metadata.apple]
-# resources = ["../../assets-build/apple"]
-# release_build_targets = [
-#   "aarch64-apple-ios",
-#   "x86_64-apple-ios",
-# ]
+# The environment variables `CARGO_APK_<PROFILE>_KEYSTORE` and
+# `CARGO_APK_<PROFILE>_KEYSTORE_PASSWORD` can be set to a keystore path
+# and keystore password respectively. The profile portion follows the same rules
+# as `<cfg>`, it is the uppercased profile name with `-` replaced with `_`.
+#
+# If present they take precedence over the signing information in the manifest.
+[package.metadata.android.signing.release]
+path = "/home/hellzbellz/.android/debug.keystore"
+keystore_password = "android"

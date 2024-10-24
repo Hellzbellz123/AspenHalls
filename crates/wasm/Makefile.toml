@@ -1,0 +1,17 @@
+###### OLD WASM MAKEFILE #######
+extend = "../../Makefile.toml"
+
+[tasks.package-release]
+private = true
+dependencies = ["build-release-wasm"]
+workspace = false
+run_task = { name = ["package-wasm-artifacts"] }
+
+[tasks.build-release-wasm]
+command = "trunk"
+args = ["build", "--release"]
+
+[tasks.package-wasm-artifacts]
+private = true
+script_runner = "@shell"
+script.main = "zip -r ../../package/aspen_wasm.zip dist/*"

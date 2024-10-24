@@ -1,13 +1,13 @@
 [config]
-skip_core_tasks = true
-skip_git_env_info = true
-skip_rust_env_info = true
-skip_crate_env_info = true
+skip_core_tasks = false
+skip_git_env_info = false
+skip_rust_env_info = false
+skip_crate_env_info = false
 load_cargo_aliases = false
 
 [env]
-# CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_WORKSPACE_EMULATION = true
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_WORKSPACE_MEMBERS = [
   "crates/aspenlib",
   "crates/native",
@@ -20,6 +20,7 @@ alias = "pretty-list"
 
 [tasks.pretty-list]
 private = false
+workspace = false
 script.main = '''
   echo \
   "\
@@ -27,9 +28,7 @@ script.main = '''
   Below are predefined functions for the workspace:
 
     ##  Development  ##
-      dev-native: Run Aspen Halls for desktop.
-      dev-mobile: build AspenHalls for android and start on connected device
-      dev-web: Run Aspen Halls for wasm.
+      run-native: Run Aspen Halls for desktop.
 
     ##  Release ##
       create-release: builds all launchers in release mode and outputs artifacts too package dir
@@ -39,329 +38,40 @@ script.main = '''
   "
 '''
 
-[tasks.tformat]
-workspace = false
-script_runner = "@shell"
-script = "tools/trunk fmt --all"
-
-[tasks.tcheck]
-workspace = false
-script_runner = "@shell"
-script = "tools/trunk check --all"
-
-[tasks.check]
-command = "cargo"
-args = ["clippy"]
-
-[tasks.format]
-command = "cargo"
-args = ["fmt"]
-
-[tasks.run-mobile]
-# dependencies = ["connect-android"]
-cwd = "crates/mobile"
-workspace = false
-condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
-command = "cargo"
-args = ["apk", "run", "--package=aspen_halls_mobile", "--features=develop"]
-
 [tasks.run-native]
-dependencies = ["native-assets"]
+dependencies = ["copy-assets"]
 cwd = "crates/desktop/"
 workspace = false
 description = ""
 command = "cargo"
 args = ["run", "--features=develop,dynamic"]
 
-[tasks.run-release]
-dependencies = ["native-assets"]
-cwd = "crates/desktop/"
-workspace = false
-description = ""
-command = "cargo"
-args = ["run", "--features=develop", "--release"]
-
 [tasks.run-web]
+dependencies = ["copy-assets"]
 cwd = "crates/wasm/"
 workspace = false
 description = ""
 command = "trunk"
-args = ["serve"]
+args = ["serve", "--open", "--no-default-features", "--features", "develop"]
 
-[tasks.connect-android]
+[tasks.run-mobile]
+dependencies = ["copy-assets"]
+cwd = "crates/mobile/"
 workspace = false
-description = "Connects first android device found by avahi-discover"
-script = "tools/adb-connecter.sh"
+description = ""
+condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
+command = "cargo"
+args = ["apk", "run", "--package=aspen_halls_mobile", "--features=develop"]
 
-[tasks.native-assets]
+[tasks.copy-assets]
 workspace = false
 script_runner = "@shell"
-script.pre = "rm -rf crates/desktop/assets && cp -r assets crates/desktop/assets"
+script.pre = "rm -rf crates/desktop/assets && cp -r assets crates/desktop/assets && rm -rf crates/wasm/assets && cp -r assets crates/wasm/assets && rm -rf crates/mobile/assets && cp -r assets crates/mobile/assets"
 
-# [tasks.docs]
-# clear = true
+[tasks.package-release]
+description = "runs package release workflow for each target"
+
+# [tasks.connect-android]
 # workspace = false
-# private = true
-# description = "Generate docs"
-# command = "cargo"
-# args = ["doc", "--all"]
-
-# [tasks.upload-docs]
-# description = "Upload docs"
-# command = "cargo"
-# args = ["doc-upload"]
-
-# [tasks.clean]
-# description = "Clean all target directory"
-# command = "cargo"
-# args = ["clean"]
-
-# [tasks.fmt]
-# description = "Check format quality"
-# command = "cargo"
-# args = ["fmt", "--all", "--", "--check"]
-
-# [tasks.fix-fmt]
-# description = "Fix format"
-# command = "cargo"
-# args = ["fmt", "--all"]
-
-# [tasks.clippy]
-# description = "Check code quality"
-# env_files = [
-#   "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
-# ]
-# command = "cargo"
-# args = ["cranky", "--", "-D", "warnings"]
-
-# [tasks.fix-clippy]
-# description = "Fix code quality"
-# env_files = [
-#   "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
-# ]
-# command = "cargo"
-# args = ["fix", "--allow-dirty"]
-
-# [tasks.test]
-# description = "Check all unit test"
-# env_files = [
-#   "${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/.env",
-# ]
-# command = "cargo"
-# args = ["test"]
-# dependencies = ["fmt", "clippy"]
-
-# [tasks.check]
-# description = "Check all issues, format and code quality"
-# dependencies = ["fmt", "clippy"]
-
-# [tasks.fix-all]
-# description = "Try fix all clippy and format issues"
-# dependencies = ["fix-fmt", "fix-clippy"]
-
-# [tasks.build-release]
-# description = "Generate release binary/lib"
-# dependencies = [
-#   "fmt",
-#   "clippy",
-#   "test",
-#   "release-native",
-#   "release-web",
-# ]
-
-
-###### OLD MOBILE MAKEFILE #######
-# extend = "../../Makefile.toml"
-
-# [tasks.build-release]
-# private = true
-# workspace = false
-# run_task = { name = [
-#   "build-release-android",
-#   # "build-release-ios"
-# ] }
-
-# [tasks.cp_artifacts_release]
-# private = true
-# workspace = false
-# run_task = { name = [
-#   # assets are included inside the apk
-#   "cp_artifacts_android",
-#   # "cp_artifacts_ios"
-# ] }
-
-# [tasks.build-release-android]
-# private = true
-# workspace = false
-# env_files = ["../../.env"]
-# condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
-# script.main = "gradle assembleRelease -p android"
-
-# [tasks.cp_artifacts_android]
-# private = true
-# script_runner = "@shell"
-# script.main = "cp android/build/outputs/apk/release/android-release-unsigned.apk ../../package/mobile/aspen-halls.apk"
-
-# [tasks.rdmobile]
-# workspace = false
-# condition.env_set = ["BUNDLETOOL_PATH", "ANDROID_NDK_ROOT", "JAVA_HOME"]
-# command = "cargo"
-# args = ["apk", "run", "--package=aspen_halls_mobile", "--features=develop"]
-# # script.main = "gradle assembleDebug -p android --warning-mode all"
-# # script.post = "./debug_android.sh"
-
-# [tasks.RDMobile]
-# workspace = false
-# description = "(RDMobile/rdmobile): build debug, install on connected adb device, start loggger"
-# run_task = "rdmobile"
-
-# [tasks.cp_apk-debug]
-# private = true
-# script_runner = "@shell"
-# # script.pre = "rm -rf ../../package/"
-# script.main = "cp android/build/outputs/apk/debug/android-debug.apk ../../package/aspen-halls.apk"
-
-###### OLD WASM MAKEFILE #######
-# extend = "../../Makefile.toml"
-
-# [tasks.build-release]
-# private = true
-# workspace = false
-# run_task = { name = [
-#   "build-release-wasm",
-#   # "build-release-wasi"
-# ] }
-
-# [tasks.cp_artifacts_release]
-# private = true
-# workspace = false
-# run_task = { name = [
-#   # assets are included inside the apk
-#   "cp_artifacts_wasm",
-#   # "cp_artifacts_wasi"
-# ] }
-
-# [tasks.build-release-wasm]
-# # env_files = ["../../.env"]
-# command = "trunk"
-# args = ["build", "--release"]
-
-# [tasks.cp_artifacts_wasm]
-# private = true
-# script_runner = "@shell"
-# script.main = "cp -r dist/* ../../package/website/"
-
-# [tasks.run-web]
-# # env_files = ["../../.env"]
-# command = "trunk"
-# args = ["serve", "--open", "--no-default-features", "--features", "develop"]
-
-
-######## OLD NATIVE MAKEFILE ########
-# extend = "../../Makefile.toml"
-
-# [tasks.build-release]
-# private = true
-# workspace = false
-# run_task = { name = ["build-release-linux", "build-release-windows"] }
-
-# [tasks.cp_artifacts_release]
-# private = true
-# workspace = false
-# run_task = { name = ["copy_assets", "copy_bin_windows", "copy_bin_linux"] }
-
-# [tasks.copy_assets]
-# private = true
-# workspace = false
-# script_runner = "@shell"
-# script.pre = "cp -r ../../assets ../../package/native/assets"
-
-# [tasks.copy_bin_windows]
-# script_runner = "@shell"
-# script.pre = "echo 'copying windows binary'"
-# script.main = "cp ../../target/x86_64-pc-windows-msvc/release/aspen_halls_native.exe ../../package/native/"
-
-# [tasks.copy_bin_linux]
-# script_runner = "@shell"
-# script.pre = "echo 'copying linux binary'"
-# script.main = "cp ../../target/x86_64-unknown-linux-gnu/release/aspen_halls_native ../../package/native/ "
-
-# [tasks.build-release-linux]
-# private = true
-# workspace = false
-# env_files = ["../../.env"]
-# command = "cargo"
-# args = ["build", "--release", "--target=x86_64-unknown-linux-gnu "]
-
-# [tasks.build-release-windows]
-# private = true
-# workspace = false
-# # this env fixes Blake3 cross compilation.
-# env = { "CARGO_FEATURE_PURE" = "1" }
-# env_files = ["../../.env"]
-# command = "cargo"
-# args = ["xwin", "build", "--release", "--target=x86_64-pc-windows-msvc"]
-
-# [tasks.run-develop]
-# private = true
-# command = "mold"
-# args = ["-run", "cargo", "run", "--features", "develop, dynamic"]
-
-# [tasks.refresh-assets]
-# private = true
-# script_runner = "@shell"
-# script.pre = "rm -rf ./assets && cp -r ../../assets ./assets"
-
-# stupid aliases too make my brain happy
-# didnt look at the docs long enough too
-# see if this functionality is inluded
-# the docs are hard to comprehend.
-# [tasks.watchsrc]
-# private = true
-# env_files = ["../../.env"]
-# watch.watch = ["../../src", "../../Cargo.toml", "src", "Cargo.toml"]
-# run_task = "run-develop"
-
-# [tasks.brnative]
-# run_task = "build-release-native"
-
-# [tasks.rdnative]
-# private = true
-# run_task = { name = ["refresh-assets", "run-develop"], parallel = true }
-
-# [tasks.RDNative]
-# description = "RDNative: Run Aspen Halls in Development mode - Native"
-# run_task = "rdnative"
-
-# [tasks.WatchSrc]
-# description = "WatchSrc: starts Aspen Halls and runs RunDevelop if Source files change"
-# run_task = "watchsrc"
-
-# [tasks.BRNative]
-# description = "BRNative: Build Native targets and copy binarys too package/native directory"
-# run_task = "brnative"
-
-# [tasks.run-release]
-# private = true
-# command = "cargo"
-# args = ["run", "--release"]
-
-# [tasks.rrnative]
-# description = "RRNative: Run Aspen Halls in release mode - Native"
-# run_task = { name = [
-#   "update-assets",
-#   "run-release",
-# ], parallel = true }
-
-# [tasks.RRNative]
-# run_task = "rrnative"
-# private = true
-
-# dont use this until some logic is implemented too properly handle git repository status
-# if there is changes too the assets folder/src this function should exit with an error message
-# [tasks.edit_assets]
-# env_files = ["../../.env"]
-# script_runner = "@shell"
-# script.pre = "rm -rf ../../assets_old/*"
-# script.main = "cargo run --features develop"
-# script.post = "mv ../../assets/* ../../assets_old/ && cp -r ./assets/* ../../assets/"
+# description = "Connects first android device found by avahi-discover"
+# script = "tools/adb-connecter.sh"
