@@ -76,7 +76,7 @@ pub mod utils {
                     let collider_name = format!("{}Collider", character.name.clone().as_str());
                     let spawned_enemy = child
                         .spawn((
-                            EntityCreator(child.parent_entity()),
+                            EntityCreator(child.target_entity()),
                             AspenColliderBundle {
                                 tag: ActorColliderType::Character,
                                 name: Name::new(collider_name),

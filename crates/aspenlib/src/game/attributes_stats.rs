@@ -7,9 +7,9 @@ use std::{
 };
 
 use bevy::{
-    ecs::{bundle::Bundle, component::Component, entity::Entity, reflect::ReflectComponent},
+    ecs::{bundle::Bundle, component::Component, entity::Entity, hierarchy::ChildOf, reflect::ReflectComponent},
     log::warn,
-    prelude::{Added, Changed, Children, HierarchyQueryExt, Parent, Query, With},
+    prelude::{Added, Changed, Children, Query, With},
     reflect::Reflect,
 };
 
@@ -30,7 +30,7 @@ pub const MANA_PER_INTELLIGENCE: i32 = 4;
 pub fn sync_character_stats(
     mut characters_with_changed_children: Query<(Entity, &mut CharacterStats), Changed<Children>>,
     mut added_stats: Query<(Entity, &mut CharacterStats), Added<CharacterStats>>,
-    equipment: Query<&EquipmentStats, With<Parent>>,
+    equipment: Query<&EquipmentStats, With<ChildOf>>,
     children: Query<&Children>,
 ) {
     for (character, mut stats) in &mut characters_with_changed_children {

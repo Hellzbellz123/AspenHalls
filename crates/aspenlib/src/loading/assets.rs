@@ -1,7 +1,7 @@
 use bevy::prelude::{Image, Res};
 use bevy::{
+    ecs::resource::Resource,
     asset::Handle,
-    ecs::system::Resource,
     prelude::{Reflect, TextureAtlasLayout},
     text::Font,
 };

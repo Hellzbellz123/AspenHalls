@@ -199,7 +199,7 @@ impl Default for DifficultySettings {
 impl Default for GeneralSettings {
     fn default() -> Self {
         Self {
-            camera_zoom: 5.5,
+            camera_zoom: 0.6,
             game_difficulty: GameDifficulty::Custom(DifficultySettings::default()),
             enable_debug: cfg!(feature = "develop"),
             enable_touch_controls: cfg!(target_os = "android") || cfg!(target_os = "ios"),
@@ -260,6 +260,7 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
             meta_check: AssetMetaCheck::Never,
             watch_for_changes_override: None,
             mode: AssetMode::Unprocessed,
+            unapproved_path_mode: bevy::asset::UnapprovedPathMode::Deny,
         },
     ));
 
@@ -295,15 +296,10 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                         }
                     },
                     window_level: bevy::window::WindowLevel::Normal,
-                    // cursor: Cursor {
-                    //     icon: CursorIcon::Crosshair,
-                    //     visible: true,
-                    //     ..default()
-                    // },
                     ..default()
                 }),
                 ..default()
-            }).set(SpritePlugin { add_picking: true })
+            })
             .set(ImagePlugin::default_nearest())
             .disable::<LogPlugin>()
             .disable::<AssetPlugin>()
@@ -354,7 +350,9 @@ fn apply_window_settings(
     mut mut_window_entity: Query<(Entity, &mut Window)>,
     mut last_resolution: Local<Vec2>,
 ) {
-    let (_w_ent, b_window) = mut_window_entity.single_mut();
+    let Ok((_w_ent, b_window)) = mut_window_entity.single_mut() else {
+        return
+    };
 
     // TODO: fix this system too work better?
     if window_settings.resolution != *last_resolution
@@ -413,21 +411,28 @@ fn apply_sound_settings(
 /// applies camera zoom setting
 fn apply_camera_zoom(
     general_settings: Res<GeneralSettings>,
-    mut camera: Query<&mut OrthographicProjection, With<MainCamera>>,
+    mut camera: Query<&mut Projection, With<MainCamera>>,
 ) {
     if camera.is_empty() {
         return;
     }
 
-    //camera zoom
-    match camera.get_single_mut() {
-        Ok(mut projection) => {
-            projection.scale = general_settings.camera_zoom;
-        }
-        Err(e) => {
-            warn!("issue getting camera: {e}");
-        }
+    let Ok(projection) = camera.single_mut() else {
+        return
     };
+
+    match projection.into_inner() {
+        Projection::Orthographic(orthographic_projection) => orthographic_projection.scale = general_settings.camera_zoom,
+        _ => warn!("wrong camera projection"),
+    }
+    //camera zoom
+    // match camera.single_mut() {
+    //     Ok(projection) => {
+    //     }
+    //     Err(e) => {
+    //         warn!("issue getting camera: {e}");
+    //     }
+    // };
 }
 
 // TODO: fix logical pixels
@@ -449,7 +454,7 @@ fn on_resize_system(
 /// updates `DifficultySettings` if player changes difficulty settings
 fn update_difficulty_settings(
     // TODO: this is not correct
-    levels: Query<(Entity, &LdtkProjectHandle), With<Parent>>,
+    levels: Query<(Entity, &LdtkProjectHandle), With<ChildOf>>,
     general_settings: Res<GeneralSettings>,
     mut cmds: Commands,
 ) {

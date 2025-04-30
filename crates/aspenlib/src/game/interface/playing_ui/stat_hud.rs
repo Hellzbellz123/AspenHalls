@@ -2,7 +2,7 @@ use crate::game::{attributes_stats::CharacterStats, characters::player::PlayerSe
 use bevy::prelude::*;
 
 /// create player hud / vitals holder
-pub fn create_player_hud(playing_ui_parts: &mut ChildBuilder) {
+pub fn create_player_hud(playing_ui_parts: &mut ChildSpawnerCommands) {
     playing_ui_parts
         .spawn((
             Name::new("PlayerHud"),
@@ -30,7 +30,7 @@ pub fn create_player_hud(playing_ui_parts: &mut ChildBuilder) {
 }
 
 /// create player portrait widget
-fn create_hero_portrait(hud_parts: &mut ChildBuilder) {
+fn create_hero_portrait(hud_parts: &mut ChildSpawnerCommands) {
     hud_parts
         .spawn((
             Name::new("PortraitOuter"),
@@ -69,7 +69,7 @@ fn create_hero_portrait(hud_parts: &mut ChildBuilder) {
 pub struct UiPlayerPortrait;
 
 /// vitals hud widget
-fn create_vitals_hud(hud_parts: &mut ChildBuilder) {
+fn create_vitals_hud(hud_parts: &mut ChildSpawnerCommands) {
     hud_parts
         .spawn((
             Name::new("StatsContainer"),
@@ -114,7 +114,7 @@ fn create_vitals_hud(hud_parts: &mut ChildBuilder) {
 
 /// creates a statbar widget inside a node
 pub fn statbar_widget(
-    stat_bars: &mut ChildBuilder,
+    stat_bars: &mut ChildSpawnerCommands,
     bar_type: StatBar,
     title: &str,
     height: f32,
@@ -207,8 +207,10 @@ pub fn update_player_portrait(
         (With<UiPlayerPortrait>, Without<PlayerSelectedHero>),
     >,
 ) {
-    let mut portrait_image = player_portrait.single_mut();
-    let Ok(player_sprite) = player_query.get_single() else {
+    let Ok(mut portrait_image) = player_portrait.single_mut() else {
+        return;
+    };
+    let Ok(player_sprite) = player_query.single() else {
         warn!("no selected player is available");
         return;
     };
@@ -224,7 +226,7 @@ pub fn update_player_hp_bar(
     player_query: Query<(Entity, &CharacterStats), With<PlayerSelectedHero>>,
     mut bar_query: Query<(&mut StatBar, &mut Node)>,
 ) {
-    let Ok((_, stats)) = player_query.get_single() else {
+    let Ok((_, stats)) = player_query.single() else {
         warn!("no player stats too update player stats ui with");
         return;
     };

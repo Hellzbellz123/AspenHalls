@@ -2,15 +2,11 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 
 use crate::{
-    bundles::{Aspen2dPhysicsBundle, AspenColliderBundle, NeedsCollider, ProjectileBundle},
-    consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX},
-    game::{
+    bundles::{Aspen2dPhysicsBundle, AspenColliderBundle, NeedsCollider, ProjectileBundle}, consts::{AspenCollisionLayer, ACTOR_PHYSICS_Z_INDEX, ACTOR_Z_INDEX}, game::{
         attributes_stats::{Damage, ElementalEffect, PhysicalDamage, ProjectileStats},
         characters::ai::components::AIAutoShootConfig,
         components::{ActorColliderType, TimeToLive},
-    },
-    loading::assets::AspenInitHandles,
-    AppStage,
+    }, loading::assets::AspenInitHandles, utilities::EntityCreator, AppStage
 };
 
 /// handles character attacks if they have no weapons or did not use an action
@@ -46,7 +42,6 @@ pub fn delegate_unarmed_attacks(
         if is_unarmed_shoot {
             // create projectile in attack direction.
             cmds.spawn((
-                Sensor,
                 // TODO: get requesters stats and build projectile speed/damage from that
                 ProjectileBundle {
                     name: Name::new("MonsterProjectile"),
@@ -70,18 +65,23 @@ pub fn delegate_unarmed_attacks(
                 Transform::from_translation(
                     (location + (attack.direction * 12.0)).extend(ACTOR_Z_INDEX),
                 ),
+                Sensor,
             ))
             .with_children(|bullet_parts| {
-                bullet_parts.spawn(AspenColliderBundle {
-                    name: Name::new("MonsterProjectileCollider"),
-                    tag: ActorColliderType::Projectile,
-                    collider: NeedsCollider::Aabb,
-                    collision_groups: AspenCollisionLayer::projectile_actor(),
-                    transform: Transform {
-                        translation: Vec2::ZERO.extend(ACTOR_PHYSICS_Z_INDEX),
-                        ..default()
+                bullet_parts.spawn((
+                    EntityCreator(attack.requester),
+                    CollisionEventsEnabled,
+                    AspenColliderBundle {
+                        name: Name::new("MonsterProjectileCollider"),
+                        tag: ActorColliderType::Projectile,
+                        collider: NeedsCollider::Aabb,
+                        collision_groups: AspenCollisionLayer::projectile_actor(),
+                        transform: Transform {
+                            translation: Vec2::ZERO.extend(ACTOR_PHYSICS_Z_INDEX),
+                            ..default()
+                        },
                     },
-                });
+                ));
             });
 
             // TODO: brainstorm possible delegations

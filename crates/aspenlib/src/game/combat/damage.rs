@@ -22,7 +22,7 @@ pub fn projectile_hits(
     mut cmds: Commands,
     mut damage_queue_query: Query<&mut DamageQueue>,
     mut collision_events: EventReader<CollisionStarted>,
-    actor_colliders: Query<(Entity, &Parent, &ActorColliderType), With<Collider>>,
+    actor_colliders: Query<(Entity, &ChildOf, &ActorColliderType), With<Collider>>,
     projectiles: Query<&ProjectileStats>,
     difficulty_settings: Res<DifficultySettings>,
     ai_types: Query<&AiType>,
@@ -36,7 +36,7 @@ pub fn projectile_hits(
                 .filter(|(_, _, at)| at == &&ActorColliderType::Projectile);
             projectile_colliders
                 .find(|f| f.0 == a_id || f.0 == b_id)
-                .map(|f| f.1.get())
+                .map(|f| f.1.parent())
                 .map(|f| (projectiles.get(f), f))
         }) else {
             continue;
@@ -48,11 +48,11 @@ pub fn projectile_hits(
                 .filter(|(_, _, at)| at == &&ActorColliderType::Character);
             character_colliders
                 .find(|f| f.0 == b_id || f.0 == a_id)
-                .map(|f| f.1.get())
+                .map(|f| f.1.parent())
         }) else {
             // projectile hit something other than character,
             // only need too handle the projectile
-            cmds.entity(projectile).despawn_recursive();
+            cmds.entity(projectile).despawn();
             continue;
         };
 
@@ -79,12 +79,13 @@ pub fn projectile_hits(
             boss_creep_hits.sort();
 
             if damaged_character_type == bullet_owner_type || hit_types == boss_creep_hits {
+                info!("skipping freindly fire");
                 continue;
             }
         }
 
         info!("projectile hit detected");
-        cmds.entity(projectile).despawn_recursive();
+        cmds.entity(projectile).despawn();
 
         // get hit actors damage queue
         let Ok(mut damage_queue) = damage_queue_query.get_mut(hit_actor) else {
@@ -148,11 +149,11 @@ pub fn handle_death_system(
                 game_info.player_deaths += 1;
 
                 if *dungeon_state.get() == GeneratorState::FinishedDungeonGen {
-                    regen_event.send(RegenerateDungeonEvent {
+                    regen_event.write(RegenerateDungeonEvent {
                         reason: RegenReason::PlayerDeath,
                     });
                 } else {
-                    tp_event.send(ActorTeleportEvent {
+                    tp_event.write(ActorTeleportEvent {
                         tp_type: TpTriggerEffect::Event("TeleportStartLocation".to_string()),
                         target: Some(ent),
                         sender: Some(ent),
@@ -164,7 +165,7 @@ pub fn handle_death_system(
             // entity that died is not player
             error!("despawning entity");
             game_info.enemies_deaths += 1;
-            cmds.entity(ent).despawn_recursive();
+            cmds.entity(ent).despawn();
         }
     }
 }

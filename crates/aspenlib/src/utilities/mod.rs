@@ -31,7 +31,7 @@ pub fn set_window_icon(
 ) {
     // TODO: use bevy internal window icon utilties
 
-    if let Ok((main_window, bevy_window)) = window_query.get_single() {
+    if let Ok((main_window, bevy_window)) = window_query.single() {
         let Some(winit_window) = windows.get_window(main_window) else {
             warn!("NO WINDOW TOO SET ICON");
             return;
@@ -135,7 +135,7 @@ pub fn despawn_with<T: Component>(
 ) {
     for entity in &to_despawn {
         info!("despawning entity recursively: {:#?}", entity);
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }
 

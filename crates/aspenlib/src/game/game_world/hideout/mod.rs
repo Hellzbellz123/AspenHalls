@@ -1,13 +1,18 @@
 use avian2d::prelude::CollisionStarted;
 use bevy::{
-    ecs::{schedule::Condition, system::Res},
+    ecs::{
+        schedule::{Condition, IntoScheduleConfigs},
+        system::{Res, Single},
+    },
     log::{error, info},
     math::Vec2,
+    picking::{events::Pressed, Pickable},
     prelude::{
-        in_state, on_event, warn, Assets, Commands, DespawnRecursiveExt, Down, Entity, EventReader,
-        EventWriter, GlobalTransform, IntoSystemConfigs, OnEnter, OrthographicProjection, Parent,
-        Plugin, Pointer, Query, Reflect, Transform, Trigger, Update, With, Without,
+        in_state, on_event, warn, Assets, ChildOf, Commands, Entity, EventReader, EventWriter,
+        GlobalTransform, OnEnter, OrthographicProjection, Plugin, Pointer, Query, Reflect,
+        Transform, Trigger, Update, With, Without,
     },
+    render::camera::Projection,
 };
 use bevy_ecs_ldtk::{
     prelude::{LdtkExternalLevel, LevelEvent, LevelSet},
@@ -56,7 +61,7 @@ impl Plugin for HideOutPlugin {
             Update,
             (
                 // TODO: fix scheduling
-                teleporter_collisions.run_if(on_event::<CollisionStarted>),
+                teleporter_collisions,
                 create_playable_heroes
                     .run_if(in_state(AppStage::Running).and(on_event::<LevelEvent>)),
             ),
@@ -76,10 +81,7 @@ fn create_playable_heroes(
         (&RegistryIdentifier, &mut Transform),
         (With<PlayerSelectedHero>, Without<MainCamera>),
     >,
-    mut camera_query: Query<
-        (&mut Transform, &mut OrthographicProjection),
-        (With<MainCamera>, Without<PlayerSelectedHero>),
-    >,
+    mut camera_query: Single<(&mut Transform, &mut Projection), With<MainCamera>>,
 ) {
     let level = match selected_level.into_inner() {
         LevelSelection::Identifier(a) => {
@@ -100,7 +102,7 @@ fn create_playable_heroes(
     };
 
     for event in level_spawn_events.read() {
-        let existing_hero = already_spawned_hero.get_single_mut();
+        let existing_hero = already_spawned_hero.single_mut();
         if let LevelEvent::Transformed(iid) = event {
             if iid != &level {
                 continue;
@@ -159,8 +161,8 @@ fn populate_hero_spots(
             ) -> impl Fn(Trigger<E>, EventWriter<SelectThisHeroForPlayer>, Query<&PlayerSelectedHero>) {
                 move |trigger, mut ew: EventWriter<SelectThisHeroForPlayer>, other_heroes: Query<&PlayerSelectedHero> | {
                     if other_heroes.is_empty() {
-                        println!("selectable player was clicked");
-                        ew.send(SelectThisHeroForPlayer(trigger.entity()));
+                        warn!("selectable player was clicked");
+                        ew.write(SelectThisHeroForPlayer(trigger.target()));
                     }
                 }
             }
@@ -168,12 +170,13 @@ fn populate_hero_spots(
             commands
                 .spawn((
                     bundle.clone(),
+                    Pickable::default(),
                     Aspen2dPhysicsBundle::default_character(),
                     Transform::from_translation(
                         spot.translation().truncate().extend(ACTOR_Z_INDEX),
                     ),
                 ))
-                .observe(send_select_player_event_on::<Pointer<Down>>());
+                .observe(send_select_player_event_on::<Pointer<Pressed>>());
         });
 
     if existing_hero.is_ok() {
@@ -192,19 +195,25 @@ fn populate_hero_spots(
 /// modifies main camera too focus all the available hero spots
 fn adjust_camera_focus(
     hero_spots: Vec<&GlobalTransform>,
-    camera_query: &mut Query<
-        (&mut Transform, &mut OrthographicProjection),
-        (With<MainCamera>, Without<PlayerSelectedHero>),
-    >,
+    camera: &mut Single<(&mut Transform, &mut Projection), With<MainCamera>>,
 ) {
     let hero_spots_amnt = hero_spots.len() as f32;
     let sum_hero_spots: Vec2 = hero_spots.iter().map(|f| f.translation().truncate()).sum();
     let avg = sum_hero_spots / hero_spots_amnt;
 
     info!("focusing camera on all heroes");
-    let (mut camera_pos, mut camera_proj) = camera_query.single_mut();
-    camera_proj.scale = 6.0;
+
+    let (ref mut camera_pos, frustrum) = &mut **camera;
+    // TODO: is extending with z right?
     camera_pos.translation = avg.extend(camera_pos.translation.z);
+
+    // TODO: rethink the camera scale system
+    match **frustrum {
+        Projection::Orthographic(ref mut orthographic_projection) => {
+            orthographic_projection.scale = 0.6
+        }
+        _ => return,
+    }
 }
 
 // TODO: find all uses of cmds.spawn(()) and add cleanup component
@@ -214,17 +223,17 @@ fn adjust_camera_focus(
 fn despawn_hideout(
     mut commands: Commands,
     characters_not_player: Query<Entity, (With<CharacterMoveState>, Without<PlayerSelectedHero>)>,
-    weapons: Query<Entity, (With<AttackDamage>, Without<Parent>)>,
+    weapons: Query<Entity, (With<AttackDamage>, Without<ChildOf>)>,
     hideout: Query<(Entity, &LevelSet), With<HideoutTag>>,
 ) {
     for (hideout, levelset) in &hideout {
-        commands.entity(hideout).despawn_recursive();
+        commands.entity(hideout).despawn();
     }
 
     for ent in &weapons {
-        commands.entity(ent).despawn_recursive();
+        commands.entity(ent).despawn();
     }
     for ent in &characters_not_player {
-        commands.entity(ent).despawn_recursive();
+        commands.entity(ent).despawn();
     }
 }

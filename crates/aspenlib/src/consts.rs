@@ -1,7 +1,4 @@
-use avian2d::{
-    collision::CollisionLayers,
-    prelude::{LayerMask, PhysicsLayer},
-};
+use avian2d::prelude::{CollisionLayers, LayerMask, PhysicsLayer};
 
 #[allow(
     clippy::needless_bool,
@@ -60,11 +57,7 @@ impl AspenCollisionLayer {
     pub fn static_object() -> CollisionLayers {
         CollisionLayers::new(
             Self::StaticObject,
-            [
-                Self::DynamicActor,
-                Self::Projectile,
-                Self::All,
-            ],
+            [Self::DynamicActor, Self::Projectile, Self::All],
         )
     }
 
@@ -87,11 +80,7 @@ impl AspenCollisionLayer {
     pub fn projectile_actor() -> CollisionLayers {
         CollisionLayers::new(
             Self::Projectile,
-            [
-                Self::StaticObject,
-                Self::DynamicActor,
-                Self::All,
-            ],
+            [Self::StaticObject, Self::DynamicActor, Self::All],
         )
     }
 

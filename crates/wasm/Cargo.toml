@@ -23,6 +23,7 @@ trace = ["aspenlib/trace"]
 [dependencies]
 bevy = { workspace = true, default-features = false, features = [
   "webgl2", # webgl2 shaders
+  "web"
 ] }
 log = { version = "*" }
 aspenlib = { path = "../aspenlib" }

@@ -6,7 +6,7 @@ use crate::game::{
 };
 
 /// creates player weapon information display
-pub fn create_gun_hud(playing_ui_parts: &mut ChildBuilder) {
+pub fn create_gun_hud(playing_ui_parts: &mut ChildSpawnerCommands) {
     playing_ui_parts
         .spawn((
             Name::new("GunHud"),
@@ -37,7 +37,7 @@ pub fn create_gun_hud(playing_ui_parts: &mut ChildBuilder) {
 }
 
 /// spawns gun slots widget
-fn create_gun_slots(gun_hud_parts: &mut ChildBuilder) {
+fn create_gun_slots(gun_hud_parts: &mut ChildSpawnerCommands) {
     gun_hud_parts
         .spawn((
             Name::new("GunSlotsContainer"),
@@ -63,7 +63,7 @@ fn create_gun_slots(gun_hud_parts: &mut ChildBuilder) {
 }
 
 /// spawns ammo bar widget
-fn create_ammo_bar(gun_hud_parts: &mut ChildBuilder) {
+fn create_ammo_bar(gun_hud_parts: &mut ChildSpawnerCommands) {
     // TODO: make this unique widget with splits per ammo count
     gun_hud_parts
         .spawn((
@@ -118,7 +118,7 @@ fn create_ammo_bar(gun_hud_parts: &mut ChildBuilder) {
 }
 
 /// create gun slot widget
-fn create_gun_slot(gun_slot_parts: &mut ChildBuilder, slot: WeaponSlot, size: f32) {
+fn create_gun_slot(gun_slot_parts: &mut ChildSpawnerCommands, slot: WeaponSlot, size: f32) {
     gun_slot_parts.spawn((
         Name::new("GunSlot"),
         UiWeaponSlot(slot),
@@ -158,10 +158,10 @@ pub fn gunhud_visibility_system(
     player_query: Query<&WeaponCarrier, With<PlayerSelectedHero>>,
     mut gunhud_query: Query<&mut Node, With<GunHudContainer>>,
 ) {
-    let Ok(player_slots) = player_query.get_single() else {
+    let Ok(player_slots) = player_query.single() else {
         return;
     };
-    let Ok(mut gunhud_style) = gunhud_query.get_single_mut() else {
+    let Ok(mut gunhud_style) = gunhud_query.single_mut() else {
         return;
     };
 
@@ -186,7 +186,7 @@ pub fn update_ui_ammo_slots(
         Without<CurrentlyDrawnWeapon>,
     >,
 ) {
-    let Ok(player_slots) = player_query.get_single() else {
+    let Ok(player_slots) = player_query.single() else {
         return;
     };
 
@@ -210,13 +210,14 @@ pub fn update_ui_ammo_slots(
     }
 }
 
+// TODO: this code is ugly af
 /// updates ui ammo counter value with current ammo amount
 pub fn update_ui_ammo_counter(
     mut ammo_bar_query: Query<(&mut Node, &mut PlayerAmmoBar)>,
     player_query: Query<&WeaponCarrier, With<PlayerSelectedHero>>,
     weapon_query: Query<&WeaponAmmoCount, With<CurrentlyDrawnWeapon>>,
 ) {
-    let Ok(player) = player_query.get_single() else {
+    let Ok(player) = player_query.single() else {
         return;
     };
     let ammo_counts: Option<&WeaponAmmoCount> = {
@@ -238,7 +239,10 @@ pub fn update_ui_ammo_counter(
         }
     };
 
-    let (mut style, mut bar_data) = ammo_bar_query.single_mut();
+    let Ok((mut style, mut bar_data)) = ammo_bar_query.single_mut() else {
+        return
+    };
+
     if ammo_counts.is_some_and(|weapon_count| weapon_count.current == bar_data.current as u32) {
         return;
     };

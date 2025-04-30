@@ -47,7 +47,7 @@ fn update_gun_timers(
     time: Res<Time>,
     mut weapon_query: Query<
         (&mut WeaponAmmoCount, &mut WeaponTimers),
-        (With<Parent>, With<CurrentlyDrawnWeapon>),
+        (With<ChildOf>, With<CurrentlyDrawnWeapon>),
     >,
 ) {
     for (mut current_ammo, mut firing_timers) in &mut weapon_query {
@@ -81,7 +81,7 @@ pub fn receive_gun_shots(
             &WeaponHolder,
             &AttackDamage,
         ),
-        (With<Parent>, With<CurrentlyDrawnWeapon>),
+        (With<ChildOf>, With<CurrentlyDrawnWeapon>),
     >,
 ) {
     for event in &mut gun_shoot_events.read() {
@@ -96,17 +96,17 @@ pub fn receive_gun_shots(
         if ammo_counter.current == 0 && !ammo_counter.reloading {
             timers.refill.reset();
             ammo_counter.reloading = true;
-            anim_events.send(EventAnimationChange {
+            anim_events.write(EventAnimationChange {
                 anim_handle: vec![GunAnimations::RELOAD, GunAnimations::IDLE],
                 actor: weapon,
             });
             continue;
         } else if timers.attack.finished() && ammo_counter.current != 0 {
-            sound_events.send(EventPlaySpatialSound {
+            sound_events.write(EventPlaySpatialSound {
                 emitter_id: weapon,
                 sound_id: S_GUNSHOT,
             });
-            anim_events.send(EventAnimationChange {
+            anim_events.write(EventAnimationChange {
                 anim_handle: vec![GunAnimations::FIRE, GunAnimations::IDLE],
                 actor: weapon,
             });
@@ -115,7 +115,7 @@ pub fn receive_gun_shots(
             let (_, rotation, translation) = global_transform.to_scale_rotation_translation();
             let offset = rotation * cfg.barrel_end.extend(0.0);
             let transform =
-                Transform::from_translation(translation + offset).with_rotation(rotation);
+                Transform::from_translation(translation + (offset + offset)).with_rotation(rotation);
 
             ammo_counter.current -= 1;
             create_bullet(
@@ -177,6 +177,7 @@ pub fn create_bullet(
     .with_children(|child| {
         child.spawn((
             EntityCreator(entity),
+            CollisionEventsEnabled,
             AspenColliderBundle {
                 name: Name::new("GunProjectileCollider"),
                 transform: Transform {

@@ -2,7 +2,7 @@ use bevy::{
     ecs::{component::Component, reflect::ReflectComponent},
     prelude::{Entity, Vec2},
     reflect::{std_traits::ReflectDefault, Reflect},
-    utils::HashMap,
+    platform::collections::HashMap,
 };
 
 use crate::loading::registry::RegistryIdentifier;

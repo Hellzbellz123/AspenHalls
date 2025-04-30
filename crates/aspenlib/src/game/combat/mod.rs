@@ -48,7 +48,7 @@ fn delegate_attack_events(
     mut attack_events: EventReader<EventRequestAttack>,
     mut weapon_attack_events: EventWriter<EventAttackWeapon>,
     mut unarmed_attack_events: EventWriter<EventAttackUnarmed>,
-    weapon_query: Query<(&WeaponDescriptor, &WeaponHolder), With<Parent>>,
+    weapon_query: Query<(&WeaponDescriptor, &WeaponHolder), With<ChildOf>>,
 ) {
     for attack_request in attack_events.read() {
         match attack_request.direction {
@@ -58,13 +58,13 @@ fn delegate_attack_events(
                     continue;
                 };
 
-                weapon_attack_events.send(EventAttackWeapon {
+                weapon_attack_events.write(EventAttackWeapon {
                     requester: attack_request.requester,
                     weapon: weapon_id,
                 });
             }
             AttackDirection::FromVector(attack_direction) => {
-                unarmed_attack_events.send(EventAttackUnarmed {
+                unarmed_attack_events.write(EventAttackUnarmed {
                     requester: attack_request.requester,
                     direction: attack_direction,
                 });

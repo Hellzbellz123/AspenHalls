@@ -1,22 +1,26 @@
 use std::collections::VecDeque;
 
-use crate::game::{
-    characters::components::CardinalDirection,
-    game_world::dungeonator_v2::{
-        components::{Dungeon, DungeonSettings},
-        hallways::{
-            walls::{spawn_corner_section, spawn_straight_section},
-            HallWayBlueprint, HallwayLayer,
+use crate::{
+    consts::TILE_SIZE,
+    game::{
+        characters::components::CardinalDirection,
+        game_world::dungeonator_v2::{
+            components::{Dungeon, DungeonSettings},
+            hallways::{
+                walls::{spawn_corner_section, spawn_straight_section},
+                HallWayBlueprint, HallwayLayer,
+            },
+            tile_graph::{TileGraph, TileGraphEdge, TileType},
+            GeneratorState,
         },
-        tile_graph::{TileGraph, TileGraphEdge, TileType},
-        GeneratorState,
     },
 };
 
 use bevy::{math::FloatOrd, prelude::*};
 use bevy_ecs_ldtk::prelude::TileEnumTags;
 use bevy_ecs_tilemap::{
-    map::TilemapId,
+    anchor::TilemapAnchor,
+    map::{TilemapId, TilemapTileSize},
     prelude::{
         helpers::square_grid::neighbors::SquareDirection, TileTextureIndex, TilemapGridSize,
         TilemapSize, TilemapType,
@@ -36,14 +40,19 @@ pub fn build_hallways(
     mut dungeon: Query<(&mut Dungeon, &Transform)>,
     mut hallway_layer: Query<(Entity, &mut TileStorage), With<HallwayLayer>>,
 ) {
-    let (mut dungeon_info, _) = dungeon.single_mut();
+    let Ok((mut dungeon_info, _)) = dungeon.single_mut() else {
+        return;
+    };
+    let Ok((hallway_container, mut hallway_storage)) = hallway_layer.single_mut() else {
+        return;
+    };
+
     let Dungeon {
         settings,
         tile_graph,
         ..
     } = &mut *dungeon_info;
 
-    let (hallway_container, mut hallway_storage) = hallway_layer.single_mut();
     for (_, mut hallway, _) in &mut hallways {
         if hallway.built || hallway.node_path.len() == 2 {
             continue;
@@ -367,54 +376,44 @@ fn create_floor_for_path(
 #[derive(Component)]
 pub struct HallwayFloor;
 
+// TODO: this needs a major rework.
 /// spawns tile on position, aborting if position is already occupied
 pub fn spawn_tile(
     path_with_direction: &VecDeque<(usize, TilePos, CardinalDirection)>,
     tile_graph: &mut TileGraph,
+
     coord: TilePos,
     tex_id: TexID,
-    parent: &mut ChildBuilder<'_>,
+    parent: &mut ChildSpawnerCommands<'_>,
     hallway_container: Entity,
-    hallway_storage: &mut TileStorage,
+    hallway_storage: &mut TileStorage, 
 ) {
     let node_index = tile_graph
         .get_node_at_coord(coord.into())
         .expect("index must exist in graph");
-    let local_position =
-        coord.center_in_world(&TilemapGridSize::new(32.0, 32.0), &TilemapType::Square);
-    let local_transfrorm = Transform::from_translation(local_position.extend(0.0));
+
+    let tile_size = TilemapTileSize::new(TILE_SIZE, TILE_SIZE);
+    let grid_size = TilemapGridSize::new(TILE_SIZE, TILE_SIZE);
+    let tile_anchor = TilemapAnchor::BottomLeft;
+    let grid_type = TilemapType::Square;
+    let tile_map_size = hallway_storage.size.clone();
+
+    let local_position = coord.center_in_world(
+        &tile_map_size,
+        &grid_size,
+        &tile_size,
+        &grid_type,
+        &tile_anchor,
+    ) - Vec2 { x: 16.0, y: 16.0 };
+
+    let local_transform = Transform::from_translation(local_position.extend(0.0));
 
     let node = tile_graph.node_weight_mut(node_index).expect("msg");
-
-    // let position_type = node.data
-    //     == match tex_id {
-    //         TexID::FloorBase | TexID::FloorPoint | TexID::FloorBad => TileType::Hallway,
-    //         TexID::OcornerSe
-    //         | TexID::ArrowNorth
-    //         | TexID::ArrowSouth
-    //         | TexID::ArrowWest
-    //         | TexID::ArrowEast
-    //         | TexID::OcornerSw
-    //         | TexID::OcornerNe
-    //         | TexID::OcornerNw
-    //         | TexID::UWest
-    //         | TexID::UEast
-    //         | TexID::USouth
-    //         | TexID::UNorth
-    //         | TexID::IcornerNe
-    //         | TexID::IcornerNw
-    //         | TexID::IcornerSe
-    //         | TexID::IcornerSw
-    //         | TexID::WallNorth
-    //         | TexID::WallWest
-    //         | TexID::WallEast
-    //         | TexID::WallSouth => TileType::Wall,
-    //     };
 
     if path_with_direction.iter().all(|(_, f, _)| *f != coord) && !node.data.is_hallway() {
         let tile_entity = parent
             .spawn((
-                local_transfrorm,
+                local_transform,
                 populate_enum_tags(tex_id),
                 TileBundle {
                     position: coord,
@@ -432,12 +431,23 @@ pub fn spawn_tile(
 pub fn spawn_tile_unchecked(
     coord: TilePos,
     tex_id: TexID,
-    parent: &mut ChildBuilder<'_>,
+    parent: &mut ChildSpawnerCommands<'_>,
     hallway_container: Entity,
     hallway_storage: &mut TileStorage,
 ) {
-    let local_position =
-        coord.center_in_world(&TilemapGridSize::new(32.0, 32.0), &TilemapType::Square);
+    let tile_size = TilemapTileSize::new(TILE_SIZE, TILE_SIZE);
+    let grid_size = TilemapGridSize::new(16., 16.);
+    let tile_anchor = TilemapAnchor::None;
+    let grid_type = TilemapType::Square;
+    let tile_map_size = hallway_storage.size.clone();
+
+    let local_position = coord.center_in_world(
+        &tile_map_size,
+        &grid_size,
+        &tile_size,
+        &grid_type,
+        &tile_anchor,
+    );
     let local_transfrorm = Transform::from_translation(local_position.extend(0.0));
 
     let tile_entity = parent

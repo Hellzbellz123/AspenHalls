@@ -1,5 +1,5 @@
 use crate::{colors, dev_tools::DebugConfig, game::game_world::components::CharacterSpawner};
-use bevy::{prelude::*, render::primitives::Aabb, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*, render::primitives::Aabb};
 
 /// enables visual debug tools for game
 pub struct DebugVisualsPlugin;

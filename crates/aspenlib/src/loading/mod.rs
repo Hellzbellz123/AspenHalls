@@ -25,9 +25,9 @@ impl Plugin for AppLoadingPlugin {
     // mobile and web platforms will not make use of packs at this moment
     fn build(&self, app: &mut App) {
         app.add_plugins((
+            registry::RegistryPlugin,
             splashscreen::SplashPlugin,
             custom_assets::AspenCustomAssetsPlugin,
-            registry::RegistryPlugin,
         ));
 
         // TODO:

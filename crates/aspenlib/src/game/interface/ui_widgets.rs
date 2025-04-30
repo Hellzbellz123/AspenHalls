@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 /// spawns styled menu button
 pub fn spawn_button<T: Component>(
-    buttons: &mut ChildBuilder,
+    buttons: &mut ChildSpawnerCommands,
     font: Handle<Font>,
     text: &str,
     component: T,
@@ -40,7 +40,7 @@ pub fn spawn_button<T: Component>(
 /// styling for this component makes
 /// it a good title for menu like interfaces
 pub fn spawn_menu_title(
-    child_builder: &mut ChildBuilder,
+    child_builder: &mut ChildSpawnerCommands,
     font: Handle<Font>,
     text: &str,
     font_size: f32,

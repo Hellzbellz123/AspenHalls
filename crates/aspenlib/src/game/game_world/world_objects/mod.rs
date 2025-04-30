@@ -3,7 +3,7 @@ mod decode_instance;
 /// systems too control hydrated instances
 mod systems;
 
-use avian2d::prelude::{RigidBody, Sensor};
+use avian2d::prelude::{CollisionEventsEnabled, RigidBody, Sensor};
 use bevy::prelude::{Bundle, Name};
 use bevy_ecs_ldtk::{prelude::LdtkEntity, EntityInstance};
 
@@ -93,6 +93,12 @@ pub struct LdtkTeleporter {
     /// shape of sensor
     #[with(teleporter_collider_from_instance)]
     collision_shape: NeedsCollider,
+    #[with(enable_collision_events)]
+    collision_events: CollisionEventsEnabled,
+}
+
+const fn enable_collision_events(_: &EntityInstance)-> CollisionEventsEnabled {
+    CollisionEventsEnabled
 }
 
 const fn sensor_tag(_: &EntityInstance) -> Sensor {

@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::hashbrown::HashMap};
+use bevy::{input::mouse::AccumulatedMouseScroll, platform::collections::HashMap, prelude::*};
 
 use crate::{
     bundles::{AspenColliderBundle, NeedsCollider},
@@ -64,20 +64,21 @@ pub struct SelectThisHeroForPlayer(pub Entity);
 fn select_wanted_hero(
     mut cmds: Commands,
     mut select_events: EventReader<SelectThisHeroForPlayer>,
-    mut camera_query: Query<&mut OrthographicProjection, With<MainCamera>>,
+    // TODO: this is super annoying to get.
+    camera_projection: Single<&mut Projection, With<MainCamera>>,
     settings: Res<GeneralSettings>,
 ) {
-    // let start_menu_style = start_menu_query.single();
-    let mut camera_projection = camera_query.single_mut();
-
-    // if start_menu_style.display != Display::None {
-    //     return;
-    // }
-
-    for SelectThisHeroForPlayer(hero, ..) in select_events.read() {
+    if !select_events.is_empty() {
         trace!("resetting zoom");
-        camera_projection.scale = settings.camera_zoom;
+        match *camera_projection.into_inner() {
+            Projection::Orthographic(ref mut orthographic_projection) => {
+                orthographic_projection.scale = settings.camera_zoom
+            },
+            _ => {}
+        }
+    }
 
+    for SelectThisHeroForPlayer(hero, ..) in select_events.read() {     
         trace!("selecting hero");
         cmds.entity(*hero)
             .insert(PlayerSelectedHero)
@@ -114,7 +115,7 @@ pub fn build_player_from_selected_hero(
     player_selected_hero: Query<(Entity, &RegistryIdentifier), With<PlayerSelectedHero>>,
     char_assets: Res<Assets<CharacterDefinition>>,
 ) {
-    let Ok((selected_hero, player_registry_identifier)) = player_selected_hero.get_single() else {
+    let Ok((selected_hero, player_registry_identifier)) = player_selected_hero.single() else {
         warn!("no player entity available too build off");
         return;
     };

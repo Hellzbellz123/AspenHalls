@@ -1,6 +1,6 @@
 use std::hash::Hash;
 
-use bevy::{ecs::schedule::IntoSystemSetConfigs, prelude::*, window::PrimaryWindow};
+use bevy::{prelude::*, window::PrimaryWindow};
 use leafwing_input_manager::{
     plugin::{InputManagerPlugin, InputManagerSystem},
     prelude::{ActionState, InputMap},
@@ -88,7 +88,7 @@ fn update_cursor_position_resource(
     mut cursor_position: ResMut<AspenCursorPosition>,
     general_settings: Res<GeneralSettings>,
 ) {
-    let Ok(window) = window_query.get_single() else {
+    let Ok(window) = window_query.single() else {
         return;
     };
 
@@ -96,8 +96,7 @@ fn update_cursor_position_resource(
     let joy_axis = input.clamped_axis_pair(&action_maps::Gameplay::Look);
 
     let cursor_screen_pos: Vec2 = if joy_axis == Vec2::ZERO || !general_settings.enable_touch_controls {
-        window_query
-            .single()
+        window
             .cursor_position()
             .unwrap_or(window_half_size)
     } else {
@@ -107,7 +106,7 @@ fn update_cursor_position_resource(
         )
     };
 
-    let Ok((camera, camera_pos)) = camera_query.get_single() else {
+    let Ok((camera, camera_pos)) = camera_query.single() else {
         return;
     };
     let cursor_world_pos = camera

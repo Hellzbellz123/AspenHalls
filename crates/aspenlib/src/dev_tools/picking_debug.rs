@@ -5,7 +5,6 @@ use bevy::asset::prelude::*;
 use bevy::color::prelude::*;
 use bevy::ecs::prelude::*;
 use bevy::picking::backend::HitData;
-use bevy::picking::focus::HoverMap;
 use bevy::picking::pointer::{Location, PointerId, PointerPress};
 use bevy::picking::prelude::*;
 use bevy::picking::{pointer, PickSet};
@@ -86,10 +85,10 @@ impl Plugin for DebugPickingPlugin {
         app.register_type::<DebugPickingMode>()
             .init_resource::<DebugPickingMode>()
             .insert_resource(DebugPickingMode::Disabled)
-            .add_systems(
-                PreUpdate,
-                pointer_debug_visibility.in_set(PickSet::PostFocus),
-            )
+            // .add_systems(
+            //     PreUpdate,
+            //     pointer_debug_visibility.in_set(PickSet::PostFocus),
+            // )
             .add_systems(
                 PreUpdate,
                 (
@@ -98,8 +97,8 @@ impl Plugin for DebugPickingPlugin {
                     log_event_debug::<pointer::PointerInput>.run_if(DebugPickingMode::is_noisy),
                     log_pointer_event_debug::<Over>,
                     log_pointer_event_debug::<Out>,
-                    log_pointer_event_debug::<Up>,
-                    log_pointer_event_debug::<Down>,
+                    // log_pointer_event_debug::<Up>,
+                    // log_pointer_event_debug::<Down>,
                     log_pointer_event_debug::<Click>,
                     log_pointer_event_trace::<Move>.run_if(DebugPickingMode::is_noisy),
                     log_pointer_event_debug::<DragStart>,
@@ -116,7 +115,9 @@ impl Plugin for DebugPickingPlugin {
 
         app.add_systems(
             PreUpdate,
-            (add_pointer_debug, update_debug_data, debug_draw)
+            (add_pointer_debug,
+                //  update_debug_data, 
+                 debug_draw)
                 .chain()
                 .distributive_run_if(DebugPickingMode::is_enabled)
                 .in_set(PickSet::Last),
@@ -212,36 +213,36 @@ impl Display for PointerDebug {
     }
 }
 
-/// Update typed debug data used to draw overlays
-pub fn update_debug_data(
-    hover_map: Res<HoverMap>,
-    entity_names: Query<NameOrEntity>,
-    mut pointers: Query<(
-        &PointerId,
-        &pointer::PointerLocation,
-        &PointerPress,
-        &mut PointerDebug,
-    )>,
-) {
-    for (id, location, press, mut debug) in &mut pointers {
-        *debug = PointerDebug {
-            location: location.location().cloned(),
-            press: press.to_owned(),
-            hits: hover_map
-                .get(id)
-                .iter()
-                .flat_map(|h| h.iter())
-                .filter_map(|(e, h)| {
-                    if let Ok(entity_name) = entity_names.get(*e) {
-                        Some((entity_name.to_string(), h.to_owned()))
-                    } else {
-                        None
-                    }
-                })
-                .collect(),
-        };
-    }
-}
+// /// Update typed debug data used to draw overlays
+// pub fn update_debug_data(
+//     hover_map: Res<HoverMap>,
+//     entity_names: Query<NameOrEntity>,
+//     mut pointers: Query<(
+//         &PointerId,
+//         &pointer::PointerLocation,
+//         &PointerPress,
+//         &mut PointerDebug,
+//     )>,
+// ) {
+//     for (id, location, press, mut debug) in &mut pointers {
+//         *debug = PointerDebug {
+//             location: location.location().cloned(),
+//             press: press.to_owned(),
+//             hits: hover_map
+//                 .get(id)
+//                 .iter()
+//                 .flat_map(|h| h.iter())
+//                 .filter_map(|(e, h)| {
+//                     if let Ok(entity_name) = entity_names.get(*e) {
+//                         Some((entity_name.to_string(), h.to_owned()))
+//                     } else {
+//                         None
+//                     }
+//                 })
+//                 .collect(),
+//         };
+//     }
+// }
 
 /// Draw text on each cursor with debug info
 pub fn debug_draw(
@@ -263,7 +264,7 @@ pub fn debug_draw(
             .map(|(entity, camera)| {
                 (
                     entity,
-                    camera.target.normalize(primary_window.get_single().ok()),
+                    camera.target.normalize(primary_window.single().ok()),
                 )
             })
             .filter_map(|(entity, target)| Some(entity).zip(target))
@@ -296,8 +297,9 @@ pub fn debug_draw(
                         ..Default::default()
                     },
                 ))
-                .insert(PickingBehavior::IGNORE)
-                .insert(TargetCamera(camera));
+                // .insert(PickingBehavior::IGNORE)
+                // .insert(TargetCamera(camera))
+                ;
         }
     }
 }

@@ -25,7 +25,7 @@ pub fn update_player_velocity(
         With<PlayerSelectedHero>,
     >,
 ) {
-    let (mut velocity, move_state, player_stats) = match player_query.get_single_mut() {
+    let (mut velocity, move_state, player_stats) = match player_query.single_mut() {
         Ok(query) => query,
         Err(e) => {
             warn!("unable too update player velocity: {}", e);
@@ -67,8 +67,8 @@ pub fn camera_movement_system(
         return;
     }
 
-    let (mut camera_trans, camera_data) = main_camera_query.single_mut();
-    let (player_transform, player_velocity) = player_move_query.single();
+    let Ok((mut camera_trans, camera_data)) = main_camera_query.single_mut() else {return;};
+    let Ok((player_transform, player_velocity)) = player_move_query.single() else {return;};
     let camera_transform = camera_trans.translation.truncate();
 
     let scaled_player_velocity = Vec2 {

@@ -59,7 +59,7 @@ fn show_start_menu(
     mut start_menu_query: Query<&mut Node, With<StartMenuTag>>,
     game_state: Option<Res<State<GameStage>>>,
 ) {
-    let Ok(mut start_menu_style) = start_menu_query.get_single_mut() else {
+    let Ok(mut start_menu_style) = start_menu_query.single_mut() else {
         return;
     };
     let Some(state) = game_state else {
@@ -79,7 +79,11 @@ fn spawn_start_menu(
     assets: Res<AspenInitHandles>,
     interface_root: Query<Entity, With<InterfaceRootTag>>,
 ) {
-    cmds.entity(interface_root.single())
+    let Ok(interface_root) = interface_root.single() else {
+        return;
+    };
+
+    cmds.entity(interface_root)
         .with_children(|children| {
             children
                 .spawn((
@@ -164,7 +168,11 @@ fn start_button_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            start_menu_query.single_mut().display = Display::None;
+            let Ok(mut start_menu_node) = start_menu_query.single_mut() else {
+                return
+            };
+
+            start_menu_node.display = Display::None;
             cmds.insert_resource(NextState::Pending(GameStage::SelectCharacter));
         }
     }
@@ -177,7 +185,7 @@ fn exit_button_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            exit_event_writer.send(AppExit::Success);
+            exit_event_writer.write(AppExit::Success);
         }
     }
 }

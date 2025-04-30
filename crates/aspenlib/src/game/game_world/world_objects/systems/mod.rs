@@ -2,13 +2,14 @@
 mod character_spawner;
 
 use bevy::{
+    platform::collections::HashSet,
     prelude::{EventReader, Local, Query, Transform, With},
-    utils::HashSet,
 };
 use bevy_ecs_ldtk::{LevelEvent, LevelIid};
 pub use character_spawner::character_spawners_system;
 use log::warn;
 
+// TODO: we might be able to yeet this with transform propogation improvements
 /// only run system if all spawned levels have had a transform event fired for them
 pub fn all_levels_transformed(
     levels: Query<&LevelIid, With<Transform>>,

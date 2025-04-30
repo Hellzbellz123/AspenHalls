@@ -60,7 +60,10 @@ pub fn create_tile_graph(
     }
 
     info!("getting actual map dimensions");
-    let (mut dungeon, dungeon_position) = dungeon_container.single_mut();
+    let Ok((mut dungeon, dungeon_position)) = dungeon_container.single_mut() else {
+        return
+    };
+
     (dungeon.settings.size, dungeon.tile_graph.center_world) =
         actual_map_tile_size(&dungeon.settings, &tile_query);
 

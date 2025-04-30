@@ -69,20 +69,20 @@ fn change_character_animations(
 
         match move_status {
             CurrentMovement::None => {
-                change_events.send(EventAnimationChange {
+                change_events.write(EventAnimationChange {
                     anim_handle: vec![CharacterAnimations::IDLE],
                     actor: character,
                 });
             }
             _ => match move_direction {
                 MoveDirection::South => {
-                    change_events.send(EventAnimationChange {
+                    change_events.write(EventAnimationChange {
                         anim_handle: vec![CharacterAnimations::WALK_SOUTH],
                         actor: character,
                     });
                 }
                 MoveDirection::North => {
-                    change_events.send(EventAnimationChange {
+                    change_events.write(EventAnimationChange {
                         anim_handle: vec![CharacterAnimations::WALK_NORTH],
                         actor: character,
                     });
@@ -90,7 +90,7 @@ fn change_character_animations(
                 MoveDirection::East => {
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = false;
-                    change_events.send(EventAnimationChange {
+                    change_events.write(EventAnimationChange {
                         anim_handle: vec![CharacterAnimations::WALK_EAST],
                         actor: character,
                     });
@@ -99,7 +99,7 @@ fn change_character_animations(
                     let mut sprite = sprite_query.get_mut(character).expect("msg");
                     sprite.flip_x = true;
 
-                    change_events.send(EventAnimationChange {
+                    change_events.write(EventAnimationChange {
                         anim_handle: vec![CharacterAnimations::WALK_EAST],
                         actor: character,
                     });

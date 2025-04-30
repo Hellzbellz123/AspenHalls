@@ -101,10 +101,10 @@ fn time_to_live(
 ) {
     for (entity, mut timer) in &mut query {
         if timer.tick(time.delta()).finished() {
-            let Some(a) = commands.get_entity(entity) else {
+            let Ok(mut a) = commands.get_entity(entity) else {
                 continue;
             };
-            a.despawn_recursive();
+            a.despawn();
         }
     }
 }
@@ -113,12 +113,12 @@ fn time_to_live(
 fn add_aabb_based_colliders(
     mut cmds: Commands,
     aabbs_q: Query<&Aabb>,
-    needscollider_q: Query<(Entity, &Parent, &NeedsCollider), Without<Collider>>,
+    needscollider_q: Query<(Entity, &ChildOf, &NeedsCollider), Without<Collider>>,
 ) {
     for (needs_collider, parent, collider_type) in &needscollider_q {
         let collider = match collider_type {
             NeedsCollider::Aabb => {
-                let Ok(aabb) = aabbs_q.get(parent.get()) else {
+                let Ok(aabb) = aabbs_q.get(parent.parent()) else {
                     continue;
                 };
                 let start = Vec2::ZERO

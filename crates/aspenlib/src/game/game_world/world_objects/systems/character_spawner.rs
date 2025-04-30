@@ -22,7 +22,7 @@ pub fn character_spawners_system(
         &GlobalTransform,
         &mut CharacterSpawner,
         &mut SpawnerTimer,
-        &Parent,
+        &ChildOf,
     )>,
     spawner_waves: Query<(Entity, &EntityIid, &SpawnerWave)>,
     all_characters: Query<(&Transform, &CharacterType)>,
@@ -66,7 +66,7 @@ pub fn character_spawners_system(
             // get random entity from actor registry
             let wave = actor_registry.characters.random_creep_wave();
             for iid in wave {
-                event_writer.send(EventSpawnCharacter {
+                event_writer.write(EventSpawnCharacter {
                     identifier: iid.clone(),
                     requester: spawner_entity,
                 });
@@ -81,11 +81,11 @@ pub fn character_spawners_system(
             .expect("wave did not exist in world");
 
         for iid in &wave.too_spawn {
-            event_writer.send(EventSpawnCharacter {
+            event_writer.write(EventSpawnCharacter {
                 identifier: iid.clone(),
                 requester: spawner_entity,
             });
         }
-        cmds.entity(wave_ent).despawn_recursive();
+        cmds.entity(wave_ent).despawn();
     }
 }

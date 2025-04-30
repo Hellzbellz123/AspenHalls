@@ -1,9 +1,5 @@
 use bevy::{
-    math::Vec2,
-    prelude::{Component, Deref, DerefMut, Entity, ReflectComponent},
-    reflect::Reflect,
-    time::Timer,
-    utils::hashbrown::HashMap,
+    math::Vec2, platform::collections::HashMap, prelude::{Component, Deref, DerefMut, Entity, ReflectComponent}, reflect::Reflect, time::Timer
 };
 
 use crate::game::{attributes_stats::Damage, characters::components::WeaponSlot};

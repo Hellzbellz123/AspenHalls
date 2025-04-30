@@ -40,13 +40,13 @@ pub fn spawn_custom(
     actions: Res<ActionState<action_maps::Gameplay>>,
 ) {
     if actions.just_released(&action_maps::Gameplay::DebugF1) {
-        let Ok((player, _)) = player_query.get_single() else {
+        let Ok((player, _)) = player_query.single() else {
             warn!("no player too spawn custom near");
             return;
         };
 
         debug!("pressed spawn_skeleton_button: Spawning Skeleton near player");
-        spawn_event_writer.send(EventSpawnCharacter {
+        spawn_event_writer.write(EventSpawnCharacter {
             requester: player,
             identifier: RegistryIdentifier("skeleton".to_owned()),
         });
@@ -56,25 +56,27 @@ pub fn spawn_custom(
 /// send attack request too combat systems.
 #[allow(clippy::type_complexity)]
 pub fn player_attack(
-    weapon_query: Query<Entity, (With<Parent>, With<CurrentlyDrawnWeapon>)>,
+    weapon_query: Query<Entity, (With<ChildOf>, With<CurrentlyDrawnWeapon>)>,
     player_query: Query<Entity, With<PlayerSelectedHero>>,
     actions: Res<ActionState<action_maps::Gameplay>>,
     mut attack_event_writer: EventWriter<EventRequestAttack>,
 ) {
     let weapon_entity = weapon_query.iter().next();
-    let player = player_query.single();
+    let Ok(player) = player_query.single() else {
+        return
+    };
 
     if actions.pressed(&action_maps::Gameplay::Attack) {
         match weapon_entity {
             Some(weapon) => {
-                attack_event_writer.send(EventRequestAttack {
+                attack_event_writer.write(EventRequestAttack {
                     requester: player,
                     direction: AttackDirection::FromWeapon(weapon),
                 });
             }
             None => {
                 // TODO: calculate direction from virtual cursor position
-                attack_event_writer.send(EventRequestAttack {
+                attack_event_writer.write(EventRequestAttack {
                     requester: player,
                     direction: AttackDirection::FromVector(Vec2 { x: 0.0, y: 1.0 }),
                 });
@@ -90,11 +92,11 @@ pub fn aim_weapon(
     mut weapon_query: Query<
         // this is equivalent to if player has a weapon equipped and out
         (&WeaponHolder, &GlobalTransform, &mut Transform),
-        (With<Parent>, With<CurrentlyDrawnWeapon>),
+        (With<ChildOf>, With<CurrentlyDrawnWeapon>),
     >,
     cursor_positon: Res<AspenCursorPosition>,
 ) {
-    let Ok(player) = player_query.get_single() else {
+    let Ok(player) = player_query.single() else {
         return;
     };
 
@@ -117,7 +119,9 @@ pub fn change_weapon(
     actions: Res<ActionState<action_maps::Gameplay>>,
     mut player_query: Query<&mut WeaponCarrier, With<PlayerSelectedHero>>,
 ) {
-    let mut player_weapon_socket = player_query.single_mut();
+    let Ok(mut player_weapon_socket) = player_query.single_mut() else {
+        return
+    };
 
     let duration = actions
         .previous_duration(&action_maps::Gameplay::CycleWeapon)
@@ -191,13 +195,15 @@ pub fn equip_closest_weapon(
     mut cmds: Commands,
     actions: Res<ActionState<action_maps::Gameplay>>,
     mut player_query: Query<(Entity, &mut WeaponCarrier, &mut Transform), With<PlayerSelectedHero>>,
-    query_child_weapon_collider: Query<(Entity, &Parent), With<ActorColliderType>>,
+    query_child_weapon_collider: Query<(Entity, &ChildOf), With<ActorColliderType>>,
     mut weapon_query: Query<
         (Entity, &mut WeaponHolder, &mut Transform),
-        (Without<Parent>, Without<WeaponCarrier>),
+        (Without<ChildOf>, Without<WeaponCarrier>),
     >,
 ) {
-    let (player_entity, mut weapon_socket_on_player, p_transform) = player_query.single_mut();
+    let Ok((player_entity, mut weapon_socket_on_player, p_transform)) = player_query.single_mut() else {
+        return
+    };
 
     if !actions.just_pressed(&action_maps::Gameplay::Interact) {
         // TODO: equip multiple weapons by replacing currently equipped weapon with new one
@@ -265,8 +271,8 @@ pub fn equip_closest_weapon(
     cmds.entity(player_entity).add_children(&[closest_weapon]);
 
     for (ent, parent) in query_child_weapon_collider.iter() {
-        if parent.get() == closest_weapon {
-            info!("despawning collider for {:?}", parent.get());
+        if parent.parent() == closest_weapon {
+            info!("despawning collider for {:?}", parent.parent());
             cmds.entity(ent).despawn();
         }
     }

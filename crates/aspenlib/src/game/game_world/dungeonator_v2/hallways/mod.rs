@@ -53,7 +53,10 @@ pub fn create_hallway_layer(
     project_assets: Res<Assets<LdtkProject>>,
     level_assets: Res<AspenLevelsetHandles>,
 ) {
-    let (dungeon_entity, dungeon_info, dungeon_global_transform) = dungeon.single();
+    let Ok((dungeon_entity, dungeon_info, dungeon_global_transform)) = dungeon.single() else {
+        return
+    };
+
     let Dungeon {
         settings,
         tile_graph,
@@ -62,7 +65,7 @@ pub fn create_hallway_layer(
 
     let hallway_container = cmds
         .spawn((Name::new("HallwayTiles"), HallwayLayer))
-        .set_parent(dungeon_entity)
+        .insert(ChildOf(dungeon_entity))
         .id();
 
     let tile_storage = TileStorage::empty(settings.size);

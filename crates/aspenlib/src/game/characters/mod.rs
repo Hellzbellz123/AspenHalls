@@ -133,7 +133,7 @@ fn handle_character_spawn(
                     y: spawn_pos.y + random_radius(spawner.spawn_radius),
                 });
 
-            creep_events.send(EventSpawnCreep {
+            creep_events.write(EventSpawnCreep {
                 actor_id: event.identifier.clone(),
                 spawner: event.requester,
                 position: spawn_pos,
@@ -148,7 +148,7 @@ fn handle_character_spawn(
                     y: spawn_pos.y + random_radius(spawner.spawn_radius),
                 });
 
-            boss_events.send(EventSpawnBoss {
+            boss_events.write(EventSpawnBoss {
                 actor_id: event.identifier.clone(),
                 spawner: event.requester,
                 position: spawn_pos,

@@ -33,7 +33,7 @@ ron = { version = "0.8" }
 winit = { version = "0.30", default-features = false }
 image = { version = "0.25", default-features = false, features = ["png"] }
 
-bevy = { workspace = true, default-features = false }
+bevy = { workspace = true }
 # Bevy Dependencies are located in deps folder
 asha_macros = { path = "../asha_macros" }
 big-brain = { path = "../../deps/big_brain" }

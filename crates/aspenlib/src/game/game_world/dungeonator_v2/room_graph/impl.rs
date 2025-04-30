@@ -1,4 +1,4 @@
-use bevy::{prelude::*, utils::HashSet};
+use bevy::{prelude::*, platform::collections::HashSet};
 use petgraph::{prelude::NodeIndex, Graph};
 use rand::seq::IteratorRandom;
 

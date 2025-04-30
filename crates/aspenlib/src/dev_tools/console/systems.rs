@@ -41,15 +41,18 @@ pub fn spawn_command(
     };
 
     let spawn_count = amount.unwrap_or(1);
-    let target_entity = match where_spawn.unwrap_or(CommandTarget::Player) {
+    let Ok(target_entity) = (match where_spawn.unwrap_or(CommandTarget::Player) {
         CommandTarget::Player => player_query.single(),
         CommandTarget::Nearest => {
-            todo!("sort by closest too player, send closest")
+            warn!("TODO: sort by closest too player, send closest");
+            return;
         }
         CommandTarget::Everyone => {
             spawn.reply_failed("Targeting Everyone for spawn is unsupported");
             return;
         }
+    }) else {
+        return
     };
 
     match spawn_type {
@@ -63,7 +66,7 @@ pub fn spawn_command(
             }
 
             spawn.reply_ok("Spawning item");
-            ew_item.send(EventSpawnItem {
+            ew_item.write(EventSpawnItem {
                 spawn_data: (identifier, spawn_count),
                 // TODO: this is a shortcut, fix
                 requester: target_entity,
@@ -83,10 +86,10 @@ pub fn spawn_command(
             };
 
             spawn.reply_ok("Spawning character");
-            ew_character.send(EventSpawnCharacter {
+            ew_character.write(EventSpawnCharacter {
                 identifier,
                 // TODO: this is a shortcut, fix
-                requester: player_query.single(),
+                requester: player_query.single().expect("player should exist if console is used to spawn"),
             });
         }
     };
@@ -105,7 +108,7 @@ pub fn teleport_command(
 ) {
     if let Some(Ok(TeleportCharacterCommand { who, pos })) = spawn.take() {
         let who = who.unwrap_or(CommandTarget::Player);
-        let player = player_query.get_single();
+        let player = player_query.single();
 
         match who {
             CommandTarget::Player => {
@@ -115,7 +118,7 @@ pub fn teleport_command(
                 };
 
                 spawn.reply_ok("Teleporting Player");
-                ew.send(ActorTeleportEvent {
+                ew.write(ActorTeleportEvent {
                     tp_type: TpTriggerEffect::Global(pos.into()),
                     target: Some(player),
                     sender: Some(player),
@@ -145,7 +148,7 @@ pub fn teleport_command(
                 };
 
                 spawn.reply_ok("Teleporting nearest character");
-                ew.send(ActorTeleportEvent {
+                ew.write(ActorTeleportEvent {
                     tp_type: TpTriggerEffect::Global(pos.into()),
                     target: Some(closest.0),
                     sender: Some(player),
@@ -164,7 +167,7 @@ pub fn teleport_command(
 
                 spawn.reply_ok("Teleporting all characters");
                 for f in &too_teleport {
-                    ew.send(ActorTeleportEvent {
+                    ew.write(ActorTeleportEvent {
                         tp_type: TpTriggerEffect::Global(pos.into()),
                         target: Some(*f),
                         sender: Some(player),

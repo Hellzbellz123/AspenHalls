@@ -51,7 +51,7 @@ fn cursor_grab_system(
     key: Res<ButtonInput<KeyCode>>,
     cfg: Res<WindowSettings>,
 ) {
-    let Ok(mut window) = windows.get_single_mut() else {
+    let Ok(mut window) = windows.single_mut() else {
         return;
     };
 
@@ -104,14 +104,14 @@ fn control_software_cursor(
 ) {
     if !cfg.software_cursor_enabled {
         for cursor in &software_cursor {
-            cmds.entity(cursor).despawn_recursive();
+            cmds.entity(cursor).despawn();
         }
     }
 
     if cfg.software_cursor_enabled && software_cursor.is_empty() {
         cmds.spawn((
             Name::new("SoftwareCursor"),
-            PickingBehavior {
+            Pickable {
                 should_block_lower: false,
                 is_hoverable: false,
             },
@@ -143,13 +143,13 @@ fn update_software_cursor_image(
     mut software_cursor: Query<(&mut SoftWareCursor, &mut ImageNode, &Node, &ComputedNode)>,
     game_state: Option<Res<State<GameStage>>>,
 ) {
-    let Ok((mut cursor_data, mut cursor_image, node, node_size)) = software_cursor.get_single_mut()
+    let Ok((mut cursor_data, mut cursor_image, _node, node_size)) = software_cursor.single_mut()
     else {
         return;
     };
 
     let distance = player
-        .get_single()
+        .single()
         .map_or(cursor_data.hide_distance + 25.0, |transform| {
             transform
                 .translation()
@@ -212,11 +212,11 @@ fn update_software_cursor_position(
     cursor_pos: Res<AspenCursorPosition>,
     window_query: Query<&Window>,
 ) {
-    let Ok((mut cursor_style, cursor_data)) = software_cursor.get_single_mut() else {
+    let Ok((mut cursor_style, cursor_data)) = software_cursor.single_mut() else {
         error!("no software cursor too update");
         return;
     };
-    let Ok(window) = window_query.get_single() else {
+    let Ok(window) = window_query.single() else {
         error!("no window too position software cursor");
         return;
     };

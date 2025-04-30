@@ -1,8 +1,7 @@
 use bevy::{
     ecs::{
         bundle::Bundle,
-        reflect::{ReflectComponent, ReflectResource},
-        system::Resource,
+        reflect::{ReflectComponent, ReflectResource}, resource::Resource,
     },
     log::warn,
     math::{IVec2, Vec2},

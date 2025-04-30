@@ -18,7 +18,7 @@ pub fn spawn_straight_section(
     c_dir: &CardinalDirection,
     c_coord: TilePos,
     hallway_storage: &mut Mut<'_, TileStorage>,
-    parent: &mut ChildBuilder<'_>,
+    parent: &mut ChildSpawnerCommands<'_>,
     hallway_container: Entity,
 ) {
     let (wall_a, wall_b, _double_tex) = match c_dir {
@@ -97,7 +97,7 @@ pub fn spawn_corner_section(
     c_idx: usize,
     c_dir: &CardinalDirection,
     c_coord: TilePos,
-    parent: &mut ChildBuilder<'_>,
+    parent: &mut ChildSpawnerCommands<'_>,
     hallway_container: Entity,
     hallway_storage: &mut Mut<'_, TileStorage>,
 ) {

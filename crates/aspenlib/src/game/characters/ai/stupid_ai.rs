@@ -7,7 +7,7 @@ use rand::{thread_rng, Rng};
 use avian2d::prelude::{
     Collider, LayerMask, LinearVelocity, ShapeCastConfig, ShapeHitData, SpatialQuery, SpatialQueryFilter
 };
-use bevy::{ecs::entity::{EntityHash, EntityHashSet}, hierarchy::HierarchyQueryExt, prelude::*};
+use bevy::{ecs::entity::{EntityHash, EntityHashSet}, prelude::*};
 use big_brain::{
     prelude::{ActionState, Actor, Score},
     thinker::ThinkerBuilder,
@@ -76,7 +76,7 @@ fn stupid_ai_aggro_manager(
     children: Query<&Children>,
     colliders: Query<&Collider>,
 ) {
-    let Ok((player, player_transform)) = player_query.get_single() else {
+    let Ok((player, player_transform)) = player_query.single() else {
         warn!("no player for stupid-ai-manager too use");
         return;
     };
@@ -106,8 +106,7 @@ fn stupid_ai_aggro_manager(
             continue;
         }
 
-        let s = EntityHash;
-        let mut excluded_entities = EntityHashSet::with_capacity_and_hasher(15, s);
+        let mut excluded_entities = EntityHashSet::with_capacity(15);
 
         excluded_entities.insert(actor_collider);
         excluded_entities.insert(this_actor);
@@ -161,7 +160,7 @@ fn chase_action(
     mut enemy_query: Query<(&Transform, &mut LinearVelocity, &AICombatAggroConfig)>,
     mut chasing_enemies: Query<(&Actor, &mut ActionState), With<AIChaseAction>>,
 ) {
-    let Ok(player_transform) = player_query.get_single() else {
+    let Ok(player_transform) = player_query.single() else {
         warn!("no player for ai too chase");
         return;
     };
@@ -227,7 +226,7 @@ fn attack_action(
     mut ai_with_attacks: Query<(&Actor, &mut ActionState), With<AIShootAction>>,
     mut attack_requests: EventWriter<EventRequestAttack>,
 ) {
-    let Ok((_, player_transform)) = player_query.get_single() else {
+    let Ok((_, player_transform)) = player_query.single() else {
         return;
     };
 
@@ -250,7 +249,7 @@ fn attack_action(
                     }
                     if shoot_cfg.timer.tick(time.delta()).finished() {
                         // TODO: get weapons on entity, if melee weapon attack with that, else use ranged
-                        attack_requests.send(EventRequestAttack {
+                        attack_requests.write(EventRequestAttack {
                             requester: *actor,
                             direction: AttackDirection::FromVector(direction_too_player),
                         });
@@ -291,7 +290,10 @@ fn wander_action(
         if let Ok((enemy_transform, mut velocity, _sprite, mut can_meander_tag)) =
             enemy_query.get_mut(*actor)
         {
-            let camera_pos = camera_pos.single().translation.truncate();
+            let Ok(camera_pos) = camera_pos.single() else {
+                return
+            };
+            let camera_pos = camera_pos.translation.truncate();
             let enemy_pos = enemy_transform.translation.truncate();
 
             if camera_pos.distance(enemy_pos) >= 32.0 * TILE_SIZE {
@@ -354,7 +356,7 @@ fn wander_action(
                         continue;
                     }
 
-                    let mut excluded_entities = EntityHashSet::with_capacity_and_hasher(15, EntityHash);
+                    let mut excluded_entities = EntityHashSet::with_capacity(15);
                     excluded_entities.insert(actor_collider);
                     excluded_entities.insert(*actor);
 

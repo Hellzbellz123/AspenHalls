@@ -72,7 +72,11 @@ fn spawn_pause_menu(
     assets: Res<AspenInitHandles>,
     interface_root: Query<Entity, With<InterfaceRootTag>>,
 ) {
-    cmds.entity(interface_root.single())
+    let Ok(interface_root) = interface_root.single() else {
+        return;
+    };
+
+    cmds.entity(interface_root)
         .with_children(|children| {
             children
                 .spawn((
@@ -167,7 +171,7 @@ fn continue_button_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            pauses.send(EventTogglePause);
+            pauses.write(EventTogglePause);
         }
     }
 }
@@ -186,7 +190,7 @@ fn abandon_button_interaction(
         (
             With<RegistryIdentifier>,
             Without<PlayerSelectedHero>,
-            Without<Parent>,
+            Without<ChildOf>,
         ),
     >,
 ) {
@@ -194,10 +198,10 @@ fn abandon_button_interaction(
         if matches!(interaction, Interaction::Pressed) {
             warn!("abandoning dungeon");
             for actor in &actor_q {
-                cmds.entity(actor).despawn_recursive();
+                cmds.entity(actor).despawn();
             }
             for level in &level_q {
-                cmds.entity(level).despawn_recursive();
+                cmds.entity(level).despawn();
             }
             time.unpause();
 
@@ -246,13 +250,14 @@ fn back_to_main_menu_interaction(
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
             for actor in &actor_q {
-                cmds.entity(actor).despawn_recursive();
+                cmds.entity(actor).despawn();
             }
             for level in &level_q {
-                cmds.entity(level).despawn_recursive();
+                cmds.entity(level).despawn();
             }
             for entity in &ui_root_q {
-                cmds.entity(entity).despawn_descendants();
+                // TODO: this might not be correct anymore
+                cmds.entity(entity).despawn_related::<Children>();
             }
 
             time.unpause();
@@ -268,7 +273,7 @@ fn exit_button_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            exit_event_writer.send(AppExit::Success);
+            exit_event_writer.write(AppExit::Success);
         }
     }
 }
@@ -283,7 +288,7 @@ fn keyboard_pause_sender(
     mut pauses: EventWriter<EventTogglePause>,
 ) {
     if input.just_pressed(&action_maps::Gameplay::Pause) {
-        pauses.send(EventTogglePause);
+        pauses.write(EventTogglePause);
     }
 }
 
@@ -294,7 +299,7 @@ fn pause_menu_visibility(
     let Some(game_state) = game_state else {
         return;
     };
-    let Ok(mut pause_menu) = pause_menu_query.get_single_mut() else {
+    let Ok(mut pause_menu) = pause_menu_query.single_mut() else {
         return;
     };
 

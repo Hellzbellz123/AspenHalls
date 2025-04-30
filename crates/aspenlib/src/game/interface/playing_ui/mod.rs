@@ -49,7 +49,7 @@ fn toggle_playing_ui(
     mut playing_ui_query: Query<&mut Node, With<PlayingUiTag>>,
     game_state: Option<Res<State<GameStage>>>,
 ) {
-    let Ok(mut playing_ui_style) = playing_ui_query.get_single_mut() else {
+    let Ok(mut playing_ui_style) = playing_ui_query.single_mut() else {
         return;
     };
 
@@ -76,7 +76,11 @@ fn spawn_playing_ui(
     touch_assets: Res<AspenTouchHandles>,
     interface_root: Query<Entity, With<InterfaceRootTag>>,
 ) {
-    cmds.entity(interface_root.single())
+    let Ok(interface_root) = interface_root.single() else {
+        return;
+    };
+
+    cmds.entity(interface_root)
         .with_children(|children| {
             children
                 .spawn((
@@ -102,7 +106,7 @@ fn spawn_playing_ui(
 }
 
 /// create portrait and hp and action buttons container
-fn create_hud_container(hud_hud_parts: &mut ChildBuilder, touch_assets: Res<AspenTouchHandles>) {
+fn create_hud_container(hud_hud_parts: &mut ChildSpawnerCommands, touch_assets: Res<AspenTouchHandles>) {
     hud_hud_parts
         .spawn((
             Name::new("HudContainer"),

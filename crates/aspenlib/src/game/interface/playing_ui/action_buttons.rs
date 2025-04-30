@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 /// create action buttons widget
 pub fn create_action_buttons(
-    playing_ui_parts: &mut ChildBuilder,
+    playing_ui_parts: &mut ChildSpawnerCommands,
     touch_assets: Res<'_, AspenTouchHandles>,
 ) {
     playing_ui_parts
@@ -101,7 +101,7 @@ pub struct ActionButton(ActionNumber);
 fn spawn_actionbutton(
     _xpos: Val,
     _ypos: Val,
-    button_parent: &mut ChildBuilder,
+    button_parent: &mut ChildSpawnerCommands,
     slot: ActionNumber,
     image: Handle<Image>,
 ) {

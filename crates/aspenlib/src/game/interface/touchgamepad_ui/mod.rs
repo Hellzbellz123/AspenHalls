@@ -127,7 +127,7 @@ fn handle_touch_controls_visibility(
     cfg: Res<GeneralSettings>,
     mut touch_root_query: Query<&mut Node, With<TouchControlsRoot>>,
 ) {
-    let Ok(mut touch_root_style) = touch_root_query.get_single_mut() else {
+    let Ok(mut touch_root_style) = touch_root_query.single_mut() else {
         info!("no touch controls");
         return;
     };
@@ -157,7 +157,11 @@ fn spawn_touch_gamepad(
     // init_handles: Res<AspenInitHandles>,
     touch_assets: Res<AspenTouchHandles>,
 ) {
-    cmds.entity(interface_root.single())
+    let Ok(interface_root) = interface_root.single() else {
+        return;
+    };
+
+    cmds.entity(interface_root)
         .with_children(|ui_root_children| {
             ui_root_children
                 .spawn((
@@ -253,7 +257,7 @@ fn spawn_touch_gamepad(
 }
 
 /// fills right pod with button rows
-fn create_button_rows(right_pod_parts: &mut ChildBuilder, touch_assets: &Res<AspenTouchHandles>) {
+fn create_button_rows(right_pod_parts: &mut ChildSpawnerCommands, touch_assets: &Res<AspenTouchHandles>) {
     right_pod_parts
         .spawn((
             Name::new("RightPodButtons"),
@@ -308,7 +312,7 @@ fn create_button_rows(right_pod_parts: &mut ChildBuilder, touch_assets: &Res<Asp
 }
 
 /// spawn game utility buttons
-fn spawn_top_buttons(top_buttons: &mut ChildBuilder, touch_assets: &Res<AspenTouchHandles>) {
+fn spawn_top_buttons(top_buttons: &mut ChildSpawnerCommands, touch_assets: &Res<AspenTouchHandles>) {
     spawn_controlsbutton(
         top_buttons,
         Some(touch_assets.menu_button.clone()),
@@ -351,7 +355,7 @@ fn spawn_top_buttons(top_buttons: &mut ChildBuilder, touch_assets: &Res<AspenTou
 }
 
 /// spawn player functionality buttons
-fn spawn_middle_buttons(middle_buttons: &mut ChildBuilder, touch_assets: &Res<AspenTouchHandles>) {
+fn spawn_middle_buttons(middle_buttons: &mut ChildSpawnerCommands, touch_assets: &Res<AspenTouchHandles>) {
     // lower buttons
     spawn_controlsbutton(
         middle_buttons,
@@ -397,7 +401,7 @@ fn spawn_middle_buttons(middle_buttons: &mut ChildBuilder, touch_assets: &Res<As
 /// spawns button with <S> marker component
 /// takes button size, button name, button position and button id (just a component for querying)
 fn spawn_controlsbutton<S: Component>(
-    touch_controls_builder: &mut ChildBuilder,
+    touch_controls_builder: &mut ChildSpawnerCommands,
     image: Option<Handle<Image>>,
     name: String,
     position: UiRect,
@@ -462,7 +466,7 @@ fn spawn_touchstick<
         + bevy::reflect::GetTypeRegistration
         + 'static,
 >(
-    touch_controls_builder: &mut ChildBuilder,
+    touch_controls_builder: &mut ChildSpawnerCommands,
     images: (&Handle<Image>, &Handle<Image>),
     name: String,
     position: UiRect,

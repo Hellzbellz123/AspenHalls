@@ -317,7 +317,7 @@ pub fn shootpatternspawner_system(
 
                     if pattern_spawner.runs == waves {
                         info!("pattern spawner has finished its pattern, despawning");
-                        cmds.entity(spawner_ent).despawn_recursive();
+                        cmds.entity(spawner_ent).despawn();
                     }
                 }
                 ShootPattern::BeamedArc {
@@ -328,7 +328,7 @@ pub fn shootpatternspawner_system(
                     beam_time: _,
                 } => {
                     warn!("unhandled shoot pattern, despawning");
-                    cmds.entity(spawner_ent).despawn_recursive();
+                    cmds.entity(spawner_ent).despawn();
                 }
             }
         }

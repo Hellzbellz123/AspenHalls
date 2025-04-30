@@ -5,7 +5,6 @@
 use bevy::{
     app::{App, MainScheduleOrder, Plugin, Update},
     asset::Asset,
-    core::TypeRegistrationPlugin,
     ecs::{
         prelude::*,
         schedule::{BoxedCondition, ScheduleLabel},
@@ -17,8 +16,8 @@ use bevy::{
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 use bevy_inspector_egui::{
     bevy_inspector::{
-        ui_for_all_assets, ui_for_assets, ui_for_resource, ui_for_resources, ui_for_state,
-        ui_for_world_entities_filtered,
+        ui_for_all_assets, ui_for_assets, ui_for_entities_filtered, ui_for_resource,
+        ui_for_resources, ui_for_state, Filter,
     },
     DefaultInspectorConfigPlugin,
 };
@@ -37,16 +36,17 @@ impl Plugin for EguiToolsPlugin {
             app.add_plugins(DefaultInspectorConfigPlugin);
         }
         if !app.is_plugin_added::<EguiPlugin>() {
-            app.add_plugins(EguiPlugin);
+            app.add_plugins(EguiPlugin {
+                enable_multipass_for_primary_context: true,
+            });
         }
         if !app.is_plugin_added::<InspectSchedulePlugin>() {
             app.add_plugins(InspectSchedulePlugin);
         }
 
         app.add_plugins((
-            ResourceInspectorPlugin::<DebugConfig>::default().run_if(
-                resource_exists::<DebugConfig>.and(|res: Res<DebugConfig>| res.enabled),
-            ),
+            ResourceInspectorPlugin::<DebugConfig>::default()
+                .run_if(resource_exists::<DebugConfig>.and(|res: Res<DebugConfig>| res.enabled)),
             StateInspectorPlugin::<AppStage>::default().run_if(
                 resource_exists::<DebugConfig>
                     .and(|res: Res<DebugConfig>| res.enabled && res.show_appstate),
@@ -114,7 +114,7 @@ impl Plugin for WorldInspectorPlugin {
 fn world_inspector_ui(world: &mut World) {
     let egui_context = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
-        .get_single(world);
+        .single(world);
 
     let Ok(egui_context) = egui_context else {
         return;
@@ -136,21 +136,20 @@ pub fn ui_for_world(world: &mut World, ui: &mut egui::Ui) {
     egui::CollapsingHeader::new("Entities")
         .default_open(true)
         .show(ui, |ui| {
-            if cfg!(feature = "develop") {
-                ui_for_world_entities_filtered::<(
-                    // With<bevy::prelude::Name>,
-                    Without<bevy::prelude::Parent>,
-                    // Without<big_brain::prelude::ActionState>,
-                    // Without<bevy::ecs::observer::ObserverState>,
-                )>(world, ui, true);
-            } else {
-                ui_for_world_entities_filtered::<(
-                    With<bevy::prelude::Name>,
-                    Without<bevy::prelude::Parent>,
-                    Without<big_brain::prelude::ActionState>,
-                    Without<bevy::ecs::observer::ObserverState>,
-                )>(world, ui, true);
-            }
+            #[cfg(not(feature = "develop"))]
+            let filter = Filter::<(
+                Without<bevy::prelude::ChildOf>,
+            )>::all();
+            
+            #[cfg(feature = "develop")]
+            let filter = Filter::<(
+                With<bevy::prelude::Name>,
+                Without<bevy::prelude::ChildOf>,
+                Without<big_brain::prelude::ActionState>,
+                Without<bevy::ecs::observer::ObserverState>,
+            )>::all();
+            
+            ui_for_entities_filtered(world, ui, true, &filter);
         });
     egui::CollapsingHeader::new("Resources").show(ui, |ui| {
         ui_for_resources(world, ui);
@@ -159,6 +158,7 @@ pub fn ui_for_world(world: &mut World, ui: &mut egui::Ui) {
         ui_for_all_assets(world, ui);
     });
 }
+
 
 /// Plugin displaying an egui window for a single resource.
 /// Remember to insert the resource and call [`App::register_type`](bevy_app::App::register_type).
@@ -201,7 +201,7 @@ impl<T: Resource + Reflect> Plugin for ResourceInspectorPlugin<T> {
 fn inspector_ui<T: Resource + Reflect>(world: &mut World) {
     let egui_context = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
-        .get_single(world);
+        .single(world);
 
     let Ok(egui_context) = egui_context else {
         return;
@@ -259,7 +259,7 @@ impl<T: FreelyMutableState + Reflect> Plugin for StateInspectorPlugin<T> {
 fn state_ui<T: FreelyMutableState + Reflect>(world: &mut World) {
     let egui_context = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
-        .get_single(world);
+        .single(world);
 
     let Ok(egui_context) = egui_context else {
         return;
@@ -317,7 +317,7 @@ impl<A: Asset + Reflect> Plugin for AssetInspectorPlugin<A> {
 fn asset_inspector_ui<A: Asset + Reflect>(world: &mut World) {
     let egui_context = world
         .query_filtered::<&mut EguiContext, With<PrimaryWindow>>()
-        .get_single(world);
+        .single(world);
 
     let Ok(egui_context) = egui_context else {
         return;
@@ -336,9 +336,10 @@ fn asset_inspector_ui<A: Asset + Reflect>(world: &mut World) {
 }
 
 fn check_default_plugins(app: &bevy::app::App, name: &str) {
-    assert!(
-        app.is_plugin_added::<TypeRegistrationPlugin>(),
-        "{}",
-        format!("'{name}' should be added after the default plugins")
-    );
+    // TODO: what is the new way
+    // assert!(
+    //     app.is_plugin_added::<TypeRegistrationPlugin>(),
+    //     "{}",
+    //     format!("'{name}' should be added after the default plugins")
+    // );
 }

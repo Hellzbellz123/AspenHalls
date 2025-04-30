@@ -104,9 +104,9 @@ impl Plugin for DungeonGeneratorPlugin {
             OnEnter(GeneratorState::LayoutDungeon),
             (
                 spawn_new_dungeon,
-                apply_deferred,
+                ApplyDeferred,
                 layout_dungeon,
-                apply_deferred,
+                ApplyDeferred,
             )
                 .before(TransformSystem::TransformPropagate)
                 .chain(),
@@ -115,7 +115,7 @@ impl Plugin for DungeonGeneratorPlugin {
         // create tilegraph by premtively filling in spots based on roomgraph data, plus the requested border for rooms instead of below systems
         app.add_systems(
             Update,
-            (tile_graph::create_tile_graph, apply_deferred)
+            (tile_graph::create_tile_graph, ApplyDeferred)
                 .chain()
                 .after(TransformSystem::TransformPropagate)
                 .run_if(in_state(GeneratorState::CompleteHallways)),
@@ -123,7 +123,7 @@ impl Plugin for DungeonGeneratorPlugin {
 
         app.add_systems(
             OnEnter(GeneratorState::FinalizeHallways),
-            (create_hallway_layer, apply_deferred).chain(),
+            (create_hallway_layer, ApplyDeferred).chain(),
         );
 
         app.add_systems(
@@ -143,8 +143,8 @@ fn spawn_new_dungeon(
     dungeon_root: Query<(Entity, &Dungeon)>,
 ) {
     // TODO: proper dungeon end system with cleanup
-    let level = if let Ok((ent, dungeon)) = dungeon_root.get_single() {
-        cmds.entity(ent).despawn_recursive(); // this happens next frame so dungeon still exists
+    let level = if let Ok((ent, dungeon)) = dungeon_root.single() {
+        cmds.entity(ent).despawn(); // this happens next frame so dungeon still exists
         dungeon.settings.level.clone().next_level()
     } else {
         components::RoomLevel::Level1
@@ -207,7 +207,9 @@ pub fn layout_dungeon(
     player_query: Query<Entity, With<PlayerSelectedHero>>,
     mut tp_events: EventWriter<ActorTeleportEvent>,
 ) {
-    let (dungon_id, dungeon, dungeon_transform) = dungeon_root.single_mut();
+    let Ok((dungeon_id, dungeon, dungeon_transform)) = dungeon_root.single_mut() else {
+        return
+    };
 
     info!("creating dungeon room blueprints");
     let mut positioned_presets = create_dungeon_blueprint(dungeon, room_database);
@@ -239,7 +241,7 @@ pub fn layout_dungeon(
                 },
                 // Position(bp.room_space.min.as_vec2()),
             ))
-            .set_parent(dungon_id);
+            .insert(ChildOf(dungeon_id));
         };
     });
 
@@ -279,7 +281,7 @@ pub fn layout_dungeon(
                 ),
                 visual: Visibility::Inherited
             })
-            .set_parent(dungon_id);
+            .insert(ChildOf(dungeon_id));
         } else {
             info!("bad graph edge");
         }
@@ -360,8 +362,11 @@ fn teleport_player_too_start_location(
     let pos = random_point_inside(&start_loc_rect, 1.0).unwrap_or(dungeon_center);
 
     warn!("teleporting player too start location: {}", pos);
-    let player_ent = player_query.single();
-    tp_events.send(ActorTeleportEvent {
+    let Ok(player_ent) = player_query.single() else {
+        return
+    };
+
+    tp_events.write(ActorTeleportEvent {
         tp_type: TpTriggerEffect::Global(pos),
         target: Some(player_ent),
         sender: Some(player_ent),

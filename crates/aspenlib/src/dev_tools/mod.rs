@@ -113,7 +113,7 @@ impl Plugin for AspenDevToolsPlugin {
             egui_tools::EguiToolsPlugin,
             // external tools
             PhysicsDebugPlugin::new(FixedPostUpdate),
-            FrameTimeDiagnosticsPlugin,
+            FrameTimeDiagnosticsPlugin::default() ,
             EntityCountDiagnosticsPlugin,
             #[cfg(not(feature="develop"))]
             SystemInformationDiagnosticsPlugin,
@@ -129,12 +129,9 @@ impl Plugin for AspenDevToolsPlugin {
             PhysicsGizmos::all().with_mesh_visibility(true),
             GizmoConfig {
                 enabled: false,
-                line_width: 2.0,
-                line_perspective: false,
-                line_style: GizmoLineStyle::default(),
                 depth_bias: 0.0,
                 render_layers: RenderLayers::default(),
-                line_joints: GizmoLineJoint::default(),
+                line: GizmoLineConfig { width: 2.0, ..default() }
             },
         );
 

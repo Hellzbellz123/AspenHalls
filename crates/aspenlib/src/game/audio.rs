@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{platform::collections::HashMap, prelude::*};
 use bevy_aseprite_ultra::prelude::AnimationState;
 use bevy_kira_audio::{
     prelude::AudioControl, AudioApp, AudioChannel, AudioPlugin as InternalAudioPlugin,
@@ -157,11 +157,11 @@ fn play_background_audio(
 fn update_audio_listener(
     mut cmds: Commands,
     player_hero: Query<Entity, With<PlayerSelectedHero>>,
-    audio_reciever: Query<Entity, (With<Parent>, With<SpatialAudioReceiver>)>,
+    audio_reciever: Query<Entity, (With<ChildOf>, With<SpatialAudioReceiver>)>,
 ) {
     // use fake listener that is at player position or else camera position?
     // camera plane is 999 but thats too far for audio too work correctly?
-    if let Ok(hero) = player_hero.get_single()
+    if let Ok(hero) = player_hero.single()
         && audio_reciever.is_empty()
     {
         cmds.entity(hero).with_children(|f| {
@@ -237,7 +237,7 @@ fn actor_footstep_sounds(
     )>,
     listener: Query<&GlobalTransform, With<SpatialAudioReceiver>>,
 ) {
-    let Ok(listener) = listener.get_single() else {
+    let Ok(listener) = listener.single() else {
         return;
     };
 

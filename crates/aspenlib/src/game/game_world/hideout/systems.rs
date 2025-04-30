@@ -70,16 +70,17 @@ pub fn spawn_hideout(mut commands: Commands, maps: Res<AspenLevelsetHandles>) {
 /// system too check for actors on teleport pad
 pub fn teleporter_collisions(
     mut collision_start_events: EventReader<CollisionStarted>,
-    collision_end_events: EventReader<CollisionEnded>,
+    // collision_end_events: EventReader<CollisionEnded>,
     mut teleport_events: EventWriter<ActorTeleportEvent>,
     mut characters: Query<(&mut CharacterMoveState, &CharacterType)>,
-    actor_colliders: Query<(Entity, &Parent, &ActorColliderType), With<Collider>>,
+    actor_colliders: Query<(Entity, &ChildOf, &ActorColliderType), With<Collider>>,
     teleporter: Query<(Entity, &Teleporter), With<Sensor>>,
 ) {
     // NOTE: we are explicitly using returns instead of continue in an effort too prevent
     // multiple teleport events from triggering for the same entity at once
     // there is also a rudimentary teleport statemachine held on the `CharacterMoveState`
     for event in &mut collision_start_events.read() {
+        info!("got collision");
         let CollisionStarted(collider_a, collider_b) = *event;
 
         let Some((teleporter, tp_data)) = teleporter
@@ -94,7 +95,7 @@ pub fn teleporter_collisions(
             .filter(|(_, _, at)| at == &&ActorColliderType::Character)
             .find_map(|(character_collider, parent, _)| {
                 if character_collider == collider_a || character_collider == collider_b {
-                    Some(parent.get())
+                    Some(parent.parent())
                 } else {
                     None
                 }
@@ -116,7 +117,7 @@ pub fn teleporter_collisions(
 
             warn!("requesting teleport");
             character_movestate.teleport_status = TeleportStatus::Requested;
-            teleport_events.send(ActorTeleportEvent {
+            teleport_events.write(ActorTeleportEvent {
                 tp_type: tp_data.effect.clone(),
                 target: Some(character),
                 sender: Some(teleporter),

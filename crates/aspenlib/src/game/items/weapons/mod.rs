@@ -122,7 +122,7 @@ fn prepare_weapons(
 fn handle_weapon_attacks(
     mut gunshoot_events: EventWriter<GunShootEvent>,
     mut weapon_attack_events: EventReader<EventAttackWeapon>,
-    weapon_query: Query<(&WeaponDescriptor, &WeaponHolder, &WeaponTimers), With<Parent>>,
+    weapon_query: Query<(&WeaponDescriptor, &WeaponHolder, &WeaponTimers), With<ChildOf>>,
 ) {
     // player pressed attack button
     for weapon_attack in weapon_attack_events.read() {
@@ -135,7 +135,7 @@ fn handle_weapon_attacks(
             WeaponDescriptor::Gun(cfg) => {
                 // get requester and do something?
                 if timers.attack.finished() || timers.refill.finished() {
-                    gunshoot_events.send(GunShootEvent {
+                    gunshoot_events.write(GunShootEvent {
                         gun: weapon_attack.weapon,
                         settings: *cfg,
                     });
@@ -223,13 +223,13 @@ fn equipped_weapon_positioning(
 /// check if the weapon is supposed to be visible
 fn weapon_visibility_system(
     carrier_query: Query<&WeaponCarrier>,
-    mut weapon_query: Query<(&WeaponHolder, &mut Visibility, Option<&Parent>)>,
+    mut weapon_query: Query<(&WeaponHolder, &mut Visibility, Option<&ChildOf>)>,
 ) {
     for (weapon_holder, mut weapon_visibility, parent) in &mut weapon_query {
         if let Some((weapon_slot, weapon_holder)) = weapon_holder.0
             && let Some(parent) = parent
         {
-            let parent = parent.get();
+            let parent = parent.parent();
             if parent != weapon_holder {
                 warn!("weapon is parented incorrectly");
             }

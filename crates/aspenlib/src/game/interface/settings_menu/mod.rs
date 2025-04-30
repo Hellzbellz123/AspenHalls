@@ -54,7 +54,11 @@ fn spawn_settings_menu(
     assets: Res<AspenInitHandles>,
     interface_root: Query<Entity, With<InterfaceRootTag>>,
 ) {
-    cmds.entity(interface_root.single())
+    let Ok(interface_root) = interface_root.single() else {
+        return;
+    };
+
+    cmds.entity(interface_root)
         .with_children(|children| {
             children
                 .spawn((
@@ -141,7 +145,11 @@ fn settings_menu_visibility(
     };
     match state.get() {
         GameStage::PlayingGame | GameStage::SelectCharacter => {
-            settings_menu_query.single_mut().display = Display::None;
+            let Ok(mut s_menu_node) = settings_menu_query.single_mut() else {
+                return;
+            };
+            
+            s_menu_node.display = Display::None;
         }
         _ => {}
     }
@@ -154,7 +162,10 @@ fn close_settings_interaction(
 ) {
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {
-            settings_menu_query.single_mut().display = Display::None;
+            let Ok(mut s_menu_node) = settings_menu_query.single_mut() else {
+                return;
+            };
+            s_menu_node.display = Display::None;
         }
     }
 }
@@ -178,7 +189,9 @@ fn toggle_settings_interactions(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<SettingsMenuToggleButton>)>,
     mut settings_menu_query: Query<&mut Node, With<SettingsMenuTag>>,
 ) {
-    let mut settings_menu_style = settings_menu_query.single_mut();
+    let Ok(mut settings_menu_style) = settings_menu_query.single_mut() else {
+        return
+    };
 
     for interaction in &interaction_query {
         if matches!(interaction, Interaction::Pressed) {

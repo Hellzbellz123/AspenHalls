@@ -46,7 +46,7 @@ fn spawn_interface_root(mut cmds: Commands) {
     cmds.spawn((
         Name::new("InterfaceRoot"),
         InterfaceRootTag,
-        PickingBehavior {
+        Pickable {
             should_block_lower: false,
             is_hoverable: false,
         },

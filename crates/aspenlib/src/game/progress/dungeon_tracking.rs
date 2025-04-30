@@ -22,8 +22,14 @@ pub fn update_player_current_room(
     room_query: Query<(Entity, &GlobalTransform, &RoomBlueprint)>,
     player_query: Query<&Transform, With<PlayerSelectedHero>>,
 ) {
-    let mut progress_manager = progress_manager.single_mut();
-    let player_position = player_query.single().translation.xy();
+    let Ok(mut progress_manager) = progress_manager.single_mut() else {
+        return;
+    };
+    let Ok(player_transform) = player_query.single() else {
+        return;
+    };
+
+    let player_position = player_transform.translation.xy();
 
     let current_room = room_query
         .iter()
@@ -50,7 +56,7 @@ pub fn update_boss_state(
     chase_scorers: Query<&Score, With<ChaseScorer>>,
     attack_scorers: Query<&Score, With<AttackScorer>>,
 ) {
-    let Ok(mut progress_manager) = progress_manager.get_single_mut() else {
+    let Ok(mut progress_manager) = progress_manager.single_mut() else {
         warn!("could not get progress manager");
         return;
     };
@@ -73,7 +79,7 @@ pub fn update_boss_state(
         && progress_manager.current.boss_state == BossState::Defeated
     {
         progress_manager.current.boss_state = BossState::UnSpawned;
-        regen_event.send(RegenerateDungeonEvent {
+        regen_event.write(RegenerateDungeonEvent {
             reason: RegenReason::BossDefeat,
         });
         return;

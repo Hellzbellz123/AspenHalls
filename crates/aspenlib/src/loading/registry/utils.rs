@@ -1,11 +1,7 @@
 use std::path::PathBuf;
 
-use bevy::{
-    core::Name,
-    ecs::system::Res,
-    prelude::{default, AssetServer, Assets, ResMut, Sprite, Vec2},
-    sprite::Anchor,
-};
+use bevy::prelude::*;
+use bevy::sprite::Anchor;
 use bevy_aseprite_ultra::prelude::{Animation, AseSpriteAnimation};
 
 use crate::{

@@ -122,7 +122,7 @@ fn listen_rebuild_dungeon_request(
         (
             With<RegistryIdentifier>,
             Without<PlayerSelectedHero>,
-            Without<Parent>,
+            Without<ChildOf>,
         ),
     >,
 ) {
@@ -135,7 +135,7 @@ fn listen_rebuild_dungeon_request(
 
         info!("despawning old actors");
         actors.iter().for_each(|f| {
-            cmds.entity(f).despawn_recursive();
+            cmds.entity(f).despawn();
         });
 
         cmds.insert_resource(NextState::Pending(GeneratorState::LayoutDungeon));
@@ -149,7 +149,7 @@ fn debug_regen_dungeon(
     mut regen_event: EventWriter<RegenerateDungeonEvent>,
 ) {
     if actions.just_pressed(&action_maps::Gameplay::DebugF2) {
-        regen_event.send(RegenerateDungeonEvent {
+        regen_event.write(RegenerateDungeonEvent {
             reason: RegenReason::ManualRegen,
         });
     }
@@ -199,7 +199,7 @@ fn handle_teleport_events(
     start_locations: Query<&GlobalTransform, With<PlayerStartLocation>>,
     global_transforms: Query<&GlobalTransform>,
     children: Query<&Children>,
-    parents: Query<&Parent>,
+    parents: Query<&ChildOf>,
     iids: Query<&EntityIid>,
 ) {
     for event in tp_events.read() {
@@ -224,7 +224,7 @@ fn handle_teleport_events(
         match &event.tp_type {
             //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
             TpTriggerEffect::Local(target_tile_reference) => {
-                let entity_layer = parents.get(event.sender.unwrap()).unwrap().get();
+                let entity_layer = parents.get(event.sender.unwrap()).unwrap().parent();
                 let ent_ids = children
                     .iter_descendants(entity_layer)
                     .filter(|f| {
@@ -262,12 +262,12 @@ fn handle_teleport_events(
                 match event.as_str() {
                     "StartDungeonGen" => {
                         // TODO: reset dungeon before changing state.
-                        regen_event.send(RegenerateDungeonEvent {
+                        regen_event.write(RegenerateDungeonEvent {
                             reason: RegenReason::FirstGeneration,
                         });
                     }
                     "TeleportStartLocation" => {
-                        if let Ok(loc) = start_locations.get_single() {
+                        if let Ok(loc) = start_locations.single() {
                             target_transform.translation =
                                 loc.translation().truncate().extend(ACTOR_Z_INDEX);
                         } else if start_locations.is_empty() {
@@ -296,21 +296,21 @@ fn populate_start_room(
     mut ew: EventWriter<EventSpawnItem>,
     dungeon_root: Query<Entity, With<Dungeon>>,
 ) {
-    let Ok(dungeon) = dungeon_root.get_single() else {
+    let Ok(dungeon) = dungeon_root.single() else {
         error!("no dungeon too spawn starting weaoins at");
         return;
     };
 
     info!("sending item spawns for dungeon start");
-    ew.send(EventSpawnItem {
+    ew.write(EventSpawnItem {
         spawn_data: (RegistryIdentifier("smallsmg".to_string()), 1),
         requester: dungeon,
     });
-    ew.send(EventSpawnItem {
+    ew.write(EventSpawnItem {
         spawn_data: (RegistryIdentifier("smallpistol".to_string()), 1),
         requester: dungeon,
     });
-    ew.send(EventSpawnItem {
+    ew.write(EventSpawnItem {
         spawn_data: (RegistryIdentifier("autopistol".to_string()), 1),
         requester: dungeon,
     });
@@ -329,7 +329,7 @@ fn process_tile_enum_tags(
         let tags = tile_enum_tag.tags.clone();
         if tags.is_empty() {
             // info!("Tile has no more tags");
-            if let Some(mut cmds) = commands.get_entity(entity) {
+            if let Ok(mut cmds) = commands.get_entity(entity) {
                 cmds.remove::<TileEnumTags>();
             } else {
                 warn!("tag entity was despawned");
