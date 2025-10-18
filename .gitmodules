@@ -34,9 +34,6 @@
 [submodule "deps/leafwing_input_manager"]
 	path = deps/leafwing_input_manager
 	url = https://github.com/Leafwing-Studios/leafwing-input-manager
-[submodule "deps/bevy_eventlistener"]
-	path = deps/bevy_eventlistener
-	url = https://github.com/aevyrie/bevy_eventlistener.git
 [submodule "deps/bevy_touch_stick"]
 	path = deps/bevy_touch_stick
 	url = https://github.com/johanhelsing/bevy_touch_stick.git

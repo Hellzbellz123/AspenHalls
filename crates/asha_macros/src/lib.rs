@@ -4,7 +4,7 @@
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! register_types {
-    ($app:expr, [ $($t:ty),* ]) => {
+    ($app:expr_2021, [ $($t:ty),* ]) => {
         $(
             $app.register_type::<$t>();
         )*
@@ -15,7 +15,7 @@ macro_rules! register_types {
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! on_enter {
-    ($system_name:ident, $state:expr) => {
+    ($system_name:ident, $state:expr_2021) => {
         app.add_systems(OnEnter($state), $system_name)
             .run_if(in_state($state))
     };

@@ -55,8 +55,6 @@ pub struct CharacterMoveState {
     pub move_status: (CurrentMovement, MoveDirection),
     /// how is this actor allowed too move
     pub move_perms: AllowedMovement,
-    /// actors teleport status
-    pub teleport_status: TeleportStatus,
 }
 
 /// character items and value
@@ -220,7 +218,6 @@ impl CharacterMoveState {
     pub const DEFAULT: Self = Self {
         move_status: (CurrentMovement::None, MoveDirection::South),
         move_perms: AllowedMovement::Run,
-        teleport_status: TeleportStatus::None,
     };
 }
 

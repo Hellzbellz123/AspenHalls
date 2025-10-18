@@ -1,6 +1,6 @@
 use avian2d::prelude::*;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AnimationState, AseSpriteAnimation};
+use bevy_aseprite_ultra::prelude::{AnimationState, AseAnimation};
 
 use crate::{
     game::{
@@ -84,7 +84,7 @@ pub struct ProjectileBundle {
 #[derive(Bundle, Default)]
 pub struct Aspen2dRenderBundle {
     /// asperite asset for this sprite
-    pub handle: AseSpriteAnimation,
+    pub handle: AseAnimation,
     /// animation play information
     pub animation_state: AnimationState,
     /// sprite configuration

@@ -100,9 +100,9 @@ fn update_button_color(
 pub fn random_color(alpha: Option<f32>) -> Color {
     let mut rng = rand::thread_rng();
     Color::Srgba(Srgba {
-        red: rng.gen(),
-        green: rng.gen(),
-        blue: rng.gen(),
+        red: rng.r#gen(),
+        green: rng.r#gen(),
+        blue: rng.r#gen(),
         alpha: { alpha.map_or_else(|| rng.gen_range(0.8..=1.0), |alpha| alpha) },
     })
 }

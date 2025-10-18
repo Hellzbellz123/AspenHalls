@@ -13,6 +13,8 @@ pub struct QuakeConPlugin;
 
 impl Plugin for QuakeConPlugin {
     fn build(&self, app: &mut App) {
+        assert!(app.is_plugin_added::<bevy_egui::EguiPlugin>());
+
         app.add_plugins(ConsolePlugin)
             .insert_resource(ConsoleConfiguration {
                 keys: vec![KeyCode::Backquote],

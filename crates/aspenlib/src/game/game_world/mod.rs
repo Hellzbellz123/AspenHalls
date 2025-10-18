@@ -1,4 +1,6 @@
-use bevy::prelude::*;
+use std::time::Duration;
+
+use bevy::{platform::collections::HashMap, prelude::*, time::Stopwatch};
 use bevy_ecs_ldtk::{
     prelude::{EntityIid, LdtkEntityAppExt},
     TileEnumTags,
@@ -85,7 +87,7 @@ impl Plugin for GameWorldPlugin {
                 Update,
                 (
                     process_tile_enum_tags.run_if(any_with_component::<TileEnumTags>),
-                    handle_teleport_events.run_if(on_event::<ActorTeleportEvent>),
+                    handle_teleport_events,
                     (
                         listen_rebuild_dungeon_request.run_if(
                             in_state(GeneratorState::FinishedDungeonGen)
@@ -201,10 +203,31 @@ fn handle_teleport_events(
     children: Query<&Children>,
     parents: Query<&ChildOf>,
     iids: Query<&EntityIid>,
+    mut teleported_entities: Local<HashMap<Entity, Timer>>,
+    time: Res<Time>,
 ) {
+    // this is lowkey a hack but it works great!
+    let teleport_timer = Timer::new(Duration::from_secs_f32(0.1), TimerMode::Once);
+
+    teleported_entities
+        .iter_mut()
+        .for_each(|(e, entity_teleport_timer)| {
+            entity_teleport_timer.tick(time.delta());
+        });
+
+    let keys = teleported_entities.clone().into_keys();
+    keys.for_each(|key| {
+        if teleported_entities
+            .get_key_value(&key)
+            .is_some_and(|(_f, timer)| timer.finished())
+        {
+            teleported_entities.remove(&key);
+        }
+    });
+
     for event in tp_events.read() {
         info!("recieved Tp Event: {:?}", event);
-        let (mut target_transform, mut move_state) =
+        let (mut too_teleport_transform, mut __too_teleport_move_state) =
             match characters.get_mut(event.target.expect("target should not be empty")) {
                 Ok((a, b)) => (a, b),
                 Err(e) => {
@@ -213,14 +236,25 @@ fn handle_teleport_events(
                 }
             };
 
-        if move_state.teleport_status.teleport_not_requested() && event.sender.is_some() {
-            warn!(
-                "got a teleport event not requested by teleporter. actor move state: {:?}",
-                move_state
-            );
+        match event.tp_type {
+            TpTriggerEffect::Event(_) => {
+                info!("ignoring tp timer logic for events")
+            }
+            _ => {
+                if !teleported_entities
+                    .get(&event.target.expect("target must exist"))
+                    .is_some()
+                {
+                    teleported_entities.insert(
+                        event.target.expect("event target should exist"),
+                        teleport_timer.clone(),
+                    );
+                } else {
+                    continue;
+                };
+            }
         }
 
-        move_state.teleport_status = TeleportStatus::Teleporting;
         match &event.tp_type {
             //TODO: target_tile is a tileid. get this tile ids positon from the sensors parent
             TpTriggerEffect::Local(target_tile_reference) => {
@@ -247,15 +281,15 @@ fn handle_teleport_events(
                     "moving player this many: {}",
                     target_tile_transform.translation()
                 );
-                target_transform.translation = target_tile_transform
+
+                // check if tile has
+                too_teleport_transform.translation = target_tile_transform
                     .translation()
                     .truncate()
                     .extend(ACTOR_Z_INDEX);
-                move_state.teleport_status = TeleportStatus::Done;
             }
             TpTriggerEffect::Global(pos) => {
-                target_transform.translation = pos.extend(ACTOR_Z_INDEX);
-                move_state.teleport_status = TeleportStatus::None;
+                too_teleport_transform.translation = pos.extend(ACTOR_Z_INDEX);
             }
             // expand this for better type checking
             TpTriggerEffect::Event(event) => {
@@ -268,7 +302,7 @@ fn handle_teleport_events(
                     }
                     "TeleportStartLocation" => {
                         if let Ok(loc) = start_locations.single() {
-                            target_transform.translation =
+                            too_teleport_transform.translation =
                                 loc.translation().truncate().extend(ACTOR_Z_INDEX);
                         } else if start_locations.is_empty() {
                             warn!("no start locations for this tp command");
@@ -277,7 +311,7 @@ fn handle_teleport_events(
                             let pos = start_locations
                                 .iter()
                                 .fold(Vec3::default(), |a, b| a + b.translation());
-                            target_transform.translation =
+                            too_teleport_transform.translation =
                                 pos / start_locations.iter().len() as f32;
                         }
                     }
@@ -285,7 +319,6 @@ fn handle_teleport_events(
                         warn!("unhandled Teleport Event Action: {}", event);
                     }
                 }
-                move_state.teleport_status = TeleportStatus::None;
             }
         }
     }

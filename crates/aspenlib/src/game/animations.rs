@@ -1,6 +1,6 @@
 use avian2d::prelude::LinearVelocity;
 use bevy::prelude::*;
-use bevy_aseprite_ultra::prelude::{AnimationRepeat, AseSpriteAnimation, Aseprite};
+use bevy_aseprite_ultra::prelude::{AnimationRepeat, AseAnimation, Aseprite};
 
 use crate::{
     game::characters::components::{CharacterMoveState, CurrentMovement, MoveDirection},
@@ -113,7 +113,7 @@ fn change_character_animations(
 /// updates actors animations
 fn handle_animation_changes(
     mut change_events: EventReader<EventAnimationChange>,
-    mut animateable: Query<&mut AseSpriteAnimation>,
+    mut animateable: Query<&mut AseAnimation>,
     aseprites: Res<Assets<Aseprite>>,
 ) {
     for event in change_events.read() {

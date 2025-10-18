@@ -109,23 +109,14 @@ pub fn teleporter_collisions(
         };
 
         info!("got teleporter collision");
-        if character_movestate.teleport_status == TeleportStatus::None {
             if character_type != &CharacterType::Hero {
                 warn!("teleporter should only be triggered by the player");
                 return;
             }
-
-            warn!("requesting teleport");
-            character_movestate.teleport_status = TeleportStatus::Requested;
             teleport_events.write(ActorTeleportEvent {
                 tp_type: tp_data.effect.clone(),
                 target: Some(character),
                 sender: Some(teleporter),
             });
-            return;
-        } else if character_movestate.teleport_status == TeleportStatus::Done {
-            character_movestate.teleport_status = TeleportStatus::None;
-            return;
-        }
     }
 }

@@ -20,16 +20,26 @@ pub fn zoom_control(
     mut settings: ResMut<GeneralSettings>,
     actions: Res<ActionState<action_maps::Gameplay>>,
 ) {
-    let multiplier = if actions.pressed(&action_maps::Gameplay::Sprint) {
+    let base_zoom_speed = if actions.pressed(&action_maps::Gameplay::Sprint) {
         10.0
     } else {
         1.0
     };
 
+    let final_speed = if settings.camera_zoom < 0.75 {
+        base_zoom_speed / 10.0
+    } else {
+        base_zoom_speed
+    };
+
     if actions.pressed(&action_maps::Gameplay::ZoomSubtract) {
-        settings.camera_zoom -= 0.05 * multiplier;
+        if settings.camera_zoom <= 0.050 {
+            return;
+        }
+
+        settings.camera_zoom -= 0.05 * final_speed;
     } else if actions.pressed(&action_maps::Gameplay::ZoomAdd) {
-        settings.camera_zoom += 0.05 * multiplier;
+        settings.camera_zoom += 0.05 * final_speed;
     }
 }
 

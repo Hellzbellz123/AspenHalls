@@ -1,6 +1,9 @@
-use bevy::prelude::{Query, With, *};
+use bevy::{
+    prelude::{Query, With, *},
+    render::primitives::Aabb,
+};
 
-use avian2d::prelude::LinearVelocity;
+use avian2d::prelude::{Collider, LinearVelocity};
 use leafwing_input_manager::prelude::ActionState;
 
 use crate::{
@@ -54,7 +57,7 @@ pub fn camera_movement_system(
     time: Res<Time>,
     mut main_camera_query: Query<(&mut Transform, &MainCamera)>,
     player_move_query: Query<
-        (&Transform, &LinearVelocity),
+        (&Transform, &LinearVelocity, &Aabb),
         (With<PlayerSelectedHero>, Without<MainCamera>),
     >,
 ) {
@@ -67,9 +70,19 @@ pub fn camera_movement_system(
         return;
     }
 
-    let Ok((mut camera_trans, camera_data)) = main_camera_query.single_mut() else {return;};
-    let Ok((player_transform, player_velocity)) = player_move_query.single() else {return;};
-    let camera_transform = camera_trans.translation.truncate();
+    let Ok((mut camera_transform, camera_data)) = main_camera_query.single_mut() else {
+        return;
+    };
+    let Ok((player_transform, player_velocity, player_collider)) = player_move_query.single()
+    else {
+        return;
+    };
+    let camera_translation = camera_transform.translation.truncate();
+
+    let player_height_offset = Vec2 {
+        x: 0.0,
+        y: player_collider.half_extents.y,
+    };
 
     let scaled_player_velocity = Vec2 {
         x: player_velocity.x * camera_data.movement_scales.x,
@@ -77,6 +90,7 @@ pub fn camera_movement_system(
     };
 
     let camera_target = player_transform.translation.truncate()
+        + player_height_offset
         + (scaled_player_velocity * camera_data.look_ahead_factor);
 
     // Calculate the movement speed based on time.delta()
@@ -87,18 +101,20 @@ pub fn camera_movement_system(
         camera_data.player_still_recenter_speed
     };
 
-    if camera_transform.is_finite() {
-        let distance = camera_transform.distance(player_transform.translation.truncate());
+    let snap_instead_distance = 500.0;
 
-        if distance > 500.0 {
-            camera_trans.translation = player_transform.translation.truncate().extend(999.0);
+    if camera_translation.is_finite() {
+        let cam_distance = camera_translation.distance(player_transform.translation.truncate());
+
+        if cam_distance > snap_instead_distance {
+            camera_transform.translation = player_transform.translation.truncate().extend(999.0);
         } else {
             // Interpolate (lerp) between the current camera position and the player's position with the adjusted speed
-            camera_trans.translation = camera_transform
+            camera_transform.translation = camera_translation
                 .lerp(camera_target, movement_speed)
                 .extend(999.0);
         }
     } else {
-        camera_trans.translation = player_transform.translation.truncate().extend(999.0);
+        camera_transform.translation = player_transform.translation.truncate().extend(999.0);
     }
 }

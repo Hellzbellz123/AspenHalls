@@ -106,11 +106,15 @@ impl Plugin for AspenDevToolsPlugin {
 
         app.init_resource::<DebugConfig>();
 
+        // prepare egui
+        app.add_plugins(bevy_egui::EguiPlugin::default());
+
         app.add_plugins((
-            // internal tools
+            //egui tools
             console::QuakeConPlugin,
-            debug_visuals::DebugVisualsPlugin,
             egui_tools::EguiToolsPlugin,
+            // internal tools
+            debug_visuals::DebugVisualsPlugin,
             // external tools
             PhysicsDebugPlugin::new(FixedPostUpdate),
             FrameTimeDiagnosticsPlugin::default() ,
@@ -170,6 +174,7 @@ fn toggle_debug_systems(
     input: Res<ActionState<Gameplay>>,
 ) {
     if input.just_pressed(&Gameplay::DebugF3) {
+        info!("toggling debug panel");
         if cfg.enable_debug {
             debug_ctrl.enabled = false;
             cfg.enable_debug = false;

@@ -104,7 +104,7 @@ fn time_to_live(
             let Ok(mut a) = commands.get_entity(entity) else {
                 continue;
             };
-            a.despawn();
+            a.try_despawn();
         }
     }
 }

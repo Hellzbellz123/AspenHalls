@@ -2,7 +2,7 @@
 name = "aspen_halls_desktop"
 version = "0.0.1"
 authors = ["Taylor Smith <aspenhalls.org@gmail.com>"]
-edition = "2021"
+edition = "2024"
 description = "Aspen Halls desktop launcher"
 documentation = "https://github.com/Hellzbellz123/AspenHalls/blob/main/README.md"
 homepage = "https://hellzbellz123.github.io/AspenHalls/"

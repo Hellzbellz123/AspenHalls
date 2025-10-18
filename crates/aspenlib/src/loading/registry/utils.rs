@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
-use bevy_aseprite_ultra::prelude::{Animation, AseSpriteAnimation};
+use bevy_aseprite_ultra::prelude::{Animation, AseAnimation};
 
 use crate::{
     bundles::{Aspen2dRenderBundle, CharacterBundle, WeaponBundle},
@@ -40,7 +40,7 @@ pub fn build_character_bundles(
             move_state: CharacterMoveState::DEFAULT,
             controller: character_def.character_type.get_ai(),
             render: Aspen2dRenderBundle {
-                handle: AseSpriteAnimation {
+                handle: AseAnimation {
                     animation: Animation::default().with_tag("idle"),
                     aseprite: aseprite_handle,
                 },
@@ -141,7 +141,7 @@ fn form_weapon_bundle(
         weapon_type: descriptor,
         stats: EquipmentStats::from_attrs(attributes, None),
         render: Aspen2dRenderBundle {
-            handle: AseSpriteAnimation {
+            handle: AseAnimation {
                 animation: Animation::default().with_tag("idle"),
                 aseprite: aseprite_handle,
             },

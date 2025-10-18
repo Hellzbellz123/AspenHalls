@@ -1,9 +1,15 @@
-#![feature(let_chains)]
 #![feature(trivial_bounds)]
 #![doc = r"
 AspenHalls, My video game.
 A Dungeon Crawler in the vibes of 'Into The Gungeon' or 'Soul-knight'
 "]
+
+#![allow(
+    unused,
+    elided_lifetimes_in_paths,
+    elided_lifetimes_in_associated_constant,
+    mismatched_lifetime_syntaxes,
+)]
 
 /// general component store
 mod bundles;

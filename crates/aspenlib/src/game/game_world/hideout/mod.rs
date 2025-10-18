@@ -6,20 +6,21 @@ use bevy::{
     },
     log::{error, info},
     math::Vec2,
-    picking::{events::Pressed, Pickable},
+    picking::{Pickable, events::Pressed},
     prelude::{
-        in_state, on_event, warn, Assets, ChildOf, Commands, Entity, EventReader, EventWriter,
-        GlobalTransform, OnEnter, OrthographicProjection, Plugin, Pointer, Query, Reflect,
-        Transform, Trigger, Update, With, Without,
+        Assets, ChildOf, Commands, Entity, EventReader, EventWriter, GlobalTransform, OnEnter,
+        OrthographicProjection, Plugin, Pointer, Query, Reflect, Transform, Trigger, Update, With,
+        Without, in_state, on_event, warn,
     },
     render::camera::Projection,
 };
 use bevy_ecs_ldtk::{
-    prelude::{LdtkExternalLevel, LevelEvent, LevelSet},
     LevelIid, LevelSelection,
+    prelude::{LdtkExternalLevel, LevelEvent, LevelSet},
 };
 
 use crate::{
+    AppStage,
     bundles::Aspen2dPhysicsBundle,
     consts::ACTOR_Z_INDEX,
     game::{
@@ -38,7 +39,6 @@ use crate::{
         registry::{ActorRegistry, RegistryIdentifier},
         splashscreen::MainCamera,
     },
-    AppStage,
 };
 
 use self::systems::HideoutTag;
@@ -121,7 +121,22 @@ fn create_playable_heroes(
             info!("placing heroes");
             populate_hero_spots(&registry, existing_hero, hero_spots_iter, &mut commands);
 
-            adjust_camera_focus(hero_spots, &mut camera_query);
+            let hero_spots_amnt = hero_spots.len() as f32;
+            let sum_hero_spots: Vec2 = hero_spots.iter().map(|f| f.translation().truncate()).sum();
+            let avg = sum_hero_spots / hero_spots_amnt;
+
+            info!("focusing camera on all heroes");
+
+            // TODO: is extending with z right?
+            camera_query.0.translation = avg.extend(camera_query.0.translation.z);
+
+            // TODO: rethink the camera scale system
+            match *camera_query.1 {
+                Projection::Orthographic(ref mut orthographic_projection) => {
+                    orthographic_projection.scale = 0.6
+                }
+                _ => return,
+            }
         }
     }
 }
@@ -157,9 +172,12 @@ fn populate_hero_spots(
             use std::fmt::Debug;
 
             // An observer listener that changes the target entity's color.
-            fn send_select_player_event_on<E: Debug + Clone + Reflect>(
-            ) -> impl Fn(Trigger<E>, EventWriter<SelectThisHeroForPlayer>, Query<&PlayerSelectedHero>) {
-                move |trigger, mut ew: EventWriter<SelectThisHeroForPlayer>, other_heroes: Query<&PlayerSelectedHero> | {
+            fn send_select_player_event_on<E: Debug + Clone + Reflect>()
+            -> impl Fn(Trigger<E>, EventWriter<SelectThisHeroForPlayer>, Query<&PlayerSelectedHero>)
+            {
+                move |trigger,
+                      mut ew: EventWriter<SelectThisHeroForPlayer>,
+                      other_heroes: Query<&PlayerSelectedHero>| {
                     if other_heroes.is_empty() {
                         warn!("selectable player was clicked");
                         ew.write(SelectThisHeroForPlayer(trigger.target()));
@@ -188,31 +206,6 @@ fn populate_hero_spots(
         } else {
             warn!("no empty hero spot was found");
         }
-    }
-}
-
-// TODO: re apply camera scale AFTER player is selected
-/// modifies main camera too focus all the available hero spots
-fn adjust_camera_focus(
-    hero_spots: Vec<&GlobalTransform>,
-    camera: &mut Single<(&mut Transform, &mut Projection), With<MainCamera>>,
-) {
-    let hero_spots_amnt = hero_spots.len() as f32;
-    let sum_hero_spots: Vec2 = hero_spots.iter().map(|f| f.translation().truncate()).sum();
-    let avg = sum_hero_spots / hero_spots_amnt;
-
-    info!("focusing camera on all heroes");
-
-    let (ref mut camera_pos, frustrum) = &mut **camera;
-    // TODO: is extending with z right?
-    camera_pos.translation = avg.extend(camera_pos.translation.z);
-
-    // TODO: rethink the camera scale system
-    match **frustrum {
-        Projection::Orthographic(ref mut orthographic_projection) => {
-            orthographic_projection.scale = 0.6
-        }
-        _ => return,
     }
 }
 

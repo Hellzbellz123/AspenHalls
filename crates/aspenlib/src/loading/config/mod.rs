@@ -252,7 +252,9 @@ pub fn create_configured_app(cfg_file: ConfigFile) -> App {
                 cfg_file.log_filter.unwrap_or_default()
             },
             level: bevy::log::Level::TRACE,
-            custom_layer: crate::dev_tools::console::init_log_layers,
+            // TODO: make the console layer a special pane that you have to switch too.
+            custom_layer: |_| None,
+            // custom_layer: crate::dev_tools::console::init_log_layers,
         },
         AssetPlugin {
             file_path: "assets".to_string(),

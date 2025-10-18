@@ -52,7 +52,7 @@ pub fn projectile_hits(
         }) else {
             // projectile hit something other than character,
             // only need too handle the projectile
-            cmds.entity(projectile).despawn();
+            cmds.entity(projectile).try_despawn();
             continue;
         };
 
@@ -85,7 +85,7 @@ pub fn projectile_hits(
         }
 
         info!("projectile hit detected");
-        cmds.entity(projectile).despawn();
+        cmds.entity(projectile).try_despawn();
 
         // get hit actors damage queue
         let Ok(mut damage_queue) = damage_queue_query.get_mut(hit_actor) else {
@@ -129,25 +129,25 @@ pub fn apply_damage_system(
 /// gathers entitys that have damage and despawns them if have no remaining health
 #[allow(clippy::type_complexity)]
 pub fn handle_death_system(
-    mut game_info: ResMut<CurrentRunInformation>,
-    mut cmds: Commands,
-    mut damaged_query: Query<
-        (Entity, &mut CharacterStats, Option<&PlayerSelectedHero>),
-        Changed<CharacterStats>,
-    >,
-    dungeon_state: Res<State<GeneratorState>>,
     mut regen_event: EventWriter<RegenerateDungeonEvent>,
     mut tp_event: EventWriter<ActorTeleportEvent>,
+    mut game_info: ResMut<CurrentRunInformation>,
+    mut cmds: Commands,
+    mut damaged_query: Query<(Entity, &mut CharacterStats), Changed<CharacterStats>>,
+    player_controller: Query<&PlayerSelectedHero>,
+    dungeon_state: Res<State<GeneratorState>>,
 ) {
-    for (ent, mut stats, player_control) in &mut damaged_query {
+    for (ent, mut stats) in &mut damaged_query {
         if stats.get_current_health() <= 0.0 {
             // should probably despawn player and rebuild.
             // or auto use postion and if dead restart
-            if player_control.is_some() {
+            if player_controller.get(ent).is_ok() {
                 info!("player died, resetting player");
                 stats.set_health(150.0);
                 game_info.player_deaths += 1;
 
+                // if player dies in start area we need to handle it differently.
+                // TODO: fix this
                 if *dungeon_state.get() == GeneratorState::FinishedDungeonGen {
                     regen_event.write(RegenerateDungeonEvent {
                         reason: RegenReason::PlayerDeath,
@@ -163,9 +163,9 @@ pub fn handle_death_system(
             }
 
             // entity that died is not player
-            error!("despawning entity");
+            warn!("despawning entity");
             game_info.enemies_deaths += 1;
-            cmds.entity(ent).despawn();
+            cmds.entity(ent).try_despawn();
         }
     }
 }
